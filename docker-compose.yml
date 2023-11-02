@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    container_name: my-postgres-container
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5431:5431"
