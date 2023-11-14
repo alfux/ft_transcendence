@@ -1,0 +1,71 @@
+.profilepicture {
+  border-radius: 50%;
+  padding: 5px;
+  height: 100px;
+  width: 100px;
+}
+
+.sidebar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background-color: #292D39;
+  color: #fff;
+  width: 100px;
+  height: 100%;
+  font-family: 'SiderbarImages';
+}
+
+.sidebar-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-element {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 55px;
+  flex: 1;
+}
+
+.sidebar-42-icon {
+  margin-top: 17px;
+  height: 37px;
+  flex: 1;
+}
+
+.sidebar-icon {
+  font-family: 'SiderbarImages';
+  font-size: 30px;
+  -webkit-text-stroke: 1px #666e80;
+  stroke: 1px #666e80;
+  color: transparent;
+}
+
+.sidebar-icon.selected {
+  -webkit-text-stroke: 1px white;
+  stroke: 1px white;
+}
+
+.sidebar-icon-profile::before {
+  content: "\e116"
+}
+
+.sidebar-icon-chat::before {
+  content: "\e065"
+}
+
+.sidebar-icon-debug::before {
+  content: "\e36c"
+}
+
+.sidebar-element a:hover .sidebar-icon {
+  -webkit-text-stroke: 1px white;
+  stroke: 1px white;
+  cursor: pointer;
+}

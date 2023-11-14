@@ -1,0 +1,37 @@
+curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+
+nvm install 18.10.0
+nvm use 18.10.0
+
+
+#FRONTEND
+
+
+npm install @types/react @types/react-dom @types/react-cookies
+npx create-react-app ft_transcendence --template typescript
+npm install --save-dev @types/react@18 @types/react-dom@18
+npm install socket.io-client styled-components react-oauth cookie-parser js-cookie
+
+
+#BACKEND
+
+nest new backend
+cd backend
+npm i --save \
+  @nestjs/axios \
+  @nestjs/websockets \
+  @nestjs/jwt \
+  @nestjs/passport \
+\
+  passport \
+  passport-jwt \
+  passport-42 \
+  socket.io \
+  typeorm \
+  mysql2 \
+  axios
+
+./mysql_setup.sh
+
+#websocket
+#nest generate gateway chat
