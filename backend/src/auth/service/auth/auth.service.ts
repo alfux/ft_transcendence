@@ -32,7 +32,7 @@ export class AuthService {
             response.clearCookie('access_token');
             response.clearCookie('refresh_token');
             console.log('Cookies cleared.');
-            return await request.user;
+            return await this.userService.provideUserByEmail(request.user.email);
         }
         return null
     }
@@ -56,7 +56,7 @@ export class AuthService {
                 },
                 {
                     secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
-                    expiresIn: '10s',
+                    expiresIn: '15m',
                 }
             ),
             this.jwtService.signAsync(

@@ -1,16 +1,19 @@
 import React from 'react';
 import Cookies from 'js-cookie';
-function App() {
+import { jwtDecode } from "jwt-decode";
+async function App() {
   const handleLogin = () => {
     // Replace the URL with your actual authentication endpoint
     const authEndpoint = 'http://localhost:3001/auth/login';
-    window.location.href = authEndpoint;
+	//test
+	window.location.href = authEndpoint;
   };
 
   const handleLogout = async () => {
     // Replace the URL with your actual logout endpoint
     const logoutEndPoint = 'http://localhost:3001/auth/logout';
     try {
+		console.log('test')
       const response = await fetch(logoutEndPoint ,{
         method: 'GET',
         credentials:'include',
@@ -18,11 +21,11 @@ function App() {
       });
       const content = await response.json();
      console.log('response', content);
-     window.location.reload();
-
+	 
     } catch (error) {
-      console.log('error');
+		console.log('error');
     }
+		window.location.reload();
   };
 
   const handleAboutMe = async () => {
@@ -43,9 +46,26 @@ function App() {
     } catch (error) {
       console.error('Error fetching about me content:', error);
     }
+	
   };
   const accessToken = Cookies.get('access_token')
   if (accessToken){
+	//test
+	const email = jwtDecode(accessToken).email
+	const me = 'http://localhost:user/' + email;
+
+	try {
+		  const response = await fetch(me,{
+			    method: 'GET',
+			    credentials:'include',
+			
+			  });
+			  const content = await response.json();
+			  console.log(content)
+			
+			} catch (error) {
+				  console.error('Error fetching about me content:', error);
+				}
     return (
       <div className="App">
         <header className="App-header">

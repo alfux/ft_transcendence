@@ -26,7 +26,7 @@ export class UserService {
         user.lastName = profile.name.familyName;
         user.nickName = profile.username;
         user.email = profile.emails[0].value;
-        user.avatar = profile.photos[0].value;
+        user.avatar = 'https://cdn.intra.42.fr/users/a5e81b42b8d91e63773eb39dcf618ef6/dpaulino.jpg';
         user.creationDate = new Date();
         user.lastTimeLogged = new Date();
         user.refreshToken = 'test'

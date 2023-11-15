@@ -10,9 +10,10 @@
     "http-proxy-middleware": "^2.0.6",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

@@ -23,6 +23,7 @@ export class AuthController {
     @UseGuards(Auth42Guard)
     @Get('/callback')
     async callback(@Req() request, @Res() response) {
+		console.log('________LOGIN_______')
         const tokens = await this.authService.login(request, response);
         response.cookie('refresh_token', tokens.refreshToken, { httpOnly: true, sameSite: 'None', secure: true });
         response.cookie('access_token', tokens.accessToken, { httpOnly: false, sameSite: 'None', secure: true });
@@ -32,7 +33,7 @@ export class AuthController {
     
     
     @Get('/test')
-    async success(){
+    async success(@Req() request, @Res() response){
          return 'hello'
         // if (request.cookies && 'access_token' in request.cookies){
         //     console.log('access token: ', request.cookies.access_token)
@@ -48,7 +49,9 @@ export class AuthController {
     @UseGuards(JwtAccessTokenGuard)
     @Get('/auth/logout')
     async logout(@Req() request, @Res() response){
+		console.log('________LOGOUT_______')
         const test = await this.authService.logout(request, response)
+		console.log(test)
         response.status(200).json(test)
         
     }
