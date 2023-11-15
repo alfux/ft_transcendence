@@ -11,15 +11,9 @@ export class UserController {
         return this.userService.provideAllUsers()
     }
 
-    @Get(':id')
-    getUserById(@Param() id:string){
-        return this.userService.provideUserById(id)
-    }
-
-    @Post()
-    createUser(@Body() userDto : UserDto){
-        return this.userService.provideNewUser(userDto)
-
+    @Get(':email')
+    getUserByEmail(@Param() email:string){
+        return this.userService.provideUserByEmail(email)
     }
 
     @Patch(':id')

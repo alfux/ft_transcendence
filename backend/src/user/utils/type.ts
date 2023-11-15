@@ -1,8 +1,11 @@
 export type UserType = {
-    id: number;
+    id: string;
+    nickName: string;
     firstName: string;
     lastName: string;
-    nickName: string;
     email:string;
+    avatar:string
+    creationDate:Date;
     lastTimeLogged :Date;
+    refreshToken: string;
 }

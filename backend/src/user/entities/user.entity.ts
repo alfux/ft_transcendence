@@ -3,23 +3,30 @@ import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 @Entity()
 export class User{
     @PrimaryGeneratedColumn()
-    id: number;
-
-    @Column()
-    firstName: string;
-
-    @Column()
-    lastName: string;
+    id: string;
 
     @Column()
     nickName: string;
     
     @Column()
-    email:string;
+    firstName: string;
     
+    @Column()
+    lastName: string;
+    
+    @Column()
+    email:string;
+
+    @Column()
+    avatar:string
+    
+    @Column()
+    creationDate:Date;
+
     @Column()
     lastTimeLogged :Date;
 
-    @Column({ default :false })
-    isLogged : boolean;
+    @Column()
+    refreshToken: string;
+
 }

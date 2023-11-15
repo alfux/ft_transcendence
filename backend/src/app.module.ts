@@ -7,9 +7,6 @@ import { User } from './user/entities/user.entity';
 import { AuthService } from './auth/service/auth/auth.service';
 import { AuthModule } from './auth/module/auth/auth.module';
 import { AuthController } from './auth/controller/auth/auth.controller';
-import { JwtService } from './jwt/service/jwt/jwt.service';
-import { JwtController } from './jwt/controller/jwt/jwt.controller';
-import { JwtModule } from './jwt/module/jwt/jwt.module';
 
 
 
@@ -20,14 +17,17 @@ import { JwtModule } from './jwt/module/jwt/jwt.module';
     port: 5432,
     username: 'gameover',
     password: '123456',
-    database: 'test',
+    database: 'transcedence',
     entities: [User],
     synchronize: true,
   }),
   UserModule,
   AuthModule,
-  JwtModule],
-  controllers: [JwtController],
-  providers: [JwtService],
+  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
+
+//commands for postgresql 
+//https://www.commandprompt.com/education/postgresql-basic-psql-commands/

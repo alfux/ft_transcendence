@@ -4,6 +4,7 @@ import { PassportStrategy } from "@nestjs/passport";
 import Strategy from "passport-42";
 import { UserService } from "src/user/service/user/user.service";
 import { AuthService } from "../service/auth/auth.service";
+import { VerifiedCallback } from "passport-jwt";
 
 
 @Injectable()
@@ -12,14 +13,13 @@ export class AuthStrategy extends PassportStrategy(Strategy,'FortyTwoStrategy'){
         super({
             clientID: configService.get<string>('FORTYTWO_CLIENT_ID'),
             clientSecret: configService.get<string>('FORTYTWO_CLIENT_SECRET'),
-            callbackURL:'http://localhost:3001/home',
-    },)
+            callbackURL:'http://localhost:3001/callback'
+            }
+    ,)
     };
 
-    async validate(accessToken: string, refreshToken: string, profile: any) {
-        // const user = await this.authService.validateUser()
-        // console.log(profile, accessToken);
-        // return accessToken
+    async validate(accessToken: string, refreshToken: string, profile: any, done: VerifiedCallback) {
+        done(null,profile)
     }
 }
 

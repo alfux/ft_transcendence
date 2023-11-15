@@ -15,16 +15,23 @@ export class UserService {
         return this.userRepo.find();
     }
 
-    provideUserById(id: string) {
-        //return this.userRepo.findOne(id);
-        return
+    provideUserByEmail(email: string) {
+        return this.userRepo.findOne({where:{email}});
     }
     
-
-    async provideNewUser(user:{ firstName: string; email: string }): Promise<User>{
-        const newUser = this.userRepo.create({...user,lastTimeLogged: new Date()})
-        console.log("created");
-        return this.userRepo.save(newUser)
+    //Create New User
+    async provideNewUser(profile:any): Promise<User>{
+        const user = new User();
+        user.firstName = profile.name.givenName;
+        user.lastName = profile.name.familyName;
+        user.nickName = profile.username;
+        user.email = profile.emails[0].value;
+        user.avatar = profile.photos[0].value;
+        user.creationDate = new Date();
+        user.lastTimeLogged = new Date();
+        user.refreshToken = 'test'
+        this.userRepo.save(user);
+        return user
     }
 
     findByEmail(email:string) : Promise<User | undefined>{
@@ -42,7 +49,12 @@ export class UserService {
 
     async userExist(email:string): Promise<boolean>{
         const user = await this.userRepo.findOne({where :{email}});
-        //return user if true else false
         return !!user;
+    }
+
+    async deleteRefreshToken(id:string){
+        const user = await this.userRepo.findOne({where:{id}});
+        user.refreshToken = null;
+        await this.userRepo.save(user);
     }
 }

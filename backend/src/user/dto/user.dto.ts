@@ -1,14 +1,13 @@
 import { IsEmail, IsNotEmpty } from "class-validator";
 
 export class UserDto{
-    id: number;
-    //@IsNotEmpty()
-    firstName: string;
-    //@IsNotEmpty()
-    lastName: string;
-    //@IsEmail()
+    id: string;
     nickName: string;
-    //avatar
+    firstName: string;
+    lastName: string;
     email:string;
+    avatar:string
+    creationDate:Date;
     lastTimeLogged :Date;
+    refreshToken: string;
 }
