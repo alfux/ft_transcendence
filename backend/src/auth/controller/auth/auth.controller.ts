@@ -28,12 +28,11 @@ export class AuthController {
         response.cookie('refresh_token', tokens.refreshToken, { httpOnly: true, sameSite: 'None', secure: true });
         response.cookie('access_token', tokens.accessToken, { httpOnly: false, sameSite: 'None', secure: true });
         response.redirect('http://localhost:3000')
-        
     }
     
     
     @Get('/test')
-    async success(@Req() request, @Res() response){
+    async success(){
          return 'hello'
         // if (request.cookies && 'access_token' in request.cookies){
         //     console.log('access token: ', request.cookies.access_token)

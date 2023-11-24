@@ -25,4 +25,9 @@ export class UserController {
     deleteUser(@Param() id:string){
         return this.userService.provideUserDelete(id);
     }
+
+    @Delete('deleteAll')
+    deleteALl(){
+        this.deleteALl()
+    }
 }

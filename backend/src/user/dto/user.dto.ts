@@ -10,4 +10,6 @@ export class UserDto{
     creationDate:Date;
     lastTimeLogged :Date;
     refreshToken: string;
+    twoFactorAuth:boolean
+    twoFactorAuthSecret:string
 }

@@ -29,4 +29,11 @@ export class User{
     @Column()
     refreshToken: string;
 
+    @Column({default: false})
+    twoFactorAuth:boolean
+
+    @Column({default:''})
+    twoFactorAuthSecret:string;
+
+
 }

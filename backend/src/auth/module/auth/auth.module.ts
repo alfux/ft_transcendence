@@ -4,7 +4,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { sign } from 'crypto';
 import { AuthController } from 'src/auth/controller/auth/auth.controller';
+import { TwoFactorAuthenticationController } from 'src/auth/controller/two-factor-authentication/two-factor-authentication.controller';
 import { AuthService } from 'src/auth/service/auth/auth.service';
+import { TwoFactorAuthenticationService } from 'src/auth/service/two-factor-authentication/two-factor-authentication.service';
 import { AuthStrategy } from 'src/auth/strategy/auth.strategy';
 import { JwtAccessTokenStrategy } from 'src/auth/strategy/jwtAccessToken.strategy';
 import { JwtRefreshTokenStrategy } from 'src/auth/strategy/jwtRefreshToken.strategy';
@@ -18,8 +20,8 @@ import { UserService } from 'src/user/service/user/user.service';
         secret: 'SECRET123',
         signOptions:{expiresIn: '15m'},
     }
-    ), UserModule,JwtModule],
-    controllers: [AuthController],
-    providers: [AuthService, AuthStrategy, UserService,JwtAccessTokenStrategy,JwtRefreshTokenStrategy],
+    ), UserModule,JwtModule,],
+    controllers: [AuthController, TwoFactorAuthenticationController],
+    providers: [AuthService, AuthStrategy, UserService,JwtAccessTokenStrategy,JwtRefreshTokenStrategy, TwoFactorAuthenticationService],
 })
 export class AuthModule {}

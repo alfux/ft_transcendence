@@ -19,6 +19,16 @@ export class UserService {
         return this.userRepo.findOne({where:{email}});
     }
     
+    provideUserById(id: string) {
+        return this.userRepo.findOne({where:{id}});
+    }
+
+    async userUpdateTest(user :any, secret:string){
+        user.twoFactorAuthSecret = secret
+        Object.assign(user)
+        return this.userRepo.save(user);
+    }
+
     //Create New User
     async provideNewUser(profile:any): Promise<User>{
         const user = new User();
@@ -30,14 +40,24 @@ export class UserService {
         user.creationDate = new Date();
         user.lastTimeLogged = new Date();
         user.refreshToken = 'test'
+
+        user.twoFactorAuthSecret = '';
         this.userRepo.save(user);
         return user
     }
 
-    findByEmail(email:string) : Promise<User | undefined>{
-        const user =  this.userRepo.findOne({where:{email}});
-        return user?user:undefined;
+    async enableTwoFactorAuth(id: string){
+        const user = await this.userRepo.findOne({where :{id}})
+        user.twoFactorAuth = true;
+        await this.userRepo.save(user);
     }
+
+    async disableTwoFactorAuth(id: string){
+        const user = await this.userRepo.findOne({where :{id}})
+        user.twoFactorAuth = false;
+        await this.userRepo.save(user);
+    }
+    //_________________________________________________
 
     provideUserUpdate(){
         return 'update user info'
@@ -50,6 +70,10 @@ export class UserService {
     async userExist(email:string): Promise<boolean>{
         const user = await this.userRepo.findOne({where :{email}});
         return !!user;
+    }
+
+    async deleteAll(){
+        await this.userRepo.clear();
     }
 
     async deleteRefreshToken(id:string){
