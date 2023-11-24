@@ -188,7 +188,6 @@ export class ConversationController {
     }
 
     //TODO: notify mute
-    
   }
 
   @Route({

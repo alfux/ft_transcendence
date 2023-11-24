@@ -8,8 +8,10 @@ import { Conversation, ConversationUser, ConversationUserInfos, ConversationModu
 
 import { ChatModule } from './chat/chat.module'
 import { AuthModule, JwtAuthGuard } from './auth'
-import { config_db } from './config'
 import { DebugModule } from './debug/debug.module'
+import { GameModule } from './game/game.module'
+
+import { config_db } from './config'
 
 @Module({
   imports: [
@@ -29,6 +31,7 @@ import { DebugModule } from './debug/debug.module'
     ChatModule,
     AuthModule,
     DebugModule,
+    GameModule,
   ],
   providers: [
     {
