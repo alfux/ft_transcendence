@@ -14,7 +14,8 @@ export interface Oauth42Token
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private usersRepository: Repository<User>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
   ) {}
 
   async getUser(where: FindOptionsWhere<User> = {}, relations = [] as string[]): Promise<User> {
@@ -32,6 +33,9 @@ export class UserService {
   }
 
   async createUser(user42api:User42Api): Promise<User> {
+    if (await this.getUser({id:user42api.id}).catch(() => null))
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST)
+
     const user = this.usersRepository.create({
       id:user42api.id,
       username:user42api.username,
@@ -47,7 +51,7 @@ export class UserService {
 
   async updateOrCreateUser(user42api:User42Api): Promise<User>
   {
-    let user:User = await this.getUser({id:user42api.id}).catch(() => null)
+    let user = await this.getUser({id:user42api.id}).catch(() => null)
     if (!user) {
       user = await this.createUser(user42api)
     }

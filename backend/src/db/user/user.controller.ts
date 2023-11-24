@@ -1,24 +1,35 @@
-import { Req, UseGuards, Controller, Get, ConsoleLogger } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { Request as ExpressRequest } from 'express';
+import { Req, Controller, Get } from '@nestjs/common'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 
-import { User42Api } from 'src/auth/42api/user42api.interface';
-import { UserService } from "./user.service";
+import { UserService } from "./user.service"
+import { Request } from 'src/auth'
+import { Route } from 'src/route'
 
-import { Request } from 'src/auth';
 
-@Controller('users')
+@ApiBearerAuth()
+@ApiTags('user')
+@Controller('user')
 export class UserController {
 
   constructor(
     private userService: UserService
   )  { }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('me')
-  async getMeConversations(@Req() req: Request)
-  {
-    const user = await this.userService.getUser({id:req.user.id})
-    return user
+  @Route({
+    method:Get('me'),
+    description:{ summary:'Get user info', description:'Returns authenticated user\'s info' },
+    responses: [{status:200, description:'Found user successfully'}]
+  })
+  getMe(@Req() req: Request) {
+    return this.userService.getUser({id:req.user.id})
+  }
+
+  @Route({
+    method:Get('/'),
+    description:{ summary:'Get all users info', description:'Returns all users info' },
+    responses: [{status:200, description:'Found user successfully'}]
+  })
+  getAllUsers() {
+    return this.userService.getUsers()
   }
 }

@@ -1,92 +1,203 @@
-import { Body, Controller, Get, Post, Delete, Req, UseGuards, Param } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Req,
+  Param,
+  HttpException,
+  HttpStatus,
+  Inject,
+  forwardRef
+} from '@nestjs/common'
+
+import { ApiBearerAuth, ApiTags, ApiProperty } from '@nestjs/swagger'
 
 import { Request } from 'src/auth'
-import { Conversation } from './conversation.entity'
 import { ConversationService } from './conversation.service'
-import { Message, UserService } from 'src/db'
+import { Conversation, UserService } from 'src/db'
 
-function filter_conversations_content(convs:Conversation[])
-{
-  if (!convs)
-    return []
+import { Route } from 'src/route'
 
-  return convs.map((conv) => {return {id:conv.id,
-      owner:conv.owner,
-      title:conv.title,
-      users:conv.users?.map((user) => {return {id:user.id, username:user.username, image:user.image}})
-    }})
+class ConversationCreateParams {
+  @ApiProperty({ description: 'Title of the conversation' })
+  title: string
+}
+
+class ConversationIdParams {
+  @ApiProperty({ description: 'Id of the conversation' })
+  id: number
+}
+
+class PromoteParams {
+  @ApiProperty({ description: 'Id of the conversation user to promote' })
+  conversation_user_id: number
+}
+
+class KickParams {
+  @ApiProperty({ description: 'Id of the conversation user to kick' })
+  conversation_user_id: number
+}
+
+class MuteParams {
+  @ApiProperty({ description: 'Id of the conversation user to mute' })
+  conversation_user_id: number
+  @ApiProperty({ description: 'Duration of the mute' ,
+  examples: ['2042-12-31T23:42:42', '1d', '2y1d3m', 'forever']})
+  duration: string | 'forever'
+}
+
+class BanParams {
+
+  @ApiProperty({ description: 'Id of the conversation user to ban' })
+  conversation_user_id: number
+  @ApiProperty({ description: 'Duration of the ban' ,
+  examples: ['2042-12-31T23:42:42', '1d', '2y1d3m', 'forever']})
+  duration: string | 'forever'
 }
 
 
+@ApiBearerAuth()
+@ApiTags('conversation')
 @Controller('conversation')
 export class ConversationController {
 
   constructor(
     private conversationService: ConversationService,
+    @Inject(forwardRef(() => UserService))
     private userService: UserService
-  ) {}
+  ) { }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('/')
-  async getMeConversations(@Req() req: Request)
-  {
-    const user = await this.userService.getUser({id:req.user.id}, ['conversations'])
-    const all_convs = filter_conversations_content(user.conversations)
-
-    return all_convs.map((value) => {return {
-      id:value.id,
-      owner:value.owner,
-      title:value.title,
-      users:value.users.map((value) => {return {
-        id:value.id,
-        username:value.username,
-        image:value.image,
-      }})
-    }})
+  @Route({
+    method: Get('me'),
+    description: { summary: 'Get users\'s conversations', description: 'Return a list of all the conversations the authenticated user is in' },
+    responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
+  })
+  async getMeConversations(@Req() req: Request) {
+    return this.conversationService.getConversationsByUserId(req.user.id)
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('own')
-  async getOwnConversations(@Req() req: Request)
-  {
-    const user = await this.userService.getUser({id:req.user.id})
-    const convs = await this.conversationService.getConversations({
-      owner:user
-    }, ['users'])
-    return filter_conversations_content(convs)
+  @Route({
+    method: Get('own'),
+    description: { summary: 'Get users\'s owned conversations', description: 'Return a list of all the conversations the authenticated user owns' },
+    responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
+  })
+  getOwnConversations(@Req() req: Request) {
+    return this.conversationService.getOwnConversationsByUserId(req.user.id)
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Post('create')
-  async createConversation(@Req() req: Request, @Body() body) {
-    const user = req.user
-    const conversation = await this.conversationService.createConversation(user.id, body.title)
-    return {
-      id:conversation.id,
-      owner:conversation.owner,
-      title:conversation.title,
-      users:conversation.users.map((conversation) => {return {
-        id:conversation.id,
-        username:conversation.username,
-        image:conversation.image,
-      }})
+  @Route({
+    method: Get('/'),
+    description: { summary: 'Get all public conversations', description: 'Return a list of all the conversations that are marked as public' },
+    responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
+  })
+  getAllConversations() {
+    return this.conversationService.getConversations({}, ['users', 'users.user', 'owner'])
+  }
+
+  @Route({
+    method: Post('/'),
+    description: { summary: 'Create a conversation', description: 'Create a conversation. Owner will automatically be the creator' },
+    responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
+  })
+  createConversation(@Req() req: Request, @Body() body: ConversationCreateParams) {
+    return this.conversationService.createConversation(req.user.id, body.title)
+  }
+
+  @Route({
+    method: Get(':id'),
+    description: { summary: 'Get conversation content', description: 'Returns the conversation\'s messages' },
+    responses: [{ status: 200, description: 'Conversation\'s content retrieved successfully' }]
+  })
+  async getConversation(@Param('id') id: number): Promise<Conversation> {
+    return await this.conversationService.getConversation({ id: id }, ['users', 'users.user', 'owner', 'messages', 'messages.sender', 'messages.sender.user'])
+  }
+
+  @Route({
+    method: Delete(':id'),
+    description: { summary: 'Delete a conversation', description: 'Deletes a conversation' },
+    responses: [{ status: 200, description: 'Conversation deleted successfully' }]
+  })
+  async deleteConversation(@Req() req: Request, @Param('id') id: number) {
+
+    const conversation = await this.conversationService.getConversation({ id: id }, ['owner'])
+    if (!conversation)
+      return
+    if (req.user.id != conversation.owner.id)
+      throw new HttpException('You do not own this conversation', HttpStatus.BAD_REQUEST)
+    this.conversationService.deleteConversation({id:id})
+  }
+
+  @Route({
+    method: Post('join'),
+    description: { summary: 'Join a conversation', description: 'Makes the authenticated user join the conversation' },
+    responses: [{ status: 200, description: 'Conversation joined successfully' }]
+  })
+  async joinConversation(@Req() req: Request, @Body() body: ConversationIdParams) {
+    const user = await this.userService.getUser({ id: req.user.id })
+    this.conversationService.addUserToConversation({ id: body.id }, user)
+  }
+
+  @Route({
+    method: Post('promote'),
+    description: { summary: 'Promotes a user to admin', description: 'Promotes a user to admin. Only the owner is allowed to perform this action' },
+    responses: [{ status: 200, description: 'Conversation joined successfully' }]
+  })
+  async promote(@Req() req: Request, @Body() body: PromoteParams) {
+    const conv_user = await this.conversationService.getConversationUser({id:body.conversation_user_id}, ['conversation', 'conversation.owner'])
+    if (conv_user.conversation.owner.id !== req.user.id)
+      throw new HttpException('Not authorized', HttpStatus.BAD_REQUEST)
+    this.conversationService.makeUserAdmin(conv_user)
+  }
+
+  @Route({
+    method: Post('kick'),
+    description: { summary: 'Kicks an user from the conversation', description: 'Kicks an user from the conversation. Only the owner or an admin is allowed to perform this action' }
+  })
+  async kick(@Req() req: Request, @Body() body: KickParams) {
+
+    const conv_user = await this.conversationService.getConversationUser({id:body.conversation_user_id}, ['conversation', 'conversation.owner'])
+    const sender = await this.userService.getUser({id:req.user.id})
+
+    if (
+      (sender.id === conv_user.conversation.owner.id) ||
+      (conv_user.conversation.users.find((u) => { u.user.id === sender.id })?.isAdmin)
+    ) {
+      //TODO: notify kick
+      this.conversationService.removeUserFromConversation({id:conv_user.conversation.id}, conv_user)
+    } else {
+      throw new HttpException('Not allowed', HttpStatus.BAD_REQUEST)
     }
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get(':id/content')
-  async getConversationContent(@Param('id') id: number): Promise<Message[]>
-  {
-    const conv = await this.conversationService.getConversation({id:id}, ['messages'])
-    return conv.messages
+  @Route({
+    method: Post('mute'),
+    description: { summary: 'Mutes an user in a conversation', description: 'Mutes an user in a conversation. Only the owner or an admin is allowed to perform this action' }
+  })
+  async mute(@Req() req: Request, @Body() body: KickParams) {
+
+    const conv_user = await this.conversationService.getConversationUser({id:body.conversation_user_id}, ['conversation', 'conversation.owner'])
+    const sender = await this.userService.getUser({id:req.user.id})
+
+    if (!(
+      (sender.id === conv_user.conversation.owner.id) ||
+      (conv_user.conversation.users.find((u) => { u.user.id === sender.id })?.isAdmin))
+    ) {
+      throw new HttpException('Not allowed', HttpStatus.BAD_REQUEST)
+    }
+
+    //TODO: notify mute
+    
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Delete(':id')
-  deleteConversation(@Param('id') id: number) {
-    this.conversationService.deleteConversationById(id)
+  @Route({
+    method:Post('leave'),
+    description:{summary:'Leaves a conversation', description:'Makes the authenticated user leave the conversation'},
+    responses:[{ status: 200, description: 'Conversation left successfully' }]
+  })
+  async leaveConversation(@Req() req: Request, @Body() body:ConversationIdParams) {
+    const conv_user = await this.conversationService.getConversationUser({user:{id:req.user.id}})
+    this.conversationService.removeUserFromConversation({id:body.id}, conv_user)
   }
-  
-
 }

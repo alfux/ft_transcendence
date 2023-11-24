@@ -1,7 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 
-import { Message } from '../message/message.entity';
-import { Conversation } from '../conversation/conversation.entity';
+import { ConversationUser } from '../conversation/conversation_user.entity';
 
 @Entity()
 export class User {
@@ -12,15 +11,8 @@ export class User {
   username: string;
   @Column()
   image:string
-  
-  @OneToMany(() => Conversation, (conv) => conv.owner)
-  own_conversations: Conversation[]
 
-  @ManyToMany(() => Conversation, (conv) => conv.users)
-  @JoinTable()
-  conversations: Conversation[]
-
-  @OneToMany(() => Message, (message) => message.sender)
-  messages: Message[]
+  @OneToMany(() => ConversationUser, (conv_user) => conv_user.user)
+  conversations:ConversationUser[]
 
 }

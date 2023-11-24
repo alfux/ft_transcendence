@@ -1,61 +1,54 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm'
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseIntPipe, Post, Put, Req } from '@nestjs/common'
 
-import { Message } from "./message.entity";
+import { ApiBearerAuth, ApiTags, ApiProperty } from '@nestjs/swagger'
+import { Route } from 'src/route'
 
+import { MessageService } from './message.service';
+import { Request } from 'src/auth';
+
+@ApiBearerAuth()
+@ApiTags('messages')
 @Controller('messages')
 export class MessageController {
 
-  constructor(@InjectRepository(Message) private readonly messageRepo: Repository<Message>)
-  { }
+  constructor(
+    private messageService: MessageService,
+  ) { }
 
-  @Get()
-  async find()
-  {
-
-    const perPage = 25
-    const page = 1
-    const skip = (perPage * page) - perPage;
-
-    return await this.messageRepo.findAndCount({
-        take: perPage,
-        skip,    
-    });
+  @Route({
+    method: Get(':id'),
+    description: { summary: 'Get message by id', description: 'Get message by id' }
+  })
+  GetById(@Param('id') id: number) {
+    return this.messageService.getMessage({ id: id }, ['conversation', 'sender', 'sender.user']);
   }
 
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number)
-  {
-    return await this.messageRepo.findOneOrFail({
-        where: {
-            id:id
-        }
-    });
-  }
+  @Route({
+    method: Delete(':id'),
+    description: { summary: 'Delete message by id', description: 'Delete message by id. Only allowed for message owner or conversation admin' }
+  })
+  async DeleteById(@Param('id') id: number, @Req() req: Request) {
 
-  @Post()
-  async create(@Body() body: any)
-  {
-    if (!body.name || !body.email)
-    {
-      throw new HttpException('One of `name, email` is missing', HttpStatus.BAD_REQUEST);
+    const message = await this.messageService.getMessage({ id: id }, [
+      'sender', 'sender.user',
+      'conversation', 'conversation.owner', 'conversation.users', 'conversation.users.user'
+    ])
+  
+    if ((message.sender.user.id === req.user.id) ||
+      (message.conversation.owner.id === req.user.id) ||
+      (message.conversation.users.find((u) => { u.user.id == req.user.id })?.isAdmin)) {
+      this.messageService.remove(message)
+    } else {
+      throw new HttpException('Not allowed', HttpStatus.BAD_REQUEST)
     }
-
-    const author = this.messageRepo.create(body);
-    this.messageRepo.save(author)
-
-    return author;
   }
 
-//  @Put(':id')
-//  async update(@Param('id', ParseIntPipe) id: number, @Body() body: any)
-//  {
-//    const author = await this.authorRepository.findOneOrFail(id);
-//    wrap(author).assign(body);
-//    await this.authorRepository.persist(author);
-
-//    return author;
-//  }
+  @Route({
+    method: Get('from/:user_id'),
+    description: { summary: 'Get all messages of a certain user', description: 'Get all messages of a certain user' }
+  })
+  GetFromUserId(@Param('user_id') user_id: number) {
+    return this.messageService.getMessages({ sender: { user:{id:user_id}} }, ['sender', 'sender.user'])
+  }
 
 }

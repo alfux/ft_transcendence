@@ -1,13 +1,40 @@
 // auth.controller.ts
 
-import { Body, Controller, Get, Post, UsePipes, ValidationPipe } from '@nestjs/common'
-import { userInfo } from 'os'
+import { Body, Controller, Get, HttpException, HttpStatus, Post } from '@nestjs/common'
+import { ApiBearerAuth, ApiTags, ApiProperty } from '@nestjs/swagger'
 
-import { AuthService, Public } from 'src/auth'
-import { User42Api } from 'src/auth/42api/user42api.interface'
+import { AuthService } from 'src/auth'
 
-import { UserService, MessageService, ConversationService, User, Conversation } from 'src/db'
+import { Route } from 'src/route'
 
+import { UserService, MessageService, ConversationService, User, Conversation, Message } from 'src/db'
+
+class AddUserParams {
+  @ApiProperty({ description: 'id' })
+  id: number
+
+  @ApiProperty({ description: 'username' })
+  username: string
+
+  @ApiProperty({ description: 'image' })
+  image:string
+}
+
+class LogAsParams {
+  @ApiProperty({ description: 'Username of user' })
+  username:string
+}
+
+class NewMessageParams {
+  @ApiProperty({ description: 'User id' })
+  user_id:number
+  @ApiProperty({ description: 'Message\'s content' })
+  content:string
+  @ApiProperty({ description: 'Conv name' })
+  conversation_name:string
+}
+
+@ApiTags('debug')
 @Controller('debug')
 export class DebugController {
   
@@ -18,42 +45,49 @@ export class DebugController {
     private readonly authService: AuthService
   ) {}
 
-  @Public()
-  @Post('add_user')
-  @UsePipes(ValidationPipe)
-  add_user(@Body() body:User42Api): Promise<User> {
+  @Route({
+    public:true,
+    method:Post('add_user'),
+    description:{summary:'Add user'}
+  })
+  add_user(@Body() body:AddUserParams): Promise<User> {
     return this.userService.createUser(body)
   }
 
-  @Public()
-  @Post('add_conv')
-  @UsePipes(ValidationPipe)
-  add_conv(@Body() body:{userId:number, title:string}): Promise<Conversation> {
-    return this.conversationService.createConversation(body.userId, body.title)
-  }
-
-  @Public()
-  @Post('add_user_to_conv')
-  @UsePipes(ValidationPipe)
-  async add_user_to_conv(@Body() body:{conv_title:string, username:string}) {
-    const user = await this.userService.getUser({username:body.username})
-    //this.conversationService.addUserToConversation(body.conv_title, user)
-  }
-
-  @Public()
-  @Post('log_as')
-  @UsePipes(ValidationPipe)
-  async log_as(@Body() body:{username:string}) {
+  @Route({
+    public:true,
+    method:Post('log_as'),
+    description:{summary:'Log as user'}
+  })
+  async log_as(@Body() body:LogAsParams) {
     const user = await this.userService.getUser({username:body.username})
     const token = await this.authService.getJwt({id:user.id, username:user.username, image:user.image})
     console.log('new token: ' , token)
     return {token:token}
   }
 
-  @Public()
-  @Get('all_users')
-  get_all_users() {
-    return this.userService.getUsers()
+
+  @Route({
+    public:true,
+    method:Post('new_message'),
+    description:{summary:'Add message'}
+  })
+  async add_message(@Body() body:NewMessageParams) {
+    const conv = await this.conversationService.getConversation({title:body.conversation_name}, ['users', 'users.user'])
+  
+    console.log(conv.users)
+
+    const conv_user = conv.users.find((conv_user) => (conv_user.user.id === body.user_id))
+    console.log(body.user_id, conv_user.user)
+    if (!conv_user)
+      throw new HttpException('No user in that conversation', HttpStatus.BAD_REQUEST)
+
+    const message = new Message()
+    message.content = body.content
+    message.conversation = conv
+    message.sender = conv_user
+    
+    return this.msgService.createMessage(message)
   }
 
 }

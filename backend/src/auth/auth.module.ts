@@ -1,6 +1,6 @@
 // auth.module.ts
 
-import { Module } from '@nestjs/common'
+import { Module, forwardRef } from '@nestjs/common'
 import { PassportModule } from '@nestjs/passport'
 import { JwtModule } from '@nestjs/jwt'
 
@@ -9,7 +9,7 @@ import { JwtStrategy } from './jwt/jwt.strategy'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { config_jwt } from 'src/config'
-import { UserModule } from 'src/db/user'
+import { User, UserModule } from 'src/db/user'
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { UserModule } from 'src/db/user'
       signOptions: { expiresIn: '7d' },
     }),
     PassportModule.register({ defaultStrategy: '42' }),
-    UserModule
+    forwardRef(() => UserModule)
   ],
   controllers: [AuthController],
   providers: [FortyTwoStrategy, JwtStrategy, AuthService],

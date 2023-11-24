@@ -11,7 +11,7 @@ function CreateConversation(props : {
   const [title, setTitle] = useState("")
 
   function handleSubmit() {
-    fetch('http://localhost:3001/api/conversation/create', {
+    fetch('http://localhost:3001/api/conversation/', {
       method: 'POST',
       headers: {'Content-Type':'application/json', ...getHeaders()},
       body: JSON.stringify({
@@ -102,7 +102,7 @@ function ChatBox(props: {
 
     chat_socket.on('receive_message', message_received)
 
-    fetch(`http://localhost:3001/api/conversation/${props.conversation.id}/content`, {
+    fetch(`http://localhost:3001/api/conversation/${props.conversation.id}`, {
       method: 'GET',
       headers: getHeaders()
     })
@@ -113,7 +113,13 @@ function ChatBox(props: {
           throw new Error(`${response.status}`);
       })
       .then((data) => {
-        setMessages(data)
+        setMessages(data.messages.map((msg:{id:number, content:string, image:string, conversation:any, sender:{username:string}}) => {
+          return {
+            content:msg.content,
+            conversation_id:data.id,
+            sender:msg.sender.username
+          }
+        }))
       })
       .catch((error) => console.error('Error:', error));
 
@@ -145,12 +151,13 @@ export function Chat() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation|null>()
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/conversation/own', {
+    fetch('http://localhost:3001/api/conversation/me', {
       method: 'GET',
       headers: headers
     })
       .then((response) => response.json())
       .then((data) => {
+        console.log(data)
         setConversations(data)
       })
       .catch((error) => console.error('Error:', error));  

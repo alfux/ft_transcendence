@@ -28,7 +28,7 @@ export function MainPage()
 
   useEffect(() => {
     const headers = getHeaders()
-    fetch('http://localhost:3001/api/users/me', {
+    fetch('http://localhost:3001/api/user/me', {
       method: 'GET',
       headers: headers
     })

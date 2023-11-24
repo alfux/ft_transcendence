@@ -1,71 +1,198 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository, Like, FindOptionsWhere } from 'typeorm';
 
 import { Conversation } from './conversation.entity';
+import { ConversationUser } from './conversation_user.entity';
 import { UserService, User } from '../user';
-
-export type OptionalType<T> = {
-  [K in keyof T]?: T[K];
-};
+import { MessageService } from '../message';
+import { ConversationUserInfos } from './conversation_user_infos.entity';
 
 @Injectable()
 export class ConversationService {
   constructor(
     @InjectRepository(Conversation)
     private conversationRepository: Repository<Conversation>,
-    private userService: UserService
-  ) {}
 
-  async getConversation(where: OptionalType<Conversation>, relations = [] as string[]): Promise<Conversation> {
-    const connection = await this.conversationRepository.findOne({where, relations, });
+    @InjectRepository(ConversationUser)
+    private convUserRepository: Repository<ConversationUser>,
+
+    @InjectRepository(ConversationUserInfos)
+    private userInfosRepository: Repository<ConversationUserInfos>,
+
+    @Inject(forwardRef(() => UserService))
+    private userService: UserService,
+
+    private messageService: MessageService
+  ) { }
+
+  async getConversationUser(where: FindOptionsWhere<ConversationUser>, relations = [] as string[]) {
+    const connection = await this.convUserRepository.findOne({ where: where, relations: relations })
     if (!connection)
-      throw new HttpException('Conversation not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('Conversation user not found', HttpStatus.NOT_FOUND);
     return connection;
   }
 
-  async getConversations(where: OptionalType<Conversation>, relations = [] as string[]): Promise<Conversation[]> {
-    const connection = await this.conversationRepository.find({where, relations, });
+  async getConversationUsers(where: FindOptionsWhere<ConversationUser>, relations = [] as string[]) {
+    const connection = await this.convUserRepository.find({ where: where, relations: relations })
     if (!connection)
-      throw new HttpException('Conversation not found', HttpStatus.NOT_FOUND);
-
+      throw new HttpException('Conversation user not found', HttpStatus.NOT_FOUND);
     return connection;
   }
 
-  async createConversation(userId:number, title:string): Promise<Conversation> {
-    const user = await this.userService.getUser({id:userId})
-
-    if (await this.conversationRepository.findOne({where:{title:title}}))
-      throw new HttpException("Conversation already exists", HttpStatus.BAD_REQUEST)
-
-    try {
-      const conv = await this.conversationRepository.save({
-        owner:user,
-        users:[user],
-        title:title
-      })
-      return conv
-    } catch (error) {
-      console.error(error)
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  async addUserToConversation(conversation_title:string, user:User) {
-    this.conversationRepository.findOne({where:{title:conversation_title}, relations:["users"]}).then((conv) => {
-      conv.users.push(user)
-      this.conversationRepository.save(conv)
+  async createConversationUser(user: User, conversation: Conversation) {
+    return this.convUserRepository.save({
+      user: user,
+      conversation: conversation,
+      messages: []
     })
   }
 
-  async deleteConversationById(id: number): Promise<void> {
-    const conversation = await this.conversationRepository.findOne({
-      where: {id:id},
-      relations: ['messages'],
-    });
+  async deleteConversationUser(where: FindOptionsWhere<Conversation>, clear_messages = false) {
+    const conversationUser = await this.convUserRepository.findOne({ where: where, relations: (clear_messages ? ['messages'] : []) })
+    if (!conversationUser)
+      throw new HttpException("Conversation user not found", HttpStatus.BAD_REQUEST)
+    if (clear_messages)
+      this.messageService.remove(conversationUser.messages)
+    this.convUserRepository.remove(conversationUser)
+  }
+  
+  async deleteConversationUsers(where: FindOptionsWhere<Conversation>, clear_messages = false) {
+    const conversationUsers = await this.convUserRepository.find({ where: where, relations: (clear_messages ? ['messages'] : []) })
+    if (!conversationUsers)
+      throw new HttpException("Conversation user not found", HttpStatus.BAD_REQUEST)
+    conversationUsers.forEach((u) => {
+      if (clear_messages)
+        this.messageService.remove(u.messages)
+      this.convUserRepository.remove(u)
+    })
+  }
 
+
+
+  async getConversationUserInfos(where: FindOptionsWhere<ConversationUserInfos>, relations = [] as string[]) {
+    const connection = await this.userInfosRepository.findOne({ where: where, relations: relations })
+    if (!connection)
+      throw new HttpException('Conversation user infos not found', HttpStatus.NOT_FOUND);
+    return connection;
+  }
+
+  async getConversationUsersInfos(where: FindOptionsWhere<ConversationUserInfos>, relations = [] as string[]) {
+    const connection = await this.userInfosRepository.find({ where: where, relations: relations })
+    if (!connection)
+      throw new HttpException('Conversation user infos not found', HttpStatus.NOT_FOUND);
+    return connection;
+  }
+
+  async deleteConversationUserInfo(where: FindOptionsWhere<Conversation>) {
+    const userInfo = await this.userInfosRepository.findOne({ where: where })
+    if (!userInfo)
+      throw new HttpException("Conversation user info not found", HttpStatus.BAD_REQUEST)
+    this.userInfosRepository.remove(userInfo)
+  }
+  
+  async deleteConversationUserInfos(where: FindOptionsWhere<Conversation>) {
+    const userInfos = await this.userInfosRepository.find({ where: where })
+    if (!userInfos)
+      throw new HttpException("Conversation user info not found", HttpStatus.BAD_REQUEST)
+    userInfos.forEach((u) => {
+      this.userInfosRepository.remove(u)
+    })
+  }
+
+
+
+  async getConversation(where: FindOptionsWhere<Conversation>, relations = [] as string[]) {
+    const connection = await this.conversationRepository.findOne({ where, relations, });
+    if (!connection)
+      throw new HttpException('Conversation not found', HttpStatus.NOT_FOUND);
+    return connection;
+  }
+
+  async getConversations(where: FindOptionsWhere<Conversation>, relations = [] as string[]) {
+    const connection = await this.conversationRepository.find({ where, relations, });
+    if (!connection)
+      throw new HttpException('Conversation not found', HttpStatus.NOT_FOUND);
+    return connection;
+  }
+
+  async getConversationsByUserId(userId: number) {
+    return this.conversationRepository
+      .createQueryBuilder('conversation')
+      .innerJoinAndSelect('conversation.users', 'user')
+      .leftJoinAndSelect('conversation.owner', 'owner')
+      .innerJoin('conversation.users', 'targetUser')
+      .where('targetUser.user.id = :userId', { userId })
+      .getMany();
+  }
+
+  async getOwnConversationsByUserId(userId: number) {
+    return this.conversationRepository
+      .createQueryBuilder('conversation')
+      .innerJoinAndSelect('conversation.owner', 'owner')
+      .leftJoinAndSelect('conversation.users', 'users')
+      .leftJoinAndSelect('users.user', 'user')
+      .where('owner.id = :userId', { userId })
+      .getMany();
+  }
+
+  /*
+    async getAdminsConversationsByUserId(userId: number) {
+      return this.conversationRepository
+      .createQueryBuilder('conversation')
+      .innerJoinAndSelect('conversation.admins', 'admins')
+      .leftJoinAndSelect('conversation.owner', 'owner')
+      .leftJoinAndSelect('conversation.users', 'user')
+      .where('admins.id = :userId', { userId })
+      .getMany();
+    }
+  */
+
+  async createConversation(user_id: number, title: string) {
+    const user = await this.userService.getUser({ id: user_id })
+    const new_conv = await this.conversationRepository.save({
+      title: title,
+      owner: user,
+      users: [],
+      messages: []
+    })
+    return await this.addUserToConversation({ id: new_conv.id }, user);
+  }
+
+  async deleteConversation(where: FindOptionsWhere<Conversation>) {
+    const conversation = await this.conversationRepository.findOne({ where: where, relations: ['users', 'messages'] });
     if (conversation) {
-      await this.conversationRepository.remove(conversation);
+      await this.messageService.remove(conversation.messages)
+      await this.convUserRepository.remove(conversation.users)
+      await this.conversationRepository.remove(conversation)
     }
   }
+
+  async addUserToConversation(where: FindOptionsWhere<Conversation>, user: User) {
+    const conv = await this.conversationRepository.findOne({ where, relations: ["users"] })
+
+    let conv_user = await this.getConversationUser({ user: { id: user.id } })
+    if (!conv_user) {
+      const conv_ref = await this.conversationRepository.findOne({ where, relations: [] })
+      conv_user = await this.createConversationUser(user, conv_ref)
+    }
+    conv.users.push(conv_user)
+    return await this.conversationRepository.save(conv)
+  }
+
+  async removeUserFromConversation(where: FindOptionsWhere<Conversation>, user: ConversationUser) {
+    const conv = await this.getConversation(where, ['users'])
+    conv.users = conv.users.filter(u => u.id != user.id)
+    this.conversationRepository.save(conv)
+  }
+
+  async makeUserAdmin(user: ConversationUser) {
+    user.isAdmin = true
+    user.becameAdminAt = new Date()
+    return this.convUserRepository.save(user)
+  }
+
+
+
+
 }

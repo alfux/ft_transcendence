@@ -51,8 +51,8 @@ export class ChatGateway implements OnGatewayConnection {
     
     const new_message = new Message()
     new_message.content = data.message
-    new_message.conversation = conversation
-    new_message.sender = user.user
+    //new_message.conversation = conversation
+    //new_message.sender = user.user
 
     await this.messageService.createMessage(new_message)
     
