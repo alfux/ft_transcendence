@@ -30,7 +30,8 @@ export function Profile() {
 
   return (
     <div className='ui'>
-      skibidi toilet
+      <div className='ui bg-rect profile-container'>
+      </div>
     </div>
   )
 }

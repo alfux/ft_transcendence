@@ -30,10 +30,7 @@ export default function	THREE_App() {
 
 		const	renderer = new THREE.WebGLRenderer();
 
-		const	menu_scene = create_menu_scene(renderer, {toggleProfile:() => {setShowProfile((prev) => {
-				console.log(prev);
-				return !prev
-		})}})
+		const	menu_scene = create_menu_scene(renderer, {toggleProfile:() => {setShowProfile((prev) => !prev)}})
 		//const	game_scene = create_game_scene(renderer)
 
 		const	socket = io("http://10.18.202.182:3001", {transports: ["websocket"]});
@@ -43,8 +40,6 @@ export default function	THREE_App() {
 			requestAnimationFrame(mainloop);
 			//game_scene.update()
 			menu_scene.update()
-
-			console.log(showProfile)
 		}
 
 		renderer.setSize(window.innerWidth, window.innerHeight);

@@ -14,3 +14,7 @@ export function	distance(a: Vec3, b: Vec3)
 {
 	return (norm(new Vec3(a.x - b.x, a.y - b.y, a.z - b.z)));
 }
+
+export function clamp(v:number, min:number, max:number) {
+	return Math.max(Math.min(v, max), min)
+}

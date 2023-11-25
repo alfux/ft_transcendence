@@ -2,6 +2,8 @@ import * as THREE from 'three'
 import { config } from '../../config';
 import { load_obj } from '../Utils';
 
+import { clamp } from '../Math';
+
 enum MenuButtons {
 	Logout = "Logout",
 	Play = "Play",
@@ -72,11 +74,12 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
     {
         const rot_speed = 0.01
 
-        let	rot = (menu_parent.rotation.x - rot_speed * event.deltaY) % (2 * Math.PI);
+        deltaY = clamp(event.deltaY, -30, 30);
+
+        let	rot = (menu_parent.rotation.x - rot_speed * deltaY) % (2 * Math.PI);
         rot += (rot < 0) ? 2 * Math.PI : 0;
         menu_parent.rotation.x = rot;
-        deltaY = event.deltaY;
-    })
+    }, {passive:true})
     
     renderer.domElement.addEventListener("click", (event: MouseEvent) =>
     {
@@ -97,6 +100,7 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
                     window.location.href = `${config.backend_url}/api/auth/login`
                     break
                 case MenuButtons.Profile:
+                    console.log("yes")
                     params.toggleProfile()
 
             }
