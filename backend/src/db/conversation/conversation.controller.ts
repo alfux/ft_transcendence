@@ -24,22 +24,18 @@ class ConversationCreateParams {
   @ApiProperty({ description: 'Title of the conversation' })
   title: string
 }
-
 class ConversationIdParams {
   @ApiProperty({ description: 'Id of the conversation' })
   id: number
 }
-
 class PromoteParams {
   @ApiProperty({ description: 'Id of the conversation user to promote' })
   conversation_user_id: number
 }
-
 class KickParams {
   @ApiProperty({ description: 'Id of the conversation user to kick' })
   conversation_user_id: number
 }
-
 class MuteParams {
   @ApiProperty({ description: 'Id of the conversation user to mute' })
   conversation_user_id: number
@@ -47,7 +43,6 @@ class MuteParams {
   examples: ['2042-12-31T23:42:42', '1d', '2y1d3m', 'forever']})
   duration: string | 'forever'
 }
-
 class BanParams {
 
   @ApiProperty({ description: 'Id of the conversation user to ban' })
@@ -72,7 +67,7 @@ export class ConversationController {
   @Route({
     method: Get('me'),
     description: { summary: 'Get users\'s conversations', description: 'Return a list of all the conversations the authenticated user is in' },
-    responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
+    responses: [{ status: 200, description: 'List of conversations retrieved successfully'}]
   })
   async getMeConversations(@Req() req: Request) {
     return this.conversationService.getConversationsByUserId(req.user.id)
@@ -81,7 +76,7 @@ export class ConversationController {
   @Route({
     method: Get('own'),
     description: { summary: 'Get users\'s owned conversations', description: 'Return a list of all the conversations the authenticated user owns' },
-    responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
+    responses: [{ status: 200, description: 'List of conversations retrieved successfully'}]
   })
   getOwnConversations(@Req() req: Request) {
     return this.conversationService.getOwnConversationsByUserId(req.user.id)
@@ -90,7 +85,7 @@ export class ConversationController {
   @Route({
     method: Get('/'),
     description: { summary: 'Get all public conversations', description: 'Return a list of all the conversations that are marked as public' },
-    responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
+    responses: [{ status: 200, description: 'List of conversations retrieved successfully'}]
   })
   getAllConversations() {
     return this.conversationService.getConversations({}, ['users', 'users.user', 'owner'])
@@ -99,7 +94,7 @@ export class ConversationController {
   @Route({
     method: Post('/'),
     description: { summary: 'Create a conversation', description: 'Create a conversation. Owner will automatically be the creator' },
-    responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
+    responses: [{ status: 200, description: 'List of conversations retrieved successfully'}]
   })
   createConversation(@Req() req: Request, @Body() body: ConversationCreateParams) {
     return this.conversationService.createConversation(req.user.id, body.title)
@@ -110,7 +105,7 @@ export class ConversationController {
     description: { summary: 'Get conversation content', description: 'Returns the conversation\'s messages' },
     responses: [{ status: 200, description: 'Conversation\'s content retrieved successfully' }]
   })
-  async getConversation(@Param('id') id: number): Promise<Conversation> {
+  async getConversation(@Param('id') id: number) {
     return await this.conversationService.getConversation({ id: id }, ['users', 'users.user', 'owner', 'messages', 'messages.sender', 'messages.sender.user'])
   }
 

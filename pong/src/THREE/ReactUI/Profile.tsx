@@ -8,7 +8,7 @@ import './ui.css'
 
 export function Profile() {
 
-  const [profile, setProfile] = useState<{} | undefined>()
+  const [profile, setProfile] = useState<any>()
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -29,9 +29,12 @@ export function Profile() {
   }, [])
 
   return (
-    <div className='ui'>
-      <div className='ui bg-rect profile-container'>
-      </div>
+    <div className='bg-rect profile-container'>
+      {
+        profile ? 
+        <img src={profile.image} className='profile-img'/>
+        : <a>Can't load profile !</a>
+      }
     </div>
   )
 }

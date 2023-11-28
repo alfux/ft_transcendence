@@ -7,12 +7,13 @@ import { initKeyboardHandlers } from './Utils'
 import { create_menu_scene } from "./MenuScene";
 import { create_game_scene } from "./GameScene";
 
-import { Profile } from './ReactUI/Profile';
+import { ReactUIParent } from './ReactUI/ReactUI';
 
-export default function	THREE_App() {
+export default function	THREE_App(props:{
+	toggleProfile: () => void,
+	toggleChat: () => void,
+	children:React.ReactNode}) {
 	const	divRef = useRef<HTMLDivElement>(null);
-
-	const	[showProfile, setShowProfile] = useState(false)
 
 	function get_token() {
 		const urlParams = new URLSearchParams(window.location.search)
@@ -30,7 +31,7 @@ export default function	THREE_App() {
 
 		const	renderer = new THREE.WebGLRenderer();
 
-		const	menu_scene = create_menu_scene(renderer, {toggleProfile:() => {setShowProfile((prev) => !prev)}})
+		const	menu_scene = create_menu_scene(renderer, {toggleProfile:props.toggleProfile, toggleChat:props.toggleChat})
 		//const	game_scene = create_game_scene(renderer)
 
 		const	socket = io("http://10.18.202.182:3001", {transports: ["websocket"]});
@@ -43,6 +44,9 @@ export default function	THREE_App() {
 		}
 
 		renderer.setSize(window.innerWidth, window.innerHeight);
+		window.addEventListener('resize', (event: UIEvent) => {
+			renderer.setSize(window.innerWidth, window.innerHeight)
+		}, false);
 		renderer.autoClear = false;
 
 		if (divRef.current)
@@ -50,6 +54,9 @@ export default function	THREE_App() {
 			initKeyboardHandlers()
 			divRef.current.appendChild(renderer.domElement);
 		}
+
+
+
 		mainloop();
 		return (() => {
 			divRef.current?.removeChild(renderer.domElement)
@@ -63,7 +70,7 @@ export default function	THREE_App() {
 
 	return (
 		<div ref={divRef}>
-			{showProfile ? <Profile /> : null }
+			{props.children}
 		</div>
 	);
 }

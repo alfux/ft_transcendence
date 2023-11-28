@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 
+
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
@@ -14,10 +15,10 @@ async function bootstrap() {
   .addBearerAuth()
   .addServer('http://localhost:3001/api')
   .build();
-  
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
 
+  
+  const document = SwaggerModule.createDocument(app, config, {});
+  SwaggerModule.setup('api/docs', app, document);
 
   app.setGlobalPrefix('api');
   app.use(cookieParser());

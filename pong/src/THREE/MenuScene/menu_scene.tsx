@@ -14,8 +14,10 @@ enum MenuButtons {
 }
 
 export function create_menu_scene(renderer: THREE.Renderer, params: {
-    toggleProfile:() => void
+    toggleProfile:() => void,
+    toggleChat:() => void
 }) {
+
     const   scene = new THREE.Scene()
     const	camera = new THREE.OrthographicCamera(-window.innerWidth / 200, window.innerWidth / 200,
 				window.innerHeight / 200, -window.innerHeight / 200, 0.1, 10);
@@ -70,8 +72,7 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
     	group.rotation.x = rot;
     }
 
-    renderer.domElement.addEventListener("wheel", (event: WheelEvent) =>
-    {
+    function wheelEvent(event: WheelEvent) {
         const rot_speed = 0.01
 
         deltaY = clamp(event.deltaY, -30, 30);
@@ -79,10 +80,9 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
         let	rot = (menu_parent.rotation.x - rot_speed * deltaY) % (2 * Math.PI);
         rot += (rot < 0) ? 2 * Math.PI : 0;
         menu_parent.rotation.x = rot;
-    }, {passive:true})
-    
-    renderer.domElement.addEventListener("click", (event: MouseEvent) =>
-    {
+    }
+
+    function clickEvent(event: MouseEvent) {
         const	pointer = new THREE.Vector2();
         const   raycaster = new THREE.Raycaster()
 
@@ -100,12 +100,24 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
                     window.location.href = `${config.backend_url}/api/auth/login`
                     break
                 case MenuButtons.Profile:
-                    console.log("yes")
                     params.toggleProfile()
+                    break
+                case MenuButtons.Chat:
+                    params.toggleChat()
 
             }
         }
-    })
+    }
+
+    document.addEventListener("wheel", wheelEvent, {passive:true})
+    document.addEventListener("click", clickEvent)
+    window.addEventListener('resize', (event: UIEvent) => {
+        camera.left = -window.innerWidth / 200
+        camera.right = window.innerWidth / 200
+        camera.top = window.innerHeight / 200
+        camera.bottom = -window.innerHeight / 200
+        camera.updateProjectionMatrix()
+    }, false);
 
     function update() {
         delta_time = clock.getDelta();
@@ -152,6 +164,8 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
     return {
         update:update,
         clean: () => {
+            document.removeEventListener("wheel", wheelEvent)
+            document.removeEventListener("click", clickEvent)
             scene.traverse((obj: any) =>
             {
                 if (obj instanceof THREE.Mesh)

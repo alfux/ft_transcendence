@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { APP_GUARD } from '@nestjs/core'
 
-import { User, UserModule } from './db/user'
+import { User, FriendRequest, UserModule } from './db/user'
 import { Message, MessageModule } from './db/message'
 import { Conversation, ConversationUser, ConversationUserInfos, ConversationModule } from './db/conversation'
 
@@ -22,7 +22,7 @@ import { config_db } from './config'
       username: config_db.user,
       password: config_db.password,
       database: config_db.database,
-      entities: [User, Message, Conversation, ConversationUser, ConversationUserInfos],
+      entities: [User, Message, Conversation, ConversationUser, ConversationUserInfos, FriendRequest],
       synchronize: true,
     }),
     UserModule,
