@@ -171,7 +171,14 @@ export class ConversationService {
   async addUserToConversation(where: FindOptionsWhere<Conversation>, user: User) {
     const conv = await this.conversationRepository.findOne({ where, relations: ["users"] })
 
-    let conv_user = await this.getConversationUser({ user: { id: user.id } })
+    let conv_user
+    try {
+      conv_user = await this.getConversationUser({ user: { id: user.id } })
+    } catch (e) {
+      if (e instanceof HttpException) {
+        conv_user = undefined
+      }
+    } 
     if (!conv_user) {
       const conv_ref = await this.conversationRepository.findOne({ where, relations: [] })
       conv_user = await this.createConversationUser(user, conv_ref)

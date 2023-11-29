@@ -4,6 +4,7 @@ import { FindOptionsWhere, Repository } from 'typeorm'
 
 import { User } from '../user/user.entity'
 import { Message } from './message.entity'
+import { NotificationsService } from 'src/notifications/notifications.service'
 
 @Injectable()
 export class MessageService {
@@ -28,7 +29,9 @@ export class MessageService {
 
   async createMessage(message:Message): Promise<Message> {
     try {
-      return await this.messageRepository.save(message)
+      const new_message = await this.messageRepository.save(message)
+      
+      return new_message
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST)
     }

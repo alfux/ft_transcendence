@@ -5,6 +5,7 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { FriendRequest } from './friend_request.entity';
 import { User42Api } from 'src/auth/42api/user42api.interface';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 export interface Oauth42Token
 {
@@ -19,6 +20,8 @@ export class UserService {
     private usersRepository: Repository<User>,
     @InjectRepository(FriendRequest)
     private frRepository: Repository<FriendRequest>,
+
+    private notificationService: NotificationsService
   ) {}
 
   async getUser(where: FindOptionsWhere<User> = {}, relations = [] as string[]): Promise<User> {
@@ -70,12 +73,18 @@ export class UserService {
     await this.usersRepository.delete(id);
   }
 
-  async sendFriendRequest(from:User, to:User, content:string) {
+  async sendFriendRequest(from:User, to:User) {
     return await this.frRepository.save({
-      content:content,
       sender:from,
       receiver:to
     })
+  }
+
+  getFriendRequest(where: FindOptionsWhere<FriendRequest>, relations = [] as string[]) {
+    const connection = this.frRepository.findOne({where:where, relations:relations})
+    if (!connection)
+      throw new HttpException("Friend request not found", HttpStatus.BAD_REQUEST)
+    return connection
   }
 
   async acceptFriendRequest(id:number) {
@@ -91,21 +100,29 @@ export class UserService {
     this.usersRepository.save(sender)
     this.usersRepository.save(receiver)
     this.frRepository.remove(request)
+
+    this.notificationService.emit([sender], "friend_new", {user:{id:receiver.id, username:receiver.username, image:receiver.image}})
+    this.notificationService.emit([receiver], "friend_new", {user:{id:sender.id, username:sender.username, image:sender.image}})
   }
 
   async denyFriendRequest(id:number) {
     const request = await this.frRepository.findOne({where:{id:id}, relations:['sender', 'receiver']})
     this.frRepository.remove(request)
+
+    this.notificationService.emit([request.sender, request.receiver], "friend_request_denied", {req:request})
   }
 
   async removeFriend(user_id:number, friend_id:number) {
     const user = await this.getUser({id:user_id}, ['friends'])
     const friend = await this.getUser({id:friend_id}, ['friends'])
   
-    user.friends.filter((v, i) => v.id !== friend_id)
-    friend.friends.filter((v, i) => v.id !== user_id)
+    user.friends = user.friends.filter((v) => v.id !== friend_id)
+    friend.friends = friend.friends.filter((v) => v.id !== user_id)
     this.usersRepository.save(user)
     this.usersRepository.save(friend)
+
+    this.notificationService.emit([user], "friend_delete", {user:friend})
+    this.notificationService.emit([friend], "friend_delete", {user:user})
   }
 
   async blockUser(user_id:number, blocked_user_id:number) {
@@ -114,13 +131,20 @@ export class UserService {
 
     user.blocked.push(blocked_user)
     this.usersRepository.save(user)
-  }
 
+    this.notificationService.emit([user], "blocked_new", {user:blocked_user})
+  }
+  
   async unblockUser(user_id:number, blocked_user_id:number) {
     const user = await this.getUser({id:user_id}, ['blocked'])
 
+    const blocked = user.blocked.find((v) => v.id === blocked_user_id)
+    if (!blocked)
+      return
     user.blocked.filter((v) => v.id !== blocked_user_id)
     this.usersRepository.save(user)
+    
+    this.notificationService.emit([user], "blocked_delete", {user:blocked})
   }
 
 }

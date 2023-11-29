@@ -8,6 +8,7 @@ import { ConversationService } from './conversation.service';
 import { ConversationController } from './conversation.controller';
 import { UserModule } from '../user/user.module';
 import { MessageModule } from '../message';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { MessageModule } from '../message';
     TypeOrmModule.forFeature([ConversationUser]),
     TypeOrmModule.forFeature([ConversationUserInfos]),
     forwardRef(() => UserModule),
-    MessageModule
+    MessageModule,
+    NotificationsModule,
   ],
   exports: [TypeOrmModule, ConversationService],
   providers: [ConversationService],

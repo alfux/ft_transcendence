@@ -7,8 +7,6 @@ export class FriendRequest {
   @PrimaryGeneratedColumn()
   id: number;
 
-  content:string;
-
   @ManyToOne(() => User, (user) => user.friends_requests_sent)
   sender:User
 

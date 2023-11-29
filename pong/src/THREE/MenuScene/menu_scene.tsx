@@ -4,6 +4,9 @@ import { load_obj } from '../Utils';
 
 import { clamp } from '../Math';
 
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
+
 enum MenuButtons {
 	Logout = "Logout",
 	Play = "Play",
@@ -13,7 +16,7 @@ enum MenuButtons {
 	Chat = "Chat"
 }
 
-export function create_menu_scene(renderer: THREE.Renderer, params: {
+export function create_menu_scene(renderer:THREE.Renderer, params: {
     toggleProfile:() => void,
     toggleChat:() => void
 }) {
@@ -139,7 +142,7 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
 
         if (menu_parent.rotation.x % (Math.PI / 3) > 0.01)
             centerMenu(menu_parent, deltaY);
-        renderer.render(scene, camera);
+        renderer.render(scene, camera)
     }
 
 

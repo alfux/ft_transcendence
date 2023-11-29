@@ -7,7 +7,7 @@ import { initKeyboardHandlers } from './Utils'
 import { create_menu_scene } from "./MenuScene";
 import { create_game_scene } from "./GameScene";
 
-import { ReactUIParent } from './ReactUI/ReactUI';
+import { config } from '../config';
 
 export default function	THREE_App(props:{
 	toggleProfile: () => void,
@@ -30,11 +30,12 @@ export default function	THREE_App(props:{
 		get_token()
 
 		const	renderer = new THREE.WebGLRenderer();
+		const	composer_clock = new THREE.Clock()
 
 		const	menu_scene = create_menu_scene(renderer, {toggleProfile:props.toggleProfile, toggleChat:props.toggleChat})
 		//const	game_scene = create_game_scene(renderer)
 
-		const	socket = io("http://10.18.202.182:3001", {transports: ["websocket"]});
+		//const	socket = io(`${config.backend_url}/game`, {transports: ["websocket"]});
 
 		function	mainloop()
 		{

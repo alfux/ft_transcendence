@@ -19,6 +19,7 @@ import { ConversationService } from './conversation.service'
 import { Conversation, UserService } from 'src/db'
 
 import { Route } from 'src/route'
+import { NotificationsService } from 'src/notifications/notifications.service'
 
 class ConversationCreateParams {
   @ApiProperty({ description: 'Title of the conversation' })
@@ -61,7 +62,9 @@ export class ConversationController {
   constructor(
     private conversationService: ConversationService,
     @Inject(forwardRef(() => UserService))
-    private userService: UserService
+    private userService: UserService,
+    @Inject(forwardRef(() => NotificationsService))
+    private notificationService:NotificationsService
   ) { }
 
   @Route({
@@ -96,8 +99,16 @@ export class ConversationController {
     description: { summary: 'Create a conversation', description: 'Create a conversation. Owner will automatically be the creator' },
     responses: [{ status: 200, description: 'List of conversations retrieved successfully'}]
   })
-  createConversation(@Req() req: Request, @Body() body: ConversationCreateParams) {
-    return this.conversationService.createConversation(req.user.id, body.title)
+  async createConversation(@Req() req: Request, @Body() body: ConversationCreateParams) {
+    if (!body.title)
+      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    const conversation = await this.conversationService.createConversation(req.user.id, body.title)
+    this.notificationService.emit_everyone(
+      "conv_create",
+      {
+        conversation:conversation
+      })
+    return conversation
   }
 
   @Route({
@@ -117,6 +128,11 @@ export class ConversationController {
   async deleteConversation(@Req() req: Request, @Param('id') id: number) {
 
     const conversation = await this.conversationService.getConversation({ id: id }, ['owner'])
+    this.notificationService.emit_everyone(
+      "conv_delete",
+      {
+        conversation:conversation
+      })
     if (!conversation)
       return
     if (req.user.id != conversation.owner.id)
@@ -130,7 +146,18 @@ export class ConversationController {
     responses: [{ status: 200, description: 'Conversation joined successfully' }]
   })
   async joinConversation(@Req() req: Request, @Body() body: ConversationIdParams) {
+    if (!body.id)
+      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
     const user = await this.userService.getUser({ id: req.user.id })
+    const conversation = await this.conversationService.getConversation({id:body.id}, ['users', 'users.user'])
+    this.notificationService.emit(
+      conversation.users.map((u) => u.user),
+      "conv_join",
+      {
+        conversation:conversation,
+        user:user
+      })
+
     this.conversationService.addUserToConversation({ id: body.id }, user)
   }
 
@@ -140,9 +167,20 @@ export class ConversationController {
     responses: [{ status: 200, description: 'Conversation joined successfully' }]
   })
   async promote(@Req() req: Request, @Body() body: PromoteParams) {
-    const conv_user = await this.conversationService.getConversationUser({id:body.conversation_user_id}, ['conversation', 'conversation.owner'])
+    if (!body.conversation_user_id)
+      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    const conv_user = await this.conversationService.getConversationUser({id:body.conversation_user_id}, ['conversation', 'conversation.owner', 'conversation.users', 'conversation.users.user', 'user'])
     if (conv_user.conversation.owner.id !== req.user.id)
       throw new HttpException('Not authorized', HttpStatus.BAD_REQUEST)
+
+    this.notificationService.emit(
+      conv_user.conversation.users.map((u) => u.user),
+      "conv_promote",
+      {
+        conversation:conv_user.conversation,
+        user:conv_user.user
+      })
+
     this.conversationService.makeUserAdmin(conv_user)
   }
 
@@ -151,15 +189,24 @@ export class ConversationController {
     description: { summary: 'Kicks an user from the conversation', description: 'Kicks an user from the conversation. Only the owner or an admin is allowed to perform this action' }
   })
   async kick(@Req() req: Request, @Body() body: KickParams) {
-
-    const conv_user = await this.conversationService.getConversationUser({id:body.conversation_user_id}, ['conversation', 'conversation.owner'])
+    if (!body.conversation_user_id)
+      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    const conv_user = await this.conversationService.getConversationUser({id:body.conversation_user_id}, ['user', 'conversation', 'conversation.owner', 'conversation.users', 'conversation.users.user'])
     const sender = await this.userService.getUser({id:req.user.id})
 
     if (
       (sender.id === conv_user.conversation.owner.id) ||
       (conv_user.conversation.users.find((u) => { u.user.id === sender.id })?.isAdmin)
     ) {
-      //TODO: notify kick
+      this.notificationService.emit(
+        conv_user.conversation.users.map((u) => u.user),
+        "conv_kick",
+        {
+          conversation:conv_user.conversation,
+          user:conv_user.user,
+          issuer:sender
+        })
+
       this.conversationService.removeUserFromConversation({id:conv_user.conversation.id}, conv_user)
     } else {
       throw new HttpException('Not allowed', HttpStatus.BAD_REQUEST)
@@ -171,7 +218,8 @@ export class ConversationController {
     description: { summary: 'Mutes an user in a conversation', description: 'Mutes an user in a conversation. Only the owner or an admin is allowed to perform this action' }
   })
   async mute(@Req() req: Request, @Body() body: KickParams) {
-
+    if (!body.conversation_user_id)
+      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
     const conv_user = await this.conversationService.getConversationUser({id:body.conversation_user_id}, ['conversation', 'conversation.owner'])
     const sender = await this.userService.getUser({id:req.user.id})
 
@@ -182,7 +230,14 @@ export class ConversationController {
       throw new HttpException('Not allowed', HttpStatus.BAD_REQUEST)
     }
 
-    //TODO: notify mute
+    this.notificationService.emit(
+      conv_user.conversation.users.map((u) => u.user),
+      "conv_mute",
+      {
+        conversation:conv_user.conversation,
+        user:conv_user.user,
+        issuer:sender
+      })
   }
 
   @Route({
@@ -191,7 +246,17 @@ export class ConversationController {
     responses:[{ status: 200, description: 'Conversation left successfully' }]
   })
   async leaveConversation(@Req() req: Request, @Body() body:ConversationIdParams) {
-    const conv_user = await this.conversationService.getConversationUser({user:{id:req.user.id}})
+    if (!body.id)
+      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    const conv_user = await this.conversationService.getConversationUser({user:{id:req.user.id}}, ['conversation', 'conversation.users', 'conversation.users.user', 'user'])
     this.conversationService.removeUserFromConversation({id:body.id}, conv_user)
+
+    this.notificationService.emit(
+      conv_user.conversation.users.map((u) => u.user),
+      "conv_leave",
+      {
+        conversation:conv_user.conversation,
+        user:conv_user.user
+      })
   }
 }

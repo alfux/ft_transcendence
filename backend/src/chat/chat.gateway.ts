@@ -10,7 +10,7 @@ import { MessageService } from 'src/db/message'
 import { User, UserService } from 'src/db/user'
 import { Message } from 'src/db/message'
 
-@WebSocketGateway()
+@WebSocketGateway({namespace:'chat'})
 export class ChatGateway implements OnGatewayConnection {
 
   constructor (

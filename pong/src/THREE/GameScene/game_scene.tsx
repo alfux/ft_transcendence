@@ -8,6 +8,11 @@ import { Vec3, distance, scalaire, norm } from '../Math';
 
 import { keyboard } from '../Utils/keyboard';
 
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
+import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass'
+
 function	impact(ball: Ball, obstacle: Obstacle)
 {
 	const	d = new Vec3(
@@ -124,7 +129,9 @@ function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
 
 
 
-export function create_game_scene(renderer: THREE.Renderer) {
+export function create_game_scene(renderer: THREE.WebGLRenderer) {
+
+    const   composer = new EffectComposer(renderer)
 
     const	scene = new THREE.Scene();
     const	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -225,8 +232,16 @@ export function create_game_scene(renderer: THREE.Renderer) {
         }
         if (start)
             moveBall(true);
-        renderer.render(scene, camera)
+        composer.render()
     }
+    const render_pass = new RenderPass(scene, camera)
+    composer.addPass(render_pass)
+
+    //const glitch_pass = new GlitchPass()
+    //composer.addPass(glitch_pass)
+
+    const output_pass = new OutputPass()
+    composer.addPass(output_pass)
 
     camera.position.set(0, -30, 40);
     camera.lookAt(0, 0, 0);

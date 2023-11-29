@@ -7,12 +7,14 @@ import { User } from './user.entity';
 import { FriendRequest } from './friend_request.entity';
 import { AuthModule } from 'src/auth';
 import { ConversationModule } from '..';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, FriendRequest]),
     forwardRef(() => AuthModule),
-    forwardRef(() => ConversationModule)
+    forwardRef(() => ConversationModule),
+    forwardRef(() => NotificationsModule)
   ],
   exports: [TypeOrmModule, UserService],
   providers: [UserService],

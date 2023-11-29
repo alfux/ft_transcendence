@@ -12,6 +12,7 @@ import { DebugModule } from './debug/debug.module'
 import { GameModule } from './game/game.module'
 
 import { config_db } from './config'
+import { NotificationsModule } from './notifications/notifications.module'
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { config_db } from './config'
     AuthModule,
     DebugModule,
     GameModule,
+    NotificationsModule
   ],
   providers: [
     {

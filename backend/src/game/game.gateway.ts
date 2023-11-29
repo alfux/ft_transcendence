@@ -37,38 +37,66 @@ class GameInstance {
     this.p2_pos = {x:0, y:0}
   }
   
+  start() {
+    this.player1.socket.emit("start", {
+      opponent:this.player2
+    })
+    this.player2.socket.emit("start", {
+      opponent:this.player1
+    })
+  }
+
 }
 
 
-@WebSocketGateway()
+@WebSocketGateway({namespace:'game'})
 export class GameGateway implements OnGatewayConnection {
 
   @WebSocketServer() server: Server
-  private connectedClients: Player[]
-  private waiting: Player[]
-  private gameInstances:GameInstance[]
+  private connectedClients: Player[] = []
+  private waiting: Player[] = []
+  private gameInstances:GameInstance[] = []
 
   constructor (
-    ) {}
+    private authService: AuthService,
+    private userService: UserService
+  ) {}
 
-
-  async handleConnection(client: Socket) {
-    console.log("Game Client connected: ", client.id)
-    this.connectedClients.push({socket:client, user:null})
-    this.waiting.push({socket:client, user:null})
-
-    if (this.waiting.length >= 2) {
-      
-    }
-
+  async handleConnection(client: any, ...args: any[]) {  
   }
 
   async handleDisconnect(client: Socket): Promise<any> {
-    //this.connectedClients.delete(client.id)
+    this.connectedClients = this.connectedClients.filter((v) => v.socket === client)
+    this.waiting = this.waiting.filter((v) => v.socket === client)
   }
 
-  @SubscribeMessage('keydown')
-  async handleAuth(client: Socket, key: string) {
-    
+  @SubscribeMessage('authentification')
+  async handleAuth(client: Socket, token: string)
+  {
+    const payload = this.authService.verifyJWT(token)
+    if (!payload)
+      return
+    const user = await this.userService.getUser({id:payload.sub})
+    this.connectedClients.push({socket:client, user:user})
   }
+
+  @SubscribeMessage('search')
+  async handleSearch(s: Socket) {
+    const client = this.connectedClients.find((v) => v.socket === s)
+    if (!client)
+      return
+
+    this.waiting.push(client)
+
+    if (this.waiting.length >= 2) {
+      const p1 = this.waiting[0]
+      const p2 = this.waiting[1]
+      this.waiting = this.waiting.filter((v) => v.socket !== p1.socket && v.socket !== p2.socket)
+    
+      const gameInstance = new GameInstance(p1, p2)
+      this.gameInstances.push(gameInstance)
+      gameInstance.start()
+    }
+  }
+
 }
