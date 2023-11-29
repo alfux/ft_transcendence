@@ -134,11 +134,11 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
 
     const	theta = Math.PI / 6;
     !accessToken ? load_obj(menu_parent, "meshes/Login.glb", [0, 0, 1], [Math.PI / 2, 0, 0]) : load_obj(menu_parent, "meshes/Logout.glb", [0, 0, 1], [Math.PI / 2, 0, 0]);
-    load_obj(menu_parent, "meshes/Play.glb", [0, Math.cos(theta), Math.sin(theta)], [theta, 0, 0]);
-    load_obj(menu_parent, "meshes/Settings.glb", [0, Math.cos(-theta), Math.sin(-theta)], [-theta, 0, 0]);
+    if(accessToken)load_obj(menu_parent, "meshes/Play.glb", [0, Math.cos(theta), Math.sin(theta)], [theta, 0, 0]);
+    if(accessToken)load_obj(menu_parent, "meshes/Settings.glb", [0, Math.cos(-theta), Math.sin(-theta)], [-theta, 0, 0]);
     load_obj(menu_parent, "meshes/About.glb", [0, Math.cos(-3 * theta), Math.sin(-3 * theta)], [-3 * theta, 0, 0]);
-    load_obj(menu_parent, "meshes/Profile.glb", [0, Math.cos(7 * theta), Math.sin(7 * theta)], [7 * theta, 0, 0]);
-    load_obj(menu_parent, "meshes/Chat.glb", [0, Math.cos(5 * theta), Math.sin(5 * theta)], [5 * theta, 0, 0]);
+    if(accessToken)load_obj(menu_parent, "meshes/Profile.glb", [0, Math.cos(7 * theta), Math.sin(7 * theta)], [7 * theta, 0, 0]);
+    if(accessToken)load_obj(menu_parent, "meshes/Chat.glb", [0, Math.cos(5 * theta), Math.sin(5 * theta)], [5 * theta, 0, 0]);
 
     sphere_mesh.name = "Sphere";
     menu_parent.add(sphere_mesh);

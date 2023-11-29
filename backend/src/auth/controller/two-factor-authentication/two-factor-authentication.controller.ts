@@ -68,9 +68,10 @@ export class TwoFactorAuthenticationController {
     @Post('disable')
     async disableTwoFactorAuth(@Req() request, @Res() response){
         console.log(request.user)
-        //await this.user.disableTwoFactorAuth(request.user.id)
-        response.clearCookie('access_token')
-        console.log('cookie cleared')
+        console.log('disabled')
+        return await this.user.disableTwoFactorAuth(request.user.id)
+        // response.clearCookie('access_token')
+
         //const tokens = await this.authService.generateTokens(request.user.id, request.email);
         //response.cookie('refresh_token', tokens.refreshToken, { httpOnly: true, sameSite: 'None', secure: true });
         //response.cookie('access_token', tokens.accessToken, { httpOnly: false, sameSite: 'None', secure: true });
@@ -79,6 +80,7 @@ export class TwoFactorAuthenticationController {
     @Get('status')
     async twoFactorAuthStatus(@Req() request){
         const user = this.user.provideUserById(request.user.id)
-        return (await user).twoFactorAuth ? 'enabled' : 'disabled'
+		console.log("sending to front",(await user).twoFactorAuth)
+        return (await user).twoFactorAuth ? true : false
     }
 }

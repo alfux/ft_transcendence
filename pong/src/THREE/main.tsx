@@ -21,26 +21,9 @@ export default function	THREE_App() {
 	const [loginForm, setLoginForm] = useState('')
 	const	[showProfile, setShowProfile] = useState(false)
 	const accessToken = Cookies.get('access_token');
+	const	[twofactor, setTwoFactor] = useState(false)
   const user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
-
-  const fetchData = async () => {
-	try {
-		const refreshEndpoint = 'http://localhost:3001/auth/refresh';
-		const response = await fetch(refreshEndpoint, {
-		  method: 'GET',
-		  credentials: 'include',
-		});
-  
-		if (response.ok) {
-		  console.log("GGGGGGGGGGGGGGGG")
-		} else {
-		  console.error('error obtaining refresh token:', response.status);
-		}
-	  } catch (error) {
-		console.error('Refresh Token error:', error);
-	  }
-	}
-
+//logout || refresh token
 	useEffect(()=>{
 		console.log("here")
 		if(user?.exp && user?.exp < Date.now() / 1000){
@@ -50,6 +33,7 @@ export default function	THREE_App() {
 			window.location.reload();
 		}
 	},[loginForm])
+
 	function get_token() {
 		const urlParams = new URLSearchParams(window.location.search)
 		const token = urlParams.get('code')
@@ -75,6 +59,7 @@ export default function	THREE_App() {
 		{
 			requestAnimationFrame(mainloop);
 			setLoginForm(menu_scene.update())
+			// game_scene.update()
 			//loginForm !== "Play" && !accessToken ? setLoginForm(menu_scene.update()) : game_scene.update()
 		}
 
@@ -98,6 +83,25 @@ export default function	THREE_App() {
 	}, []);
 
 	useEffect(() => {
+		const twoFactorStatus = async () =>{
+			try {//fetch 2fa Status
+			  const enable2FAEndpoint = 'http://localhost:3001/2fa/status';
+			  const response = await fetch(enable2FAEndpoint, {
+				  method: 'GET',
+				  credentials: 'include',
+			  });
+			  
+			  if (response.ok) {
+				  await response.text() === "true"?setTwoFactor(true):setTwoFactor(false)
+			  } else {
+				  console.error('Could not get the status of 2fa:', response.status);
+			  }
+		  } catch (error) {
+			  console.error('Error enabling 2FA:', error);
+		  }
+	  };
+
+
 		console.log(loginForm)
 		if (loginForm === "Login") {
 			const newFormContainer = document.createElement('div');
@@ -136,6 +140,9 @@ export default function	THREE_App() {
 				});
 		  	};
 		}
+		twoFactorStatus();
+		console.log("TWOFACTOR",twofactor)
+		if (loginForm === "Login" || loginForm === "Login" && accessToken && twofactor){}
 	}, [loginForm]);
 	
 

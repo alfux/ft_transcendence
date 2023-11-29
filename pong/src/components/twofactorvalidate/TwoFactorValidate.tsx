@@ -31,7 +31,9 @@ const TwoFactorValidate: React.FC = () => {
         body: JSON.stringify({verificationCode}),
       });
       if (response.ok) {
+		alert("2FA Enabled")
       } else {
+		alert("Wrong code")
         console.error('Error verifying 2FA code. Server responded with status:', response.status);
       }
     } catch (error) {

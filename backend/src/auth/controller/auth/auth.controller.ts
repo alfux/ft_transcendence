@@ -27,8 +27,9 @@ export class AuthController {
     async callback(@Req() request, @Res() response) {
 		console.log('________LOGIN_______')
         const tokens = await this.authService.login(request, response);
-        response.cookie('refresh_token', tokens.refreshToken, { httpOnly: true, sameSite: 'None', secure: true });
-        response.cookie('access_token', tokens.accessToken, { httpOnly: false, sameSite: 'None', secure: true });
+		//cookie should be set secure true for https
+        response.cookie('refresh_token', tokens.refreshToken, { httpOnly: true, sameSite: 'None', secure: false });
+        response.cookie('access_token', tokens.accessToken, { httpOnly: false, sameSite: 'None', secure: false });
         response.redirect('http://localhost:3000')
     }
     

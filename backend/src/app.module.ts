@@ -14,10 +14,10 @@ import { AuthController } from './auth/controller/auth/auth.controller';
 @Module({
   imports: [TypeOrmModule.forRoot({
     type: 'postgres',
-    host: 'localhost',
-    port: 5432,
-    username: 'gameover',
-    password: '123456',
+    host: 'host.docker.internal',
+    port: 55000,
+    username: 'postgres',
+    password: 'postgrespw',
     database: 'transcedence',
     entities: [User],
     synchronize: true,
@@ -32,3 +32,11 @@ export class AppModule {}
 
 //commands for postgresql 
 //https://www.commandprompt.com/education/postgresql-basic-psql-commands/
+// type: 'postgres',
+// host: 'localhost',
+// port: 5432,
+// username: 'gameover',
+// password: '123456',
+// database: 'transcedence',
+// entities: [User],
+// synchronize: true,
