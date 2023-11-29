@@ -34,11 +34,11 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
     const	sphere_mesh = new THREE.Mesh(sphere_geometry, sphere_material);
     sphere_mesh.name = "Sphere";
 
-	const	scaling = 0.5;
+	const	scaling = 2;
     const	theta = Math.PI / 6;
     const	menu_parent = new THREE.Group();
     menu_parent.add(sphere_mesh);
-    menu_parent.position.set(4, 3, 0);
+    menu_parent.position.set(0, 0, 0);
     load_obj(menu_parent, "meshes/Logout.glb", [0, 0, 1], [Math.PI / 2, 0, 0]);
     load_obj(menu_parent, "meshes/Play.glb", [0, Math.cos(theta), Math.sin(theta)], [theta, 0, 0]);
     load_obj(menu_parent, "meshes/Settings.glb", [0, Math.cos(-theta), Math.sin(-theta)], [-theta, 0, 0]);
@@ -137,8 +137,21 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
     	group.rotation.x = rot;
     }
 
+
+	let		t = 0;
+
     function update() {
         delta_time = clock.getDelta();
+		if (1 && t < Math.PI / 2)
+		{
+			menu_parent.position.x = 4 * Math.sin(t);
+			menu_parent.position.y = 3 * Math.sin(t);
+			menu_parent.scale.x = 2 - 3 * t / Math.PI;
+			menu_parent.scale.y = 2 - 3 * t / Math.PI;
+			menu_parent.scale.z = 2 - 3 * t / Math.PI;
+			console.log(menu_parent.scale);
+			t += 0.05;
+		}
 
         /*
         Update la couleur du texte actuellement sélectionné

@@ -131,7 +131,7 @@ function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
 export function create_game_scene(renderer: THREE.WebGLRenderer, composer: EffectComposer, socket: Socket)
 {
 	const	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, -30, 30);
+    camera.position.set(0, -300, 300);
 	camera.up.set(0, 0, 1);
     camera.lookAt(0, 0, 0);
 
@@ -186,8 +186,8 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 	composer.addPass(render_pass);
 	composer.addPass(bloom_pass);
 
-	renderer.domElement.addEventListener("contextmenu", (event) => {return (event.preventDefault());});
-	renderer.domElement.addEventListener("pointermove", (event) =>
+	window.addEventListener("contextmenu", (event) => {return (event.preventDefault());});
+	window.addEventListener("pointermove", (event) =>
 	{
 		if (event.buttons)
 		{
@@ -203,7 +203,7 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 	socket.on("player_pos", updateLRacket);
 
 	function	handleStart() {
-		//animation gamestart
+		start = true;
 	}
 
 	function	updateScore() {
@@ -259,6 +259,12 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 	let	rota = 0;
     function update()
 	{
+		if (1 && camera.position.z > 30)
+		{
+			camera.position.z -= 2.5;
+			camera.position.y += 2.5;
+			scene.rotation.z += 2 * 2.5 * Math.PI / 270;
+		}
 		composer.render();
 		renderer.render(main_stage, main_camera);
     }
