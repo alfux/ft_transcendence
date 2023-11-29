@@ -13,8 +13,12 @@ import { Message } from 'src/db/message'
 
 import { Clock } from './Clock'
 
+class	Keyboard
+{
+	[key: string]: {keydown:boolean, keypress:boolean};
+}
 
-interface Player {
+interface Client {
   socket: Socket,
   user: User
 }
@@ -24,39 +28,41 @@ interface Vec2 {
   y:number
 }
 
+interface Player {
+  client:Client
+  pos:Vec2
+}
+
 class GameInstance {
 
   player1:Player
   player2:Player
 
-  p1_pos:Vec2
-  p2_pos:Vec2
-
   clock:Clock
 
-  constructor(player1:Player, player2:Player) {
-    this.player1 = player1
-    this.player2 = player2
-  
-    this.p1_pos = {x:0, y:0}
-    this.p2_pos = {x:0, y:0}
+  delta_time:number
+
+  constructor(player1:Client, player2:Client) {
+    this.player1 = {client:player1, pos:{x:0, y:0}}
+    this.player2 = {client:player2, pos:{x:0, y:0}}
 
     this.clock = new Clock(false)
+    this.delta_time = 0
   }
 
   start() {
     this.clock.start()
-    this.player1.socket.emit("start", {
+    this.player1.client.socket.emit("start", {
       opponent:this.player2
     })
-    this.player2.socket.emit("start", {
+    this.player2.client.socket.emit("start", {
       opponent:this.player1
     })
   }
 
   update() {
-    const delta_time = this.clock.getDelta()
-    console.log(delta_time)
+    this.delta_time = this.clock.getDelta()
+    console.log(this.delta_time)
   }
 
 }
@@ -66,8 +72,8 @@ class GameInstance {
 export class GameGateway implements OnGatewayConnection {
 
   @WebSocketServer() server: Server
-  private connectedClients: Player[] = []
-  private waiting: Player[] = []
+  private connectedClients: Client[] = []
+  private waiting: Client[] = []
   private gameInstances:GameInstance[] = []
 
   constructor (
@@ -75,29 +81,41 @@ export class GameGateway implements OnGatewayConnection {
     private userService: UserService
   ) {}
 
-  async handleConnection(client: any, ...args: any[]) {  
+  async handleConnection(client: Socket, ...args: any[]) {  
+    console.log("Client connected: ", client.id)
   }
-
+  
   async handleDisconnect(client: Socket): Promise<any> {
+    console.log("Client disconnected: ", client.id)
     this.connectedClients = this.connectedClients.filter((v) => v.socket === client)
     this.waiting = this.waiting.filter((v) => v.socket === client)
   }
-
+  
   @SubscribeMessage('authentification')
   async handleAuth(client: Socket, token: string)
   {
+    console.log("Client auth: ", client.id)
     const payload = this.authService.verifyJWT(token)
+    console.log(payload)
     if (!payload)
+    {
+      console.log("Client auth failed: ", client.id)
       return
+    }
+    console.log("Client auth success: ", client.id)
     const user = await this.userService.getUser({id:payload.sub})
     this.connectedClients.push({socket:client, user:user})
   }
 
   @SubscribeMessage('search')
   async handleSearch(s: Socket) {
+    console.log("Client search... ", s.id)
     const client = this.connectedClients.find((v) => v.socket === s)
-    if (!client)
+    if (!client) {
+      console.log("Client search failed ", s.id)
       return
+    }
+    console.log("Client search success ", s.id)
 
     this.waiting.push(client)
 
@@ -110,6 +128,36 @@ export class GameGateway implements OnGatewayConnection {
       this.gameInstances.push(gameInstance)
       gameInstance.start()
     }
+  }
+
+  @SubscribeMessage('player_input')
+  async handlePlayerInput(s:Socket, keyboard: Keyboard) {
+
+    console.log(keyboard)
+
+    const game_instance = this.gameInstances.find((gi) => gi.player1.client.socket === s || gi.player2.client.socket === s)
+    const sender = game_instance.player1.client.socket === s ? game_instance.player1 : game_instance.player2
+    const receiver = game_instance.player2.client.socket === s ? game_instance.player1 : game_instance.player2
+
+    const	limit = 7;
+    let		move = 0;
+    let		speed = 20;
+
+    if (keyboard.ArrowDown?.keypress)
+        move -= speed * game_instance.delta_time
+    if (keyboard.ArrowUp?.keypress)
+        move += speed * game_instance.delta_time;
+    if (sender.pos.y <= limit)
+    {
+      sender.pos.y += move;
+      //board.right_racket.speed = 0.5 * move / game_instance.delta_time;
+    }
+    else
+    {
+      sender.pos.y = (move < 0) ? -limit : limit;
+      //board.right_racket.speed = 0;
+    }
+    receiver.client.socket.emit("player_pos", sender.pos)
   }
 
   @Interval(1000 / 60)

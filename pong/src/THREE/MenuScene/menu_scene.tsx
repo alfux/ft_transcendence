@@ -79,7 +79,6 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
         raycaster.setFromCamera(pointer, camera);
 
         const	intersect = raycaster.intersectObjects(scene.children);
-        console.log(intersect)
         if (intersect.length > 0 && (intersect[0].object.name === current
             || intersect[0].object.name === "Sphere"))
         {
@@ -93,6 +92,7 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
                 case MenuButtons.Play:
                     //Animation lancement
                     socket.emit("search")
+                    console.log("AAAAAAAAA")
                     break
             }
         }
