@@ -128,7 +128,7 @@ function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
 	ball.speed.set(nspeed * tmp.x / n, nspeed * tmp.y / n, nspeed * tmp.z / n);
 }
 
-export function create_game_scene(renderer: THREE.WebGLRenderer, composer: EffectComposer, socket:Socket)
+export function create_game_scene(renderer: THREE.WebGLRenderer, composer: EffectComposer, socket: Socket)
 {
 	const	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, -30, 30);
@@ -199,58 +199,26 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 			camera.lookAt(0, 0, 0);
 		}
 	});
+	socket.on("start", handleStart);
+	socket.on("player_pos", updateLRacket);
 
-	function	updateScore()
-	{
+	function	handleStart() {
+		//animation gamestart
+	}
+
+	function	updateScore() {
 		//scorePrint.removeChild(score);
 		//score = document.createTextNode(s1 + " : " + s2);
 		//scorePrint.appendChild(score);
 	}
 
-    function	updateRRacket()
-    {
-        const	limit = 7;
-        let		move = 0;
-        let		speed = 20;
-
-        if (keyboard.ArrowDown?.keypress)
-            move -= speed * delta_time
-        if (keyboard.ArrowUp?.keypress)
-            move += speed * delta_time;
-        if (Math.abs(game_parent.children[0].children[1].position.y + move) <= limit)
-        {
-            board.right_racket.position.y += move;
-            board.right_racket.speed = 0.5 * move / delta_time;
-        }
-        else
-        {
-            board.right_racket.position.y = (move < 0) ? -limit : limit;
-            board.right_racket.speed = 0;
-        }
-        game_parent.children[0].children[1].position.y = board.right_racket.position.y;
+    function	updateRRacket() {
+		socket.emit("player_input", keyboard);
     }
 
-
-    function	updateLRacket()
+    function	updateLRacket(pos: {x: number, y: number})
     {
-        const	limit = 7;
-        let		move = 0;
-        let		speed = 20;
-
-        if (keyboard.s?.keypress)
-            move -= speed * delta_time
-        if (keyboard.z?.keypress)
-            move += speed * delta_time;
-        if (Math.abs(game_parent.children[0].children[0].position.y + move) <= limit)
-        {
-            board.left_racket.position.y += move;
-            board.left_racket.speed = -0.5 * move / delta_time;
-        }
-        else
-        {
-            board.left_racket.position.y = (move < 0) ? -limit : limit;
-            board.left_racket.speed = 0;
-        }
+        board.left_racket.position.y = pos.y;
         game_parent.children[0].children[0].position.y = board.left_racket.position.y;
     }
 
@@ -291,18 +259,6 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 	let	rota = 0;
     function update()
 	{
-        delta_time = clock.getDelta()
-
-        if (game_parent.children.length > 0)
-        {
-            updateRRacket();
-            updateLRacket();
-        }
-        if (keyboard[" "]?.keydown) {
-            start = !start;
-        }
-        if (start)
-            moveBall(true);
 		composer.render();
 		renderer.render(main_stage, main_camera);
     }

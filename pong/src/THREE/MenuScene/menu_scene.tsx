@@ -95,6 +95,7 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
                     socket.emit("search")
                     break
             }
+			console.log("lickclick");
         }
     }
  
