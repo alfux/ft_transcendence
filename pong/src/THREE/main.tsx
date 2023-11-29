@@ -2,6 +2,8 @@ import React, { useRef, useEffect, useState } from 'react'
 import * as THREE from "three";
 import io from "socket.io-client";
 
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+
 import { initKeyboardHandlers } from './Utils'
 
 import { create_menu_scene } from "./MenuScene";
@@ -9,68 +11,77 @@ import { create_game_scene } from "./GameScene";
 
 import { config } from '../config';
 
-export default function	THREE_App(props:{
+export default function THREE_App(props: {
 	toggleProfile: () => void,
 	toggleChat: () => void,
-	children:React.ReactNode}) {
-	const	divRef = useRef<HTMLDivElement>(null);
+	children: React.ReactNode
+}) {
+
+	const divRef = useRef<HTMLDivElement>(null);
+
+	const [showProfile, setShowProfile] = useState(false)
 
 	function get_token() {
 		const urlParams = new URLSearchParams(window.location.search)
 		const token = urlParams.get('code')
 		if (token) {
-		  localStorage.setItem('token', token)
-		  const newURL = window.location.href.replace(window.location.search, '')
-		  window.history.replaceState({}, document.title, newURL)
+			localStorage.setItem('token', token)
+			const newURL = window.location.href.replace(window.location.search, '')
+			window.history.replaceState({}, document.title, newURL)
 		}
 	}
 
-	useEffect(() =>
-	{
+	useEffect(() => {
 		get_token()
 
-		const	renderer = new THREE.WebGLRenderer();
-		const	composer_clock = new THREE.Clock()
-
-		const	menu_scene = create_menu_scene(renderer, {toggleProfile:props.toggleProfile, toggleChat:props.toggleChat})
-		//const	game_scene = create_game_scene(renderer)
-
-		//const	socket = io(`${config.backend_url}/game`, {transports: ["websocket"]});
-
-		function	mainloop()
-		{
-			requestAnimationFrame(mainloop);
-			//game_scene.update()
-			menu_scene.update()
-		}
-
+		const renderer = new THREE.WebGLRenderer();
 		renderer.setSize(window.innerWidth, window.innerHeight);
-		window.addEventListener('resize', (event: UIEvent) => {
-			renderer.setSize(window.innerWidth, window.innerHeight)
-		}, false);
+		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.autoClear = false;
 
-		if (divRef.current)
-		{
-			initKeyboardHandlers()
-			divRef.current.appendChild(renderer.domElement);
+		const game_composer = new EffectComposer(renderer);
+		game_composer.setSize(window.innerWidth, window.innerHeight);
+		game_composer.setPixelRatio(window.devicePixelRatio);
+		game_composer.renderToScreen = false;
+
+		const menu_scene = create_menu_scene(renderer, {
+			toggleProfile: () => {
+				setShowProfile((prev) => {
+					console.log(prev);
+					return !prev
+				})
+			}
+		});
+		const game_scene = create_game_scene(renderer, game_composer);
+
+		const socket = io("http://10.18.202.182:3001", { transports: ["websocket"] });
+
+		function mainloop() {
+			requestAnimationFrame(mainloop);
+			renderer.clear();
+			game_scene.update();
+			menu_scene.update();
+			//			console.log(showProfile);
 		}
 
 
-
+		if (divRef.current) {
+			initKeyboardHandlers();
+			divRef.current.appendChild(renderer.domElement);
+		}
 		mainloop();
 		return (() => {
-			divRef.current?.removeChild(renderer.domElement)
+			divRef.current?.removeChild(renderer.domElement);
 
-			menu_scene.clean()
-			//game_scene.clean()
-			renderer.dispose()
-
+			menu_scene.clean();
+			game_scene.clean();
+			renderer.dispose();
+			game_composer.dispose();
 		});
 	}, []);
 
 	return (
-		<div ref={divRef}>
+		<div ref={divRef} id="Canvas">
 			{props.children}
 		</div>
 	);

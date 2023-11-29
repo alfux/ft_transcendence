@@ -66,7 +66,7 @@ class ConversationList extends BackendData<Conversation[], undefined> {
 
     console.log("loading")
 
-    fetch(`${config.backend_url}/api/conversation`, {
+    fetch(`${config.backend_url}/api/conversation/me`, {
       method: 'GET',
       headers:getHeaders()
     })

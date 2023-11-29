@@ -1,15 +1,17 @@
-import * as THREE from 'three';
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js"
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js"
-import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js"
+import * as THREE from 'three'
 import { load_obj } from '../Utils/loader';
 
 import { Ball } from './ball';
 import { Obstacle } from './obstacle';
 import { GameBoard } from './gameboard';
-import { Vec3, distance, scalaire, norm, Mat3, rotz, rotx} from '../Math';
+import { Vec3, distance, scalaire, norm } from '../Math';
 
 import { keyboard } from '../Utils/keyboard';
+
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
+import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass'
 
 function	impact(ball: Ball, obstacle: Obstacle)
 {
@@ -90,18 +92,16 @@ function	impact(ball: Ball, obstacle: Obstacle)
 
 function    manageSpin(ball: Ball, obstacle: Obstacle, tmp: Vec3)
 {
-	const	way = new Vec3(
-		Math.sign(obstacle.speed ? obstacle.speed : 1) * obstacle.direction.x,
-		Math.sign(obstacle.speed ? obstacle.speed : 1) * obstacle.direction.y,
-		Math.sign(obstacle.speed ? obstacle.speed : 1) * obstacle.direction.z
-	);
-	const	spin = scalaire(ball.speed, way) / norm(ball.speed);
+    //console.log("before bounce");
+    //console.log(ball.spin);
     tmp.set(
-        tmp.x + Math.abs(obstacle.speed - ball.spin) * Math.sign(-ball.spin ? -ball.spin : 1) * way.x,
-        tmp.y + Math.abs(obstacle.speed - ball.spin) * Math.sign(-ball.spin ? -ball.spin : 1) * way.y,
-        tmp.z + Math.abs(obstacle.speed - ball.spin) * Math.sign(-ball.spin ? -ball.spin : 1) * way.z
+        tmp.x + Math.abs(obstacle.speed - ball.spin) * Math.sign(obstacle.speed) * obstacle.direction.x,
+        tmp.y + Math.abs(obstacle.speed - ball.spin) * Math.sign(obstacle.speed) * obstacle.direction.y,
+        tmp.z + Math.abs(obstacle.speed - ball.spin) * Math.sign(obstacle.speed) * obstacle.direction.z
     );
-    ball.spin = ((1 - spin) * obstacle.speed + ball.spin) / 2;
+    //console.log("after bounce");
+    //console.log(ball.spin);
+    ball.spin = obstacle.speed + ball.spin / 2;
 }
 
 
@@ -127,84 +127,24 @@ function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
 	ball.speed.set(nspeed * tmp.x / n, nspeed * tmp.y / n, nspeed * tmp.z / n);
 }
 
-export function create_game_scene(renderer: THREE.WebGLRenderer, composer: EffectComposer)
-{
-	const	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, -30, 30);
-	camera.up.set(0, 0, 1);
-    camera.lookAt(0, 0, 0);
 
-	const	ambient = new THREE.AmbientLight(0xffffff, 1);
-	ambient.position.set(0, 0, 2);
-    
-    const	game_parent = new THREE.Group();
-    load_obj(game_parent, "meshes/game.glb");
+
+export function create_game_scene(renderer: THREE.WebGLRenderer) {
+
+    const   composer = new EffectComposer(renderer)
 
     const	scene = new THREE.Scene();
-    scene.add(game_parent, ambient);
-
-	const	render_pass = new RenderPass(scene, camera);
-	const	bloom_pass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 3, 0.1, 0.1);
+    const	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const	light = new THREE.DirectionalLight(0xffffff, 1.5);
     
     const	clock = new THREE.Clock();
     let     delta_time = clock.getDelta()
+    
+    const	game_parent = new THREE.Group();
 
     const	board = new GameBoard();
-    board.ball.speed.set(20, 0, 0);
-
-	let		start = false;
-
-	const	plane = new THREE.PlaneGeometry(window.innerWidth / 50, window.innerHeight / 50, 10, 10);
-	const	texture = new THREE.MeshPhongMaterial({map: composer.readBuffer.texture});
-	const	screen_plane = new THREE.Mesh(plane, texture);
-	screen_plane.position.set(0, 0, 0);
-
-	const	main_camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-	//const	main_camera = new THREE.OrthographicCamera(
-	//	-window.innerWidth / 200, window.innerWidth / 200,
-	//	window.innerHeight / 200, -window.innerHeight / 200, 0.1, 10
-	//);
-	main_camera.position.set(0, 0, 30);
-	main_camera.lookAt(0, 0, 0);
-
-	const	main_ambient = new THREE.AmbientLight(0xffffff, 1);
-
-	const	main_stage = new THREE.Scene();
-	main_stage.background = new THREE.Color(0xffffff);
-	main_stage.add(screen_plane, main_ambient);
-
-	const	canvas = document.getElementById("Canvas");
-	const	scorePrint = document.createElement("h1");
-	let		s1 = 0;
-	let		s2 = 0;
-	let		score = document.createTextNode(s1 + " : " + s2);
-	scorePrint.style.color = "white";
-	scorePrint.appendChild(score);
-	canvas?.appendChild(scorePrint);
-	
-	composer.addPass(render_pass);
-	composer.addPass(bloom_pass);
-
-	renderer.domElement.addEventListener("contextmenu", (event) => {return (event.preventDefault());});
-	renderer.domElement.addEventListener("pointermove", (event) =>
-	{
-		if (event.buttons)
-		{
-			const	cpos = new Vec3(camera.position.x, camera.position.y, camera.position.z);
-			const	tmp = rotx(cpos, -event.movementY / 1000);
-			const	npos = rotz(tmp, -event.movementX / 1000);
-			
-			camera.position.set(npos.x, npos.y, npos.z);
-			camera.lookAt(0, 0, 0);
-		}
-	});
-
-	function	updateScore()
-	{
-		scorePrint.removeChild(score);
-		score = document.createTextNode(s1 + " : " + s2);
-		scorePrint.appendChild(score);
-	}
+    let		start = false;
+    board.ball.speed.set(10, 0, 0);
 
     function	updateRRacket()
     {
@@ -214,19 +154,22 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 
         if (keyboard.ArrowDown?.keypress)
             move -= speed * delta_time
-        if (keyboard.ArrowUp?.keypress)
+        if (keyboard.ArrowUp?.keypress) {
             move += speed * delta_time;
-        if (Math.abs(game_parent.children[0].children[1].position.y + move) <= limit)
+        }
+    
+
+        if (Math.abs(game_parent.children[0].children[2].position.y + move) <= limit)
         {
             board.right_racket.position.y += move;
-            board.right_racket.speed = 0.5 * move / delta_time;
+            board.right_racket.speed = move;
         }
         else
         {
             board.right_racket.position.y = (move < 0) ? -limit : limit;
             board.right_racket.speed = 0;
         }
-        game_parent.children[0].children[1].position.y = board.right_racket.position.y;
+        game_parent.children[0].children[2].position.y = board.right_racket.position.y;
     }
 
 
@@ -240,39 +183,27 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
             move -= speed * delta_time
         if (keyboard.z?.keypress)
             move += speed * delta_time;
-        if (Math.abs(game_parent.children[0].children[0].position.y + move) <= limit)
+        if (Math.abs(game_parent.children[0].children[1].position.y + move) <= limit)
         {
             board.left_racket.position.y += move;
-            board.left_racket.speed = -0.5 * move / delta_time;
+            board.left_racket.speed = -move;
         }
         else
         {
             board.left_racket.position.y = (move < 0) ? -limit : limit;
             board.left_racket.speed = 0;
         }
-        game_parent.children[0].children[0].position.y = board.left_racket.position.y;
+        game_parent.children[0].children[1].position.y = board.left_racket.position.y;
     }
 
     function	moveBall(t: boolean)
     {
         let	imp;
 
-        game_parent.children[0].children[2].position.x += delta_time * board.ball.speed.x;
-        game_parent.children[0].children[2].position.y += delta_time * board.ball.speed.y;
-		if (game_parent.children[0].children[2].position.x > 16)
-		{
-			++s1;
-			updateScore();
-			game_parent.children[0].children[2].position.set(0, 0, 0);
-		}
-		else if (game_parent.children[0].children[2].position.x < -16)
-		{
-			++s2;
-			updateScore();
-			game_parent.children[0].children[2].position.set(0, 0, 0);
-		}
-        board.ball.position.x = game_parent.children[0].children[2].position.x;
-        board.ball.position.y = game_parent.children[0].children[2].position.y;
+        game_parent.children[0].children[3].position.x += delta_time * board.ball.speed.x;
+        game_parent.children[0].children[3].position.y += delta_time * board.ball.speed.y;
+        board.ball.position.x = game_parent.children[0].children[3].position.x;
+        board.ball.position.y = game_parent.children[0].children[3].position.y;
         imp = impact(board.ball, board.upper_border);
         if (imp !== undefined)
             bounce(board.ball, board.upper_border, imp);
@@ -287,9 +218,8 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
             bounce(board.ball, board.right_racket, imp);
     }
 
-	let	rota = 0;
-    function update()
-	{
+
+    function update() {
         delta_time = clock.getDelta()
 
         if (game_parent.children.length > 0)
@@ -298,13 +228,26 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
             updateLRacket();
         }
         if (keyboard[" "]?.keydown) {
-            start = !start;
+            start = !start
         }
         if (start)
             moveBall(true);
-		composer.render();
-		renderer.render(main_stage, main_camera);
+        composer.render()
     }
+    const render_pass = new RenderPass(scene, camera)
+    composer.addPass(render_pass)
+
+    //const glitch_pass = new GlitchPass()
+    //composer.addPass(glitch_pass)
+
+    const output_pass = new OutputPass()
+    composer.addPass(output_pass)
+
+    camera.position.set(0, -30, 40);
+    camera.lookAt(0, 0, 0);
+    light.position.set(0, 0, 2);
+    load_obj(game_parent, "meshes/game.glb");
+    scene.add(game_parent, light);
 
     return {
         update:update,
@@ -317,9 +260,6 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
                     obj.material.dispose();
                 }
             });
-			render_pass.dispose();
-			bloom_pass.dispose();
-			canvas?.removeChild(scorePrint);
         }
     }
 }
