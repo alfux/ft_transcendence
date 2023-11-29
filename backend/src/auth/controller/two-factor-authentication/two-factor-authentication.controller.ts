@@ -1,13 +1,14 @@
 import { Body, Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { JwtAccessTokenGuard } from 'src/auth/guard/jwtAcessToken.guard';
+import { AuthService } from 'src/auth/service/auth/auth.service';
 import { TwoFactorAuthenticationService } from 'src/auth/service/two-factor-authentication/two-factor-authentication.service';
 import { UserService } from 'src/user/service/user/user.service';
 const speakeasy = require('speakeasy');
 @Controller('2fa')
 export class TwoFactorAuthenticationController {
-    constructor(private jwtService: JwtService, private twoFactorAuthenticationService:TwoFactorAuthenticationService, private readonly user: UserService){
-    }
+    constructor(private jwtService: JwtService, private twoFactorAuthenticationService:TwoFactorAuthenticationService, private readonly user: UserService,  private authService : AuthService){
+   }
     @Post('authenticate')
     async enableTwoFactorAuthentication(@Req() request, @Body() body){
         const isCodeValid = this.twoFactorAuthenticationService.verifyTwoFactorAuthCode(
@@ -65,8 +66,14 @@ export class TwoFactorAuthenticationController {
     }
     @UseGuards(JwtAccessTokenGuard)
     @Post('disable')
-    async disableTwoFactorAuth(){
-        return await this.user.disableTwoFactorAuth('2')
+    async disableTwoFactorAuth(@Req() request, @Res() response){
+        console.log(request.user)
+        //await this.user.disableTwoFactorAuth(request.user.id)
+        response.clearCookie('access_token')
+        console.log('cookie cleared')
+        //const tokens = await this.authService.generateTokens(request.user.id, request.email);
+        //response.cookie('refresh_token', tokens.refreshToken, { httpOnly: true, sameSite: 'None', secure: true });
+        //response.cookie('access_token', tokens.accessToken, { httpOnly: false, sameSite: 'None', secure: true });
     }
     @UseGuards(JwtAccessTokenGuard)
     @Get('status')

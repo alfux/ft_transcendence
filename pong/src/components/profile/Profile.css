@@ -1,0 +1,45 @@
+.glass-container-profile {
+	position: fixed;
+	left: 0px;
+	top: 35%;
+	height: 30%;
+	max-height: 350px;
+	min-height: 300px;
+	width: 80%;
+	max-width: 400px;
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 16px;
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	border-radius: 20px;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	animation: slideIn 2s ease forwards, colorChange 2s infinite;
+  }
+  
+  @keyframes slideIn {
+	0% {
+	  left: -600px;
+	  box-shadow: 0 0 1000px #00ff00;
+	}
+	100% {
+	  left: calc(30% - 300px);
+	}
+  }
+
+  @keyframes colorChange {
+	0% {
+	  box-shadow: 0 0 100px #ffffff;
+	  box-shadow: 0 0 200px #0400ff;
+	}
+	50% {
+	  box-shadow: 0 0 10px #ffffff;
+	  box-shadow: 0 0 20px #0400ff;
+	}
+	100% {
+		box-shadow: 0 0 10px #ffffff;
+		box-shadow: 0 0 20px #0400ff;
+	}
+  }

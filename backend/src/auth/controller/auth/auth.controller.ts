@@ -1,8 +1,10 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Redirect, Req, Request, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { sign } from 'crypto';
+import { response } from 'express';
 import { Auth42Guard } from 'src/auth/guard';
 import { JwtAccessTokenGuard } from 'src/auth/guard/jwtAcessToken.guard';
+import { JwtRefreshTokenGuard } from 'src/auth/guard/jwtRefreshToken.guard';
 import { AuthService } from 'src/auth/service/auth/auth.service';
 import { UserDto } from 'src/user/dto/user.dto';
 import { User } from 'src/user/entities/user.entity';
@@ -30,21 +32,6 @@ export class AuthController {
         response.redirect('http://localhost:3000')
     }
     
-    
-    @Get('/test')
-    async success(){
-         return 'hello'
-        // if (request.cookies && 'access_token' in request.cookies){
-        //     console.log('access token: ', request.cookies.access_token)
-        //     const token = request.cookies.access_token;
-        //     this.authService.isJwtValid(token)
-        // }
-        // const test = await this.userService.provideUserByEmail(request.user.email)
-        // console.log(test)
-        // response.redirect(test)
-    //  this.userService.provideUserByEmail(request.cookie('access_token'))  
-    }
-
     @UseGuards(JwtAccessTokenGuard)
     @Get('/auth/logout')
     async logout(@Req() request, @Res() response){
@@ -53,6 +40,14 @@ export class AuthController {
 		console.log(test)
         response.status(200).json(test)
         
+    }
+
+    @UseGuards(JwtRefreshTokenGuard)
+    @Get('auth/refresh')
+    async refreshToken(@Req() request, @Res() response){
+        const tokens = await this.authService.newAccessToken(request);
+        response.cookie('refresh_token', tokens.refreshToken, { httpOnly: true, sameSite: 'None', secure: true });
+        response.cookie('access_token', tokens.accessToken, { httpOnly: false, sameSite: 'None', secure: true });
     }
     
 }

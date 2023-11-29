@@ -15,12 +15,12 @@ export class AuthService {
     async login(@Req() request, @Res() response) : Promise<any>{
         if (!await this.userService.provideUserByEmail(request.user.emails[0].value)){
             const user = this.userService.provideNewUser(request.user);
-            console.log('usercreated')
+            console.log('user: ', (await user).firstName, "twofactor: ", (await user).twoFactorAuth)
         }
         else{
             console.log('user already exist')
         }
-        const tokens = await this.generateTokens(request.user.id, request.user.emails[0].value)
+        const tokens = await this.generateTokens(request.user.id, request.user.email)
         return tokens;
         
     }
@@ -49,24 +49,57 @@ export class AuthService {
     }
     //Generate access token and refresh token
     async generateTokens(id:string, email:string){
-        const user = this.userService.provideUserByEmail(email)
+        const user = await this.userService.provideUserByEmail(email)
+        if (!user){
+            console.log(email)
+            console.log("error")
+            throw new UnauthorizedException('User not found.');
+        }
+        const auth = user.twoFactorAuth;
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(
                 {
                     sub: id,
                     email,
-                    isTwoFactorAuthEnable: (await user).twoFactorAuth,
-                    isTwoFactorAuthenticated: true,
+                    isTwoFactorAuthEnable: auth,
                 },
                 {
                     secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
-                    expiresIn: '15m',
+                    expiresIn: '1m',
                 }
             ),
             this.jwtService.signAsync(
                 {
                     sub: id,
                     email,
+                },
+                {
+                    secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
+                    expiresIn: '7d',
+                }
+            ),
+        ]);
+        return {accessToken, refreshToken}
+    }
+
+    async newAccessToken(@Req() request){
+        const user = await this.userService.provideUserByEmail(request.user.email)
+        const [accessToken, refreshToken] = await Promise.all([
+            this.jwtService.signAsync(
+                {
+                    sub: request.user.id,
+                    email: request.user.email,
+                    isTwoFactorAuthEnable: user.twoFactorAuth,
+                },
+                {
+                    secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
+                    expiresIn: '30s',
+                }
+            ),
+            this.jwtService.signAsync(
+                {
+                    sub: request.user.id,
+                    email: request.user.email,
                 },
                 {
                     secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),

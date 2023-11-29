@@ -31,17 +31,31 @@ export class UserService {
 
     //Create New User
     async provideNewUser(profile:any): Promise<User>{
-        const user = new User();
-        user.firstName = profile.name.givenName;
-        user.lastName = profile.name.familyName;
-        user.nickName = profile.username;
-        user.email = profile.emails[0].value;
-        user.avatar = 'https://cdn.intra.42.fr/users/a5e81b42b8d91e63773eb39dcf618ef6/dpaulino.jpg';
-        user.creationDate = new Date();
-        user.lastTimeLogged = new Date();
-        user.refreshToken = 'test'
-
-        user.twoFactorAuthSecret = '';
+        // const user = new User();
+        // // user.id = profile.id;
+        // user.firstName = profile.name.givenName;
+        // user.lastName = profile.name.familyName;
+        // user.nickName = profile.username;
+        // user.email = profile.emails[0].value;
+        // user.avatar = 'https://cdn.intra.42.fr/users/a5e81b42b8d91e63773eb39dcf618ef6/dpaulino.jpg';
+        // user.creationDate = new Date();
+        // user.lastTimeLogged = new Date();
+        // user.refreshToken = 'test'
+        // user.twoFactorAuth = false;
+        // user.twoFactorAuthSecret = '';
+        const user = this.userRepo.create({
+            id : profile.id,
+            firstName : profile.name.givenName,
+            lastName : profile.name.familyName,
+            nickName : profile.username,
+            email : profile.emails[0].value,
+            avatar : 'https://cdn.intra.42.fr/users/a5e81b42b8d91e63773eb39dcf618ef6/dpaulino.jpg',
+            creationDate : new Date(),
+            lastTimeLogged : new Date(),
+            refreshToken : 'test',
+            twoFactorAuth : false,
+            twoFactorAuthSecret : '',}
+        )
         this.userRepo.save(user);
         return user
     }
@@ -50,12 +64,14 @@ export class UserService {
         const user = await this.userRepo.findOne({where :{id}})
         user.twoFactorAuth = true;
         await this.userRepo.save(user);
+        
     }
 
     async disableTwoFactorAuth(id: string){
         const user = await this.userRepo.findOne({where :{id}})
         user.twoFactorAuth = false;
         await this.userRepo.save(user);
+        console.log('user: ',user.id)
     }
     //_________________________________________________
 

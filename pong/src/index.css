@@ -1,0 +1,26 @@
+
+body {
+	margin: 0;
+	overflow: hidden; 
+	position: relative;
+  }
+  
+.video-background {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	z-index: -1;
+  }
+  
+  .filtered-video {
+	object-fit: cover;
+	width: 100%;
+	height: 100%;
+	pointer-events: none; 
+	filter: grayscale(20%) brightness(50%);
+  }
+  
+  
