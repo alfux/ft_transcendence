@@ -33,6 +33,8 @@ export default function THREE_App(props: {
 
 	useEffect(() => {
 		get_token()
+		const socket = io(`${config.backend_url}/game`, { transports: ["websocket"] });
+		socket.emit("authentification", localStorage.getItem("token"))
 
 		const renderer = new THREE.WebGLRenderer();
 		renderer.setSize(window.innerWidth, window.innerHeight);
@@ -50,11 +52,10 @@ export default function THREE_App(props: {
 					console.log(prev);
 					return !prev
 				})
-			}
-		});
-		const game_scene = create_game_scene(renderer, game_composer);
+			},
+		}, socket);
+		const game_scene = create_game_scene(renderer, game_composer, socket);
 
-		const socket = io("http://10.18.202.182:3001", { transports: ["websocket"] });
 
 		function mainloop() {
 			requestAnimationFrame(mainloop);

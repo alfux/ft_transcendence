@@ -5,6 +5,7 @@ import { config } from '../../config';
 import { load_obj } from '../Utils';
 
 import { clamp } from '../Math';
+import { Socket } from 'socket.io-client';
 
 enum MenuButtons {
 	Logout = "Logout",
@@ -17,7 +18,7 @@ enum MenuButtons {
 
 export function create_menu_scene(renderer: THREE.Renderer, params: {
     toggleProfile:() => void
-}) {
+}, socket:Socket) {
 
 	const	camera = new THREE.OrthographicCamera(
 		-window.innerWidth / 200, window.innerWidth / 200,
@@ -88,6 +89,11 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
                     break ;
                 case MenuButtons.Profile:
                     params.toggleProfile();
+                    break
+                case MenuButtons.Play:
+                    //Animation lancement
+                    socket.emit("search")
+                    break
             }
         }
     }

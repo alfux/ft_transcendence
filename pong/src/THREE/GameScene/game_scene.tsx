@@ -10,6 +10,7 @@ import { GameBoard } from './gameboard';
 import { Vec3, distance, scalaire, norm, Mat3, rotz, rotx} from '../Math';
 
 import { keyboard } from '../Utils/keyboard';
+import { Socket } from 'socket.io-client';
 
 function	impact(ball: Ball, obstacle: Obstacle)
 {
@@ -127,7 +128,7 @@ function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
 	ball.speed.set(nspeed * tmp.x / n, nspeed * tmp.y / n, nspeed * tmp.z / n);
 }
 
-export function create_game_scene(renderer: THREE.WebGLRenderer, composer: EffectComposer)
+export function create_game_scene(renderer: THREE.WebGLRenderer, composer: EffectComposer, socket:Socket)
 {
 	const	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, -30, 30);
@@ -157,14 +158,14 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 	const	plane = new THREE.PlaneGeometry(window.innerWidth / 50, window.innerHeight / 50, 10, 10);
 	const	texture = new THREE.MeshPhongMaterial({map: composer.readBuffer.texture});
 	const	screen_plane = new THREE.Mesh(plane, texture);
-	screen_plane.position.set(0, 0, 0);
+	screen_plane.position.set(0, 0, 10);
 
-	const	main_camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-	//const	main_camera = new THREE.OrthographicCamera(
-	//	-window.innerWidth / 200, window.innerWidth / 200,
-	//	window.innerHeight / 200, -window.innerHeight / 200, 0.1, 10
-	//);
-	main_camera.position.set(0, 0, 30);
+	//const	main_camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+	const	main_camera = new THREE.OrthographicCamera(
+		-window.innerWidth / 100, window.innerWidth / 100,
+		window.innerHeight / 100, -window.innerHeight / 100, 0.1, 10
+	);
+	main_camera.position.set(0, 0, 20);
 	main_camera.lookAt(0, 0, 0);
 
 	const	main_ambient = new THREE.AmbientLight(0xffffff, 1);
@@ -173,14 +174,14 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 	main_stage.background = new THREE.Color(0xffffff);
 	main_stage.add(screen_plane, main_ambient);
 
-	const	canvas = document.getElementById("Canvas");
-	const	scorePrint = document.createElement("h1");
+	//const	canvas = document.getElementById("Canvas");
+	//const	scorePrint = document.createElement("h1");
 	let		s1 = 0;
 	let		s2 = 0;
-	let		score = document.createTextNode(s1 + " : " + s2);
-	scorePrint.style.color = "white";
-	scorePrint.appendChild(score);
-	canvas?.appendChild(scorePrint);
+	//let		score = document.createTextNode(s1 + " : " + s2);
+	//scorePrint.style.color = "white";
+	//scorePrint.appendChild(score);
+	//canvas?.appendChild(scorePrint);
 	
 	composer.addPass(render_pass);
 	composer.addPass(bloom_pass);
@@ -201,9 +202,9 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 
 	function	updateScore()
 	{
-		scorePrint.removeChild(score);
-		score = document.createTextNode(s1 + " : " + s2);
-		scorePrint.appendChild(score);
+		//scorePrint.removeChild(score);
+		//score = document.createTextNode(s1 + " : " + s2);
+		//scorePrint.appendChild(score);
 	}
 
     function	updateRRacket()
@@ -319,7 +320,7 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
             });
 			render_pass.dispose();
 			bloom_pass.dispose();
-			canvas?.removeChild(scorePrint);
+			//canvas?.removeChild(scorePrint);
         }
     }
 }

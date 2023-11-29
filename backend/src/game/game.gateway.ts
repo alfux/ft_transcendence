@@ -3,12 +3,15 @@
 import { UseGuards } from '@nestjs/common'
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, SubscribeMessage } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
+import { Interval } from '@nestjs/schedule'
 
 import { AuthService, JwtAuthGuard } from 'src/auth'
 import { ConversationService } from 'src/db/conversation'
 import { MessageService } from 'src/db/message'
 import { User, UserService } from 'src/db/user'
 import { Message } from 'src/db/message'
+
+import { Clock } from './Clock'
 
 
 interface Player {
@@ -29,21 +32,31 @@ class GameInstance {
   p1_pos:Vec2
   p2_pos:Vec2
 
+  clock:Clock
+
   constructor(player1:Player, player2:Player) {
     this.player1 = player1
     this.player2 = player2
   
     this.p1_pos = {x:0, y:0}
     this.p2_pos = {x:0, y:0}
+
+    this.clock = new Clock(false)
   }
-  
+
   start() {
+    this.clock.start()
     this.player1.socket.emit("start", {
       opponent:this.player2
     })
     this.player2.socket.emit("start", {
       opponent:this.player1
     })
+  }
+
+  update() {
+    const delta_time = this.clock.getDelta()
+    console.log(delta_time)
   }
 
 }
@@ -98,5 +111,13 @@ export class GameGateway implements OnGatewayConnection {
       gameInstance.start()
     }
   }
+
+  @Interval(1000 / 60)
+  loop() {
+    this.gameInstances.forEach((gi) => {
+      gi.update()
+    })
+  }
+
 
 }
