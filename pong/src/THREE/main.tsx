@@ -2,8 +2,6 @@ import React, { useRef, useEffect, useState } from 'react'
 import * as THREE from "three";
 import io from "socket.io-client";
 
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
-
 import { initKeyboardHandlers } from './Utils'
 
 import { create_menu_scene } from "./MenuScene";
@@ -36,17 +34,16 @@ export default function THREE_App(props: {
 		const socket = io(`${config.backend_url}/game`, { transports: ["websocket"] });
 		socket.emit("authentification", localStorage.getItem("token"))
 
-		const renderer = new THREE.WebGLRenderer();
+		const	renderer = new THREE.WebGLRenderer();
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.autoClear = false;
+		
+		const	buffer = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
 
-		const game_composer = new EffectComposer(renderer);
-		game_composer.setSize(window.innerWidth, window.innerHeight);
-		game_composer.setPixelRatio(window.devicePixelRatio);
-		game_composer.renderToScreen = false;
-
-		const menu_scene = create_menu_scene(renderer, {
+		const game_scene = create_game_scene(renderer, buffer, socket);
+		
+		const	menu_scene = create_menu_scene(renderer, buffer.texture, {
 			toggleProfile: () => {
 				setShowProfile((prev) => {
 					console.log(prev);
@@ -54,12 +51,10 @@ export default function THREE_App(props: {
 				})
 			},
 		}, socket);
-		const game_scene = create_game_scene(renderer, game_composer, socket);
 
 
 		function mainloop() {
 			requestAnimationFrame(mainloop);
-			renderer.clear();
 			game_scene.update();
 			menu_scene.update();
 			//			console.log(showProfile);
@@ -77,7 +72,7 @@ export default function THREE_App(props: {
 			menu_scene.clean();
 			game_scene.clean();
 			renderer.dispose();
-			game_composer.dispose();
+			buffer.dispose();
 		});
 	}, []);
 

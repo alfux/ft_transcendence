@@ -1,7 +1,4 @@
 import * as THREE from 'three';
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js"
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js"
-import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js"
 import { load_obj } from '../Utils/loader';
 
 import { Ball } from './ball';
@@ -128,14 +125,14 @@ function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
 	ball.speed.set(nspeed * tmp.x / n, nspeed * tmp.y / n, nspeed * tmp.z / n);
 }
 
-export function create_game_scene(renderer: THREE.WebGLRenderer, composer: EffectComposer, socket: Socket)
+export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget, socket: Socket)
 {
 	const	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, -300, 300);
 	camera.up.set(0, 0, 1);
     camera.lookAt(0, 0, 0);
 
-	const	ambient = new THREE.AmbientLight(0xffffff, 1);
+	const	ambient = new THREE.AmbientLight(0xffffff, 10);
 	ambient.position.set(0, 0, 2);
     
     const	game_parent = new THREE.Group();
@@ -144,9 +141,6 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
     const	scene = new THREE.Scene();
     scene.add(game_parent, ambient);
 
-	const	render_pass = new RenderPass(scene, camera);
-	const	bloom_pass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 3, 0.1, 0.1);
-    
     const	clock = new THREE.Clock();
     let     delta_time = clock.getDelta()
 
@@ -154,25 +148,6 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
     board.ball.speed.set(20, 0, 0);
 
 	let		start = false;
-
-	const	plane = new THREE.PlaneGeometry(window.innerWidth / 50, window.innerHeight / 50, 10, 10);
-	const	texture = new THREE.MeshPhongMaterial({map: composer.readBuffer.texture});
-	const	screen_plane = new THREE.Mesh(plane, texture);
-	screen_plane.position.set(0, 0, 10);
-
-	//const	main_camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-	const	main_camera = new THREE.OrthographicCamera(
-		-window.innerWidth / 100, window.innerWidth / 100,
-		window.innerHeight / 100, -window.innerHeight / 100, 0.1, 10
-	);
-	main_camera.position.set(0, 0, 20);
-	main_camera.lookAt(0, 0, 0);
-
-	const	main_ambient = new THREE.AmbientLight(0xffffff, 1);
-
-	const	main_stage = new THREE.Scene();
-	main_stage.background = new THREE.Color(0xffffff);
-	main_stage.add(screen_plane, main_ambient);
 
 	//const	canvas = document.getElementById("Canvas");
 	//const	scorePrint = document.createElement("h1");
@@ -183,9 +158,6 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 	//scorePrint.appendChild(score);
 	//canvas?.appendChild(scorePrint);
 	
-	composer.addPass(render_pass);
-	composer.addPass(bloom_pass);
-
 	window.addEventListener("contextmenu", (event) => {return (event.preventDefault());});
 	window.addEventListener("pointermove", (event) =>
 	{
@@ -265,8 +237,10 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 			camera.position.y += 2.5;
 			scene.rotation.z += 2 * 2.5 * Math.PI / 270;
 		}
-		composer.render();
-		renderer.render(main_stage, main_camera);
+		renderer.setRenderTarget(target);
+		renderer.clear();
+		renderer.render(scene, camera);
+		renderer.setRenderTarget(null);
     }
 
     return {
@@ -280,8 +254,6 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
                     obj.material.dispose();
                 }
             });
-			render_pass.dispose();
-			bloom_pass.dispose();
 			//canvas?.removeChild(scorePrint);
         }
     }
