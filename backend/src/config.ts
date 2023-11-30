@@ -19,3 +19,8 @@ export const config_42 = {
 export const config_jwt = {
   secret:process.env.JWT_SECRET
 }
+
+export const config_hosts = {
+  backend_url:"http://localhost:3001",
+  frontend_url:"http://localhost:3000"
+}

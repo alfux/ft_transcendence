@@ -14,12 +14,6 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
   ) {}
-  
-  @Public()
-  @Get('force_auth')
-  force_auth() {
-    return this.authService.getJwt({id:101638, username:"reclaire", image:"https://cdn.intra.42.fr/users/137e6361715edb331aa855c8bf8042e8/reclaire.jpg"}) 
-  }
 
   @Public()
   @UseGuards(AuthGuard('42'))
@@ -27,6 +21,7 @@ export class AuthController {
   async login_callback(@Req() req: Request, @Res() response: Response): Promise<void> {  
     const token = await this.authService.getJwt(req.user)
   
+    console.log(req.protocol, req.hostname)
     const url = new URL(`${req.protocol}://${req.hostname}`)
     url.port = '3000'
     url.searchParams.set('code', token)

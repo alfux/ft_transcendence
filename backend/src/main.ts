@@ -4,6 +4,7 @@ import * as cookieParser from 'cookie-parser';
 
 
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { config_hosts } from './config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,7 +14,7 @@ async function bootstrap() {
   .setDescription('Backend for ft_transcendence')
   .setVersion('1.0')
   .addBearerAuth()
-  .addServer('http://localhost:3001/api')
+  .addServer(`${config_hosts.backend_url}/api`)
   .build();
 
   
@@ -24,7 +25,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enableCors({
     allowedHeaders: '*',
-    origin: 'http://localhost:3000',
+    origin: `${config_hosts.frontend_url}`,
     credentials: true,
   });
 

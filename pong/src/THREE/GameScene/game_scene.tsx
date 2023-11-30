@@ -186,9 +186,10 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 	composer.addPass(render_pass);
 	composer.addPass(bloom_pass);
 
-	renderer.domElement.addEventListener("contextmenu", (event) => {return (event.preventDefault());});
-	renderer.domElement.addEventListener("pointermove", (event) =>
-	{
+	function contextMenuHandler(event: MouseEvent) {
+		return (event.preventDefault());
+	}
+	function pointerMoveHandler(event: PointerEvent) {
 		if (event.buttons)
 		{
 			const	cpos = new Vec3(camera.position.x, camera.position.y, camera.position.z);
@@ -198,7 +199,10 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 			camera.position.set(npos.x, npos.y, npos.z);
 			camera.lookAt(0, 0, 0);
 		}
-	});
+	}
+
+	window.addEventListener("contextmenu", contextMenuHandler);
+	window.addEventListener("pointermove", pointerMoveHandler);
 	socket.on("start", handleStart);
 	socket.on("player_pos", updateLRacket);
 
@@ -259,6 +263,9 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 	let	rota = 0;
     function update()
 	{
+		if (Object.keys(keyboard).length !== 0) {
+			updateRRacket()
+		}
 		composer.render();
 		renderer.render(main_stage, main_camera);
     }
@@ -266,6 +273,12 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
     return {
         update:update,
         clean: () => {
+
+			window.removeEventListener("contextmenu", contextMenuHandler);
+			window.removeEventListener("pointermove", pointerMoveHandler);
+			socket.off("start", handleStart)
+			socket.off("player_pos", updateLRacket)
+
             scene.traverse((obj: any) =>
             {
                 if (obj instanceof THREE.Mesh)

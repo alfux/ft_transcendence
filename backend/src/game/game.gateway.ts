@@ -122,8 +122,12 @@ export class GameGateway implements OnGatewayConnection {
     if (this.waiting.length >= 2) {
       const p1 = this.waiting[0]
       const p2 = this.waiting[1]
+
+      console.log(`Starting game with: ${p1.user.username} and ${p2.user.username}`)
+
       this.waiting = this.waiting.filter((v) => v.socket !== p1.socket && v.socket !== p2.socket)
-    
+      console.log(`Waiting: ${this.waiting}`)
+
       const gameInstance = new GameInstance(p1, p2)
       this.gameInstances.push(gameInstance)
       gameInstance.start()
