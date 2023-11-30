@@ -127,7 +127,7 @@ function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
 
 export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget, socket: Socket)
 {
-	const	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+	const	camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
     camera.position.set(0, -300, 300);
 	camera.up.set(0, 0, 1);
     camera.lookAt(0, 0, 0);
