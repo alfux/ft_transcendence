@@ -7,6 +7,7 @@ import { initKeyboardHandlers } from './Utils'
 import JwtPayload from './Utils/jwt.interface';
 import { create_menu_scene } from "./MenuScene";
 import { create_game_scene } from "./GameScene";
+import { config } from '../config';
 import usePayload from '../react_hooks/use_auth'
 // import { Profile } from './ReactUI/Profile';
 import Profile from '../components/profile/Profile'
@@ -19,7 +20,11 @@ import { fetchData } from './Utils/api';
 import TwoFactorAuthenticate from '../components/twofactorauthenticate/TwoFactorAuthenticate';
 import Logout from '../components/logout/Logout';
 import ProfileBar from '../components/profilebar/ProfileBar';
-export default function	THREE_App() {
+export default function THREE_App(props: {
+	toggleProfile: () => void,
+	toggleChat: () => void,
+	children: React.ReactNode
+}) {
 	const	divRef = useRef<HTMLDivElement>(null);
 	const [loginForm, setLoginForm] = useState('')
 	const	[showProfile, setShowProfile] = useState(false)
@@ -46,37 +51,46 @@ export default function	THREE_App() {
 		const urlParams = new URLSearchParams(window.location.search)
 		const token = urlParams.get('code')
 		if (token) {
-		  localStorage.setItem('token', token)
-		  const newURL = window.location.href.replace(window.location.search, '')
-		  window.history.replaceState({}, document.title, newURL)
+			localStorage.setItem('token', token)
+			const newURL = window.location.href.replace(window.location.search, '')
+			window.history.replaceState({}, document.title, newURL)
 		}
 	}
 
-	useEffect(() =>
-	{
-		get_token()
+	useEffect(() => {
+		get_token();
+		const socket = io(`${config.backend_url}/game`, { transports: ["websocket"] });
+		socket.emit("authentification", localStorage.getItem("token"))
 
 		const	renderer = new THREE.WebGLRenderer();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setPixelRatio(window.devicePixelRatio);
+		renderer.autoClear = false;
+		
+		const	buffer = new THREE.WebGLRenderTarget(25 * 512, (9 / 16) * 25 * 512);
 
-		const	menu_scene = create_menu_scene(renderer, {toggleProfile:() => {setShowProfile((prev) => !prev)}})
-		const	game_scene = create_game_scene(renderer)
+		const game_scene = create_game_scene(renderer, buffer, socket);
+		
+		const	menu_scene = create_menu_scene(renderer, buffer.texture, {
+			toggleProfile: () => {
+				setShowProfile((prev) => {
+					console.log(prev);
+					return !prev
+				})
+			},
+		}, socket);
 
-		const	socket = io("http://10.18.202.182:3001", {transports: ["websocket"]});
 
-		function	mainloop()
-		{
+		function mainloop() {
 			requestAnimationFrame(mainloop);
-			setLoginForm(menu_scene.update())
-			// game_scene.update()
-			//loginForm !== "Play" && !accessToken ? setLoginForm(menu_scene.update()) : game_scene.update()
+			game_scene.update();
+			menu_scene.update();
+			//			console.log(showProfile);
 		}
 
-		renderer.setSize(window.innerWidth, window.innerHeight);
-		renderer.autoClear = false;
 
-		if (divRef.current)
-		{
-			initKeyboardHandlers()
+		if (divRef.current) {
+			initKeyboardHandlers();
 			divRef.current.appendChild(renderer.domElement);
 		}
 		mainloop();
@@ -86,9 +100,10 @@ export default function	THREE_App() {
 			menu_scene.clean()
 			game_scene.clean()
 			renderer.dispose()
-
+			buffer.dispose();
 		});
 	}, []);
+
 	useEffect(() => {
 		if (accessToken && payload?.authentication == "Complete" && loginForm != "Profile"){
 			const newFormContainer = document.createElement('div');
@@ -103,7 +118,8 @@ export default function	THREE_App() {
 				});
 		  	};
 		}
-	},[loginForm === "Profile"])
+	},[loginForm === "Profile"]);
+
 	useEffect(() => {
 		handleUpdate()
 		console.log("Payload:", payload)
@@ -176,7 +192,7 @@ export default function	THREE_App() {
 	
 
 	return (
-		<div ref={divRef}>
+		<div ref={divRef id="Canvas"}>
 			<div>
       			<div className="video-background">
         			<video autoPlay loop muted playsInline className="filtered-video">
@@ -186,6 +202,5 @@ export default function	THREE_App() {
         		<div className="glass-overlay"></div>
       		</div>
     	</div>
-		</div>
 	);
 }

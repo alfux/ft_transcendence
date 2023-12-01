@@ -1,4 +1,3 @@
-
 body {
 	margin: 0;
 	overflow: hidden; 
@@ -22,5 +21,3 @@ body {
 	pointer-events: none; 
 	filter: grayscale(20%) brightness(50%);
   }
-  
-  
