@@ -3,7 +3,10 @@ import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 @Entity()
 export class User{
     @PrimaryGeneratedColumn()
-    id: string;
+    primaryKey: string;
+
+    @Column()
+    id:string;
 
     @Column()
     nickName: string;
@@ -32,8 +35,12 @@ export class User{
     @Column({default: false})
     twoFactorAuth:boolean
 
+    @Column({default:"Unlogged"})
+    isAuthenticated:string;
+    
     @Column({default:''})
     twoFactorAuthSecret:string;
+    
 
 
 }

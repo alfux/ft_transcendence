@@ -1,4 +1,4 @@
-import './Profile.css'
+import './ProfileBar.css'
 import Cookies from 'js-cookie';
 import React, { useRef, useEffect, useState } from 'react'
 import usePayload from '../../react_hooks/use_auth'
@@ -11,7 +11,7 @@ type User = {
     lastName:string;
     nickName:string;
 }
-const Profile: React.FC = () => {
+const ProfileBar: React.FC = () => {
     const [payload, updatePayload, handleUpdate] = usePayload();
     const [data,setData] = useState<User | null>(null)
     useEffect(()=>{
@@ -39,13 +39,11 @@ const Profile: React.FC = () => {
     console.log("user:", data)
 
   return (
-    <div className="profile">
+    <div className="profile-bar">
         {data != null?(
             <img className="profile-photo" src={data.avatar}></img>
         ):<h2>nop</h2>}
-                {data != null?(
-           <div className='main'>
-            {data != null?(
+        {data != null?(
            <div className='stats'>
                 <p>Nickname</p>
                 <p>Rank</p>
@@ -59,10 +57,8 @@ const Profile: React.FC = () => {
                 <p>10</p>
             </div>
         ):<h2>nop</h2>}
-            </div>
-        ):<h2>nop</h2>}
     </div>
   );
 };
 
-export default Profile;
+export default ProfileBar;

@@ -7,7 +7,7 @@ import { initKeyboardHandlers } from './Utils'
 import JwtPayload from './Utils/jwt.interface';
 import { create_menu_scene } from "./MenuScene";
 import { create_game_scene } from "./GameScene";
-
+import usePayload from '../react_hooks/use_auth'
 // import { Profile } from './ReactUI/Profile';
 import Profile from '../components/profile/Profile'
 
@@ -16,23 +16,31 @@ import Settings from '../components/settings/Settings'
 import { createRoot } from 'react-dom/client';
 import { access } from 'fs';
 import { fetchData } from './Utils/api';
+import TwoFactorAuthenticate from '../components/twofactorauthenticate/TwoFactorAuthenticate';
+import Logout from '../components/logout/Logout';
+import ProfileBar from '../components/profilebar/ProfileBar';
 export default function	THREE_App() {
 	const	divRef = useRef<HTMLDivElement>(null);
 	const [loginForm, setLoginForm] = useState('')
 	const	[showProfile, setShowProfile] = useState(false)
-	const accessToken = Cookies.get('access_token');
-	const	[twofactor, setTwoFactor] = useState(false)
-  const user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
+	let accessToken = Cookies.get('access_token');
+	let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
+	const	[twofactor, setTwoFactor] = useState(user?.isTwoFactorAuthEnable)
+	const [payload, updatePayload,handleUpdate] = usePayload();
+	const [logged,setLogged] = useState(false)
+	
 //logout || refresh token
-	useEffect(()=>{
-		console.log("here")
-		if(user?.exp && user?.exp < Date.now() / 1000){
-			// fetchData()
-			alert("Token expired");
-			document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
-			window.location.reload();
-		}
-	},[loginForm])
+	// useEffect(()=>{
+	// 	console.log("What status are u: ",logged)
+	// 		setLogged(true)
+	// 	user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
+	// 	if(user?.exp && user?.exp < Date.now() / 1000){
+	// 		// fetchData()
+	// 		alert("Token expired");
+	// 		// document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
+	// 		// window.location.reload();
+	// 	}
+	// },[loginForm])
 
 	function get_token() {
 		const urlParams = new URLSearchParams(window.location.search)
@@ -81,29 +89,26 @@ export default function	THREE_App() {
 
 		});
 	}, []);
-
 	useEffect(() => {
-		const twoFactorStatus = async () =>{
-			try {//fetch 2fa Status
-			  const enable2FAEndpoint = 'http://localhost:3001/2fa/status';
-			  const response = await fetch(enable2FAEndpoint, {
-				  method: 'GET',
-				  credentials: 'include',
-			  });
-			  
-			  if (response.ok) {
-				  await response.text() === "true"?setTwoFactor(true):setTwoFactor(false)
-			  } else {
-				  console.error('Could not get the status of 2fa:', response.status);
-			  }
-		  } catch (error) {
-			  console.error('Error enabling 2FA:', error);
-		  }
-	  };
-
-
+		if (accessToken && payload?.authentication == "Complete" && loginForm != "Profile"){
+			const newFormContainer = document.createElement('div');
+			const root = createRoot(newFormContainer);
+			root.render(<ProfileBar/>);
+			console.log("payload: ", payload?.authentication)
+			document.body.appendChild(newFormContainer);
+			return () => {
+				setTimeout(() => {
+				root.unmount();
+				document.body.removeChild(newFormContainer);
+				});
+		  	};
+		}
+	},[loginForm === "Profile"])
+	useEffect(() => {
+		handleUpdate()
+		console.log("Payload:", payload)
 		console.log(loginForm)
-		if (loginForm === "Login") {
+		if (loginForm === "Login" && !accessToken) {
 			const newFormContainer = document.createElement('div');
 			const root = createRoot(newFormContainer);
 			root.render(<Login />);
@@ -116,10 +121,11 @@ export default function	THREE_App() {
 				});
 		  	};
 		}
-		if (loginForm === "Settings" && accessToken) {
+		
+		if (loginForm === "Settings" && accessToken && payload?.authentication === "Complete") {
 			const newFormContainer = document.createElement('div');
 			const root = createRoot(newFormContainer);
-			root.render(<Settings />);
+			root.render(<Settings/>);
 			document.body.appendChild(newFormContainer);
 			return () => {
 				setTimeout(() => {
@@ -128,7 +134,33 @@ export default function	THREE_App() {
 				});
 		  	};
 		}
-		if (loginForm === "Profile" && accessToken) {
+
+		// if (loginForm === "Logout" && accessToken && payload?.authentication === "Complete") {
+		// 	const newFormContainer = document.createElement('div');
+		// 	const root = createRoot(newFormContainer);
+		// 	root.render(<Logout/>);
+		// 	document.body.appendChild(newFormContainer);
+		// 	return () => {
+		// 		setTimeout(() => {
+		// 		root.unmount();
+		// 		document.body.removeChild(newFormContainer);
+		// 		});
+		//   	};
+		// }
+		if (accessToken && payload?.isTwoFactorAuthEnable && payload.authentication === "Incomplete"){
+			const newFormContainer = document.createElement('div');
+			const root = createRoot(newFormContainer);
+			root.render(<TwoFactorAuthenticate/>);
+			document.body.appendChild(newFormContainer);
+			return () => {
+				setTimeout(() => {
+				root.unmount();
+				document.body.removeChild(newFormContainer);
+				});
+		  	};
+		}
+		//loginForm === "Profile" && 
+		if (loginForm === "Profile" && accessToken && payload?.authentication === "Complete") {
 			const newFormContainer = document.createElement('div');
 			const root = createRoot(newFormContainer);
 			root.render(<Profile/>);
@@ -140,9 +172,6 @@ export default function	THREE_App() {
 				});
 		  	};
 		}
-		twoFactorStatus();
-		console.log("TWOFACTOR",twofactor)
-		if (loginForm === "Login" || loginForm === "Login" && accessToken && twofactor){}
 	}, [loginForm]);
 	
 

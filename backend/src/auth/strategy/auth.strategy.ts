@@ -19,6 +19,9 @@ export class AuthStrategy extends PassportStrategy(Strategy,'FortyTwoStrategy'){
     };
 
     async validate(accessToken: string, refreshToken: string, profile: any, done: VerifiedCallback) {
+        if(!accessToken){
+            return done(null, false);
+        }
         done(null,profile)
     }
 }

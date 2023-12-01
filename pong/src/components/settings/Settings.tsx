@@ -4,37 +4,40 @@ import React, { useState, useEffect, useRef} from 'react';
 import jwt, { jwtDecode } from 'jwt-decode';
 import JwtPayload from '../../THREE/Utils/jwt.interface';
 import TwoFactorValidate from '../twofactorvalidate/TwoFactorValidate';
-
+import usePayload from '../../react_hooks/use_auth'
 const Settings: React.FC = () => {
   const inputRefs = useRef<Array<HTMLInputElement | null>>(Array(6).fill(null));
   const accessToken = Cookies.get('access_token');
   const user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
   const [QRCode,setQRCodeUrl] = useState("")
   const [toogleStatus, setToggle] = useState<Boolean>(user?.isTwoFactorAuthEnable?true:false)
-  const [isTwoFactorEnabled, setTwoFactorEnabled] =  useState<any>(user?user?.isTwoFactorAuthEnable:false)
+//   const [isTwoFactorEnabled, setTwoFactorEnabled] =  useState<any>(user?user?.isTwoFactorAuthEnable:false)
+  const [payload, updatePayload, handleUpdate] = usePayload();
+  const requestNewToken = async () =>{
+	try {//fetch 2fa Status
+	  const enable2FAEndpoint = 'http://localhost:3001/auth/refresh';
+	  console.log('Before fetch');
+	  const response = await fetch(enable2FAEndpoint, {
+		  method: 'GET',
+		  credentials: 'include',
+	  });
+	  console.log('After fetching', response);
 
-	const twoFactorStatus = async () =>{
-		try {//fetch 2fa Status
-		  const enable2FAEndpoint = 'http://localhost:3001/2fa/status';
-		  const response = await fetch(enable2FAEndpoint, {
-			  method: 'GET',
-			  credentials: 'include',
-		  });
-		  
-		  if (response.ok) {
-			  await response.text() === "true"?setTwoFactorEnabled(true):setTwoFactorEnabled(false)
-		  } else {
-			  console.error('Could not get the status of 2fa:', response.status);
-		  }
-	  } catch (error) {
-		  console.error('Error enabling 2FA:', error);
+	  if (response.ok) {
+		const test = await response.json()
+		console.log("This is the new refresh token: ", test)
+	  } else {
+		  console.error('Could not get new AccessToken:', response.status);
 	  }
+  } catch (error) {
+	  console.error('Error fetching new refresh Token:', error);
+  }
 };
 
 //handle Toogle click
 const handleToggle = async () => {
 	setToggle((toogleStatus) => {return (!toogleStatus);});
-	setTwoFactorEnabled(await twoFactorStatus())
+	await requestNewToken()
 	//console.log("status of backend",await twoFactorStatus())
     if (!toogleStatus){//toogle on
 		try {//fetch QRcode
@@ -57,8 +60,8 @@ const handleToggle = async () => {
 	}
 	else{//toogle off
 		console.log("off", toogleStatus)
-		if(isTwoFactorEnabled){
-			if (isTwoFactorEnabled){
+		if(payload?.isTwoFactorAuthEnable){
+			if (payload?.isTwoFactorAuthEnable){
 			try {
 				const disable2FAEndpoint = 'http://localhost:3001/2fa/disable';
 				const response = await fetch(disable2FAEndpoint, {
@@ -67,6 +70,8 @@ const handleToggle = async () => {
 				});
 				//setTwoFactorEnabled(await twoFactorStatus())
 				if (response.ok) {
+					await requestNewToken()
+					handleUpdate()
 					console.log("2FA disabled")
 				  } else {
 				    console.error('Error disabling 2FA. Server responded with status:', response.status);
@@ -86,7 +91,7 @@ const handleToggle = async () => {
         <div className="switch-container">
           <span className="switch-label">Enable/Disable 2FA</span>
           <label className="switch">
-            <input type="checkbox" onChange={handleToggle} defaultChecked={isTwoFactorEnabled?true:false} />s
+            <input type="checkbox" onChange={handleToggle} defaultChecked={payload?.isTwoFactorAuthEnable?true:false} />s
             <span className="slider"></span>
           </label>
         </div>

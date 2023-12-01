@@ -1,9 +1,10 @@
-import './TwoFactorValidate.css';
+import './TwoFactorAuthenticate.css';
 import Cookies from 'js-cookie';
 import React, { useEffect, useState } from 'react';
 import usePayload from '../../react_hooks/use_auth'
-const TwoFactorValidate: React.FC = () => {
-
+const TwoFactorAuthenticate: React.FC = () => {
+  const [digits, setDigits] = useState<string>('');
+  const [payload, updatePayload, handleUpdate] = usePayload();
 	const requestNewToken = async () =>{
 		try {//fetch 2fa Status
 		  const enable2FAEndpoint = 'http://localhost:3001/auth/refresh';
@@ -11,22 +12,24 @@ const TwoFactorValidate: React.FC = () => {
 		  const response = await fetch(enable2FAEndpoint, {
 			  method: 'GET',
 			  credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
 		  });
-		  console.log('After fetching', response);
+		  console.log('After fetch', response);
 
 		  if (response.ok) {
-			const test = await response.json()
-			console.log("leviosa: ", test)
+      handleUpdate()
+			console.log('new payload: ', payload)
 		  } else {
-			  console.error('Could not get new AccessToken:', response.status);
+			  console.error('Could not get the status of 2fa:', response.status);
 		  }
 	  } catch (error) {
-		  console.error('Error fetching new refresh Token:', error);
+		  console.error('Error enabling 2FA:', error);
 	  }
 };
 
-  const [digits, setDigits] = useState<string>('');
-  const [payload, updatePayload, handleUpdate] = usePayload();
+
   const handleInput = (currentInput: string, nextInput: string) => {
     const digit = document.getElementById(currentInput) as HTMLInputElement | null;
     if (digit && digit.value.length === digit.maxLength) {
@@ -42,7 +45,7 @@ const TwoFactorValidate: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    const verify2FAEndpoint = 'http://localhost:3001/2fa/enable';
+    const verify2FAEndpoint = 'http://localhost:3001/2fa/authenticate';
     try {
       const verificationCode = digits;
       const response = await fetch(verify2FAEndpoint, {
@@ -54,11 +57,10 @@ const TwoFactorValidate: React.FC = () => {
         body: JSON.stringify({verificationCode}),
       });
       if (response.ok) {
-        //request new token
-        requestNewToken()
-				handleUpdate()
-        setDigits('');
-		    alert("2FA Enabled")
+        alert("Logged")
+        await requestNewToken();
+        handleUpdate()
+        window.location.reload();
       } else {
 		alert("Wrong code")
         console.error('Error verifying 2FA code. Server responded with status:', response.status);
@@ -66,19 +68,13 @@ const TwoFactorValidate: React.FC = () => {
     } catch (error) {
       console.error('Error verifying 2FA code:', error);
     }
-    try{
-      //await requestNewToken()
-      handleUpdate()
-    }catch(error){
-      console.log(error)
-    }
   };
 
   useEffect(() => {
     if (digits.length === 6) {
       handleSubmit();
     }
-  }, [digits]);
+  }, [digits, handleSubmit]);
 
   return (
     <div className="glass-container-twofactor">
@@ -97,4 +93,4 @@ const TwoFactorValidate: React.FC = () => {
   );
 };
 
-export default TwoFactorValidate;
+export default TwoFactorAuthenticate;

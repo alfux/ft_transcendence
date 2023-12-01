@@ -7,32 +7,38 @@ import { UserService } from 'src/user/service/user/user.service';
 const speakeasy = require('speakeasy');
 @Controller('2fa')
 export class TwoFactorAuthenticationController {
-    constructor(private jwtService: JwtService, private twoFactorAuthenticationService:TwoFactorAuthenticationService, private readonly user: UserService,  private authService : AuthService){
+    constructor(private jwtService: JwtService, private twoFactorAuthenticationService:TwoFactorAuthenticationService, private readonly userService: UserService,  private authService : AuthService){
    }
+   @UseGuards(JwtAccessTokenGuard)
     @Post('authenticate')
-    async enableTwoFactorAuthentication(@Req() request, @Body() body){
-        const isCodeValid = this.twoFactorAuthenticationService.verifyTwoFactorAuthCode(
-            body.twoFactorAuthenticationCode,
-            request.user.twoFactorAuthSecret
-            )
-        if (!isCodeValid){
-            throw new UnauthorizedException('Wrong authentication code');
+    async authenticateTwoFactor(@Req() request, @Body() body){
+        const user = await this.userService.provideUserById(request.user.id)
+        const secret = user.twoFactorAuthSecret;
+        //this can be used to send to email
+        const token = this.twoFactorAuthenticationService.generateToken(secret)
+        try {
+            const isCodeValid = this.twoFactorAuthenticationService.verifyTwoFactorAuthCode(
+                secret,
+                body.verificationCode
+            );
+            console.log("Secret: ",token, "Verification code: ", body.verificationCode)
+            if (!isCodeValid) {
+                throw new UnauthorizedException('Wrong authentication code');
+            }
+        } catch (error) {
+            // Log the error
+            console.error('Error in enableTwoFactorAuth:', error);
+            
+            // Re-throw the error to maintain the original behavior (returning a 401 response)
+            throw new UnauthorizedException('Wrong authentication codee');
         }
-        const payload = {
-            email: request.user.email,
-            isTwoFactorAuthenticationEnabled: !!request.user.twoFactorAuth,
-            isTwoFactorAuthenticated: true,
-          };
-      
-          return {
-            email: payload.email,
-            access_token: this.jwtService.sign(payload),
-          };
+        await this.userService.updateLogStatus(user.id,"Complete")
+        return "authenticated"
     }
 @UseGuards(JwtAccessTokenGuard)
     @Post('enable')
     async enableTwoFactorAuth(@Req() request, @Body() body){
-        const user = this.user.provideUserById(request.user.id)
+        const user = this.userService.provideUserById(request.user.id)
         //test
         const secret = (await user).twoFactorAuthSecret
         const token = this.twoFactorAuthenticationService.generateToken(secret)
@@ -52,7 +58,7 @@ export class TwoFactorAuthenticationController {
             // Re-throw the error to maintain the original behavior (returning a 401 response)
             throw new UnauthorizedException('Wrong authentication codee');
         }
-        return await this.user.enableTwoFactorAuth(request.user.id);
+        return await this.userService.enableTwoFactorAuth(request.user.id);
         
     }
 
@@ -69,7 +75,7 @@ export class TwoFactorAuthenticationController {
     async disableTwoFactorAuth(@Req() request, @Res() response){
         console.log(request.user)
         console.log('disabled')
-        return await this.user.disableTwoFactorAuth(request.user.id)
+        response.send(await this.userService.disableTwoFactorAuth(request.user.id))
         // response.clearCookie('access_token')
 
         //const tokens = await this.authService.generateTokens(request.user.id, request.email);
@@ -79,7 +85,7 @@ export class TwoFactorAuthenticationController {
     @UseGuards(JwtAccessTokenGuard)
     @Get('status')
     async twoFactorAuthStatus(@Req() request){
-        const user = this.user.provideUserById(request.user.id)
+        const user = this.userService.provideUserById(request.user.id)
 		console.log("sending to front",(await user).twoFactorAuth)
         return (await user).twoFactorAuth ? true : false
     }

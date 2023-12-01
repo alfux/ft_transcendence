@@ -1,34 +1,55 @@
-.glass-container-profile {
-	position: fixed;
-	left: 0px;
-	top: 35%;
-	height: 30%;
-	max-height: 350px;
-	min-height: 300px;
-	width: 80%;
-	max-width: 400px;
-	background: rgba(255, 255, 255, 0.2);
+:root{
+	--profile-width:40vh;
+	--profile-height:70vh
+}
+
+.profile {
+    display: flex;
+	flex-direction: column;
+	align-items: center;
+	position:absolute;
+	top: calc(50vh - calc(var(--profile-height)/2));
+	left: 30vh;
+	height: var(--profile-height);
+	width: var(--profile-width);
 	border-radius: 16px;
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 	border: 1px solid rgba(255, 255, 255, 0.3);
 	border-radius: 20px;
-	z-index: 1;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	animation: slideIn 2s ease forwards, colorChange 2s infinite;
-  }
-  
-  @keyframes slideIn {
-	0% {
-	  left: -600px;
-	  box-shadow: 0 0 1000px #00ff00;
-	}
-	100% {
-	  left: calc(30% - 300px);
-	}
+	gap: 5vh;
+	animation: slideTop 1.5s ease forwards, colorChange 2s infinite;
   }
 
+  @keyframes slideTop {
+	0% {
+		display: flex;
+		position:absolute;
+		top: 1%;
+		left: 1%;
+		height: 10vh;
+		width: 30vh;
+		border-radius: 16px;
+		box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		border-radius: 20px;
+		justify-content: space-around;
+	}
+	50%{
+		top: 40vh;
+	}
+	100% {
+		left: 30vh;
+		top: calc(50vh - calc(var(--profile-height)/2));
+		background: rgba(255, 255, 255, 0.05);
+	}
+  }
+.profile p{
+	align-items: center;
+	font-size: 100%;
+  color: #fff;
+  font-family: 'game', sans-serif;
+  text-shadow: 0 0 10px #fff , 0 0 4px blue, 0 0 8px blue, 0 0 60px blue 
+}
   @keyframes colorChange {
 	0% {
 	  box-shadow: 0 0 100px #ffffff;
@@ -43,3 +64,29 @@
 		box-shadow: 0 0 20px #0400ff;
 	}
   }
+  .profile .main{
+	display: flex;
+	position: relative;
+	height: 100%;
+	width: 100%;
+  }
+  .profile .profile-photo{
+	margin-top: 2vh;
+    max-width: 20vh;
+	max-height: 80%;
+    border-radius: 50%;
+	align-self: center;
+  }
+
+  .profile .stats{
+	height: 100%;
+	width: 100%;
+	text-align: center;
+  }
+
+  .profile .stats-values{
+	height: 100%;
+	width: 100%;
+	text-align: center;
+  }
+

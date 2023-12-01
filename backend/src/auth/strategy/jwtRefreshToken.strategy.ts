@@ -4,6 +4,10 @@ import { Request } from 'express';
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+type Payload = {
+  sub:string;
+}
+
 @Injectable()
 export class JwtRefreshTokenStrategy extends PassportStrategy(
   Strategy,
@@ -20,21 +24,26 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
     });
   }
 
-  private static extractJwtRefreshCookie(@Req() request):string | null{
-    if (request.cookies && 'refresh_token' in request.cookies){
+  private static extractJwtRefreshCookie(@Req() request): string | null {
+    if (request.cookies && 'refresh_token' in request.cookies) {
       return request.cookies.refresh_token;
     }
-    console.log('no token found')
+    console.log('no token found');
     return null;
   }
-  
-  validate(req: Request, payload: any) {
-    const refreshToken = req.cookies.refresh_token;
-    console.log('refreshtoken: ', refreshToken)
-    if (!refreshToken){
-      console.log("no refresh token")
-      throw new UnauthorizedException("no refreshToken");
+
+  async validate(@Req() request, payload: Payload) {
+    try {
+      const refreshToken = request.cookies.refresh_token;
+      console.log('The refresh token: ', refreshToken);
+      if (!refreshToken) {
+        throw new UnauthorizedException('No refresh token provided');
+      }
+      return payload;
+    } catch (error) {
+      // Log the error or handle it appropriately
+      console.error('Error in validate:', error.message);
+      throw new UnauthorizedException('Invalid refresh token');
     }
-    return { ...payload, refreshToken };
   }
 }

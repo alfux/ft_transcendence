@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserDto } from 'src/user/dto/user.dto';
 import { User } from 'src/user/entities/user.entity';
@@ -19,8 +19,9 @@ export class UserService {
         return this.userRepo.findOne({where:{email}});
     }
     
-    provideUserById(id: string) {
-        return this.userRepo.findOne({where:{id}});
+    async provideUserById(id: string) {
+        const user = await this.userRepo.findOne({where:{id : id}})
+        return user;
     }
 
     async userUpdateTest(user :any, secret:string){
@@ -31,18 +32,6 @@ export class UserService {
 
     //Create New User
     async provideNewUser(profile:any): Promise<User>{
-        // const user = new User();
-        // // user.id = profile.id;
-        // user.firstName = profile.name.givenName;
-        // user.lastName = profile.name.familyName;
-        // user.nickName = profile.username;
-        // user.email = profile.emails[0].value;
-        // user.avatar = 'https://cdn.intra.42.fr/users/a5e81b42b8d91e63773eb39dcf618ef6/dpaulino.jpg';
-        // user.creationDate = new Date();
-        // user.lastTimeLogged = new Date();
-        // user.refreshToken = 'test'
-        // user.twoFactorAuth = false;
-        // user.twoFactorAuthSecret = '';
         const user = this.userRepo.create({
             id : profile.id,
             firstName : profile.name.givenName,
@@ -54,7 +43,9 @@ export class UserService {
             lastTimeLogged : new Date(),
             refreshToken : 'test',
             twoFactorAuth : false,
-            twoFactorAuthSecret : '',}
+            twoFactorAuthSecret : '',
+            isAuthenticated : "Unlogged" 
+        }
         )
         this.userRepo.save(user);
         return user
@@ -70,6 +61,16 @@ export class UserService {
     async disableTwoFactorAuth(id: string){
         const user = await this.userRepo.findOne({where :{id}})
         user.twoFactorAuth = false;
+        await this.userRepo.save(user);
+        console.log('user: ',user.id)
+    }
+
+    async updateLogStatus(id:string, status:string){
+        const user = await this.userRepo.findOne({where :{id}})
+        if (!user){
+            throw new HttpException("User not found",HttpStatus.NOT_FOUND)
+        }
+        user.isAuthenticated = status;
         await this.userRepo.save(user);
         console.log('user: ',user.id)
     }

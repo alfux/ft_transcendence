@@ -11,9 +11,12 @@ export class UserController {
         return this.userService.provideAllUsers()
     }
 
-    @Get(':email')
-    getUserByEmail(@Param() email:string){
-        return this.userService.provideUserByEmail(email)
+    @Get(':id')
+    async getUserById(@Param() id:string){
+        console.log(id)
+        const user = await this.userService.provideUserById(id[id]);
+        console.log(user)
+        return user;
     }
 
     @Patch(':id')

@@ -28,8 +28,8 @@ export class AuthController {
 		console.log('________LOGIN_______')
         const tokens = await this.authService.login(request, response);
 		//cookie should be set secure true for https
-        response.cookie('refresh_token', tokens.refreshToken, { httpOnly: true, sameSite: 'None', secure: false });
-        response.cookie('access_token', tokens.accessToken, { httpOnly: false, sameSite: 'None', secure: false });
+        response.cookie('refresh_token', tokens.refreshToken, { httpOnly: true, sameSite: 'None', secure: true });
+        response.cookie('access_token', tokens.accessToken, { httpOnly: false, sameSite: 'None', secure: true });
         response.redirect('http://localhost:3000')
     }
     
@@ -43,12 +43,19 @@ export class AuthController {
         
     }
 
-    @UseGuards(JwtRefreshTokenGuard)
     @Get('auth/refresh')
+    @UseGuards(JwtRefreshTokenGuard)
     async refreshToken(@Req() request, @Res() response){
-        const tokens = await this.authService.newAccessToken(request);
-        response.cookie('refresh_token', tokens.refreshToken, { httpOnly: true, sameSite: 'None', secure: true });
-        response.cookie('access_token', tokens.accessToken, { httpOnly: false, sameSite: 'None', secure: true });
+        const payload = await request.user;
+        if (payload && payload.sub) {
+            const id = payload.sub
+            const newToken = await this.authService.newAccessToken(id);
+            response.cookie('access_token', newToken, { httpOnly: false, sameSite: 'None', secure: true });
+            response.status(200).json(newToken)
+            // console.log("User ID (sub):", payload.sub);
+    }    else {
+        console.log("Sub property not found in the payload");
+    }
     }
     
 }

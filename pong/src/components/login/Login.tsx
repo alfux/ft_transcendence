@@ -1,7 +1,7 @@
 import './Login.css'
 import Cookies from 'js-cookie';
 import React, { useRef, useEffect, useState } from 'react'
-
+import usePayload from '../../react_hooks/use_auth'
 
 
 const accessToken = Cookies.get('accessToken')
@@ -11,33 +11,12 @@ const accessToken = Cookies.get('accessToken')
 const Login: React.FC = () => {
 	const [twoFactor, setTwoFactor] = useState(false)
 	const [logged, setLogged] = useState(false)
-
-	useEffect(()=>{
-		const twoFactorStatus = async () =>{
-			try {//fetch 2fa Status
-			  const enable2FAEndpoint = 'http://localhost:3001/2fa/status';
-			  const response = await fetch(enable2FAEndpoint, {
-				  method: 'GET',
-				  credentials: 'include',
-			  });
-			  
-			  if (response.ok) {
-				  await response.text() === "true"?setTwoFactor(true):setTwoFactor(false)
-			  } else {
-				  console.error('Could not get the status of 2fa:', response.status);
-			  }
-		  } catch (error) {
-			  console.error('Error enabling 2FA:', error);
-		  }
-		}
-		twoFactorStatus()
-	},[logged])
+  const [payload, updatePayload, handleUpdate] = usePayload();
     const fetchData = async () => {
         try {
             const authEndpoint = 'http://localhost:3001/auth/login';
-			setLogged(true)
+            handleUpdate();
 			window.location.href = authEndpoint;
-			console.log('TEST')
 		}
         catch (error) {
 			console.error('Error fetching data:', error);
@@ -56,7 +35,6 @@ const Login: React.FC = () => {
           </form>
           {/* OAuth Login Button */}
           <button onClick={fetchData} className="oauth-button">Login with OAuth</button>
-		  {twoFactor && logged ? <div>AHFJSAHFJKHSAFKJHSAFKJHASKJFHASKJHFJKSAHFKSJA</div>:null}
       </div>
     </div>
   );

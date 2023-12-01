@@ -18,7 +18,7 @@ import { UserService } from 'src/user/service/user/user.service';
     imports: [ConfigModule.forRoot(), PassportModule, JwtModule.register({
         global: true,
         secret: 'SECRET123',
-        signOptions:{expiresIn: '30s'},
+        signOptions:{expiresIn: '15m'},
     }
     ), UserModule,JwtModule,],
     controllers: [AuthController, TwoFactorAuthenticationController],

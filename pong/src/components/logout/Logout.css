@@ -1,0 +1,98 @@
+@keyframes colorChange {
+    0% {
+      box-shadow: 0 0 50px #00ff00; /* Start with a green glow */
+    }
+    50% {
+      box-shadow: 0 0 50px #ff0000; /* Transition to a red glow */
+    }
+    100% {
+      box-shadow: 0 0 50px #001eff; /* Transition back to a blue glow */
+    }
+  }
+  
+  .glass-container-logout {
+      display: flex;
+      flex-direction: column;
+    position: absolute;
+    justify-content: center;
+    z-index: 1;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 30%;
+    width: 15%;
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border: 20px solid rgba(11, 7, 7, 0.3);
+    border-radius: 50%;
+    animation: colorChange 2s infinite;
+  }
+  
+  .circle {
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 400px;
+    border: 10px solid transparent;
+    border-bottom: 10px solid rgb(21, 171, 191);
+    box-shadow: 0 0px 50px rgb(137, 163, 10), 0 0px 100px rgb(137, 163, 10), 0 0px 120px rgb(137, 163, 10);
+    border-top: 10px solid rgb(21, 171, 191);
+    border-radius: 50%;
+    animation: animate 4s linear infinite;
+  }
+  
+  .circle:after {
+    content: '';
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    bottom: 40px;
+    right: 40px;
+    box-shadow: 0 0px 50px rgb(132, 10, 163), 0 0px 100px rgb(132, 10, 163), 0 0px 120px rgb(132, 10, 163);
+    border: 10px solid transparent;
+    border-bottom: 10px solid rgb(131, 22, 182);
+    border-top: 10px solid rgb(131, 22, 182);
+    border-radius: 50%;
+    animation: animate 8s linear infinite;
+  }
+  
+  /* @keyframes animate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  } */
+  
+  .fortytwologo {
+    position: absolute;
+    width: 60%; /* Adjusted width for better fit */
+    height: 60%; /* Adjusted height for better fit */
+    background: url('../../../public/42.png') center center / cover no-repeat;
+    margin: 0 auto;
+    z-index: 2; /* Ensuring the logo is above the glass container */
+  }
+  
+  .fortytwologo::before {
+    content: '';
+    color: #001eff;
+    text-shadow: 0 0px 120px rgb(10, 178, 24);
+    position: absolute;
+    top: -5%;
+    left: -5%;
+    right: -5%;
+    bottom: -5%;
+    background: url('../../../public/42.png') center center / cover no-repeat;
+    filter: blur(10px);
+    filter: drop-shadow(0 0px 70px white);
+    opacity: 0.8;
+    z-index: -1;
+    box-shadow: 0 0px 120px white;
+    background-color: rgb(255, 255, 255);
+    background-blend-mode: color;
+    border-radius: 50%;
+  }
+  
