@@ -132,7 +132,7 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 	camera.up.set(0, 0, 1);
     camera.lookAt(0, 0, 0);
 
-	const	ambient = new THREE.AmbientLight(0xffffff, 10);
+	const	ambient = new THREE.AmbientLight(0xffffff, 1);
 	ambient.position.set(0, 0, 2);
     
     const	game_parent = new THREE.Group();

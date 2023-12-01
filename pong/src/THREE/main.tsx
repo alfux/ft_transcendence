@@ -39,7 +39,7 @@ export default function THREE_App(props: {
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.autoClear = false;
 		
-		const	buffer = new THREE.WebGLRenderTarget(20 * 512, (9 / 16) * 20 * 512);
+		const	buffer = new THREE.WebGLRenderTarget(25 * 512, (9 / 16) * 25 * 512);
 
 		const game_scene = create_game_scene(renderer, buffer, socket);
 		

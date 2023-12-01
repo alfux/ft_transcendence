@@ -23,13 +23,14 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 }, socket:Socket) {	
 	const	loader = new FontLoader();
 	const	font_params = {size: 0.4, height: 0.2};
+	const	material_params = {color: 0x001616, side:THREE.DoubleSide};
     const	theta = Math.PI / 6;
 	loader.load("fonts/Games_Regular.json", (font) => {
-		const	int = 10;
-		const	neon_log = new THREE.MeshBasicMaterial({color: 0x41ffff, side: THREE.DoubleSide});
+		const	neon_log = new THREE.MeshBasicMaterial(material_params);
 		const	tlogin = new TextGeometry("Login", {...font_params, font: font});
-		const	llog = new THREE.DirectionalLight(0x41ffff, int);
+		const	llog = new THREE.DirectionalLight(0xffbbbb, 0);
 		llog.position.set(0, 0, 1);
+		llog.target = sphere_mesh;
 		llog.name = "lLog";
 		const	login = new THREE.Mesh(tlogin, neon_log);
 		login.position.set(-0.73, 0, 1);
@@ -42,50 +43,55 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 		logout.layers.disable(0);
 
 		
-		const	neon_play = new THREE.MeshBasicMaterial({color: 0x41ffff, side: THREE.DoubleSide});
+		const	neon_play = new THREE.MeshBasicMaterial(material_params);
 		const	tplay = new TextGeometry("Play", {...font_params, font: font});
-		const	lplay = new THREE.DirectionalLight(0x41ffff, int);
+		const	lplay = new THREE.DirectionalLight(0xffbbbb, 0);
 		lplay.position.set(0, Math.cos(theta), Math.sin(theta));
+		lplay.target = sphere_mesh;
 		lplay.name = "lPlay";
 		const	play = new THREE.Mesh(tplay, neon_play);
 		play.position.set(-0.65, Math.cos(theta), Math.sin(theta));
 		play.rotation.set(theta - Math.PI / 2, 0, 0);
 		play.name = "Play";
 		
-		const	neon_settings = new THREE.MeshBasicMaterial({color: 0x41ffff, side: THREE.DoubleSide});
+		const	neon_settings = new THREE.MeshBasicMaterial(material_params);
 		const	tsettings = new TextGeometry("Settings", {...font_params, font: font});
-		const	lsettings = new THREE.DirectionalLight(0x41ffff, int);
+		const	lsettings = new THREE.DirectionalLight(0xffbbbb, 0);
 		lsettings.position.set(0, Math.cos(-theta), Math.sin(-theta));
+		lsettings.target = sphere_mesh;
 		lsettings.name = "lSettings";
 		const	settings = new THREE.Mesh(tsettings, neon_settings);
 		settings.position.set(-1.23, Math.cos(-theta), Math.sin(-theta));
 		settings.rotation.set(-theta - Math.PI / 2, 0, 0);
 		settings.name = "Settings";
 		
-		const	neon_about = new THREE.MeshBasicMaterial({color: 0x41ffff, side: THREE.DoubleSide});
+		const	neon_about = new THREE.MeshBasicMaterial(material_params);
 		const	tabout = new TextGeometry("About", {...font_params, font: font});
-		const	labout = new THREE.DirectionalLight(0x41ffff, int);
+		const	labout = new THREE.DirectionalLight(0xffbbbb, 0);
 		labout.position.set(0, Math.cos(-3 * theta), Math.sin(-3 * theta));
+		labout.target = sphere_mesh;
 		labout.name = "lAbout";
 		const	about = new THREE.Mesh(tabout, neon_about);
 		about.position.set(-0.85, Math.cos(-3 * theta), Math.sin(-3 * theta));
 		about.rotation.set(-3 * theta - Math.PI / 2, 0, 0);
 		about.name = "About";
 		
-		const	neon_profile = new THREE.MeshBasicMaterial({color: 0x41ffff, side: THREE.DoubleSide});
+		const	neon_profile = new THREE.MeshBasicMaterial(material_params);
 		const	tprofile = new TextGeometry("Profile", {...font_params, font: font});
-		const	lprofile = new THREE.DirectionalLight(0x41ffff, int);
+		const	lprofile = new THREE.DirectionalLight(0xffbbbb, 0);
 		lprofile.position.set(0, Math.cos(7 * theta), Math.sin(7 * theta));
+		lprofile.target = sphere_mesh;
 		lprofile.name = "lProfile";
 		const	profile = new THREE.Mesh(tprofile, neon_profile);
 		profile.position.set(-1.05, Math.cos(7 * theta), Math.sin(7 * theta));
 		profile.rotation.set(7 * theta - Math.PI / 2, 0, 0);
 		profile.name = "Profile";
 		
-		const	neon_chat = new THREE.MeshBasicMaterial({color: 0x41ffff, side: THREE.DoubleSide});
+		const	neon_chat = new THREE.MeshBasicMaterial(material_params);
 		const	tchat = new TextGeometry("Chat", {...font_params, font: font});
-		const	lchat = new THREE.DirectionalLight(0x41ffff, int);
+		const	lchat = new THREE.DirectionalLight(0xffbbbb, 0);
 		lchat.position.set(0, Math.cos(5 * theta), Math.sin(5 * theta));
+		lchat.target = sphere_mesh;
 		lchat.name = "lChat";
 		const	chat = new THREE.Mesh(tchat, neon_chat);
 		chat.position.set(-0.65, Math.cos(5 * theta), Math.sin(5 * theta));
@@ -105,11 +111,11 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	const	ambient = new THREE.AmbientLight(0xffffff, 0.5);
 
     const	sphere_geometry = new THREE.SphereGeometry(1);
-    const	sphere_material = new THREE.MeshPhongMaterial({color: 0x252525});
+    const	sphere_material = new THREE.MeshPhongMaterial({color: 0x101015});
     const	sphere_mesh = new THREE.Mesh(sphere_geometry, sphere_material);
     sphere_mesh.name = "Sphere";
 
-	const	scaling = 2;
+	const	scaling = 3;
     const	menu_parent = new THREE.Group();
 	menu_parent.name = "Group";
     menu_parent.add(sphere_mesh);
@@ -118,12 +124,12 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	menu_parent.up.set(0, 1, 0);
 	menu_parent.lookAt(0, 0, 20);
 
-	const	plane = new THREE.PlaneGeometry(20, (9 / 16) * 20, 10, 10);
-	const	texture = new THREE.MeshBasicMaterial({map: game_texture});
+	const	plane = new THREE.PlaneGeometry(25, (9 / 16) * 25, 10, 10);
+	const	texture = new THREE.MeshLambertMaterial({map: game_texture});
 	const	screen_plane = new THREE.Mesh(plane, texture);
 	screen_plane.position.set(0, 0, 0.5);
 
-	let		general_scaling = Math.min(window.innerWidth, (16 / 9) * window.innerHeight) / 700;
+	let		general_scaling = Math.min(window.innerWidth, (1.6) * window.innerHeight) / 800;
     const   scene = new THREE.Scene();
     scene.add(menu_parent, screen_plane, ambient);
 	scene.scale.set(general_scaling, general_scaling, general_scaling);
@@ -144,13 +150,18 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	let		deltaY = 0;
 
     let		current: MenuButtons | null = null;
+	let		start = false;
+	
+	//A adapter en fonction de l'angle entre (0, 0, 1) et le vecteur normalisé ((0, 0, 20) - menu_parent.position)
+	let corr = 0.2 - 2 * Math.PI;
+
 
     window.addEventListener("wheel", handleWheel);
     window.addEventListener("click", handleClick);
 	window.addEventListener("resize", handleResize);
 
 	function	handleResize(evenet: Event) {
-		general_scaling = Math.min(window.innerWidth, (16 / 9) * window.innerHeight) / 700;
+		general_scaling = Math.min(window.innerWidth, (1.6) * window.innerHeight) / 800;
 		scene.scale.set(general_scaling, general_scaling, general_scaling);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		camera.aspect = window.innerWidth / window.innerHeight;
@@ -192,17 +203,14 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
                     params.toggleProfile();
                     break
                 case MenuButtons.Play:
-                    //Animation lancement
+					start = true;
+					corr = 0.4 - 2 * Math.PI;
                     socket.emit("search")
-                    console.log("AAAAAAAAA")
                     break
             }
 			console.log("lickclick");
         }
     }
-
-	//A adapter en fonction de l'angle entre (0, 0, 1) et le vecteur normalisé ((0, 0, 20) - menu_parent.position)
-	let corr = 0.2 - 2 * Math.PI;
 
     function	getCurrent(rot: number)
     {
@@ -242,13 +250,13 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 
     function update() {
         delta_time = clock.getDelta();
-		if (1 && t < Math.PI / 2)
+		if (start && t < Math.PI / 2)
 		{
-			//menu_parent.position.y = 4 * Math.sin(t);
-			//menu_parent.scale.x = 2 - 2 * t / Math.PI;
-			//menu_parent.scale.y = 2 - 2 * t / Math.PI;
-			//menu_parent.scale.z = 2 - 2 * t / Math.PI;
-			//t += 0.05;
+			menu_parent.position.y = 4 * Math.sin(t);
+			menu_parent.scale.x = scaling - (scaling - 1) * 2 * t / Math.PI;
+			menu_parent.scale.y = scaling - (scaling - 1) * 2 * t / Math.PI;
+			menu_parent.scale.z = scaling - (scaling - 1) * 2 * t / Math.PI;
+			t += 0.05;
 			//menu_parent.lookAt(0, 0, 20);
 		}
 
@@ -258,18 +266,18 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
             menu_parent.traverse((obj) =>
             {
                 if (obj.name === current)
-					((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(0xff41a7);
+					((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(0x41ffff);
 				else if (obj.name === "l" + current)
 				{
-					(obj as THREE.Light).color = new THREE.Color(0xff41a7);
-					(obj as THREE.Light).intensity = 25;
+					(obj as THREE.Light).color = new THREE.Color(0xffbbbb);;
+					(obj as THREE.Light).intensity = 10;
 				}
                 else if (obj instanceof THREE.Mesh && obj.name !== "Sphere")
-                    ((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(0x41ffff);
+                    ((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(0x001616);
 				else if (obj instanceof THREE.DirectionalLight)
 				{
 					(obj as THREE.Light).color = new THREE.Color(0x41ffff);
-					(obj as THREE.Light).intensity = 10;
+					(obj as THREE.Light).intensity = 1;
 				}
             });
         }
