@@ -10,7 +10,6 @@ export class NotificationsService {
     constructor() { }
 
     addClient(socket:Socket, user:User) {
-        console.log("Connected notif: ", user)
         this.connectedClients.set(socket, user)
     }
 

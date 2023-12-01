@@ -15,7 +15,7 @@ import { User, UserModule } from 'src/db/user'
   imports: [
     JwtModule.register({
       secret: config_jwt.secret,
-      signOptions: { expiresIn: '7d' },
+      signOptions: { expiresIn: config_jwt.expires },
     }),
     PassportModule.register({ defaultStrategy: '42' }),
     forwardRef(() => UserModule)

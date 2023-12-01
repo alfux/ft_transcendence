@@ -1,4 +1,4 @@
-import { Vec3 } from '../Math'
+import { Vec3 } from './Math'
 
 export class	Ball
 {
@@ -6,7 +6,7 @@ export class	Ball
 	speed:			Vec3;
 	radius:			number;
 	spin:			number;
-	gameObject?:	THREE.Object3D
+	gameObject?:	any
 
 	constructor(
 		rad: number = 1,

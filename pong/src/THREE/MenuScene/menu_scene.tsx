@@ -6,6 +6,8 @@ import { load_obj } from '../Utils';
 
 import { clamp } from '../Math';
 import { Socket } from 'socket.io-client';
+import { Animation, Ease, interpolate_vector3 } from '../Animations';
+import { CoolSocket } from '../Utils/socket';
 
 enum MenuButtons {
 	Logout = "Logout",
@@ -18,7 +20,7 @@ enum MenuButtons {
 
 export function create_menu_scene(renderer: THREE.Renderer, params: {
     toggleProfile:() => void
-}, socket:Socket) {
+}, socket:CoolSocket) {
 
 	const	camera = new THREE.OrthographicCamera(
 		-window.innerWidth / 200, window.innerWidth / 200,
@@ -39,12 +41,12 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
     const	menu_parent = new THREE.Group();
     menu_parent.add(sphere_mesh);
     menu_parent.position.set(4, 3, 0);
-    load_obj(menu_parent, "meshes/Logout.glb", [0, 0, 1], [Math.PI / 2, 0, 0]);
-    load_obj(menu_parent, "meshes/Play.glb", [0, Math.cos(theta), Math.sin(theta)], [theta, 0, 0]);
-    load_obj(menu_parent, "meshes/Settings.glb", [0, Math.cos(-theta), Math.sin(-theta)], [-theta, 0, 0]);
-    load_obj(menu_parent, "meshes/About.glb", [0, Math.cos(-3 * theta), Math.sin(-3 * theta)], [-3 * theta, 0, 0]);
-    load_obj(menu_parent, "meshes/Profile.glb", [0, Math.cos(7 * theta), Math.sin(7 * theta)], [7 * theta, 0, 0]);
-    load_obj(menu_parent, "meshes/Chat.glb", [0, Math.cos(5 * theta), Math.sin(5 * theta)], [5 * theta, 0, 0]);
+    load_obj(menu_parent, "meshes/Logout.glb", [0, 0, 1], [Math.PI / 2, 0, 0], (o)=>o.name=MenuButtons.Logout);
+    load_obj(menu_parent, "meshes/Play.glb", [0, Math.cos(theta), Math.sin(theta)], [theta, 0, 0], (o)=>o.name=MenuButtons.Play);
+    load_obj(menu_parent, "meshes/Settings.glb", [0, Math.cos(-theta), Math.sin(-theta)], [-theta, 0, 0], (o)=>o.name=MenuButtons.Settings);
+    load_obj(menu_parent, "meshes/About.glb", [0, Math.cos(-3 * theta), Math.sin(-3 * theta)], [-3 * theta, 0, 0], (o)=>o.name=MenuButtons.About);
+    load_obj(menu_parent, "meshes/Profile.glb", [0, Math.cos(7 * theta), Math.sin(7 * theta)], [7 * theta, 0, 0], (o)=>o.name=MenuButtons.Profile);
+    load_obj(menu_parent, "meshes/Chat.glb", [0, Math.cos(5 * theta), Math.sin(5 * theta)], [5 * theta, 0, 0], (o)=>o.name=MenuButtons.Chat);
 
     const   scene = new THREE.Scene();
     scene.add(menu_parent, light);
@@ -79,9 +81,9 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
         raycaster.setFromCamera(pointer, camera);
 
         const	intersect = raycaster.intersectObjects(scene.children);
-        if (intersect.length > 0 && (intersect[0].object.name === current
-            || intersect[0].object.name === "Sphere"))
+        if (intersect.length > 0 && intersect.find((o) => o.object.name === "Sphere"))
         {
+            console.log(current)
             switch (current) {
                 case MenuButtons.Logout:
                     window.location.href = `${config.backend_url}/api/auth/login`;
@@ -91,11 +93,9 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
                     break
                 case MenuButtons.Play:
                     //Animation lancement
-                    socket.emit("search")
-                    console.log("AAAAAAAAA")
+                    socket.emit("search", {test:1, test2:2})
                     break
             }
-			console.log("lickclick");
         }
     }
  

@@ -1,7 +1,7 @@
 import * as THREE from "three"
 import { EaseFunction, Ease } from "./Ease"
 import { Clock } from './Clock'
-import { lerp } from "three/src/math/MathUtils"
+import { interpolate_vector3 } from "./interp_functions"
 
 const defaultEaseOvershootOrAmplitude = 1.70158
 const defaultEasePeriod = 0
@@ -34,7 +34,6 @@ export class Animation<T>
     to: T,
     duration:number,
     interpolate: (from: T, to: T, t: number) => T,
-    getter?: () => T,
     setter: (new_value:T) => void,
     ease?: EaseFunction,
     onStart?: () => void,
@@ -45,7 +44,6 @@ export class Animation<T>
     this.to = params.to
     this.duration = params.duration
     this.interpolate = params.interpolate
-    this.getter = params.getter
     this.setter = params.setter
 
     if (params.ease)
@@ -68,8 +66,7 @@ export class Animation<T>
         this.finish()
         return
       }
-      if (this.onStart)
-        this.onStart()
+      this.onStart?.()
       this.running = true
       this.clock.start()
       this.__loop()
@@ -84,8 +81,7 @@ export class Animation<T>
   }
 
   finish() {
-    if (this.onFinish)
-      this.onFinish()
+    this.onFinish?.()
     this.setter(this.to)
     this.stop()
   }
@@ -117,47 +113,6 @@ export class Animation<T>
 
 }
 
-export function interpolate_number(from: number, to: number, t: number): number
-{
-  return lerp(from, to, t)
-}
-
-export function interpolate_vector2(from: THREE.Vector2, to: THREE.Vector2, t: number): THREE.Vector2
-{
-  return new THREE.Vector2(
-    interpolate_number(from.x, to.x, t),
-    interpolate_number(from.y, to.y, t),
-  )
-}
-
-export function interpolate_vector3(from: THREE.Vector3, to: THREE.Vector3, t: number): THREE.Vector3
-{
-  return new THREE.Vector3(
-    interpolate_number(from.x, to.x, t),
-    interpolate_number(from.y, to.y, t),
-    interpolate_number(from.z, to.z, t),
-  )
-}
-
-export function interpolate_vector4(from: THREE.Vector4, to: THREE.Vector4, t: number): THREE.Vector4
-{
-  return new THREE.Vector4(
-    interpolate_number(from.x, to.x, t),
-    interpolate_number(from.y, to.y, t),
-    interpolate_number(from.z, to.z, t),
-    interpolate_number(from.w, to.w, t),
-  )
-}
-
-export function interpolate_color(from: THREE.Color, to: THREE.Color, t: number): THREE.Color
-{
-  return new THREE.Color(
-    interpolate_number(from.r, to.r, t),
-    interpolate_number(from.g, to.g, t),
-    interpolate_number(from.b, to.b, t),
-  )
-}
-
 export function animatePosition( params:{
   obj: THREE.Object3D,
   from?: THREE.Vector3,
@@ -178,11 +133,36 @@ export function animatePosition( params:{
     to:params.to,
     duration:params.duration,
     interpolate:interpolate_vector3,
-    getter: () => { return params.obj.position },
     setter: (new_value:THREE.Vector3) => { params.obj.position.copy(new_value) },
     ease:params.ease,
     onStart:params.onStart,
     onFinish:params.onFinish
   })
+}
 
+export function animateScale( params:{
+  obj: THREE.Object3D,
+  from?: THREE.Vector3,
+  to: THREE.Vector3,
+  duration:number,
+  ease?: EaseFunction,
+  onStart?: () => void,
+  onFinish?: () => void
+}) {
+
+  if (!params.from) {
+    params.from = new THREE.Vector3()
+    params.from.copy(params.obj.scale)
+  }
+
+  return new Animation<THREE.Vector3>({
+    from:params.from,
+    to:params.to,
+    duration:params.duration,
+    interpolate:interpolate_vector3,
+    setter: (new_value:THREE.Vector3) => { params.obj.scale.copy(new_value) },
+    ease:params.ease,
+    onStart:params.onStart,
+    onFinish:params.onFinish
+  })
 }

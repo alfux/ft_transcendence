@@ -1,12 +1,11 @@
-import { Vec3 } from "../Math";
-import { Ball } from "./ball";
+import { Vec3 } from "./Math";
 
 export class Obstacle {
 	position: Vec3;
 	direction: Vec3;
 	radius: number;
 	speed: number;
-	gameObject?: THREE.Object3D
+	gameObject?: any
 
 	constructor(
 		pos: Vec3 = Vec3.zero(),
@@ -29,8 +28,8 @@ export class Obstacle {
 	}
 
 	copy(other: Obstacle) {
-		this.position = new Vec3(other.position.x, other.position.y, other.position.z)
-		this.direction = new Vec3(other.direction.x, other.direction.y, other.direction.z)
+		this.position = other.position.clone()
+		this.direction = other.direction.clone()
 		this.radius = other.radius
 		this.speed = other.speed
 	}

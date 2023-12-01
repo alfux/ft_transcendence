@@ -5,6 +5,7 @@ import io from "socket.io-client";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 
 import { initKeyboardHandlers } from './Utils'
+import { promoteToCoolSocket } from './Utils/socket'
 
 import { create_menu_scene } from "./MenuScene";
 import { create_game_scene } from "./GameScene";
@@ -33,7 +34,7 @@ export default function THREE_App(props: {
 
 	useEffect(() => {
 		get_token()
-		const socket = io(`${config.backend_url}/game`, { transports: ["websocket"] });
+		const socket = promoteToCoolSocket(io(`${config.backend_url}/game`, { transports: ["websocket"] }), localStorage.getItem("token"));
 		socket.emit("authentification", localStorage.getItem("token"))
 
 		const renderer = new THREE.WebGLRenderer();

@@ -9,9 +9,10 @@ import { Obstacle } from './obstacle';
 import { GameBoard } from './gameboard';
 import { Vec3, distance, scalaire, norm, Mat3, rotz, rotx} from '../Math';
 
-import { keyboard } from '../Utils/keyboard';
+import { getActiveKeys, keyboard } from '../Utils/keyboard';
 import { Socket } from 'socket.io-client';
-
+import { CoolSocket, promoteToCoolSocket } from '../Utils/socket';
+/*
 function	impact(ball: Ball, obstacle: Obstacle)
 {
 	const	d = new Vec3(
@@ -127,8 +128,9 @@ function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
 	n = norm(tmp);
 	ball.speed.set(nspeed * tmp.x / n, nspeed * tmp.y / n, nspeed * tmp.z / n);
 }
+*/
 
-export function create_game_scene(renderer: THREE.WebGLRenderer, composer: EffectComposer, socket: Socket)
+export function create_game_scene(renderer: THREE.WebGLRenderer, composer: EffectComposer, socket: CoolSocket)
 {
 	const	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, -30, 30);
@@ -138,8 +140,20 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 	const	ambient = new THREE.AmbientLight(0xffffff, 1);
 	ambient.position.set(0, 0, 2);
     
+    const	board = new GameBoard();
+    board.ball.speed.set(20, 0, 0);
+
     const	game_parent = new THREE.Group();
-    load_obj(game_parent, "meshes/game.glb");
+    load_obj(game_parent, "meshes/game.glb", [0,0,0], [0,0,0], (o) => {
+		board.left_racket.gameObject = game_parent.children[0].children[0]
+		board.right_racket.gameObject = game_parent.children[0].children[1]
+		
+		board.ball.gameObject = game_parent.children[0].children[2]
+
+		//Peut etre l'inverse, je sais pas
+		board.lower_border.gameObject = game_parent.children[0].children[3]
+		board.upper_border.gameObject = game_parent.children[0].children[4]
+	});
 
     const	scene = new THREE.Scene();
     scene.add(game_parent, ambient);
@@ -150,8 +164,6 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
     const	clock = new THREE.Clock();
     let     delta_time = clock.getDelta()
 
-    const	board = new GameBoard();
-    board.ball.speed.set(20, 0, 0);
 
 	let		start = false;
 
@@ -204,7 +216,8 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 	window.addEventListener("contextmenu", contextMenuHandler);
 	window.addEventListener("pointermove", pointerMoveHandler);
 	socket.on("start", handleStart);
-	socket.on("player_pos", updateLRacket);
+	socket.on("player_pos", updateRackets);
+	socket.on("ball_pos", updateBallPos)
 
 	function	handleStart() {
 		//animation gamestart
@@ -216,16 +229,28 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 		//scorePrint.appendChild(score);
 	}
 
-    function	updateRRacket() {
-		socket.emit("player_input", keyboard);
-    }
-
-    function	updateLRacket(pos: {x: number, y: number})
+    function	updateRackets(positions: {
+		you: Obstacle,
+		opponent: Obstacle
+	})
     {
-        board.left_racket.position.y = pos.y;
-        game_parent.children[0].children[0].position.y = board.left_racket.position.y;
+        board.right_racket.copy(positions.you)
+		if (board.right_racket.gameObject)
+			board.right_racket.gameObject.position.y = board.right_racket.position.y;
+	
+		board.right_racket.copy(positions.opponent)
+        board.left_racket = positions.opponent;
+		if (board.left_racket.gameObject)
+        	board.left_racket.gameObject.position.y = board.left_racket.position.y;
     }
 
+	function updateBallPos(ball:Ball) {
+		if (board.ball.gameObject) {
+			ball.gameObject = board.ball.gameObject
+			board.ball = ball
+		}
+	}
+/*
     function	moveBall(t: boolean)
     {
         let	imp;
@@ -259,13 +284,19 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
         if (imp !== undefined)
             bounce(board.ball, board.right_racket, imp);
     }
-
 	let	rota = 0;
+	*/
     function update()
 	{
-		if (Object.keys(keyboard).length !== 0) {
-			updateRRacket()
+		const active_keys = getActiveKeys()
+		if (Object.keys(active_keys).length !== 0) {
+			console.log(active_keys)
+			socket.emit("player_input", active_keys);
 		}
+
+		if (board.ball.gameObject)
+			board.ball.gameObject.position.set(board.ball.position.x, board.ball.position.y, board.ball.position.z)
+
 		composer.render();
 		renderer.render(main_stage, main_camera);
     }
@@ -277,7 +308,7 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, composer: Effec
 			window.removeEventListener("contextmenu", contextMenuHandler);
 			window.removeEventListener("pointermove", pointerMoveHandler);
 			socket.off("start", handleStart)
-			socket.off("player_pos", updateLRacket)
+			socket.off("player_pos", updateRackets)
 
             scene.traverse((obj: any) =>
             {

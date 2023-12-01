@@ -13,9 +13,11 @@ import { GameModule } from './game/game.module'
 
 import { config_db } from './config'
 import { NotificationsModule } from './notifications/notifications.module'
+import { ScheduleModule } from '@nestjs/schedule'
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: config_db.host,

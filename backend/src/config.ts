@@ -17,7 +17,8 @@ export const config_42 = {
 }
 
 export const config_jwt = {
-  secret:process.env.JWT_SECRET
+  secret:process.env.JWT_SECRET,
+  expires:'7d'
 }
 
 export const config_hosts = {

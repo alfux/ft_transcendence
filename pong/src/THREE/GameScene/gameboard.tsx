@@ -1,5 +1,6 @@
 import { Obstacle } from "./obstacle";
 import { Ball } from "./ball";
+import { Vec3 } from "../Math";
 
 export class	GameBoard
 {
@@ -11,10 +12,11 @@ export class	GameBoard
 
 	constructor()
 	{
-		this.upper_border = new Obstacle([0, 9, 0], [-1, 0, 0], 16, 0);
-		this.lower_border = new Obstacle([0, -9, 0], [1, 0, 0], 16, 0);
-		this.left_racket = new Obstacle([-14, 0, 0], [0, -1, 0], 2, 0);
-		this.right_racket = new Obstacle([14, 0, 0], [0, 1, 0], 2, 0);
+		this.upper_border = new Obstacle(new Vec3(0, 9, 0), new Vec3(-1, 0, 0), 16, 0);
+		this.lower_border = new Obstacle(new Vec3(0, -9, 0), new Vec3(1, 0, 0), 16, 0);
+		this.left_racket = new Obstacle(new Vec3(-14, 0, 0), new Vec3(0, -1, 0), 2, 0);
+		this.right_racket = new Obstacle(new Vec3(14, 0, 0), new Vec3(0, 1, 0), 2, 0);
 		this.ball = new Ball(0.5);
 	}
+
 }
