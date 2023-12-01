@@ -63,7 +63,7 @@ export default function THREE_App(props: {
 		socket.emit("authentification", localStorage.getItem("token"))
 
 		const	renderer = new THREE.WebGLRenderer();
-		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setSize(window.innerWidth / 2, window.innerHeight / 2);
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.autoClear = false;
 		
@@ -192,15 +192,16 @@ export default function THREE_App(props: {
 	
 
 	return (
-		<div ref={divRef id="Canvas"}>
+		<div ref={divRef} id="Canvas">
 			<div>
       			<div className="video-background">
         			<video autoPlay loop muted playsInline className="filtered-video">
           			<source src={process.env.PUBLIC_URL + './background/neon_bg.mp4'} type="video/mp4" />
           			Your browser does not support the video tag.
         			</video>
-        		<div className="glass-overlay"></div>
-      		</div>
+        			<div className="glass-overlay"></div>
+      			</div>
+    		</div>
     	</div>
 	);
 }

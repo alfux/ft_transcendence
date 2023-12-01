@@ -131,7 +131,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 
 	let		general_scaling = Math.min(window.innerWidth, (1.6) * window.innerHeight) / 800;
     const   scene = new THREE.Scene();
-    scene.add(menu_parent, screen_plane, ambient);
+    scene.add(menu_parent, ambient, screen_plane);
 	scene.scale.set(general_scaling, general_scaling, general_scaling);
 
 	const	composer = new EffectComposer(renderer);
@@ -163,7 +163,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	function	handleResize(evenet: Event) {
 		general_scaling = Math.min(window.innerWidth, (1.6) * window.innerHeight) / 800;
 		scene.scale.set(general_scaling, general_scaling, general_scaling);
-		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setSize(window.innerWidth / 2, window.innerHeight / 2);
 		camera.aspect = window.innerWidth / window.innerHeight;
 		camera.updateProjectionMatrix();
 		composer.setSize(window.innerWidth, window.innerHeight);

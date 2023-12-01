@@ -44,6 +44,7 @@ export function	load_obj(group: THREE.Group, name: string, pos: [number, number,
 			obj.scene.rotation.set(rot[0], rot[1], rot[2]);
 			group.add(obj.scene);
 		},
-		(obj) => {console.log(obj.loaded + " loaded");},
-		(err) => {console.log(err)});
+		onProgress:(obj) => {console.log(obj.loaded + " loaded");},
+		onError:(err) => {console.log(err);}
+	});
 }
