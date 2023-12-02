@@ -2,28 +2,11 @@ body {
 	margin: 0;
 	overflow: hidden; 
 	position: relative;
+	background-color: black;
   }
   
 .video-background {
 	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	overflow: hidden;
 	z-index: -1;
+	opacity: 0;
   }
-  
-  .filtered-video {
-	object-fit: cover;
-	width: 100%;
-	height: 100%;
-	pointer-events: none; 
-	filter: grayscale(20%) brightness(50%);
-  }
-
-canvas {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-}

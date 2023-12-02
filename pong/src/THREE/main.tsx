@@ -62,8 +62,8 @@ export default function THREE_App(props: {
 		const socket = io(`${config.backend_url}/game`, { transports: ["websocket"] });
 		socket.emit("authentification", localStorage.getItem("token"))
 
-		const	renderer = new THREE.WebGLRenderer();
-		renderer.setSize(window.innerWidth / 2, window.innerHeight / 2);
+		const	renderer = new THREE.WebGLRenderer({alpha: true});
+		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.autoClear = false;
 		
@@ -195,7 +195,7 @@ export default function THREE_App(props: {
 		<div ref={divRef} id="Canvas">
 			<div>
       			<div className="video-background">
-        			<video autoPlay loop muted playsInline className="filtered-video">
+        			<video autoPlay loop muted playsInline className="filtered-video" id="background-video-scene">
           			<source src={process.env.PUBLIC_URL + './background/neon_bg.mp4'} type="video/mp4" />
           			Your browser does not support the video tag.
         			</video>

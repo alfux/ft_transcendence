@@ -126,11 +126,17 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 
 	const	plane = new THREE.PlaneGeometry(25, (9 / 16) * 25, 10, 10);
 	const	texture = new THREE.MeshLambertMaterial({map: game_texture});
+	texture.transparent = true;
 	const	screen_plane = new THREE.Mesh(plane, texture);
-	screen_plane.position.set(0, 0, 0.5);
+	screen_plane.position.set(0, 0, -1);
+
+	const	video_element: HTMLVideoElement = document.getElementById("background-video-scene") as HTMLVideoElement;
+	const	video_background = new THREE.VideoTexture(video_element);
 
 	let		general_scaling = Math.min(window.innerWidth, (1.6) * window.innerHeight) / 800;
     const   scene = new THREE.Scene();
+	scene.background = video_background;
+	scene.backgroundIntensity = 0.2;
     scene.add(menu_parent, ambient, screen_plane);
 	scene.scale.set(general_scaling, general_scaling, general_scaling);
 
@@ -163,7 +169,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	function	handleResize(evenet: Event) {
 		general_scaling = Math.min(window.innerWidth, (1.6) * window.innerHeight) / 800;
 		scene.scale.set(general_scaling, general_scaling, general_scaling);
-		renderer.setSize(window.innerWidth / 2, window.innerHeight / 2);
+		renderer.setSize(window.innerWidth, window.innerHeight);
 		camera.aspect = window.innerWidth / window.innerHeight;
 		camera.updateProjectionMatrix();
 		composer.setSize(window.innerWidth, window.innerHeight);
@@ -252,7 +258,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
         delta_time = clock.getDelta();
 		if (start && t < Math.PI / 2)
 		{
-			menu_parent.position.y = 4 * Math.sin(t);
+			menu_parent.position.y = 3.4 * Math.sin(t);
 			menu_parent.scale.x = scaling - (scaling - 1) * 2 * t / Math.PI;
 			menu_parent.scale.y = scaling - (scaling - 1) * 2 * t / Math.PI;
 			menu_parent.scale.z = scaling - (scaling - 1) * 2 * t / Math.PI;
@@ -293,6 +299,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 
             window.removeEventListener("wheel", handleWheel);
             window.removeEventListener("click", handleClick);
+			window.removeEventListener("resize", handleResize);
 
             scene.traverse((obj: any) =>
             {
@@ -305,6 +312,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 			render_pass.dispose();
 			bloom_pass.dispose();
 			composer.dispose();
+			video_background.dispose();
         }
     }
 }

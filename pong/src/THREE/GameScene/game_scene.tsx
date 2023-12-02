@@ -128,7 +128,7 @@ function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
 export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget, socket: Socket)
 {
 	const	camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
-    camera.position.set(0, -300, 300);
+    camera.position.set(0, -30, 30);
 	camera.up.set(0, 0, 1);
     camera.lookAt(0, 0, 0);
 
@@ -158,10 +158,9 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 	//scorePrint.appendChild(score);
 	//canvas?.appendChild(scorePrint);
 	
-	window.addEventListener("contextmenu", (event) => {return (event.preventDefault());});
 	window.addEventListener("pointermove", (event) =>
 	{
-		if (event.buttons)
+		if (event.buttons === 1)
 		{
 			const	cpos = new Vec3(camera.position.x, camera.position.y, camera.position.z);
 			const	tmp = rotx(cpos, -event.movementY / 1000);
@@ -231,12 +230,12 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 	let	rota = 0;
     function update()
 	{
-		if (1 && camera.position.z > 30)
-		{
-			camera.position.z -= 2.5;
-			camera.position.y += 2.5;
-			scene.rotation.z += 2 * 2.5 * Math.PI / 270;
-		}
+		//if (1 && camera.position.z > 30)
+		//{
+		//	camera.position.z -= 2.5;
+		//	camera.position.y += 2.5;
+		//	scene.rotation.z += 2 * 2.5 * Math.PI / 270;
+		//}
 		renderer.setRenderTarget(target);
 		renderer.clear();
 		renderer.render(scene, camera);
