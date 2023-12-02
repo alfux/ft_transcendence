@@ -20,6 +20,7 @@ import { fetchData } from './Utils/api';
 import TwoFactorAuthenticate from '../components/twofactorauthenticate/TwoFactorAuthenticate';
 import Logout from '../components/logout/Logout';
 import ProfileBar from '../components/profilebar/ProfileBar';
+import RenderComponents from './Utils/render_component';
 export default function THREE_App(props: {
 	toggleProfile: () => void,
 	toggleChat: () => void,
@@ -84,7 +85,7 @@ export default function THREE_App(props: {
 		function mainloop() {
 			requestAnimationFrame(mainloop);
 			game_scene.update();
-			menu_scene.update();
+			setLoginForm(menu_scene.update());
 			//			console.log(showProfile);
 		}
 
@@ -124,73 +125,9 @@ export default function THREE_App(props: {
 		handleUpdate()
 		console.log("Payload:", payload)
 		console.log(loginForm)
-		if (loginForm === "Login" && !accessToken) {
-			const newFormContainer = document.createElement('div');
-			const root = createRoot(newFormContainer);
-			root.render(<Login />);
-			document.body.appendChild(newFormContainer);
-			return () => {
-
-				setTimeout(() => {
-				root.unmount();
-				document.body.removeChild(newFormContainer);
-				});
-		  	};
-		}
-		
-		if (loginForm === "Settings" && accessToken && payload?.authentication === "Complete") {
-			const newFormContainer = document.createElement('div');
-			const root = createRoot(newFormContainer);
-			root.render(<Settings/>);
-			document.body.appendChild(newFormContainer);
-			return () => {
-				setTimeout(() => {
-				root.unmount();
-				document.body.removeChild(newFormContainer);
-				});
-		  	};
-		}
-
-		// if (loginForm === "Logout" && accessToken && payload?.authentication === "Complete") {
-		// 	const newFormContainer = document.createElement('div');
-		// 	const root = createRoot(newFormContainer);
-		// 	root.render(<Logout/>);
-		// 	document.body.appendChild(newFormContainer);
-		// 	return () => {
-		// 		setTimeout(() => {
-		// 		root.unmount();
-		// 		document.body.removeChild(newFormContainer);
-		// 		});
-		//   	};
-		// }
-		if (accessToken && payload?.isTwoFactorAuthEnable && payload.authentication === "Incomplete"){
-			const newFormContainer = document.createElement('div');
-			const root = createRoot(newFormContainer);
-			root.render(<TwoFactorAuthenticate/>);
-			document.body.appendChild(newFormContainer);
-			return () => {
-				setTimeout(() => {
-				root.unmount();
-				document.body.removeChild(newFormContainer);
-				});
-		  	};
-		}
-		//loginForm === "Profile" && 
-		if (loginForm === "Profile" && accessToken && payload?.authentication === "Complete") {
-			const newFormContainer = document.createElement('div');
-			const root = createRoot(newFormContainer);
-			root.render(<Profile/>);
-			document.body.appendChild(newFormContainer);
-			return () => {
-				setTimeout(() => {
-				root.unmount();
-				document.body.removeChild(newFormContainer);
-				});
-		  	};
-		}
 	}, [loginForm]);
 	
-
+	RenderComponents(loginForm)
 	return (
 		<div ref={divRef} id="Canvas">
 			<div>

@@ -25,6 +25,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	const	font_params = {size: 0.4, height: 0.2};
 	const	material_params = {color: 0x001616, side:THREE.DoubleSide};
     const	theta = Math.PI / 6;
+	let option = "Log"
 	loader.load("fonts/Games_Regular.json", (font) => {
 		const	neon_log = new THREE.MeshBasicMaterial(material_params);
 		const	tlogin = new TextGeometry("Login", {...font_params, font: font});
@@ -115,7 +116,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     const	sphere_mesh = new THREE.Mesh(sphere_geometry, sphere_material);
     sphere_mesh.name = "Sphere";
 
-	const	scaling = 3;
+	const	scaling = 1;
     const	menu_parent = new THREE.Group();
 	menu_parent.name = "Group";
     menu_parent.add(sphere_mesh);
@@ -123,7 +124,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     menu_parent.scale.set(scaling, scaling, scaling);
 	menu_parent.up.set(0, 1, 0);
 	menu_parent.lookAt(0, 0, 20);
-
+	console.log("height: ",window.innerHeight,"widht: ",window.innerWidth)
 	const	plane = new THREE.PlaneGeometry(25, (9 / 16) * 25, 10, 10);
 	const	texture = new THREE.MeshLambertMaterial({map: game_texture});
 	texture.transparent = true;
@@ -135,8 +136,8 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 
 	let		general_scaling = Math.min(window.innerWidth, (1.6) * window.innerHeight) / 800;
     const   scene = new THREE.Scene();
-	scene.background = video_background;
-	scene.backgroundIntensity = 0.2;
+	//scene.background = video_background;
+	//scene.backgroundIntensity = 0.2;
     scene.add(menu_parent, ambient, screen_plane);
 	scene.scale.set(general_scaling, general_scaling, general_scaling);
 
@@ -147,7 +148,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	const	render_pass = new RenderPass(scene, camera);
 	composer.addPass(render_pass);
 
-	let		bloom_pass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.75, 0.1, 0.1);
+	let		bloom_pass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.55, 0.1, 0.1);
 	composer.addPass(bloom_pass);
 
     const   clock = new THREE.Clock()
@@ -175,7 +176,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 		composer.setSize(window.innerWidth, window.innerHeight);
 		composer.removePass(bloom_pass);
 		bloom_pass.dispose();
-		bloom_pass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.75, 0.1, 0.1);
+		bloom_pass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.50, 0.1, 0.1);
 		composer.addPass(bloom_pass);
 	}
     
@@ -187,6 +188,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
         let	rot = (menu_parent.rotation.x - rot_speed * deltaY) % (2 * Math.PI);
         rot += (rot < 0) ? 2 * Math.PI : 0;
         menu_parent.rotation.x = rot;
+		option = getCurrent(menu_parent.rotation.x);
     }
 
     function handleClick(event: MouseEvent) {
@@ -291,6 +293,8 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
         if ((menu_parent.rotation.x - corr) % (Math.PI / 3) > 0.01)
             centerMenu(menu_parent, deltaY);
 		composer.render();
+		//renderer.render(scene,camera)
+		return option;
     }
 
     return {
