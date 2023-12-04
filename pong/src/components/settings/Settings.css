@@ -7,13 +7,10 @@
 /* __________________GlassContainerSettings__________________ */
 .glass-container-settings {
 	position: fixed;
-	left: 0px;
-	top: 35%;
-	height: 30%;
-	max-height: 800px;
-	min-height: 500px;
-	width: 80%;
-	max-width: 500px;
+	left: 0;
+	top: 25%;
+	height: 45vh;
+	width: 25vw;
 	background: rgba(255, 255, 255, 0.01);
 	border-radius: 16px;
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
@@ -24,11 +21,14 @@
 	flex-direction: column;
 	justify-content: center;
 	animation: slideIn 2s ease forwards, colorChange 2s infinite;
+  resize: both;
+  overflow: auto;
+  cursor: move;
   }
 
 
 /* __________________Settings__________________ */
-.settings{
+.glass-container-settings .settings{
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -39,15 +39,16 @@
 
 }
 
-.QRCode{
+.glass-container-settings .QRCode{
   position: absolute;
- width: 200px;
+ width: 10vh;
+ height: 10vh;
  left: 50%;
   bottom: 10%;
   transform: translateX(-50%);
 }
 
-.switch{
+.glass-container-settings .switch{
   position: relative;
   display: inline;
   height: 40px;
@@ -55,63 +56,67 @@
   margin-top: 0 10px;
 }
 
-.switch-container {
+.glass-container-settings .switch-container {
   display: flex;
   align-items: center;
 }
 
-h2{
-  font-size: 4em;
+.glass-container-settings h2{
+  font-size: 3vw;
   color: #fff;
   text-align:center;
   font-family: 'game', sans-serif;
   text-shadow: 0 0 10px #fff , 0 0 30px blue, 0 0 40px rgb(0, 0, 0), 0 0 60px blue 
 }
 
-.switch-container span{
-  font-size: 30px;
+.glass-container-settings .switch-label{
+  font-size: 1.2vw;
   font-family: 'game', sans-serif;
   color: white;
-  margin-right: 20px;
+  margin-right: 1vw;
 }
-.slider{
+
+.glass-container-settings .slider{
   position: absolute;
   cursor: pointer;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  width: 3vw;
+  height: 3vh;
   background-color: rgb(137, 9, 15);
   transition: .4s;
   border-radius: 50px;
 
 }
 
-.switch input {
+.glass-container-settings .switch input {
   display: none;
 }
 
-.slider:before{
+.glass-container-settings .slider:before{
   position: absolute;
   content: "";
-  height: 30px;
-  width: 30px;
-  left: 5px;
-  bottom: 5px;
+  height: 80%;
+  width: 50%;
+  left: 0.2vh;
+  bottom: 0.2vw;
   background-color:white;
+  align-self: center;
   transition: 0.4s;
   border-radius: 50%;
   box-shadow: 0 0 10px red;
   box-shadow: 0 0 25px red;
   box-shadow: 0 0 50px red;
 }
-input:checked + .slider{
+.glass-container-settings input:checked + .slider{
   background-color: rgb(10, 110, 15);
   box-shadow: 0 0 10px green;
   box-shadow: 0 0 25px green;
   box-shadow: 0 0 50px green;
 }
 
-input:checked + .slider::before{
+.glass-container-settings input:checked + .slider::before{
   transform: translateX(30px);
 }

@@ -37,17 +37,6 @@
 	width: 100%;
 	height: 100%;
   }
-  
-  @keyframes slideIn {
-	0% {
-	  left: -600px;
-	  box-shadow: 0 0 1000px #00ff00;
-	}
-	100% {
-	  left: calc(30% - 300px); /* Bring the container to the center of the screen */
-	  /* animation:colorChange 2s infinite */
-	}
-  }
 
   @keyframes colorChange {
 	0% {

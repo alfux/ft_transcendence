@@ -86,7 +86,7 @@ function RenderComponents(loginForm:string) {
   }, [loginForm])
   
 
-  return null; // Adjust this based on your component's rendering logic
+  return null;
 }
 
 export default RenderComponents;

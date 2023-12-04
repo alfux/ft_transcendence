@@ -13,15 +13,16 @@ import { AuthController } from './auth/controller/auth/auth.controller';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'gameover',
-      password: '123456',
-      database: 'transcedence',
-      entities: [User],
-      synchronize: true,
+    type: 'postgres',
+    host: '172.18.0.2',
+    port: 5432,
+    username: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    database: process.env.POSTGRES_DATABASE,
+    entities: [User],
+    synchronize: true,
   }),
+  
   UserModule,
   AuthModule,
   ],

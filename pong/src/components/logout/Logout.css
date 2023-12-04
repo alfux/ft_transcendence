@@ -1,12 +1,12 @@
 @keyframes colorChange {
     0% {
-      box-shadow: 0 0 50px #00ff00; /* Start with a green glow */
+      box-shadow: 0 0 50px #00ff00; 
     }
     50% {
-      box-shadow: 0 0 50px #ff0000; /* Transition to a red glow */
+      box-shadow: 0 0 50px #ff0000; 
     }
     100% {
-      box-shadow: 0 0 50px #001eff; /* Transition back to a blue glow */
+      box-shadow: 0 0 50px #001eff; 
     }
   }
   
@@ -69,11 +69,11 @@
   
   .fortytwologo {
     position: absolute;
-    width: 60%; /* Adjusted width for better fit */
-    height: 60%; /* Adjusted height for better fit */
+    width: 60%; 
+    height: 60%; 
     background: url('../../../public/42.png') center center / cover no-repeat;
     margin: 0 auto;
-    z-index: 2; /* Ensuring the logo is above the glass container */
+    z-index: 2;
   }
   
   .fortytwologo::before {

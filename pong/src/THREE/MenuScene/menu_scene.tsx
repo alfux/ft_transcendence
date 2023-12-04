@@ -166,6 +166,20 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     window.addEventListener("wheel", handleWheel);
     window.addEventListener("click", handleClick);
 	window.addEventListener("resize", handleResize);
+	window.addEventListener("touchmove", handleTouch);
+
+	function handleTouch(event: TouchEvent) {
+		const rot_speed = 0.01;
+	
+		// Assuming only one touch for simplicity
+		const deltaY = event.touches[0].clientY - event.touches[0].clientY * 0.50;
+	
+		let rot = (menu_parent.rotation.x - rot_speed * deltaY) % (2 * Math.PI);
+		rot += rot < 0 ? 2 * Math.PI : 0;
+		menu_parent.rotation.x = rot;
+	
+		option = getCurrent(menu_parent.rotation.x);
+	}
 
 	function	handleResize(evenet: Event) {
 		general_scaling = Math.min(window.innerWidth, (1.6) * window.innerHeight) / 800;
