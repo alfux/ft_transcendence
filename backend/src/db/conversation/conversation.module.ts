@@ -12,9 +12,7 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Conversation]),
-    TypeOrmModule.forFeature([ConversationUser]),
-    TypeOrmModule.forFeature([ConversationUserInfos]),
+    TypeOrmModule.forFeature([Conversation, ConversationUser, ConversationUserInfos]),
     forwardRef(() => UserModule),
     MessageModule,
     NotificationsModule,

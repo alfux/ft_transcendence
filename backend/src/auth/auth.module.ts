@@ -6,22 +6,33 @@ import { JwtModule } from '@nestjs/jwt'
 
 import { FortyTwoStrategy } from './42api/42api.strategy'
 import { JwtStrategy } from './jwt/jwt.strategy'
+import { JwtRefreshTokenStrategy } from './jwt/jwt_refresh.strategy'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
-import { config_jwt } from 'src/config'
-import { User, UserModule } from 'src/db/user'
+import { UserModule } from 'src/db/user'
+
+import { TwoFactorAuthenticationController } from './2fa.controller'
+import { TwoFactorAuthenticationService } from './2fa.service'
 
 @Module({
   imports: [
-    JwtModule.register({
-      secret: config_jwt.secret,
-      signOptions: { expiresIn: config_jwt.expires },
-    }),
+    JwtModule.register({}),
     PassportModule.register({ defaultStrategy: '42' }),
     forwardRef(() => UserModule)
   ],
-  controllers: [AuthController],
-  providers: [FortyTwoStrategy, JwtStrategy, AuthService],
-  exports: [AuthService],
+  controllers: [
+    AuthController,
+    TwoFactorAuthenticationController
+  ],
+  providers: [
+    FortyTwoStrategy,
+    JwtStrategy,
+    JwtRefreshTokenStrategy,
+    TwoFactorAuthenticationService,
+    AuthService
+  ],
+  exports: [
+    AuthService
+  ],
 })
 export class AuthModule {}

@@ -4,11 +4,8 @@ import { Inject, forwardRef } from '@nestjs/common'
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, SubscribeMessage } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 
-import { AuthService, JwtAuthGuard } from 'src/auth'
-import { ConversationService } from 'src/db/conversation'
-import { MessageService } from 'src/db/message'
-import { User, UserService } from 'src/db/user'
-import { Message } from 'src/db/message'
+import { AuthService } from 'src/auth/auth.service'
+import { UserService } from 'src/db/user'
 import { NotificationsService } from './notifications.service'
 
 

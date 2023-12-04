@@ -17,11 +17,15 @@ export const config_42 = {
 }
 
 export const config_jwt = {
-  secret:process.env.JWT_SECRET,
-  expires:'7d'
+  secret_token:process.env.JWT_SECRET_TOKEN,
+  expires_token:process.env.JWT_EXPIRE_TOKEN,
+  secret_refresh:process.env.JWT_SECRET_REFRESH,
+  expires_refresh:process.env.JWT_EXPIRE_REFRESH,
 }
 
 export const config_hosts = {
+
+  frontend_port:"3000",
+  frontend_url:"localhost",
   backend_url:"http://localhost:3001",
-  frontend_url:"http://localhost:3000"
 }

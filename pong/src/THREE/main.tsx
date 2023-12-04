@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react'
+
 import * as THREE from "three";
 import io from "socket.io-client";
 
@@ -23,13 +24,25 @@ export default function THREE_App(props: {
 	const [showProfile, setShowProfile] = useState(false)
 
 	function get_token() {
-		const urlParams = new URLSearchParams(window.location.search)
-		const token = urlParams.get('code')
-		if (token) {
-			localStorage.setItem('token', token)
-			const newURL = window.location.href.replace(window.location.search, '')
-			window.history.replaceState({}, document.title, newURL)
-		}
+		//const urlParams = new URLSearchParams(window.location.search)
+		//const token = urlParams.get('code')
+		//if (token) {
+		//	localStorage.setItem('token', token)
+		//	const newURL = window.location.href.replace(window.location.search, '')
+		//	window.history.replaceState({}, document.title, newURL)
+		//}
+
+		const parsedCookies = Object.fromEntries(
+			document.cookie.split('; ').map(cookie => {
+				const [key, value] = cookie.split('=');
+				return [key, value];
+			})
+		);
+
+		if (parsedCookies.access_token)
+			localStorage.setItem("token", parsedCookies.access_token)
+		if (parsedCookies.refresh_token)
+			localStorage.setItem("refresh_token", parsedCookies.refresh_token)
 	}
 
 	useEffect(() => {

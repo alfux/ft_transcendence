@@ -1,41 +1,62 @@
 // auth.controller.ts
 
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common'
+import { Controller, Get, Req, Res, UseGuards, Inject, forwardRef } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
-import { Response } from 'express'
+import { CookieOptions, Response } from 'express'
 
-import { Request } from './index'
+import { Request } from './request.interface'
 import { AuthService } from './auth.service'
 import { Public } from './jwt/public.decorator'
 
+import { config_hosts } from 'src/config'
+import { UserService } from 'src/db'
+
+const cookie_options: CookieOptions = {
+  httpOnly: false,
+  secure: true,
+  sameSite: 'none'
+}
+
 @Controller('auth')
 export class AuthController {
-  
+
   constructor(
     private readonly authService: AuthService,
-  ) {}
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService
+  ) { }
 
   @Public()
   @UseGuards(AuthGuard('42'))
   @Get('login')
-  async login_callback(@Req() req: Request, @Res() response: Response): Promise<void> {  
-    const token = await this.authService.getJwt(req.user)
-  
-    console.log(req.protocol, req.hostname)
-    const url = new URL(`${req.protocol}://${req.hostname}`)
-    url.port = '3000'
-    url.searchParams.set('code', token)
+  async login_callback(@Req() req: Request, @Res() response: Response): Promise<void> {
+    console.log("AAAAAAAAA")
     
+    const tokens = await this.authService.login(req.user)
+
+    const url = new URL(`${req.protocol}://${req.hostname}`)
+    url.port = config_hosts.frontend_port
+    
+    console.log(tokens)
+
+    response.cookie('access_token', tokens.access_token, cookie_options);
+    response.cookie('refresh_token', tokens.refresh_token, cookie_options);
     response.status(302).redirect(url.href)
   }
 
-  @Public()
-  @Get('jwt')
-  jwt(@Req() req: Request): boolean {
-    if (!req.headers.authorization) return false;
-    const token = req.headers.authorization.split(' ')[1];
-    const payload = this.authService.verifyJWT(token);
-    return !!payload;
+  @UseGuards(AuthGuard('42'))
+  @Get('logout')
+  logout(@Res() response: Response) {
+    response.clearCookie("access_token")
+    response.clearCookie("refresh_token")
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('refresh')
+  async refreshToken(@Req() req: Request, @Res() response: Response) {
+    const user = await this.userService.getUser({id:req.user.id})
+    const newToken = await this.authService.generateAccessToken(user);
+    response.cookie('access_token', newToken, cookie_options);
   }
 
 }

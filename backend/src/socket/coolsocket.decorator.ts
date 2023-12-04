@@ -2,9 +2,6 @@ import { Socket } from "socket.io";
 import { CoolSocketPayload } from "./coolsocket.interface";
 import { Client } from "src/game/Game/GameInstance";
 
-import ms = require("ms")
-import { config_jwt } from "src/config";
-
 const connectedClients: Client[] = []
 
 export function CoolSocket(target: any, propertyKey: string, descriptor: PropertyDescriptor) {

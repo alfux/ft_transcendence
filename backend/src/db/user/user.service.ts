@@ -1,17 +1,31 @@
-import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Injectable, HttpStatus, HttpException } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { FindOptionsWhere, Repository } from 'typeorm'
 
-import { User } from './user.entity';
-import { FriendRequest } from './friend_request.entity';
-import { User42Api } from 'src/auth/42api/user42api.interface';
-import { NotificationsService } from 'src/notifications/notifications.service';
-import { PlayRequest } from './play_request.entity';
+import { User } from './user.entity'
+import { FriendRequest } from './friend_request.entity'
+import { NotificationsService } from 'src/notifications/notifications.service'
+import { PlayRequest } from './play_request.entity'
 
-export interface Oauth42Token
-{
+export interface Oauth42Token {
   access_token: string
   expires: string
+}
+
+
+/*
+function merge<T>(a:T, b:Partial<T>) {
+  for (const k in Object.keys(a)) {
+    if (b[k]) a[k] = b[k]
+  }
+} 
+*/
+function merge<T>(a: T, b: Partial<T>): void {
+  for (const key in b) {
+    if (b.hasOwnProperty(key)) {
+      a[key] = b[key]
+    }
+  }
 }
 
 @Injectable()
@@ -25,78 +39,59 @@ export class UserService {
     private playRepository: Repository<PlayRequest>,
 
     private notificationService: NotificationsService
-  ) {}
+  ) { }
 
   async getUser(where: FindOptionsWhere<User> = {}, relations = [] as string[]): Promise<User> {
-    const user = await this.usersRepository.findOne({where:where, relations:relations, })
+    const user = await this.usersRepository.findOne({ where: where, relations: relations, })
     if (!user)
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-    return user;
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST)
+    return user
   }
 
   async getUsers(where: FindOptionsWhere<User> = {}, relations = [] as string[]): Promise<User[]> {
-    const user = await this.usersRepository.find({where:where, relations:relations, });
+    const user = await this.usersRepository.find({ where: where, relations: relations, })
     if (!user)
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-    return user;
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST)
+    return user
   }
 
-  async createUser(user42api:User42Api): Promise<User> {
-    if (await this.getUser({id:user42api.id}).catch(() => null))
+  async createUser(user: Partial<User>): Promise<User> {
+    if (await this.getUser({ id: user.id }).catch(() => null))
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST)
 
-    const user = this.usersRepository.create({
-      id:user42api.id,
-      username:user42api.username,
-      image:user42api.image,
-    });
-    try {
-      await this.usersRepository.save(user);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
-    return user;
+    const u = this.usersRepository.create(user)
+    return this.usersRepository.save(u)
   }
 
-  async updateOrCreateUser(user42api:User42Api): Promise<User>
-  {
-    let user = await this.getUser({id:user42api.id}).catch(() => null)
-    if (!user) {
-      user = await this.createUser(user42api)
-    }
-
-    user.image = user42api.image
-    user.username = user42api.username
-    await this.usersRepository.save(user)
-
-    return user;
+  async updateOrCreateUser(user: Partial<User>): Promise<User> {
+    return this.usersRepository.save(user)
   }
 
   async remove(id: number): Promise<void> {
-    await this.usersRepository.delete(id);
+    await this.usersRepository.delete(id)
   }
 
-  async sendFriendRequest(from:User, to:User) {
+  async sendFriendRequest(from: User, to: User) {
     return await this.frRepository.save({
-      sender:from,
-      receiver:to
+      sender: from,
+      receiver: to
     })
   }
 
   getFriendRequest(where: FindOptionsWhere<FriendRequest>, relations = [] as string[]) {
-    const connection = this.frRepository.findOne({where:where, relations:relations})
+    const connection = this.frRepository.findOne({ where: where, relations: relations })
     if (!connection)
       throw new HttpException("Friend request not found", HttpStatus.BAD_REQUEST)
     return connection
   }
 
-  async acceptFriendRequest(id:number) {
-    const request = await this.frRepository.findOne({where:{id:id}, relations:['sender', 'receiver']})
+  async acceptFriendRequest(id: number) {
+    const request = await this.frRepository.findOne({ where: { id: id }, relations: ['sender', 'receiver'] })
     if (!request)
       throw new HttpException('Friend request not found', HttpStatus.BAD_REQUEST)
 
-    const sender = await this.getUser({id:request.sender.id}, ['friends'])
-    const receiver = await this.getUser({id:request.receiver.id}, ['friends'])
+    const sender = await this.getUser({ id: request.sender.id }, ['friends'])
+    const receiver = await this.getUser({ id: request.receiver.id }, ['friends'])
 
     sender.friends.push(receiver)
     receiver.friends.push(sender)
@@ -104,69 +99,69 @@ export class UserService {
     this.usersRepository.save(receiver)
     this.frRepository.remove(request)
 
-    this.notificationService.emit([sender], "friend_new", {user:{id:receiver.id, username:receiver.username, image:receiver.image}})
-    this.notificationService.emit([receiver], "friend_new", {user:{id:sender.id, username:sender.username, image:sender.image}})
+    this.notificationService.emit([sender], "friend_new", { user: { id: receiver.id, username: receiver.username, image: receiver.image } })
+    this.notificationService.emit([receiver], "friend_new", { user: { id: sender.id, username: sender.username, image: sender.image } })
   }
 
-  async denyFriendRequest(id:number) {
-    const request = await this.frRepository.findOne({where:{id:id}, relations:['sender', 'receiver']})
+  async denyFriendRequest(id: number) {
+    const request = await this.frRepository.findOne({ where: { id: id }, relations: ['sender', 'receiver'] })
     this.frRepository.remove(request)
   }
 
-  async removeFriend(user_id:number, friend_id:number) {
-    const user = await this.getUser({id:user_id}, ['friends'])
-    const friend = await this.getUser({id:friend_id}, ['friends'])
-  
+  async removeFriend(user_id: number, friend_id: number) {
+    const user = await this.getUser({ id: user_id }, ['friends'])
+    const friend = await this.getUser({ id: friend_id }, ['friends'])
+
     user.friends = user.friends.filter((v) => v.id !== friend_id)
     friend.friends = friend.friends.filter((v) => v.id !== user_id)
     this.usersRepository.save(user)
     this.usersRepository.save(friend)
 
-    this.notificationService.emit([user], "friend_delete", {user:friend})
-    this.notificationService.emit([friend], "friend_delete", {user:user})
+    this.notificationService.emit([user], "friend_delete", { user: friend })
+    this.notificationService.emit([friend], "friend_delete", { user: user })
   }
 
-  async blockUser(user_id:number, blocked_user_id:number) {
-    const user = await this.getUser({id:user_id}, ['blocked'])
-    const blocked_user = await this.getUser({id:blocked_user_id})
+  async blockUser(user_id: number, blocked_user_id: number) {
+    const user = await this.getUser({ id: user_id }, ['blocked'])
+    const blocked_user = await this.getUser({ id: blocked_user_id })
 
     user.blocked.push(blocked_user)
     this.usersRepository.save(user)
 
-    this.notificationService.emit([user], "blocked_new", {user:blocked_user})
+    this.notificationService.emit([user], "blocked_new", { user: blocked_user })
   }
-  
-  async unblockUser(user_id:number, blocked_user_id:number) {
-    const user = await this.getUser({id:user_id}, ['blocked'])
+
+  async unblockUser(user_id: number, blocked_user_id: number) {
+    const user = await this.getUser({ id: user_id }, ['blocked'])
 
     const blocked = user.blocked.find((v) => v.id === blocked_user_id)
     if (!blocked)
       return
     user.blocked.filter((v) => v.id !== blocked_user_id)
     this.usersRepository.save(user)
-    
-    this.notificationService.emit([user], "blocked_delete", {user:blocked})
+
+    this.notificationService.emit([user], "blocked_delete", { user: blocked })
   }
 
 
-  async acceptPlayRequest(id:number) {
-    const request = await this.playRepository.findOne({where:{id:id}, relations:['sender', 'receiver']})
+  async acceptPlayRequest(id: number) {
+    const request = await this.playRepository.findOne({ where: { id: id }, relations: ['sender', 'receiver'] })
     if (!request)
       throw new HttpException('Play request not found', HttpStatus.BAD_REQUEST)
 
-    const sender = await this.getUser({id:request.sender.id})
-    const receiver = await this.getUser({id:request.receiver.id})
+    const sender = await this.getUser({ id: request.sender.id })
+    const receiver = await this.getUser({ id: request.receiver.id })
 
     this.playRepository.remove(request)
 
-    this.notificationService.emit([receiver], "play_request_recv", {user:{id:sender.id, username:sender.username, image:sender.image}})
+    this.notificationService.emit([receiver], "play_request_recv", { user: { id: sender.id, username: sender.username, image: sender.image } })
   }
 
-  async denyPlayRequest(id:number) {
-    const request = await this.playRepository.findOne({where:{id:id}, relations:['sender', 'receiver']})
+  async denyPlayRequest(id: number) {
+    const request = await this.playRepository.findOne({ where: { id: id }, relations: ['sender', 'receiver'] })
     this.playRepository.remove(request)
 
-    this.notificationService.emit([request.sender, request.receiver], "friend_request_denied", {req:request})
+    this.notificationService.emit([request.sender, request.receiver], "friend_request_denied", { req: request })
   }
 
 

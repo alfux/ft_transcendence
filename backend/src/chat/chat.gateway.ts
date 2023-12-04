@@ -1,10 +1,9 @@
 // src/chat/chat.gateway.ts
 
-import { UseGuards } from '@nestjs/common'
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, SubscribeMessage } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 
-import { AuthService, JwtAuthGuard } from 'src/auth'
+import { AuthService } from 'src/auth/auth.service'
 import { ConversationService } from 'src/db/conversation'
 import { MessageService } from 'src/db/message'
 import { User, UserService } from 'src/db/user'

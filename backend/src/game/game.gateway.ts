@@ -1,11 +1,10 @@
 // src/chat/chat.gateway.ts
 
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, SubscribeMessage } from '@nestjs/websockets'
-import { createParamDecorator, ExecutionContext} from '@nestjs/common'
 import { Server, Socket } from 'socket.io'
 import { Interval } from '@nestjs/schedule'
 
-import { AuthService } from 'src/auth'
+import { AuthService } from 'src/auth/auth.service'
 import { UserService } from 'src/db/user'
 
 import { Ball } from './Game/Ball'

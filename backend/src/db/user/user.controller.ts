@@ -1,9 +1,8 @@
 import { Req, Controller, Get, Post, Delete, Body, HttpException, HttpStatus, ValidationPipe } from '@nestjs/common'
-import { ApiBearerAuth, ApiBody, ApiProperty, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger'
 
-import { User } from './user.entity'
 import { UserService } from "./user.service"
-import { Request } from 'src/auth'
+import { Request } from 'src/auth/request.interface'
 import { Route } from 'src/route'
 import { NotificationsService } from 'src/notifications/notifications.service'
 

@@ -1,13 +1,20 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import * as cookieParser from 'cookie-parser';
+import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app.module'
+import * as cookieParser from 'cookie-parser'
+import { SpelunkerModule } from 'nestjs-spelunker';
 
 
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { config_hosts } from './config';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
+import { config_hosts } from './config'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule)
+
+  const tree = SpelunkerModule.explore(app);
+  const root = SpelunkerModule.graph(tree);
+  const edges = SpelunkerModule.findGraphEdges(root);
+  const mermaidEdges = edges.map(({ from, to }) => `${from.module.name}-->${to.module.name}`);
+  console.log(`graph TD\n\t${mermaidEdges.join('\n\t')}`);
 
   const config = new DocumentBuilder()
   .setTitle('Ft_transcendence_backend')
@@ -15,20 +22,20 @@ async function bootstrap() {
   .setVersion('1.0')
   .addBearerAuth()
   .addServer(`${config_hosts.backend_url}/api`)
-  .build();
+  .build()
 
   
-  const document = SwaggerModule.createDocument(app, config, {});
-  SwaggerModule.setup('api/docs', app, document);
+  const document = SwaggerModule.createDocument(app, config, {})
+  SwaggerModule.setup('api/docs', app, document)
 
-  app.setGlobalPrefix('api');
-  app.use(cookieParser());
+  app.setGlobalPrefix('api')
+  app.use(cookieParser())
   app.enableCors({
     allowedHeaders: '*',
-    origin: `${config_hosts.frontend_url}`,
+    origin: `http://${config_hosts.frontend_url}:${config_hosts.frontend_port}`,
     credentials: true,
-  });
+  })
 
-  await app.listen(3001);
+  await app.listen(3001)
 }
-bootstrap();
+bootstrap()

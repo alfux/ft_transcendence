@@ -2,7 +2,7 @@ import { OperationObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.i
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiResponseOptions } from '@nestjs/swagger'
 import { UseGuards, UsePipes, ValidationPipe } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
-import { Public } from 'src/auth'
+import { Public } from 'src/auth/jwt/public.decorator'
 
 export function Route(params:{
   public?:boolean,

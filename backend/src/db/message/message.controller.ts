@@ -1,10 +1,10 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseIntPipe, Post, Put, Req } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Req } from '@nestjs/common'
 
-import { ApiBearerAuth, ApiTags, ApiProperty } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Route } from 'src/route'
 
 import { MessageService } from './message.service';
-import { Request } from 'src/auth';
+import { Request } from 'src/auth/request.interface';
 
 @ApiBearerAuth()
 @ApiTags('messages')

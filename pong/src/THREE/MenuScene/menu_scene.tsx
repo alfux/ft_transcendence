@@ -86,6 +86,7 @@ export function create_menu_scene(renderer: THREE.Renderer, params: {
             console.log(current)
             switch (current) {
                 case MenuButtons.Logout:
+                    console.log("Redirect...")
                     window.location.href = `${config.backend_url}/api/auth/login`;
                     break ;
                 case MenuButtons.Profile:

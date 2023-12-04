@@ -6,7 +6,7 @@ import { UserController } from './user.controller';
 import { User } from './user.entity';
 import { FriendRequest } from './friend_request.entity';
 import { PlayRequest } from './play_request.entity';
-import { AuthModule } from 'src/auth';
+import { AuthModule } from 'src/auth/auth.module';
 import { ConversationModule } from '..';
 import { NotificationsModule } from 'src/notifications/notifications.module';
 

@@ -7,8 +7,12 @@ import { Message, MessageModule } from './db/message'
 import { Conversation, ConversationUser, ConversationUserInfos, ConversationModule } from './db/conversation'
 
 import { ChatModule } from './chat/chat.module'
-import { AuthModule, JwtAuthGuard } from './auth'
+
+import { AuthModule } from './auth/auth.module'
+import { JwtAuthGuard } from './auth/jwt/jwt.guard'
+
 import { DebugModule } from './debug/debug.module'
+
 import { GameModule } from './game/game.module'
 
 import { config_db } from './config'

@@ -2,9 +2,7 @@ import { Injectable, HttpStatus, HttpException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { FindOptionsWhere, Repository } from 'typeorm'
 
-import { User } from '../user/user.entity'
 import { Message } from './message.entity'
-import { NotificationsService } from 'src/notifications/notifications.service'
 
 @Injectable()
 export class MessageService {

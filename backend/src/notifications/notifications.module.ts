@@ -2,15 +2,13 @@ import { Module, forwardRef } from '@nestjs/common';
 import { NotificationsGateway } from './notifications.gateway';
 import { NotificationsController } from './notifications.controller';
 import { UserModule } from 'src/db/user';
-import { MessageModule } from 'src/db/message';
-import { ConversationModule } from 'src/db/conversation';
-import { AuthModule } from 'src/auth';
+import { AuthModule } from 'src/auth/auth.module';
 import { NotificationsService } from './notifications.service';
 
 @Module({
   imports: [
     forwardRef(() => UserModule),
-    AuthModule
+    forwardRef(() => AuthModule)
   ],
   providers: [
     NotificationsGateway,

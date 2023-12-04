@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, FindOptionsWhere } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 
 import { Conversation } from './conversation.entity';
 import { ConversationUser } from './conversation_user.entity';

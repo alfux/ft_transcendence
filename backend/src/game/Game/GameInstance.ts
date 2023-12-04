@@ -2,7 +2,7 @@ import { Socket } from "socket.io";
 import { User } from "src/db";
 import { Clock } from "./Clock";
 
-import {Vec2, Vec3, distance, norm, scalaire, clamp } from './Math'
+import { Vec3, distance, norm, scalaire, clamp } from './Math'
 import { Obstacle } from "./Obstacle";
 import { Ball } from "./Ball";
 
