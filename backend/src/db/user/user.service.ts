@@ -6,6 +6,7 @@ import { User } from './user.entity';
 import { FriendRequest } from './friend_request.entity';
 import { User42Api } from 'src/auth/42api/user42api.interface';
 import { NotificationsService } from 'src/notifications/notifications.service';
+import { PlayRequest } from './play_request.entity';
 
 export interface Oauth42Token
 {
@@ -20,6 +21,8 @@ export class UserService {
     private usersRepository: Repository<User>,
     @InjectRepository(FriendRequest)
     private frRepository: Repository<FriendRequest>,
+    @InjectRepository(PlayRequest)
+    private playRepository: Repository<PlayRequest>,
 
     private notificationService: NotificationsService
   ) {}
@@ -146,5 +149,28 @@ export class UserService {
     
     this.notificationService.emit([user], "blocked_delete", {user:blocked})
   }
+
+
+  async acceptPlayRequest(id:number) {
+    const request = await this.playRepository.findOne({where:{id:id}, relations:['sender', 'receiver']})
+    if (!request)
+      throw new HttpException('Play request not found', HttpStatus.BAD_REQUEST)
+
+    const sender = await this.getUser({id:request.sender.id})
+    const receiver = await this.getUser({id:request.receiver.id})
+
+    this.playRepository.remove(request)
+
+    this.notificationService.emit([sender], "friend_new", {user:{id:receiver.id, username:receiver.username, image:receiver.image}})
+    this.notificationService.emit([receiver], "friend_new", {user:{id:sender.id, username:sender.username, image:sender.image}})
+  }
+
+  async denyPlayRequest(id:number) {
+    const request = await this.playRepository.findOne({where:{id:id}, relations:['sender', 'receiver']})
+    this.playRepository.remove(request)
+
+    this.notificationService.emit([request.sender, request.receiver], "friend_request_denied", {req:request})
+  }
+
 
 }
