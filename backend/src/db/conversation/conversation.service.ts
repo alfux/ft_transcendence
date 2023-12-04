@@ -7,6 +7,7 @@ import { ConversationUser } from './conversation_user.entity';
 import { UserService, User } from '../user';
 import { MessageService } from '../message';
 import { ConversationUserInfos } from './conversation_user_infos.entity';
+import { AccessLevel } from './conversation_access_level.enum';
 
 @Injectable()
 export class ConversationService {
@@ -148,11 +149,20 @@ export class ConversationService {
     }
   */
 
-  async createConversation(user_id: number, title: string) {
+  async createConversation(user_id: number, title: string, access_level?:AccessLevel, password?:string) {
+    if (access_level && access_level == AccessLevel.PROTECTED) {
+      if (!password)
+        throw new HttpException("A conversation with access level of PROTECTED should have a password", HttpStatus.BAD_REQUEST)
+    }
+
+    //TODO: si on specifie pas le access_level ou le password aucune idée de ce qui est mit dans la base de donné
+    //TODO: hash le password
     const user = await this.userService.getUser({ id: user_id })
     const new_conv = await this.conversationRepository.save({
       title: title,
       owner: user,
+      access_level: access_level,
+      password: password,
       users: [],
       messages: []
     })

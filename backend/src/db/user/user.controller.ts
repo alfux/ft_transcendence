@@ -153,7 +153,9 @@ export class UserController {
         throw new HttpException("Request not foud or not allowed", HttpStatus.BAD_REQUEST)
     }
 
+    const fr = await this.userService.getFriendRequest({id:body.id}, ['sender', 'receiver'])
     this.userService.denyFriendRequest(body.id)
+    this.notificationService.emit([fr.receiver, fr.sender], "friend_request_denied", {req:fr})
   }
 
   @Route({
@@ -251,7 +253,7 @@ export class UserController {
     const from = await this.userService.getUser({id:req.user.id})
     const to = await this.userService.getUser({username:body.username})
     if (from.id === to.id)
-      throw new HttpException("Can't add yourself as a friend, sry", HttpStatus.BAD_REQUEST)
+      throw new HttpException("Can't play with yourself, sry", HttpStatus.BAD_REQUEST)
     const friend_req = await this.userService.sendFriendRequest(from, to)
     
     this.notificationService.emit([to], "play_request_recv", {req:friend_req})

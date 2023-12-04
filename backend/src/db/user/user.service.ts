@@ -111,8 +111,6 @@ export class UserService {
   async denyFriendRequest(id:number) {
     const request = await this.frRepository.findOne({where:{id:id}, relations:['sender', 'receiver']})
     this.frRepository.remove(request)
-
-    this.notificationService.emit([request.sender, request.receiver], "friend_request_denied", {req:request})
   }
 
   async removeFriend(user_id:number, friend_id:number) {
@@ -161,8 +159,7 @@ export class UserService {
 
     this.playRepository.remove(request)
 
-    this.notificationService.emit([sender], "friend_new", {user:{id:receiver.id, username:receiver.username, image:receiver.image}})
-    this.notificationService.emit([receiver], "friend_new", {user:{id:sender.id, username:sender.username, image:sender.image}})
+    this.notificationService.emit([receiver], "play_request_recv", {user:{id:sender.id, username:sender.username, image:sender.image}})
   }
 
   async denyPlayRequest(id:number) {
