@@ -14,7 +14,7 @@ import { AuthController } from './auth/controller/auth/auth.controller';
 @Module({
   imports: [TypeOrmModule.forRoot({
     type: 'postgres',
-    host: '172.18.0.2',
+    host: "172.26.0.2",//process.env.POSTGRES_DB
     port: 5432,
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,

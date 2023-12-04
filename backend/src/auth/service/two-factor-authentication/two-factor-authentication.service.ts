@@ -21,11 +21,11 @@ export class TwoFactorAuthenticationService {
         const otpUrl = authenticator.keyuri(user.email, '42FA', secret.base32);
     
         // Update the user's secret in the database
-        await this.userService.userUpdateTest(user, secret.base32);
+        await this.userService.userUpdateTwoFactorSecret(user, secret.base32);
     
         
         return {
-          secret: secret.base32, // Using base32 representation of the secret
+          secret: secret.base32,
           otpUrl,
         };
       }

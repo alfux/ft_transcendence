@@ -34,7 +34,7 @@ stop:
 
 clean:
 	@echo "Removing Docker containers and images..."
-	docker compose down --volumes
+	# docker compose down --volumes
 	docker network prune -f
 	docker system prune -af
 

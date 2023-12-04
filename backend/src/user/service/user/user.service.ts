@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { use } from 'passport';
 import { UserDto } from 'src/user/dto/user.dto';
 import { User } from 'src/user/entities/user.entity';
 import { UserType } from 'src/user/utils/type';
@@ -10,24 +11,25 @@ export class UserService {
 
     constructor(@InjectRepository(User) private userRepo :Repository<User>,){
     }
-
+    //provide all users
     provideAllUsers(){
         return this.userRepo.find();
     }
-
-    provideUserByEmail(email: string) {
-        return this.userRepo.findOne({where:{email}});
+    //provide a user by email
+    async provideUserByEmail(email: string):Promise<User> {
+        const user = await this.userRepo.findOne({where:{email : email}});
+        return user;
     }
-    
-    async provideUserById(id: string) {
+    //provide a user by id
+    async provideUserById(id: string) :Promise<User>{
         const user = await this.userRepo.findOne({where:{id : id}})
         return user;
     }
-
-    async userUpdateTest(user :any, secret:string){
+    //Update 2fa secret
+    async userUpdateTwoFactorSecret(user :User, secret:string){
         user.twoFactorAuthSecret = secret
         Object.assign(user)
-        return this.userRepo.save(user);
+        return await this.userRepo.save(user);
     }
 
     //Create New User
@@ -38,33 +40,33 @@ export class UserService {
             lastName : profile.name.familyName,
             nickName : profile.username,
             email : profile.emails[0].value,
-            avatar : 'https://cdn.intra.42.fr/users/a5e81b42b8d91e63773eb39dcf618ef6/dpaulino.jpg',
+            avatar : profile._json.image.link,
             creationDate : new Date(),
             lastTimeLogged : new Date(),
-            refreshToken : 'test',
+            refreshToken : '',
             twoFactorAuth : false,
             twoFactorAuthSecret : '',
             isAuthenticated : "Unlogged" 
         }
         )
-        this.userRepo.save(user);
+        await this.userRepo.save(user);
         return user
     }
-
+    //enable 2fa
     async enableTwoFactorAuth(id: string){
         const user = await this.userRepo.findOne({where :{id}})
         user.twoFactorAuth = true;
         await this.userRepo.save(user);
         
     }
-
+    //disable 2fa
     async disableTwoFactorAuth(id: string){
         const user = await this.userRepo.findOne({where :{id}})
         user.twoFactorAuth = false;
         await this.userRepo.save(user);
         console.log('user: ',user.id)
     }
-
+    //update login status
     async updateLogStatus(id:string, status:string){
         const user = await this.userRepo.findOne({where :{id}})
         if (!user){
@@ -72,7 +74,18 @@ export class UserService {
         }
         user.isAuthenticated = status;
         await this.userRepo.save(user);
-        console.log('user: ',user.id)
+    }
+
+    //update refresh token if null it empty
+    async updateRefreshToken(id:string, refreshToken:string | null){
+        const user = await this.userRepo.findOne({where :{id}})
+        if (!user){
+            throw new HttpException("User not found",HttpStatus.NOT_FOUND)
+        }
+ 
+        refreshToken?user.refreshToken = refreshToken:user.refreshToken = '';
+        await this.userRepo.save(user);
+        console.log('user refresh token updated ',user)
     }
     //_________________________________________________
 

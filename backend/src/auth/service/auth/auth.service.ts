@@ -5,6 +5,7 @@ import { response } from 'express';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/service/user/user.service';
 import { TwoFactorAuthenticationService } from '../two-factor-authentication/two-factor-authentication.service';
+import { request } from 'http';
 
 @Injectable()
 export class AuthService {
@@ -12,19 +13,19 @@ export class AuthService {
     }
 
     //checks if user exist else create new one and return tokens
-    async login(@Req() request, @Res() response) : Promise<any>{
-        if (!await this.userService.provideUserByEmail(request.user.emails[0].value)){
-            const user = await this.userService.provideNewUser(request.user);
-            console.log('user: ', (user).firstName, "twofactor: ", user.twoFactorAuth)
+    async login(@Req() request, @Res() response): Promise<any> {
+        let user = await this.userService.provideUserByEmail(request.user.emails[0].value);
+    
+        if (!user) {
+            user = await this.userService.provideNewUser(request.user);
+            console.log('User: ', user.firstName, " created!")
+        } else {
+            console.log('User',user.firstName, 'already exists!')
+            this.userService.updateLogStatus(user.id, user.twoFactorAuth ? "Incomplete" : "Complete")
         }
-        else{
-            const user = await this.userService.provideUserByEmail(request.user.emails[0].value)
-            console.log('user already exist')
-            this.userService.updateLogStatus(user.id,user.twoFactorAuth?"Incomplete":"Complete")
-        }
-        const tokens = await this.generateTokens(request.user.id, request.user.email)
+    
+        const tokens = await this.generateTokens(user.id, user.email);
         return tokens;
-        
     }
     //delete tokens
     async logout(@Req() request, @Res() response) : Promise<any | null>{
@@ -51,9 +52,10 @@ export class AuthService {
     }
     //Generate access token and refresh token
     async generateTokens(id:string, email:string){
+        console.log("this ",email)
         const user = await this.userService.provideUserByEmail(email)
         if (!user){
-            console.log(email)
+            console.log(user)
             console.log("error")
             throw new UnauthorizedException('User not found.');
         }
@@ -82,6 +84,8 @@ export class AuthService {
                 }
             ),
         ]);
+        //update refresh token
+        this.userService.updateRefreshToken(id, refreshToken)
         return {accessToken, refreshToken}
     }
 
