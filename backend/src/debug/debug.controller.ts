@@ -18,6 +18,11 @@ class AddUserParams {
 
   @ApiProperty({ description: 'image' })
   image:string
+
+  @ApiProperty({ description: 'email' })
+  email:string
+
+
 }
 
 class LogAsParams {

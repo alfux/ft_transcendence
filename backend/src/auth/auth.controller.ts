@@ -4,12 +4,13 @@ import { Controller, Get, Req, Res, UseGuards, Inject, forwardRef } from '@nestj
 import { AuthGuard } from '@nestjs/passport'
 import { CookieOptions, Response } from 'express'
 
-import { Request } from './request.interface'
+import { Request } from './interfaces/request.interface'
 import { AuthService } from './auth.service'
 import { Public } from './jwt/public.decorator'
 
 import { config_hosts } from 'src/config'
 import { UserService } from 'src/db'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 
 const cookie_options: CookieOptions = {
   httpOnly: false,
@@ -17,6 +18,8 @@ const cookie_options: CookieOptions = {
   sameSite: 'none'
 }
 
+@ApiBearerAuth()
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
 
@@ -30,15 +33,12 @@ export class AuthController {
   @UseGuards(AuthGuard('42'))
   @Get('login')
   async login_callback(@Req() req: Request, @Res() response: Response): Promise<void> {
-    console.log("AAAAAAAAA")
     
     const tokens = await this.authService.login(req.user)
 
     const url = new URL(`${req.protocol}://${req.hostname}`)
     url.port = config_hosts.frontend_port
-    
-    console.log(tokens)
-
+  
     response.cookie('access_token', tokens.access_token, cookie_options);
     response.cookie('refresh_token', tokens.refresh_token, cookie_options);
     response.status(302).redirect(url.href)

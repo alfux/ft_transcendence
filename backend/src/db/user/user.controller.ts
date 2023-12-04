@@ -2,7 +2,7 @@ import { Req, Controller, Get, Post, Delete, Body, HttpException, HttpStatus, Va
 import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger'
 
 import { UserService } from "./user.service"
-import { Request } from 'src/auth/request.interface'
+import { Request } from 'src/auth/interfaces/request.interface'
 import { Route } from 'src/route'
 import { NotificationsService } from 'src/notifications/notifications.service'
 
@@ -35,10 +35,6 @@ class AcceptPlayRequestBody {
 class DenyPlayRequestBody {
   @ApiProperty({ description: 'Id of the request'})
   id:number
-}
-class RemovePlayBody {
-  @ApiProperty({ description: 'Id of the user to remove'})
-  user_id:number
 }
 
 
@@ -101,7 +97,6 @@ export class UserController {
     description:{summary:'Sends a friend request', description:'Sends a friend request'},
   })
   async send_friend_request(@Req() req: Request, @Body() body: SendFriendRequestBody) {
-    console.log(body)
     if (!body.username)
       throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
 
@@ -212,14 +207,6 @@ export class UserController {
 
 
 
-
-
-
-
-
-
-
-
   @Route({
     method:Get('play_request'),
     description:{summary:'Get all play requests', description:'Get all play requests'},
@@ -245,7 +232,6 @@ export class UserController {
     description:{summary:'Sends a play request', description:'Sends a play request'},
   })
   async send_play_request(@Req() req: Request, @Body() body: SendPlayRequestBody) {
-    console.log(body)
     if (!body.username)
       throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
 
@@ -264,7 +250,7 @@ export class UserController {
     method:Post('play_request_accept'),
     description:{summary:'Accepts a friend request', description:'Accepts a friend request'},
   })
-  async accept_play_request(@Req() req: Request, @Body() body: AcceptFriendRequestBody) {
+  async accept_play_request(@Req() req: Request, @Body() body: AcceptPlayRequestBody) {
     if (!body.id)
       throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
 

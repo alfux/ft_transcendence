@@ -2,7 +2,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Injectable, Req, UnauthorizedException } from '@nestjs/common';
 import { config_jwt } from 'src/config';
-import { JwtPayload } from '../jwtpayload.interface';
+import { JwtPayload } from '../interfaces/jwtpayload.interface';
 
 @Injectable()
 export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {

@@ -1,6 +1,6 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from './jwtpayload.interface';
+import { JwtPayload } from './interfaces/jwtpayload.interface';
 import { User, UserService } from 'src/db/user';
 import { config_jwt } from 'src/config';
 import { LoggedStatus } from 'src/db/user/logged_status.interface';
@@ -15,7 +15,8 @@ export class AuthService {
 
   async generateAccessToken(user: User) {
     return this.jwtService.signAsync({
-      sub: user.id,
+      id: user.id,
+      username:user.username,
       email: user.email,
       isTwoFactorAuthEnable: user.twoFactorAuth,
       authentication: user.twoFactorAuth
@@ -34,9 +35,7 @@ export class AuthService {
       ...user,
     })
     user_data.isAuthenticated = user_data.twoFactorAuth ? LoggedStatus.Incomplete : LoggedStatus.Logged
-    console.log("AAAA")
     await this.userService.updateOrCreateUser(user_data)
-    console.log("AAA")
 
     return Promise.all([this.generateAccessToken(user_data), this.generateRefreshToken(user_data)])
       .then((tokens) => ({access_token:tokens[0], refresh_token:tokens[1]}))

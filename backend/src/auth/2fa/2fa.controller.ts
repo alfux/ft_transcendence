@@ -4,8 +4,8 @@ import { TwoFactorAuthenticationService } from './2fa.service';
 import { UserService } from 'src/db/user/user.service';
 import { Route } from 'src/route';
 import { LoggedStatus } from 'src/db/user/logged_status.interface';
-import { ApiProperty } from '@nestjs/swagger';
-import { Request } from './request.interface';
+import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { Request } from '../interfaces/request.interface';
 
 class AuthenticateParams {
   @ApiProperty({ description: 'User id' })
@@ -14,6 +14,8 @@ class AuthenticateParams {
   code: string
 }
 
+@ApiBearerAuth()
+@ApiTags('2fa')
 @Controller('2fa')
 export class TwoFactorAuthenticationController {
   constructor(

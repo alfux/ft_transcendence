@@ -2,8 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-42';
 
-import { User42Api } from './user42api.interface';
 import { config_42 } from 'src/config';
+
+interface User42Api {
+  id: number,
+  username: string,
+  image:string,
+}
 
 @Injectable()
 export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {

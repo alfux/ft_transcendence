@@ -11,8 +11,8 @@ import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { UserModule } from 'src/db/user'
 
-import { TwoFactorAuthenticationController } from './2fa.controller'
-import { TwoFactorAuthenticationService } from './2fa.service'
+import { TwoFactorAuthenticationController } from './2fa/2fa.controller'
+import { TwoFactorAuthenticationService } from './2fa/2fa.service'
 
 @Module({
   imports: [

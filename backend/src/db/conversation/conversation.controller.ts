@@ -14,7 +14,7 @@ import {
 
 import { ApiBearerAuth, ApiTags, ApiProperty } from '@nestjs/swagger'
 
-import { Request } from 'src/auth/request.interface'
+import { Request } from 'src/auth/interfaces/request.interface'
 import { ConversationService } from './conversation.service'
 import { UserService } from 'src/db'
 

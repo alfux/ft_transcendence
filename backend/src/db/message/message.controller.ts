@@ -4,7 +4,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { Route } from 'src/route'
 
 import { MessageService } from './message.service';
-import { Request } from 'src/auth/request.interface';
+import { Request } from 'src/auth/interfaces/request.interface';
 
 @ApiBearerAuth()
 @ApiTags('messages')

@@ -31,7 +31,7 @@ export class NotificationsGateway implements OnGatewayConnection {
     const payload = this.authService.verifyJWT(token)
     if (!payload)
       return
-    const user = await this.userService.getUser({id:payload.sub})
+    const user = await this.userService.getUser({id:payload.id})
     this.notificationService.addClient(client, user)  
   }
 
