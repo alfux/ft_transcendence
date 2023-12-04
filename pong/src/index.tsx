@@ -4,7 +4,6 @@ import THREE_App from './THREE/main';
 import './index.css'
 import { ReactUIParent } from './THREE/ReactUI/ReactUI';
 
-
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );

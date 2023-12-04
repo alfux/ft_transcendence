@@ -2,22 +2,21 @@ import { Vec3 } from '../Math'
 
 export class	Ball
 {
-	position:		Vec3;
-	speed:			Vec3;
-	radius:			number;
-	spin:			number;
-	gameObject?:	THREE.Object3D
+	position:	Vec3;
+	speed:		Vec3;
+	radius:		number;
+	spin:		number;
 
 	constructor(
 		rad: number = 1,
-		pos: Vec3 = Vec3.zero(),
-		spd: Vec3 = new Vec3(1,0,0),
+		pos: [number, number, number] = [0, 0, 0],
+		spd: [number, number, number] = [0, 0, 0],
 		spn: number = 0
 	)
 	{
 		this.radius = rad;
-		this.position = pos;
-		this.speed = spd;
+		this.position = new Vec3(pos[0], pos[1], pos[2]);
+		this.speed = new Vec3(spd[0], spd[1], spd[2]);
 		this.spin = spn;
 	}
 
@@ -30,9 +29,4 @@ export class	Ball
 	{
 		this.spin = spn;
 	}
-
-	clone() {
-		return new Ball(this.radius, this.position.clone(), this.speed.clone(), this.spin)
-	}
-
 };

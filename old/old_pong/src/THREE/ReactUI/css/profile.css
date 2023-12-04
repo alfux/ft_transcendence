@@ -1,0 +1,115 @@
+
+.profile {
+	width: calc(100% - 4px*2);
+	height: calc(100% - 4px*2);
+	border-radius: 10px;
+	border: 4px solid rgb(1, 164, 251);
+	background-color: rgba(255, 255, 255, 0.1);
+	display: flex;
+	flex-direction: column;
+}
+
+.profile > * {
+	margin: 10px;
+}
+
+.profile .topbar {
+	height: 100px;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+}
+
+.profile .topbar .img-container {
+	width:100px;
+	height:100%;
+}
+
+.profile .topbar .img-container .image {
+	border-radius: 50%;
+	width: 100%;
+	height: auto;
+}
+
+.profile .topbar .text-container {
+	width: 100%;
+	height: 100%;
+	display:flex;
+	flex-direction: column;
+}
+
+.profile .topbar .text {
+	color: white;
+	font-size: 20px;
+	margin:30px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.profile .friends {
+	border: 2px solid rgb(1, 164, 251);
+	width: calc(100% - 2px*2 - 10px*2);
+	height: 90%;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.profile .friends .friend-list {
+	list-style: none;
+	margin:0;
+	padding:0;
+}
+
+.profile .friends .friend-list .item {
+	width: 100%;
+	height: 70px;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.profile .friends .friend-list .item .img {
+	margin: 5px;
+	border-radius: 50%;
+	width: auto;
+	height: calc(100% - 5px*2);
+	background-color: white;
+
+	min-width: calc(70px - 5px*2);
+}
+
+.profile .friends .friend-list .item .text {
+	margin-left: 20px;
+	color: white;
+	font-size: 30px;
+	align-self: center;
+	width:200px;
+}
+
+.profile .friends .friend-list .item .buttons {
+	max-width: 80px;
+	height: 100%;
+	margin-left: auto;
+}
+
+.profile .friends .friend-list .item .buttons .container {
+	margin: 3px;
+	width: calc(100% - 3px*2);
+	height: calc(100% - 3px*2);
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+}
+
+.profile .friends .friend-list .item #button {
+	margin:1px;
+	color:gray;
+}
+
+.profile .friends .add-friend {
+	border: 2px solid rgb(1, 164, 251);
+	width: calc(100% - 2px*2 - 10px*2);
+	height: 100%;
+}
