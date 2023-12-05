@@ -4,7 +4,7 @@ import io from "socket.io-client";
 import { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
 
-import { initKeyboardHandlers, JwtPayload } from './Utils'
+import { coolSocket, initKeyboardHandlers, JwtPayload } from './Utils'
 import { create_menu_scene } from "./MenuScene";
 import { create_game_scene } from "./GameScene";
 import usePayload from '../react_hooks/use_auth'
@@ -43,9 +43,8 @@ export default function THREE_App(props: {
 	// },[loginForm])
 
 	useEffect(() => {
-		const socket = io(`${config.backend_url}/game`, { transports: ["websocket"] });
-		socket.emit("authentification", localStorage.getItem("token"))
-
+	  const socket = coolSocket(`${config.backend_url}/game`, accessToken);
+    
 		const	renderer = new THREE.WebGLRenderer({alpha: true});
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setPixelRatio(window.devicePixelRatio);

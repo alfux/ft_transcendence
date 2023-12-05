@@ -155,7 +155,6 @@ export class ConversationService {
         throw new HttpException("A conversation with access level of PROTECTED should have a password", HttpStatus.BAD_REQUEST)
     }
 
-    //TODO: si on specifie pas le access_level ou le password aucune idée de ce qui est mit dans la base de donné
     //TODO: hash le password
     const user = await this.userService.getUser({ id: user_id })
     const new_conv = await this.conversationRepository.save({
