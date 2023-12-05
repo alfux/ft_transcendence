@@ -19,7 +19,7 @@ const Login: React.FC = () => {
           if (ip === undefined){
             ip = 'localhost'
           }
-            const authEndpoint = 'http://' + ip + ':3001/auth/login';
+            const authEndpoint = 'http://' + ip + ':3001/api/auth/login';
             handleUpdate();
 			window.location.href = authEndpoint;
 		}

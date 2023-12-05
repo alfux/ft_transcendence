@@ -1,3 +1,7 @@
+import { configDotenv } from "dotenv"
+
+configDotenv()
+
 export const config_db = {
   host:process.env.DB_HOST,
   port:process.env.DB_PORT,

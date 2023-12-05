@@ -65,7 +65,12 @@ export class UserService {
 
   async updateOrCreateUser(user: Partial<User>): Promise<User> {
     if (user.id) {
-      const old_user = await this.getUser({id:user.id})
+      const old_user = await this.getUser({id:user.id}).catch(() => null)
+      
+      if (!old_user) {
+        return this.usersRepository.save(user)
+      }
+
       const { id, ...new_user } = user
       return this.usersRepository.save(Object.assign(old_user, new_user))
     } else {
