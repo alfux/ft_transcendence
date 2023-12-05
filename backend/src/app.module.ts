@@ -31,7 +31,6 @@ import { ScheduleModule } from '@nestjs/schedule'
       database: config_db.database,
       entities: [User, Message, Conversation, ConversationUser, ConversationUserInfos, FriendRequest, PlayRequest],
       synchronize: true,
-      logging: true
     }),
     UserModule,
     MessageModule,

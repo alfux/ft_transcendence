@@ -36,8 +36,6 @@ export class AuthController {
     
     const tokens = await this.authService.login(req.user)
 
-    console.log(tokens)
-
     const url = new URL(`${req.protocol}://${req.hostname}`)
     url.port = config_hosts.front_port
   
