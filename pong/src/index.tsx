@@ -29,6 +29,6 @@ function App() {
 root.render(
   //<React.StrictMode>
     //<App/>
-	<Chat />
+	<Chat width={window.innerWidth / 2} height={window.innerHeight / 2}/>
   //</React.StrictMode>
 );

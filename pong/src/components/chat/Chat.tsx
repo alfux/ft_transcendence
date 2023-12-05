@@ -21,7 +21,13 @@ interface	Sending {
 	conversation_id: number
 };
 
-export default function	Chat(props: object = {})
+interface	Chat_Settings
+{
+	width:		number,
+	height:	number
+}
+
+export default function	Chat(props: Chat_Settings = {width: window.innerWidth / 2, height: window.innerHeight / 2})
 {
 	const	socket = io(`${config.backend_url}/chat`, { transports: ["websocket"] });
 	const	[msgs, setMsgs] = REACT.useState<Array<JSX.Element> >([
@@ -39,9 +45,11 @@ export default function	Chat(props: object = {})
 		});
 	}
 	return (
-	<div id="Chat-App" className="Chat-Style" >
-		<div id="Chat-Window" className="Chat-Style" >
+	<div id="Chat-App" className="Chat-Container" >
+		<div id="Chat-Window" className="Chat-Style" style={{width: 3 * props.width / 4, height: props.height}}>
 			<ol>{msgs}</ol>
+			<div id="Message-Window" className="Chat-Style" style={{width: props.width / 4, height: props.height}}>
+			</div>
 		</div>
 		<input />
 		<button>Send</button>
