@@ -10,8 +10,8 @@ import { keyboard } from '../Utils/keyboard';
 import { Socket } from 'socket.io-client';
 
 export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget, socket: Socket) {
-	const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
-	camera.position.set(0, -30, 30);
+	const	camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
+    camera.position.set(0, -30, 30);
 	camera.up.set(0, 0, 1);
 	camera.lookAt(0, 0, 0);
 
