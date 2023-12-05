@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { Socket } from 'socket.io-client';
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry"
@@ -7,8 +8,7 @@ import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { config } from '../../config';
 
 import { clamp } from '../Math';
-import { Socket } from 'socket.io-client';
-import { JwtPayload } from '../Utils/';
+import { JwtPayload, LoggedStatus } from '../Utils/';
 
 enum MenuButtons {
 	Login = "Login",
@@ -187,17 +187,14 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 
 	const	pointer = new THREE.Vector2();
 	const   raycaster = new THREE.Raycaster();
-
-    const   clock = new THREE.Clock()
-    let     delta_time = clock.getDelta()
    
 	let		deltaY = 0;
 
     let		current: MenuButtons | null = null;
 	let		start = false;
-	
+
 	let		isLogged = false;
-	if (payload?.authentication === "Complete")
+	if (payload?.authentication === LoggedStatus.Logged)
 		isLogged = true;
 	//A adapter en fonction de l'angle entre (0, 0, 1) et le vecteur normalisé ((0, 0, 20) - menu_parent.position)
 	let corr = 0.2 - 2 * Math.PI;
@@ -277,9 +274,9 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 			console.log(current)
             switch (current) {
 				case MenuButtons.Login:
-                    window.location.href = "http://localhost:3001/auth/login";
-					document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
-					window.location.reload();
+                    window.location.href = "http://localhost:3001/api/auth/login";
+					//document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
+					//window.location.reload();
 					break ;
                 case MenuButtons.Profile:
                     params.toggleProfile();
@@ -355,7 +352,6 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	let		t = 0;
 
     function update() {
-        delta_time = clock.getDelta();
 		updateMenu();
 		if (start && t < Math.PI / 2)
 		{

@@ -4,7 +4,7 @@ import io from "socket.io-client";
 import { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
 
-import { initKeyboardHandlers, JwtPayload } from './Utils'
+import { initKeyboardHandlers, JwtPayload, LoggedStatus } from './Utils'
 import { create_menu_scene } from "./MenuScene";
 import { create_game_scene } from "./GameScene";
 import usePayload from '../react_hooks/use_auth'
@@ -89,7 +89,7 @@ export default function THREE_App(props: {
 	}, []);
 
 	useEffect(() => {
-		if (accessToken && payload?.authentication == "Complete" && loginForm != "Profile") {
+		if (accessToken && payload?.authentication == LoggedStatus.Logged && loginForm != "Profile") {
 			const newFormContainer = document.createElement('div');
 			const root = createRoot(newFormContainer);
 			root.render(<ProfileBar/>);
