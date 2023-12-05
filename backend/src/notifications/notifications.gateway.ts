@@ -25,16 +25,6 @@ export class NotificationsGateway implements OnGatewayConnection {
   async handleConnection(client: Socket) {
   }
 
-  @SubscribeMessage('authentification')
-  async handleAuth(client: Socket, token: string)
-  {
-    const payload = this.authService.verifyJWT(token)
-    if (!payload)
-      return
-    const user = await this.userService.getUser({id:payload.id})
-    this.notificationService.addClient(client, user)  
-  }
-
   async handleDisconnect(client: Socket): Promise<any> {
     this.notificationService.removeClient(client)
   }

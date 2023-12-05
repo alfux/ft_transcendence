@@ -55,6 +55,7 @@ export class UserService {
     return user
   }
 
+  /*
   async createUser(user: Partial<User>): Promise<User> {
     if (await this.getUser({ id: user.id }).catch(() => null))
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST)
@@ -62,20 +63,28 @@ export class UserService {
     const u = this.usersRepository.create(user)
     return this.usersRepository.save(u)
   }
+  */
 
-  async updateOrCreateUser(user: Partial<User>): Promise<User> {
-    if (user.id) {
-      const old_user = await this.getUser({id:user.id}).catch(() => null)
-      
-      if (!old_user) {
-        return this.usersRepository.save(user)
-      }
+  async updateUser(user: Partial<User> & {id:number}): Promise<User> {
 
-      const { id, ...new_user } = user
-      return this.usersRepository.save(Object.assign(old_user, new_user))
-    } else {
-      return this.usersRepository.save(user)
+    if (user.id === undefined)
+      throw new HttpException("User not found", HttpStatus.BAD_REQUEST)
+    await this.getUser({id:user.id})
+    return this.usersRepository.save({id:user.id, ...user})
+  }
+
+  async createUser(user: Partial<User> & {id:number}): Promise<User> {
+    const new_user = this.usersRepository.create(user)
+    const rep = await this.usersRepository.save(new_user)
+    return rep
+  }
+
+  async updateOrCreateUser(user: Partial<User> & {id:number}): Promise<User> {
+    let u = await this.getUser({id:user.id}).catch(() => null)
+    if (!u) {
+      return this.createUser(user)
     }
+    return this.updateUser(Object.assign(u, user))
   }
 
   async remove(id: number): Promise<void> {

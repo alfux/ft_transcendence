@@ -29,16 +29,6 @@ export class ChatGateway implements OnGatewayConnection {
     this.connectedClients.delete(client.id)
   }
 
-  @SubscribeMessage('authentification')
-  async handleAuth(client: Socket, token: string)
-  {
-    const payload = this.authService.verifyJWT(token)
-    if (!payload)
-      return
-    const user = await this.userService.getUser({id:payload.id})
-    this.connectedClients.set(client.id, { socket: client, user })    
-  }
-
   @SubscribeMessage('send_message')
   async handleMessage(client: Socket, data: { message: string, conversation_id: number }): Promise<void>
   {

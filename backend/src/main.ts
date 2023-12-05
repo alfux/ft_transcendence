@@ -31,7 +31,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api')
   app.use(cookieParser())
   app.enableCors({
-    allowedHeaders: '*',
+    allowedHeaders: ['Content-Type'],
     origin: `http://${config_hosts.front_url}:${config_hosts.front_port}`,
     credentials: true,
   })

@@ -32,23 +32,9 @@ export class GameGateway implements OnGatewayConnection {
     this.waiting = this.waiting.filter((v) => v.socket !== client)
   }
 
-/*
-  @SubscribeMessage('authentification')
-  async handleAuth(client: Socket, token: string) {
-    const payload = this.authService.verifyJWT(token)
-    if (!payload)
-      return
-
-    const user = await this.userService.getUser({ id: payload.sub })
-    this.connectedClients.push({ socket: client, user: user })
-  }
-*/
-
   @SubscribeMessage('search')
   @CoolSocket
   async handleSearch(client:Client, test:any) {
-
-    console.log(test)
 
     if (this.waiting.find((v) => v.socket.id === client.socket.id)) {
       console.log("Already waiting")
@@ -57,6 +43,7 @@ export class GameGateway implements OnGatewayConnection {
 
     this.waiting.push(client)
     console.log("Searching for a game: ", this.waiting.length)
+    console.log(this.waiting)
 
     if (this.waiting.length >= 2) {
       const p1 = this.waiting[0]
