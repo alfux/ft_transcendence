@@ -41,7 +41,7 @@ services:
     depends_on:
       - backend
     ports:
-      - ${FRONT_PORT_IN}:${FRONT_PORT}
+      - ${FRONT_PORT}:${FRONT_PORT_IN}
     networks:
       - transcendence-network
   
@@ -74,7 +74,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - ${BACK_PORT_IN}:${BACK_PORT}
+      - ${BACK_PORT}:${BACK_PORT_IN}
     networks:
       - transcendence-network
 
