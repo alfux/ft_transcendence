@@ -4,10 +4,11 @@ export enum LoggedStatus {
   Unlogged,
 }
 
-export interface JwtPayload {
-  sub: string;
-  email: string;
-  exp: number;
-  isTwoFactorAuthEnable: boolean;
+export interface JwtPayload
+{
+  id:number
+  username:string,
+  email:string,
+  isTwoFactorAuthEnable:boolean,
   authentication: LoggedStatus
 }

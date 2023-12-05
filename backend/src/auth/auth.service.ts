@@ -19,7 +19,7 @@ export class AuthService {
       username:user.username,
       email: user.email,
       isTwoFactorAuthEnable: user.twoFactorAuth,
-      authentication: user.twoFactorAuth
+      authentication: user.isAuthenticated
     }, { secret: config_jwt.secret_token, expiresIn: config_jwt.expires_token })
   }
 
