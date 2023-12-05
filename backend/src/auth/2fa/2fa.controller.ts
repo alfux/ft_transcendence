@@ -8,8 +8,6 @@ import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { Request } from '../interfaces/request.interface';
 
 class AuthenticateParams {
-  @ApiProperty({ description: 'User id' })
-  id: number
   @ApiProperty({ description: 'The 2FA code from the authentication app' })
   code: string
 }
@@ -28,6 +26,7 @@ export class TwoFactorAuthenticationController {
     description: { summary: "Authenticate using 2FA", description: "Authenticate using 2FA" }
   })
   async authenticateTwoFactor(@Req() request, @Body() body: AuthenticateParams) {
+    console.log(body)
     const user = await this.userService.getUser({id:request.user.id})
     const secret = user.twoFactorAuthSecret;
   
