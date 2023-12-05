@@ -4,6 +4,8 @@ import THREE_App from './THREE/main';
 import './index.css'
 import { ReactUIParent } from './THREE/ReactUI/ReactUI';
 
+import Chat from "./components/chat/Chat";
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
@@ -26,6 +28,7 @@ function App() {
 
 root.render(
   //<React.StrictMode>
-    <App/>
+    //<App/>
+	<Chat />
   //</React.StrictMode>
 );

@@ -1,0 +1,13 @@
+.Chat-Style
+{
+	color:	#ffffff;
+}
+
+#Chat-Window
+{
+	width:			50%;
+	height:			50px;
+	border-style:	solid;
+	border-color:	white;
+	overflow:		scroll;
+}
