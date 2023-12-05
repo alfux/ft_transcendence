@@ -47,6 +47,9 @@ export class GameGateway implements OnGatewayConnection {
   @SubscribeMessage('search')
   @CoolSocket
   async handleSearch(client:Client, test:any) {
+
+    console.log(test)
+
     if (this.waiting.find((v) => v.socket.id === client.socket.id)) {
       console.log("Already waiting")
       return

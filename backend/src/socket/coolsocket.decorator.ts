@@ -8,6 +8,9 @@ export function CoolSocket(target: any, propertyKey: string, descriptor: Propert
     const originalMethod = descriptor.value
 
     descriptor.value = async function (s: Socket, data: CoolSocketPayload) {
+
+        console.log("AAAA")
+
         let client = connectedClients.find((v) => v.socket.id === s.id)
         if (client) {
             return originalMethod.apply(this, [client, ...Object.values(data.data)]);
