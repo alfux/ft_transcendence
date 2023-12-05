@@ -14,12 +14,7 @@ const Login: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
     const fetchData = async () => {
         try {
-          let ip = process.env.REACT_APP_SERVER_IP;
-          console.log("server ip",process.env.REACT_APP_SERVER_IP)
-          if (ip === undefined){
-            ip = 'localhost'
-          }
-            const authEndpoint = 'http://' + ip + ':3001/api/auth/login';
+        	const authEndpoint = 'http://localhost:3001/api/auth/login'; //IP has been replaced by localhost
             handleUpdate();
 			window.location.href = authEndpoint;
 		}

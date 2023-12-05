@@ -202,7 +202,6 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	//A adapter en fonction de l'angle entre (0, 0, 1) et le vecteur normalisé ((0, 0, 20) - menu_parent.position)
 	let corr = 0.2 - 2 * Math.PI;
 
-
     window.addEventListener("wheel", handleWheel);
     window.addEventListener("click", handleClick);
 	window.addEventListener("resize", handleResize);
