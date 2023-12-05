@@ -4,14 +4,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { User } from './user.entity';
-import { AuthModule } from 'src/auth';
+import { FriendRequest } from './friend_request.entity';
+import { PlayRequest } from './play_request.entity';
+import { AuthModule } from 'src/auth/auth.module';
 import { ConversationModule } from '..';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, FriendRequest, PlayRequest]),
     forwardRef(() => AuthModule),
-    forwardRef(() => ConversationModule)
+    forwardRef(() => ConversationModule),
+    forwardRef(() => NotificationsModule)
   ],
   exports: [TypeOrmModule, UserService],
   providers: [UserService],

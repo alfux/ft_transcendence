@@ -1,9 +1,9 @@
 // auth.controller.ts
 
 import { Body, Controller, Get, HttpException, HttpStatus, Post } from '@nestjs/common'
-import { ApiBearerAuth, ApiTags, ApiProperty } from '@nestjs/swagger'
+import { ApiTags, ApiProperty } from '@nestjs/swagger'
 
-import { AuthService } from 'src/auth'
+import { AuthService } from 'src/auth/auth.service'
 
 import { Route } from 'src/route'
 
@@ -18,6 +18,11 @@ class AddUserParams {
 
   @ApiProperty({ description: 'image' })
   image:string
+
+  @ApiProperty({ description: 'email' })
+  email:string
+
+
 }
 
 class LogAsParams {
@@ -61,9 +66,9 @@ export class DebugController {
   })
   async log_as(@Body() body:LogAsParams) {
     const user = await this.userService.getUser({username:body.username})
-    const token = await this.authService.getJwt({id:user.id, username:user.username, image:user.image})
-    console.log('new token: ' , token)
-    return {token:token}
+    const tokens = await this.authService.login(user)
+    console.log('new tokens: ' , tokens)
+    return tokens
   }
 
 

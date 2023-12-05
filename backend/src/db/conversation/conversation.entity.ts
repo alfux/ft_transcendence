@@ -1,8 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm'
 import { User } from '../user'
 import { Message } from '../message'
 import { ConversationUser } from './conversation_user.entity'
 import { ConversationUserInfos } from './conversation_user_infos.entity'
+import { AccessLevel } from './conversation_access_level.enum'
+
 
 @Entity()
 export class Conversation {
@@ -11,6 +13,16 @@ export class Conversation {
 
   @Column()
   title: string
+
+  @Column({
+    type: 'enum',
+    enum: AccessLevel,
+    default: AccessLevel.PUBLIC,
+  })
+  access_level:AccessLevel
+
+  @Column({nullable: true})
+  password?:string
 
   @ManyToOne(() => User)
   @JoinColumn()

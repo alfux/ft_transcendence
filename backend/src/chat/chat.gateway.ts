@@ -1,16 +1,15 @@
 // src/chat/chat.gateway.ts
 
-import { UseGuards } from '@nestjs/common'
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, SubscribeMessage } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 
-import { AuthService, JwtAuthGuard } from 'src/auth'
+import { AuthService } from 'src/auth/auth.service'
 import { ConversationService } from 'src/db/conversation'
 import { MessageService } from 'src/db/message'
 import { User, UserService } from 'src/db/user'
 import { Message } from 'src/db/message'
 
-@WebSocketGateway()
+@WebSocketGateway({namespace:'chat'})
 export class ChatGateway implements OnGatewayConnection {
 
   constructor (
@@ -36,7 +35,7 @@ export class ChatGateway implements OnGatewayConnection {
     const payload = this.authService.verifyJWT(token)
     if (!payload)
       return
-    const user = await this.userService.getUser({id:payload.sub})
+    const user = await this.userService.getUser({id:payload.id})
     this.connectedClients.set(client.id, { socket: client, user })    
   }
 
@@ -57,7 +56,12 @@ export class ChatGateway implements OnGatewayConnection {
     await this.messageService.createMessage(new_message)
     
     this.connectedClients.forEach((value: { socket: Socket, user: any }) => {
-      value.socket.emit('receive_message', { username: user.user.username, conversation_id: data.conversation_id, message: data.message });
+      value.socket.emit('receive_message',
+        {
+          username: user.user.username,
+          conversation_id: data.conversation_id,
+          message: data.message
+        });
     })
   }
 }

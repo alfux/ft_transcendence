@@ -1,12 +1,13 @@
 import { Injectable, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, FindOptionsWhere } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 
 import { Conversation } from './conversation.entity';
 import { ConversationUser } from './conversation_user.entity';
 import { UserService, User } from '../user';
 import { MessageService } from '../message';
 import { ConversationUserInfos } from './conversation_user_infos.entity';
+import { AccessLevel } from './conversation_access_level.enum';
 
 @Injectable()
 export class ConversationService {
@@ -148,11 +149,20 @@ export class ConversationService {
     }
   */
 
-  async createConversation(user_id: number, title: string) {
+  async createConversation(user_id: number, title: string, access_level?:AccessLevel, password?:string) {
+    if (access_level && access_level == AccessLevel.PROTECTED) {
+      if (!password)
+        throw new HttpException("A conversation with access level of PROTECTED should have a password", HttpStatus.BAD_REQUEST)
+    }
+
+    //TODO: si on specifie pas le access_level ou le password aucune idée de ce qui est mit dans la base de donné
+    //TODO: hash le password
     const user = await this.userService.getUser({ id: user_id })
     const new_conv = await this.conversationRepository.save({
       title: title,
       owner: user,
+      access_level: access_level,
+      password: password,
       users: [],
       messages: []
     })
@@ -171,7 +181,14 @@ export class ConversationService {
   async addUserToConversation(where: FindOptionsWhere<Conversation>, user: User) {
     const conv = await this.conversationRepository.findOne({ where, relations: ["users"] })
 
-    let conv_user = await this.getConversationUser({ user: { id: user.id } })
+    let conv_user
+    try {
+      conv_user = await this.getConversationUser({ user: { id: user.id } })
+    } catch (e) {
+      if (e instanceof HttpException) {
+        conv_user = undefined
+      }
+    } 
     if (!conv_user) {
       const conv_ref = await this.conversationRepository.findOne({ where, relations: [] })
       conv_user = await this.createConversationUser(user, conv_ref)
