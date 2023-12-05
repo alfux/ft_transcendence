@@ -53,6 +53,7 @@ export class GameGateway implements OnGatewayConnection {
     }
 
     this.waiting.push(client)
+    console.log("Searching for a game: ", this.waiting.length)
 
     if (this.waiting.length >= 2) {
       const p1 = this.waiting[0]
