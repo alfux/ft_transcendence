@@ -9,6 +9,7 @@ import { config } from '../../config';
 import { clamp } from '../Math';
 import { Socket } from 'socket.io-client';
 import { JwtPayload } from '../Utils/';
+import { LoggedStatus } from '../Utils/jwt.interface';
 
 enum MenuButtons {
 	Login = "Login",
@@ -197,7 +198,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	let		start = false;
 	
 	let		isLogged = false;
-	if (payload?.authentication === "Complete")
+	if (payload?.authentication === LoggedStatus.Logged)
 		isLogged = true;
 	//A adapter en fonction de l'angle entre (0, 0, 1) et le vecteur normalisé ((0, 0, 20) - menu_parent.position)
 	let corr = 0.2 - 2 * Math.PI;

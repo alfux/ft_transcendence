@@ -6,7 +6,7 @@ const TwoFactorValidate: React.FC = () => {
 
 	const requestNewToken = async () =>{
 		try {//fetch 2fa Status
-		  const enable2FAEndpoint = 'http://localhost:3001/auth/refresh';
+		  const enable2FAEndpoint = 'http://localhost:3001/api/auth/refresh';
 		  console.log('Before fetch');
 		  const response = await fetch(enable2FAEndpoint, {
 			  method: 'GET',
@@ -42,7 +42,7 @@ const TwoFactorValidate: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    const verify2FAEndpoint = 'http://localhost:3001/2fa/enable';
+    const verify2FAEndpoint = 'http://localhost:3001/api/2fa/enable';
     try {
       const verificationCode = digits;
       const response = await fetch(verify2FAEndpoint, {

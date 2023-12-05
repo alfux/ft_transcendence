@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import jwt, { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
 import { createRoot } from 'react-dom/client';
-import { JwtPayload } from '../Utils/jwt.interface';
+import { JwtPayload, LoggedStatus } from '../Utils/jwt.interface';
 import usePayload from '../../react_hooks/use_auth'
 import Login from '../../components/login/Login'
 import Settings from '../../components/settings/Settings'
@@ -16,7 +16,7 @@ function RenderComponents(loginForm:string) {
   let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
   const [payload, updatePayload, handleUpdate] = usePayload();
   useEffect(() => {
-    if (accessToken && payload?.authentication === "Complete" && loginForm !== "Profile") {
+    if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm !== "Profile") {
       const newFormContainer = document.createElement('div');
       const root = createRoot(newFormContainer);
       root.render(<ProfileBar />);
@@ -46,7 +46,7 @@ function RenderComponents(loginForm:string) {
         });
       };
     }
-    if (loginForm === "Settings" && accessToken && payload?.authentication === "Complete") {
+    if (loginForm === "Settings" && accessToken && payload?.authentication === LoggedStatus.Logged) {
       const newFormContainer = document.createElement('div');
       const root = createRoot(newFormContainer);
       root.render(<Settings />);
@@ -58,7 +58,7 @@ function RenderComponents(loginForm:string) {
         });
       };
     }
-    if (loginForm === "Profile" && accessToken && payload?.authentication === "Complete") {
+    if (loginForm === "Profile" && accessToken && payload?.authentication === LoggedStatus.Logged) {
       const newFormContainer = document.createElement('div');
       const root = createRoot(newFormContainer);
       root.render(<Profile />);
@@ -70,7 +70,7 @@ function RenderComponents(loginForm:string) {
         });
       };
     }
-    if (accessToken && payload?.authentication === "Incomplete") {
+    if (accessToken && payload?.authentication === LoggedStatus.Incomplete) {
       const newFormContainer = document.createElement('div');
       const root = createRoot(newFormContainer);
       root.render(<TwoFactorAuthenticate />);

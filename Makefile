@@ -4,7 +4,7 @@ export
 .DEFAULT_GOAL := build
 
 #COMPOSE=docker compose
-COMPOSE=docker-compose
+COMPOSE=docker compose
 DOCKER_COMPOSE_YML=docker-compose.yml
 
 DATABASE_NAME = $(POSTGRES_SERVICE)

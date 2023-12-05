@@ -15,7 +15,7 @@ const Settings: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
   const requestNewToken = async () =>{
 	try {//fetch 2fa Status
-	  const enable2FAEndpoint = 'http://localhost:3001/auth/refresh';
+	  const enable2FAEndpoint = 'http://localhost:3001/api/auth/refresh';
 	  console.log('Before fetch');
 	  const response = await fetch(enable2FAEndpoint, {
 		  method: 'GET',
@@ -41,7 +41,7 @@ const handleToggle = async () => {
 	//console.log("status of backend",await twoFactorStatus())
     if (!toogleStatus){//toogle on
 		try {//fetch QRcode
-			const enable2FAEndpoint = 'http://localhost:3001/2fa/generate';
+			const enable2FAEndpoint = 'http://localhost:3001/api/2fa/generate';
 			const response = await fetch(enable2FAEndpoint, {
 			  method: 'GET',
 			  credentials: 'include',
@@ -63,7 +63,7 @@ const handleToggle = async () => {
 		if(payload?.isTwoFactorAuthEnable){
 			if (payload?.isTwoFactorAuthEnable){
 			try {
-				const disable2FAEndpoint = 'http://localhost:3001/2fa/disable';
+				const disable2FAEndpoint = 'http://localhost:3001/api/2fa/disable';
 				const response = await fetch(disable2FAEndpoint, {
 					method: 'POST',
 				    credentials: 'include',

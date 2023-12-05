@@ -13,6 +13,7 @@ import ProfileBar from '../components/profilebar/ProfileBar';
 import RenderComponents from './Utils/render_component';
 
 import { config } from '../config';
+import { LoggedStatus } from './Utils/jwt.interface';
 
 export default function THREE_App(props: {
 	toggleProfile: () => void,
@@ -89,7 +90,7 @@ export default function THREE_App(props: {
 	}, []);
 
 	useEffect(() => {
-		if (accessToken && payload?.authentication == "Complete" && loginForm != "Profile") {
+		if (accessToken && payload?.authentication == LoggedStatus.Logged && loginForm != "Profile") {
 			const newFormContainer = document.createElement('div');
 			const root = createRoot(newFormContainer);
 			root.render(<ProfileBar/>);
