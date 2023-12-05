@@ -13,6 +13,7 @@ interface User42Api {
 @Injectable()
 export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
   constructor() {
+    console.log(config_42)
     super({
       clientID: config_42.key,
       clientSecret: config_42.secret,

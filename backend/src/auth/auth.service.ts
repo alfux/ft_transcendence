@@ -31,19 +31,28 @@ export class AuthService {
   }
 
   async login(user: Partial<User>): Promise<{ access_token: string, refresh_token: string }> {
+
+    if (user.id)
+      user.id = +user.id //to int
+
     const user_data = await this.userService.updateOrCreateUser({
-      ...user,
+      id:user.id,
+      username:user.username,
+      image:user.image,
+      email:user.email
     })
+    
     user_data.isAuthenticated = user_data.twoFactorAuth ? LoggedStatus.Incomplete : LoggedStatus.Logged
-    await this.userService.updateOrCreateUser(user_data)
+    await this.userService.updateUser(user_data)
 
     return Promise.all([this.generateAccessToken(user_data), this.generateRefreshToken(user_data)])
       .then((tokens) => ({access_token:tokens[0], refresh_token:tokens[1]}))
   }
 
-  verifyJWT(token: string): JwtPayload {
+  verifyJWT(token:string, key:string): JwtPayload {
+    this.jwtService.verify(token, {secret:key})
     try {
-      return this.jwtService.verify(token);
+      return this.jwtService.verify(token, {secret:key});
     } catch {
       return null;
     }

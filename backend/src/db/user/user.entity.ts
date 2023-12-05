@@ -8,6 +8,9 @@ import { LoggedStatus } from './logged_status.interface';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
+  db_id:number
+
+  @Column()
   id: number
   @Column()
   username: string;
@@ -17,7 +20,7 @@ export class User {
   email:string
 
 
-
+  
   @Column({
     type: 'enum',
     enum: LoggedStatus,

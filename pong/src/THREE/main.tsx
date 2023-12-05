@@ -43,9 +43,10 @@ export default function THREE_App(props: {
 	// },[loginForm])
 
 	useEffect(() => {
-	  const socket = coolSocket(`${config.backend_url}/game`, accessToken);
-    
-		const	renderer = new THREE.WebGLRenderer({alpha: true});
+	  const socket = coolSocket(`http://localhost:3001/game`, accessToken);
+	  //const socket = io(`http://localhost:3001/game`,  { transports: ["websocket"] });
+
+    const	renderer = new THREE.WebGLRenderer({alpha: true});
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.autoClear = false;
