@@ -54,7 +54,7 @@ const TwoFactorAuthenticate: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({verificationCode}),
+        body: JSON.stringify({code:verificationCode}),
       });
       if (response.ok) {
         alert("Logged")
