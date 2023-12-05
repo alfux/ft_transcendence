@@ -1,0 +1,86 @@
+version: "3.7"
+
+services:
+  postgres:
+    container_name: ${POSTGRES_SERVICE}
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PSWD}
+      POSTGRES_DB: ${DB_NAME}
+    env_file:
+      - .env
+    ports:
+      - 5432:${DB_PORT}
+    volumes:
+      - ./database:/database
+    networks:
+      - transcendence-network
+
+  postgres_admin:
+    container_name: ${PG_SERVICE}
+    image: dpage/pgadmin4:latest
+    depends_on: 
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PG_ADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PG_PASSWORD}
+    ports:
+      - 5050:80
+    networks:
+      - transcendence-network
+
+  frontend:
+    container_name: ${FRONTEND_SERVICE}
+    build: ./pong
+    environment:
+      BACK_PORT: ${BACK_PORT}
+      BACK_URL: ${BACK_URL}
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    ports:
+      - ${FRONT_PORT_IN}:${FRONT_PORT}
+    networks:
+      - transcendence-network
+  
+  backend:
+    container_name: ${BACKEND_SERVICE}
+    build: ./backend
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PSWD: ${DB_PSWD}
+      DB_NAME: ${DB_NAME}
+
+      API42_CLIENT: ${API42_CLIENT}
+      API42_SECRET: ${API42_SECRET}
+      API42_REDIRECT: ${API42_REDIRECT}
+
+      FRONT_PORT: ${FRONT_PORT}
+      FRONT_URL: ${FRONT_URL}
+
+      BACK_PORT: ${BACK_PORT_IN}
+      BACK_URL: ${BACK_URL}
+
+      JWT_SECRET_TOKEN: ${JWT_SECRET_TOKEN}
+      JWT_SECRET_REFRESH: ${JWT_SECRET_REFRESH}
+      JWT_EXPIRE_TOKEN: ${JWT_EXPIRE_TOKEN}
+      JWT_EXPIRE_REFRESH: ${JWT_EXPIRE_REFRESH}
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    ports:
+      - ${BACK_PORT_IN}:${BACK_PORT}
+    networks:
+      - transcendence-network
+
+volumes:
+  database:
+
+networks:
+  transcendence-network:
+    driver: bridge
