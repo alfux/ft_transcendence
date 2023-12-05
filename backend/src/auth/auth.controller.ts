@@ -49,6 +49,7 @@ export class AuthController {
   logout(@Res() response: Response) {
     response.clearCookie("access_token")
     response.clearCookie("refresh_token")
+    response.status(200)
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -57,6 +58,7 @@ export class AuthController {
     const user = await this.userService.getUser({id:req.user.id})
     const newToken = await this.authService.generateAccessToken(user);
     response.cookie('access_token', newToken, cookie_options);
+    response.status(200).json(newToken)
   }
 
 }
