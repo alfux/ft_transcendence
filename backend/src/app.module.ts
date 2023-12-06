@@ -18,6 +18,7 @@ import { GameModule } from './game/game.module'
 import { config_db } from './config'
 import { NotificationsModule } from './notifications/notifications.module'
 import { ScheduleModule } from '@nestjs/schedule'
+import { PrivateConversation, PrivateConversationModule } from './db/private_conversation'
 
 @Module({
   imports: [
@@ -29,7 +30,19 @@ import { ScheduleModule } from '@nestjs/schedule'
       username: config_db.user,
       password: config_db.password,
       database: config_db.database,
-      entities: [User, Message, Conversation, ConversationUser, ConversationUserInfos, FriendRequest, PlayRequest],
+      entities: [
+        User,
+        Message,
+      
+        Conversation,
+        ConversationUser,
+        ConversationUserInfos,
+      
+        PrivateConversation,
+
+        FriendRequest,
+        PlayRequest
+      ],
       synchronize: true,
     }),
     UserModule,
@@ -39,7 +52,8 @@ import { ScheduleModule } from '@nestjs/schedule'
     AuthModule,
     DebugModule,
     GameModule,
-    NotificationsModule
+    NotificationsModule,
+    PrivateConversationModule
   ],
   providers: [
     {

@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm'
 import { User } from '../user'
 import { Message } from '../message'
-import { ConversationUser } from './conversation_user.entity'
-import { ConversationUserInfos } from './conversation_user_infos.entity'
+import { ConversationUser } from './conversation_user/conversation_user.entity'
+import { ConversationUserInfos } from './conversation_user/conversation_user_infos.entity'
 import { AccessLevel } from './conversation_access_level.enum'
 
 

@@ -1,9 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 
-import { ConversationUser } from '../conversation/conversation_user.entity';
+import { ConversationUser } from '../conversation/conversation_user/conversation_user.entity';
 import { FriendRequest } from './friend_request.entity';
 import { PlayRequest } from './play_request.entity';
 import { LoggedStatus } from './logged_status.interface';
+import { PrivateConversation } from '../private_conversation/private_conversation.entity';
 
 @Entity()
 export class User {
@@ -39,6 +40,10 @@ export class User {
 
   @OneToMany(() => ConversationUser, (conv_user) => conv_user.user)
   conversations:ConversationUser[]
+
+  @ManyToMany(() => PrivateConversation, conversation => conversation.users)
+  @JoinTable()
+  privateConversations: PrivateConversation[];
 
   @ManyToMany(() => User)
   @JoinTable()

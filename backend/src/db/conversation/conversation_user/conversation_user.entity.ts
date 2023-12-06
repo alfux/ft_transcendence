@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn } from 'typeorm'
-import { User } from '../user'
-import { Message } from '../message'
-import { Conversation } from './conversation.entity'
+import { User } from '../../user'
+import { Message } from '../../message'
+import { Conversation } from '../conversation.entity'
 
 @Entity()
 export class ConversationUser {
