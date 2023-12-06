@@ -8,6 +8,17 @@ export function initKeyboardHandlers() {
 	window.addEventListener("keyup", handleKeyup);
 }
 
+export function getActiveKeys(): { [key: string]: { keydown: boolean; keypress: boolean } } {
+	const activeKeys: { [key: string]: { keydown: boolean; keypress: boolean } } = {};
+
+	for (const key in keyboard) {
+		if (keyboard[key].keydown || keyboard[key].keypress) {
+			activeKeys[key] = { keydown: keyboard[key].keydown, keypress: keyboard[key].keypress };
+		}
+	}
+	return activeKeys;
+}
+
 export const keyboard = new Keyboard()
 
 function	removeKeyDowns() {

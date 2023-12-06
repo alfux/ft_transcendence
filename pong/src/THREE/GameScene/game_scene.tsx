@@ -6,7 +6,7 @@ import { Obstacle } from './obstacle';
 import { GameBoard } from './gameboard';
 import { Vec3, distance, scalaire, norm, Mat3, rotz, rotx } from '../Math';
 
-import { keyboard } from '../Utils/keyboard';
+import { getActiveKeys, keyboard } from '../Utils/keyboard';
 import { Socket } from 'socket.io-client';
 
 export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget, socket: Socket) {
@@ -56,6 +56,7 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 			camera.lookAt(0, 0, 0);
 		}
 	});
+
 	socket.on("start", handleStart);
 	socket.on("player_pos", updateRackets);
 	socket.on("ball_pos", updateBallPos)
@@ -74,12 +75,14 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 		you: Obstacle,
 		opponent: Obstacle
 	}) {
+
+    console.log(positions)
+
 		board.right_racket.copy(positions.you)
 		if (board.right_racket.gameObject)
 			board.right_racket.gameObject.position.y = board.right_racket.position.y;
 
-		board.right_racket.copy(positions.opponent)
-		board.left_racket = positions.opponent;
+      board.left_racket.copy(positions.opponent)
 		if (board.left_racket.gameObject)
 			board.left_racket.gameObject.position.y = board.left_racket.position.y;
 	}
@@ -88,6 +91,8 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 		if (board.ball.gameObject) {
 			ball.gameObject = board.ball.gameObject
 			board.ball = ball
+
+      board.ball.gameObject?.position.set(board.ball.position.x, board.ball.position.y, board.ball.position.z)
 		}
 	}
 
@@ -99,6 +104,13 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 		//	camera.position.y += 2.5;
 		//	scene.rotation.z += 2 * 2.5 * Math.PI / 270;
 		//}
+
+    const active_keys = getActiveKeys()
+		if (Object.keys(active_keys).length !== 0) {
+			console.log(active_keys)
+			socket.emit("player_input", active_keys);
+		}
+
 		renderer.setRenderTarget(target);
 		renderer.clear();
 		renderer.render(scene, camera);
