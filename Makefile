@@ -18,17 +18,18 @@ COLOR_BOLD_CYAN=\033[1;36m
 COLOR_BOLD_WHITE=\033[1;37m
 
 
-DOCKERFILE_SRC := backend/Dockerfile-template pong/Dockerfile-template
-DOCKERFILE_OUT := ${DOCKERFILE_SRC:%-template=%}
-dockerfile: $(DOCKERFILE_OUT)
-dockerfile_clean:
-	rm -rf $(DOCKERFILE_OUT)
-%: %-template .env
-	./substitute.sh $< > $@
+# DOCKERFILE_SRC := backend/Dockerfile-template pong/Dockerfile-template
+# DOCKERFILE_OUT := ${DOCKERFILE_SRC:%-template=%}
+# dockerfile: $(DOCKERFILE_OUT)
+# dockerfile_clean:
+# 	rm -rf $(DOCKERFILE_OUT)
+# %: %-template .env
+# 	./substitute.sh $< > $@
 .PHONY: dockerfile dockerfile_clean
 
 
 build: dockerfile
+	bash ./config/config.sh
 	@echo "Building Docker images..."
 	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) build
 	@echo "Launching Docker containers..."
@@ -47,6 +48,8 @@ run:
 	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) up -d
 
 stop:
+	rm ../.env
+	rm ../backend/.env
 	@echo "Stopping Docker containers..."
 	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) down
 
