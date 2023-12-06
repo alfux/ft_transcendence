@@ -14,7 +14,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 
 const cookie_options: CookieOptions = {
   httpOnly: false,
-  secure: true,
+  secure: false,
   sameSite: 'none'
 }
 
@@ -39,8 +39,11 @@ export class AuthController {
     const url = new URL(`${req.protocol}://${req.hostname}`)
     url.port = config_hosts.front_port
 
-    url.searchParams.set("access_token", tokens.access_token)
-    url.searchParams.set("refresh_token", tokens.refresh_token)
+    //url.searchParams.set("access_token", tokens.access_token)
+    //url.searchParams.set("refresh_token", tokens.refresh_token)
+
+    response.cookie("access_token", tokens.access_token, cookie_options)
+    response.cookie("refresh_token", tokens.refresh_token, cookie_options)
 
     response.status(302).redirect(url.href)
   }
