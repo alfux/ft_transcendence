@@ -11,4 +11,6 @@ export interface JwtPayload
   email:string,
   isTwoFactorAuthEnable:boolean,
   authentication: LoggedStatus
+  exp: number
+  avatar:string
 }

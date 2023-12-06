@@ -5,7 +5,7 @@ import usePayload from '../../react_hooks/use_auth'
 import userEvent from '@testing-library/user-event';
 const accessToken = Cookies.get('accessToken')
 type User = {
-  avatar: string;
+  image: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -36,12 +36,12 @@ const Profile: React.FC = () => {
     };
     requestProfile();
   }, [])
-  console.log("user:", data)
+  console.log("usera:", data)
 
   return (
-    <div className="profile">
+    <div className="profile-box">
       {data != null ? (
-        <img className="profile-photo" src={data.avatar}></img>
+        <img className="profile-photo" src={data.image}></img>
       ) : <h2>nop</h2>}
       {data != null ? (
         <div className='main'>

@@ -1,0 +1,17 @@
+.glass-container-minichat-button{
+    display: flex;
+    position:fixed;
+    bottom: 70%;
+    right: 0;
+    width: 3em;
+    height: 3em;
+    border-radius: 50%;
+    align-items: center;
+    background: rgba(249, 248, 248, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.982);
+    cursor: pointer;
+}
+
+.minichat-icon{
+    width: 90%;
+}
