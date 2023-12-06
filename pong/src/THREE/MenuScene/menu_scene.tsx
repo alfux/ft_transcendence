@@ -276,7 +276,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
       console.log(current)
       switch (current) {
         case MenuButtons.Login:
-          window.location.href = "http://localhost:3001/auth/login";
+          window.location.href = `${config.backend_url}/auth/login`;
           document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
           window.location.reload();
           break;

@@ -14,7 +14,7 @@ const Logout: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
     // const fetchData = async () => {
     //     try {
-    //         const authEndpoint = 'http://localhost:3001/api/auth/logout';
+    //         const authEndpoint = `${config.backend_url}/api/auth/logout`;
     //         handleUpdate();
 	// 		window.location.href = authEndpoint;
 	// 	}

@@ -1,4 +1,4 @@
-
+import { config } from '../../config';
 import Cookies from 'js-cookie';
 import './matchMaking.css'
 import React, { useRef, useEffect, useState } from 'react'
@@ -18,7 +18,7 @@ const MatchMaking: React.FC = () => {
   useEffect(() => {
     const requestProfile = async () => {
       try {//fetch Profile
-        const enable2FAEndpoint = 'http://localhost:3001/api/user/me';
+        const enable2FAEndpoint = `${config.backend_url}/api/user/me`;
         console.log('Before fetch');
         const response = await fetch(enable2FAEndpoint, {
           method: 'GET',

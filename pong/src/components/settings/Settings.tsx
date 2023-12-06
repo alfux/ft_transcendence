@@ -1,4 +1,5 @@
 import './Settings.css';
+import { config } from '../../config';
 import Cookies from 'js-cookie';
 import React, { useState, useEffect, useRef} from 'react';
 import jwt, { jwtDecode } from 'jwt-decode';
@@ -15,7 +16,7 @@ const Settings: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
   const requestNewToken = async () =>{
 	try {//fetch 2fa Status
-	  const enable2FAEndpoint = 'http://localhost:3001/api/auth/refresh';
+	  const enable2FAEndpoint = `${config.backend_url}/api/auth/refresh`;
 	  console.log('Before fetch');
 	  const response = await fetch(enable2FAEndpoint, {
 		  method: 'GET',
