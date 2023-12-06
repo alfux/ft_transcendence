@@ -15,7 +15,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 const cookie_options: CookieOptions = {
   httpOnly: false,
   secure: false,
-  sameSite: 'none'
+  sameSite: 'lax'
 }
 
 @ApiBearerAuth()
