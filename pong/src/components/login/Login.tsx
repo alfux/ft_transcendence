@@ -2,6 +2,7 @@ import './Login.css'
 import Cookies from 'js-cookie';
 import React, { useRef, useEffect, useState } from 'react'
 import usePayload from '../../react_hooks/use_auth'
+import { config } from '../../config';
 
 
 const accessToken = Cookies.get('accessToken')
@@ -14,7 +15,7 @@ const Login: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
     const fetchData = async () => {
         try {
-        	const authEndpoint = 'http://localhost:3001/api/auth/login'; //IP has been replaced by localhost
+        	const authEndpoint = `${config.backend_url}/api/auth/login`; //IP has been replaced by localhost
             handleUpdate();
 			window.location.href = authEndpoint;
 		}

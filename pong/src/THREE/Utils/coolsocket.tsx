@@ -17,13 +17,11 @@ function promoteToCoolSocket(socket:Socket, token:string|undefined): CoolSocket 
 
     socket.emit = (event:any, ...args:any[]):any => {
         console.log("emit...", args)
-        //LA
         return cool_socket.original_emit(event, {
           token: token,
           data: { ...args }
         })
     }
-
     return cool_socket
 }
 

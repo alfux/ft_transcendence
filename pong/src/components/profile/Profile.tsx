@@ -1,8 +1,9 @@
 import './Profile.css'
 import Cookies from 'js-cookie';
 import React, { useRef, useEffect, useState } from 'react'
-import usePayload from '../../react_hooks/use_auth'
 import userEvent from '@testing-library/user-event';
+import usePayload from '../../react_hooks/use_auth'
+import { config } from '../../config';
 const accessToken = Cookies.get('accessToken')
 type User = {
   image: string;
@@ -17,7 +18,7 @@ const Profile: React.FC = () => {
   useEffect(() => {
     const requestProfile = async () => {
       try {//fetch Profile
-        const enable2FAEndpoint = 'http://localhost:3001/api/user/me';
+        const enable2FAEndpoint = `${config.backend_url}/api/user/me`;
         console.log('Before fetch');
         const response = await fetch(enable2FAEndpoint, {
           method: 'GET',

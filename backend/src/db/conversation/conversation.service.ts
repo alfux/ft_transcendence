@@ -3,10 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere } from 'typeorm';
 
 import { Conversation } from './conversation.entity';
-import { ConversationUser } from './conversation_user.entity';
+import { ConversationUser } from './conversation_user/conversation_user.entity';
 import { UserService, User } from '../user';
 import { MessageService } from '../message';
-import { ConversationUserInfos } from './conversation_user_infos.entity';
+import { ConversationUserInfos } from './conversation_user/conversation_user_infos.entity';
 import { AccessLevel } from './conversation_access_level.enum';
 
 @Injectable()
