@@ -15,14 +15,20 @@ export function CoolSocket(target: any, propertyKey: string, descriptor: Propert
       return originalMethod.apply(this, [client, ...Object.values(data.data)]);
     }
     
-    const payload:JwtPayload = this.authService.verifyJWT(data.token, config_jwt.secret_token)
-    if (payload) {
-      const user = await this.userService.getUser({ id: payload.id })
-      if (user) {
-        client = { socket: s, user: user }
-        connectedClients.push(client)
-        return originalMethod.apply(this, [client, ...Object.values(data.data)]);
+    try {
+
+      const payload:JwtPayload = this.authService.verifyJWT(data.token, config_jwt.secret_token)
+      if (payload) {
+        const user = await this.userService.getUser({ id: payload.id })
+        if (user) {
+          client = { socket: s, user: user }
+          connectedClients.push(client)
+          return originalMethod.apply(this, [client, ...Object.values(data.data)]);
+        }
       }
+    } catch (e) {
+      //console.log("Bad auth :/")
+      return
     }
     console.log("Bad auth :/")
   };

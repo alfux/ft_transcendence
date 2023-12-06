@@ -38,9 +38,10 @@ export class AuthController {
 
     const url = new URL(`${req.protocol}://${req.hostname}`)
     url.port = config_hosts.front_port
-  
-    response.cookie('access_token', tokens.access_token, cookie_options);
-    response.cookie('refresh_token', tokens.refresh_token, cookie_options);
+
+    url.searchParams.set("access_token", tokens.access_token)
+    url.searchParams.set("refresh_token", tokens.refresh_token)
+
     response.status(302).redirect(url.href)
   }
 
