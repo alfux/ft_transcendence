@@ -40,13 +40,9 @@ export class User {
   @OneToMany(() => ConversationUser, (conv_user) => conv_user.user)
   conversations:ConversationUser[]
 
-
-
   @ManyToMany(() => User)
   @JoinTable()
   blocked:User[]
-
-
 
   @ManyToMany(() => User)
   @JoinTable()

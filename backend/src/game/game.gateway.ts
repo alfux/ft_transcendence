@@ -34,7 +34,9 @@ export class GameGateway implements OnGatewayConnection {
 
   @SubscribeMessage('search')
   @CoolSocket
-  async handleSearch(client:Client, test:any) {
+  async handleSearch(client: Client, test: any) {
+
+    console.log(client.user)
 
     if (this.waiting.find((v) => v.socket.id === client.socket.id)) {
       console.log("Already waiting")
@@ -42,10 +44,9 @@ export class GameGateway implements OnGatewayConnection {
     }
 
     this.waiting.push(client)
-    console.log("Searching for a game: ", this.waiting.length)
-    console.log(this.waiting)
 
     if (this.waiting.length >= 2) {
+      
       const p1 = this.waiting[0]
       const p2 = this.waiting[1]
 
@@ -55,6 +56,7 @@ export class GameGateway implements OnGatewayConnection {
       const gameInstance = new GameInstance(p1, p2, (b: Ball) => {
         const inverted = b.clone()
         inverted.position.x *= -1
+        console.log(b.position)
         p1.socket.emit("ball_pos", b)
         p2.socket.emit("ball_pos", inverted)
       })
@@ -65,9 +67,10 @@ export class GameGateway implements OnGatewayConnection {
 
   @SubscribeMessage('player_input')
   @CoolSocket
-  async handlePlayerInput(client:Client, keyboard: Keyboard) {
-    const game_instance = this.gameInstances.find((gi) => gi.player1.client.socket.id === client.socket.id ||
-        gi.player2.client.socket.id === client.socket.id)
+  async handlePlayerInput(client: Client, keyboard: Keyboard) {
+    const game_instance = this.gameInstances.find((gi) =>
+      gi.player1.client.socket.id === client.socket.id ||
+      gi.player2.client.socket.id === client.socket.id)
     if (!game_instance)
       return
 
