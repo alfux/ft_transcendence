@@ -18,17 +18,22 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 	const ambient = new THREE.AmbientLight(0xffffff, 1);
 	ambient.position.set(0, 0, 2);
 
+	const board = new GameBoard();
 	const game_parent = new THREE.Group();
-	loadObj(game_parent, "meshes/game.glb");
+	loadObj(game_parent, "meshes/game.glb", (group) => {
+		board.set({
+			ball: group.getObjectByName("Ball"),
+			lr: group.getObjectByName("LRacket"),
+			rr: group.getObjectByName("RRacket")
+		});
+	});
+	board.ball.speed.set(20, 0, 0);
 
 	const scene = new THREE.Scene();
 	scene.add(game_parent, ambient);
 
 	const clock = new THREE.Clock();
 	let delta_time = clock.getDelta()
-
-	const board = new GameBoard();
-	board.ball.speed.set(20, 0, 0);
 
 	let start = false;
 

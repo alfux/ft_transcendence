@@ -32,17 +32,17 @@ export function load(loader:Loader, options:{
 	loader.load(options.url, options.onLoad, options.onProgress, options.onError)
 }
 
-export function	loadObj(group: THREE.Group, name: string, pos: [number, number, number] = [0, 0, 0],
+export function	loadObj(group: THREE.Group, name: string, onLoad: (g: THREE.Group) => void, pos: [number, number, number] = [0, 0, 0],
 	rot: [number, number, number] = [0, 0, 0])
 {
 	const	loader = new GLTFLoader();
 	load(loader, {
 		url:name,
-		onLoad:(obj) =>
-		{
+		onLoad:(obj) => {
 			obj.scene.position.set(pos[0], pos[1], pos[2]);
 			obj.scene.rotation.set(rot[0], rot[1], rot[2]);
 			group.add(obj.scene);
+			onLoad(group);
 		},
 		onProgress:(obj) => {console.log(obj.loaded + " loaded");},
 		onError:(err) => {console.log(err);}
