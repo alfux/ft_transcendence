@@ -1,0 +1,111 @@
+.glass-container-minichat{
+    display: flex;
+    position:fixed;
+    bottom: 5%;
+    right: 0;
+    width: 20%;
+    height: 60%;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    align-items: center;
+    background: rgba(249, 248, 248, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.982);
+}
+
+.chat-options{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20%;
+    height: 100%;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  background: rgba(8, 8, 8, 0.5);
+}
+
+.chat-img{
+    margin-top: 10%;
+    width: 50%;
+    height: calc(100% / 15);
+    border-radius: 50%;
+}
+.chat-img:hover{
+  box-shadow: 0 0 30px white;
+  cursor:pointer;
+}
+
+.chat-box{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1%;
+    width: 80%;
+    height: 100%;
+    
+}
+
+.message-output{
+    width: 90%;
+    height: 80%;
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    background: rgba(8, 8, 8, 0.5);
+}
+
+.message-input{
+    display: flex;
+    width: 90%;
+    height: 15%;
+    align-items: center;
+    justify-content: center;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+    background: rgba(8, 8, 8, 0.5);
+}
+
+.chat-options::-webkit-scrollbar {
+    width: 0.5em;
+  }
+  
+  .chat-options::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+  
+  .chat-options::-webkit-scrollbar-track {
+    background-color: #f1f1f100;
+}
+
+.chat-options::-webkit-scrollbar-thumb {
+    background-color: rgba(193, 14, 14, 0.894);
+}
+
+.chat-options::-webkit-scrollbar-thumb:hover{
+    background-color: rgba(14, 14, 193, 0.894);
+  }
+  
+  .scroll-icon {
+    position: absolute;
+    bottom: -300px;
+    left: 50%;
+    color: rgba(0, 0, 255, 0);
+    transform: translateX(-50%);
+  }
+  .message-input-text{
+    content: "hello";
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0);
+    color: black;
+    border-color: rgba(255, 0, 0, 0);
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+    color: white;
+    vertical-align: text-top;
+  }
+  .message-input-text:hover{
+    background: rgba(0, 0, 0, 0.5);;
+  }

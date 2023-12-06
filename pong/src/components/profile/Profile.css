@@ -3,7 +3,7 @@
 	--profile-height:70vh
 }
 
-.profile {
+.profile-box {
     display: flex;
 	flex-direction: column;
 	align-items: center;

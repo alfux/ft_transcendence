@@ -14,6 +14,8 @@ import RenderComponents from './Utils/render_component';
 
 import { config } from '../config';
 import { LoggedStatus } from './Utils/jwt.interface';
+import MiniChatButton from '../components/minichat/ChatButton';
+import createComponent from './Utils/createComponent';
 
 export default function THREE_App(props: {
 	toggleProfile: () => void,
@@ -28,19 +30,19 @@ export default function THREE_App(props: {
 	const	[twofactor, setTwoFactor] = useState(user?.isTwoFactorAuthEnable)
 	const [payload, updatePayload, handleUpdate] = usePayload();
 	const [logged, setLogged] = useState(false)
-	
-//logout || refresh token
-	// useEffect(()=>{
-	// 	console.log("What status are u: ",logged)
-	// 		setLogged(true)
-	// 	user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
-	// 	if(user?.exp && user?.exp < Date.now() / 1000){
-	// 		// fetchData()
-	// 		alert("Token expired");
-	// 		// document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
-	// 		// window.location.reload();
-	// 	}
-	// },[loginForm])
+	const cleanup: (() => void)[] = [];
+	//Check if access token has expired remove token and reload page
+	useEffect(()=>{
+		console.log("What status are u: ",logged)
+			setLogged(true)
+		user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
+		if(user?.exp && user.exp < Date.now() / 1000){
+			// fetchData()
+			alert("Token expired");
+			document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
+			window.location.reload();
+		}
+	},[user && user.exp < Date.now() / 1000])
 
 	useEffect(() => {
 	  const socket = coolSocket(`http://localhost:3001/game`, accessToken);
@@ -88,30 +90,16 @@ export default function THREE_App(props: {
 			buffer.dispose();
 		});
 	}, []);
-
-	useEffect(() => {
-		if (accessToken && payload?.authentication == LoggedStatus.Logged && loginForm != "Profile") {
-			const newFormContainer = document.createElement('div');
-			const root = createRoot(newFormContainer);
-			root.render(<ProfileBar/>);
-			console.log("payload: ", payload?.authentication)
-			document.body.appendChild(newFormContainer);
-			return () => {
-				setTimeout(() => {
-				root.unmount();
-				document.body.removeChild(newFormContainer);
-				});
-		  	};
-		}
-	}, [loginForm === "Profile"]);
-
 	useEffect(() => {
 		handleUpdate()
-		//console.log("Payload:", payload)
-		//console.log(loginForm)
 	}, [loginForm]);
-	
 	RenderComponents(loginForm)
+	useEffect(() =>{
+		if(accessToken && payload?.authentication === LoggedStatus.Logged && loginForm != "Chat"){
+			return createComponent(MiniChatButton);
+		  }
+	},[loginForm === "Chat"])
+	
 	return (
 		<div ref={divRef} id="Canvas">
 			<div>
