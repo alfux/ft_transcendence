@@ -17,6 +17,9 @@ import { LoggedStatus } from './Utils/jwt.interface';
 import MiniChatButton from '../components/minichat/ChatButton';
 import createComponent from './Utils/createComponent';
 
+const			accessToken = Cookies.get('access_token');
+export const	socket = coolSocket(`${config.backend_url}/game`, accessToken);
+
 export default function THREE_App(props: {
 	toggleProfile: () => void,
 	toggleChat: () => void,
@@ -25,7 +28,6 @@ export default function THREE_App(props: {
 	const	divRef = useRef<HTMLDivElement>(null);
 	const [loginForm, setLoginForm] = useState('')
 	const	[showProfile, setShowProfile] = useState(false)
-	let accessToken = Cookies.get('access_token');
 	let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
 	const	[twofactor, setTwoFactor] = useState(user?.isTwoFactorAuthEnable)
 	const [payload, updatePayload, handleUpdate] = usePayload();
@@ -45,7 +47,6 @@ export default function THREE_App(props: {
 	},[user && user.exp < Date.now() / 1000])
 
 	useEffect(() => {
-	  const socket = coolSocket(`${config.backend_url}/game`, accessToken);
 	  //const socket = io(`${config.backend_url}/game`,  { transports: ["websocket"] });
 
     const	renderer = new THREE.WebGLRenderer({alpha: true});

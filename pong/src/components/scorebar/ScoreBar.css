@@ -1,0 +1,80 @@
+.score-bar {
+    display: flex;
+	position:absolute;
+	top: 15%;
+	left: 30%;
+	height: 10%;
+	width: 15%;
+	border-radius: 16px;
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	border-radius: 20px;
+	justify-content: space-around;
+	animation:
+		slideInAlfux 1.5s ease forwards,
+		colorChange 1s infinite;
+  }
+
+@keyframes	slideInAlfux {
+	0% {
+		top:	1%;
+		left:	1%;
+	}
+	20% {
+		top:	-100%;
+	}
+	40% {
+		top:	30%;
+		left:	30%;
+	}
+	60% {
+		top:	5%;
+	}
+	80% {
+		top:	20%;
+	}
+	100% {
+		top:	15%;
+		left:	30%;
+	}
+}
+
+.score-bar p{
+	align-items: center;
+	font-size: 100%;
+  color: #fff;
+  font-family: 'game', sans-serif;
+  text-shadow: 0 0 10px #fff , 0 0 4px blue, 0 0 8px blue, 0 0 60px blue 
+}
+  @keyframes colorChange {
+	0% {
+	  box-shadow: 0 0 100px #ffffff;
+	  box-shadow: 0 0 200px #0400ff;
+	}
+	50% {
+	  box-shadow: 0 0 10px #ffffff;
+	  box-shadow: 0 0 20px #0400ff;
+	}
+	100% {
+		box-shadow: 0 0 10px #ffffff;
+		box-shadow: 0 0 20px #0400ff;
+	}
+  }
+
+  .score-photo{
+    max-width: 30%;
+	max-height: 80%;
+    border-radius: 50%;
+	align-self: center;
+  }
+
+  .stats{
+	height: 100%;
+	width: 30%;
+	align-items: center;
+  }
+
+  .stats-values{
+
+  }
+
