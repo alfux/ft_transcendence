@@ -59,6 +59,10 @@ export class GameGateway implements OnGatewayConnection {
         console.log(b.position)
         p1.socket.emit("ball_pos", inverted)
         p2.socket.emit("ball_pos", b)
+      },
+      (winner, looser) => {
+        //TODO: update database
+        this.gameInstances = this.gameInstances.filter((v) => v !== gameInstance)
       })
       this.gameInstances.push(gameInstance)
       gameInstance.start()
@@ -89,7 +93,7 @@ export class GameGateway implements OnGatewayConnection {
     })
   }
 
-  @Interval(6 / 10000)
+  @Interval(6 / 100000)
   loop() {
     this.gameInstances.forEach((gi) => {
       gi.update()
