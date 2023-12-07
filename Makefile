@@ -1,9 +1,7 @@
-include .env
+-include .env
 export
-
 .DEFAULT_GOAL := build
 
-#COMPOSE=docker compose
 COMPOSE=docker compose
 DOCKER_COMPOSE_YML=docker-compose.yml
 
@@ -17,25 +15,18 @@ COLOR_BOLD_MAGENTA=\033[1;35m
 COLOR_BOLD_CYAN=\033[1;36m
 COLOR_BOLD_WHITE=\033[1;37m
 
-
-# DOCKERFILE_SRC := backend/Dockerfile-template pong/Dockerfile-template
-# DOCKERFILE_OUT := ${DOCKERFILE_SRC:%-template=%}
-# dockerfile: $(DOCKERFILE_OUT)
-# dockerfile_clean:
-# 	rm -rf $(DOCKERFILE_OUT)
-# %: %-template .env
-# 	./substitute.sh $< > $@
 .PHONY: dockerfile dockerfile_clean
 
-
-build: dockerfile
-	bash ./config/config.sh
-	@echo "Building Docker images..."
-	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) build
+build:
 	@echo "Launching Docker containers..."
-	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) up -d
+	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) up -d --build
 
-rebuild: dockerfile
+env:
+	bash ./config/prod-config.sh
+env-dev:
+	bash ./config/dev-config.sh
+re: dockerfile
+	
 	@echo "Stopping Docker containers..."
 	$(COMPOSE) down
 	@echo "Rebuilding Docker images..."
@@ -43,22 +34,18 @@ rebuild: dockerfile
 	@echo "Relaunching Docker containers..."
 	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) up -d
 
-run:
-	@echo "Launching Docker containers..."
-	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) up -d
-
 stop:
-	rm ../.env
-	rm ../backend/.env
 	@echo "Stopping Docker containers..."
 	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) down
+	@echo ".env deleted" 
 
 clean: dockerfile_clean
 	@echo "Removing Docker containers and images..."
 	$(COMPOSE) down --volumes
+fclean:clean
 	docker network prune -f
 	docker system prune -af
-
+	rm .env
 backend-logs:
 	@echo "Showing logs for the backend service..."
 	$(COMPOSE) logs -f $(BACKEND_SERVICE)
@@ -81,4 +68,4 @@ stop-dev:
 	@echo "Stopping Dev containers..."
 	$(COMPOSE) -f docker-compose-dev.yml down
 
-.PHONY: build run stop clean
+# .PHONY: build run stop clean

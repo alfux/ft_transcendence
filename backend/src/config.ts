@@ -25,9 +25,9 @@ export const config_jwt = {
 
 export const config_hosts = {
 
-  front_port:process.env.FRONT_PORT,
+  front_port:process.env.LOCAL_FRONT_PORT,
   front_url:process.env.FRONT_URL,
 
-  back_port:process.env.BACK_PORT,
+  back_port:process.env.LOCAL_BACK_PORT,
   back_url:process.env.BACK_URL,
 }
