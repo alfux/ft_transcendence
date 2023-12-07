@@ -122,6 +122,8 @@ export interface Player { client: Client, racket: Obstacle }
 
 export class GameInstance {
 
+  static max_score = 11
+
   player1: Player
   player2: Player
 
@@ -145,11 +147,17 @@ export class GameInstance {
   delta_time: number = 0
 
   notif_ball_pos:(ball:Ball)=>void
+  notif_end:(winner:Client, looser:Client)=>void
 
-  constructor(player1: Client, player2: Client, notif_ball_pos:(ball:Ball)=>void) {
+  constructor(player1: Client, player2: Client, notif_ball_pos:(ball:Ball)=>void, notif_end:(winner:Client, looser:Client)=>void) {
     this.player1 = { client: player1, racket: this.obstacles.left_racket }
     this.player2 = { client: player2, racket: this.obstacles.right_racket }
     this.notif_ball_pos = notif_ball_pos
+    this.notif_end = notif_end
+  }
+
+  other_one(client:Client) {
+    return client.socket.id === this.player1.client.socket.id ? this.player2.client : this.player1.client
   }
 
   start() {
@@ -166,24 +174,12 @@ export class GameInstance {
     const limit = 7;
     let move = 0;
     let speed = 20;
-    let direction = 1
 
     if (keyboard.ArrowDown?.keypress)
       move -= speed * this.delta_time
     if (keyboard.ArrowUp?.keypress)
       move += speed * this.delta_time
     player.racket.position.y = clamp(player.racket.position.y + move, -limit, limit)
-
-    /*
-    if (player.pos.y <= limit) {
-      player.pos.y += move;
-      //board.right_racket.speed = 0.5 * move / game_instance.delta_time;
-    }
-    else {
-      player.pos.y = (move < 0) ? -limit : limit;
-      //board.right_racket.speed = 0;
-    }
-    */
   }
 
   updateScore() {
@@ -195,6 +191,12 @@ export class GameInstance {
       you: this.score_p2,
       opponent: this.score_p1
     })
+
+    if (this.score_p1 >= GameInstance.max_score)
+      this.finish(this.player1.client, "won")
+    else if (this.score_p2 >= GameInstance.max_score)
+      this.finish(this.player2.client, "won")
+
   }
 
   updateBallPos() {
@@ -224,7 +226,21 @@ export class GameInstance {
 
   disconnect(client:Client) {
     console.log("Player disconnected !")
-    
+    this.finish(this.other_one(client), "disconnect")
+  }
+
+  finish(winner:Client, reason:string) {
+    this.player1.client.socket.emit("finish", {
+      winner: winner.socket.id === this.player1.client.socket.id ? "you" : "opponent",
+      reason: reason
+    })
+
+    this.player2.client.socket.emit("finish", {
+      winner: winner.socket.id === this.player2.client.socket.id ? "you" : "opponent",
+      reason: reason
+    })
+
+    this.notif_end(winner, this.other_one(winner))
   }
 
   update() {
