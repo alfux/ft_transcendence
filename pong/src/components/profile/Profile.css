@@ -6,6 +6,7 @@
 .profile-box {
     display: flex;
 	flex-direction: column;
+	justify-content: center;
 	align-items: center;
 	position:absolute;
 	top: calc(50vh - calc(var(--profile-height)/2));
@@ -20,6 +21,15 @@
 	animation: slideTop 1.5s ease forwards, colorChange 2s infinite;
   }
 
+  .profile-box-two{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 95%;
+	height: 95%;
+	border-radius: 15px;
+	background: rgba(8, 8, 8, 0.5);
+  }
   @keyframes slideTop {
 	0% {
 		display: flex;
@@ -38,14 +48,12 @@
 		top: 40vh;
 	}
 	100% {
-		/* width: 5vh;
-		height: ; */
-		left: 0vh;
+		left: 15%;
 		top: calc(50vh - calc(var(--profile-height)/2));
-		background: rgba(255, 255, 255, 0.05);
+		background: rgba(249, 248, 248, 0.2);
 	}
   }
-.profile p{
+.profile-box p{
 	align-items: center;
 	font-size: 100%;
   color: #fff;
@@ -66,13 +74,13 @@
 		box-shadow: 0 0 20px #0400ff;
 	}
   }
-  .profile .main{
+  .profile-box .main{
 	display: flex;
 	position: relative;
 	height: 100%;
 	width: 100%;
   }
-  .profile .profile-photo{
+  .profile-box .profile-photo{
 	margin-top: 2vh;
     max-width: 20vh;
 	max-height: 80%;
@@ -80,15 +88,17 @@
 	align-self: center;
   }
 
-  .profile .stats{
+  .profile-box .stats{
 	height: 100%;
 	width: 100%;
 	text-align: center;
   }
 
-  .profile .stats-values{
+  .profile-box .stats-values{
 	height: 100%;
 	width: 100%;
 	text-align: center;
   }
+
+/* _________________________________________________________________ */
 
