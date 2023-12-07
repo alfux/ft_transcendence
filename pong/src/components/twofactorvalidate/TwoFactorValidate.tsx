@@ -43,7 +43,7 @@ const TwoFactorValidate: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    const verify2FAEndpoint = 'http://localhost:3001/api/2fa/enable';
+    const verify2FAEndpoint = `${config.backend_url}/api/2fa/enable`;
     try {
       const verificationCode = digits;
       const response = await fetch(verify2FAEndpoint, {

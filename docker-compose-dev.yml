@@ -11,7 +11,7 @@ services:
     env_file:
       - .env
     ports:
-      - 5432:${DB_PORT}
+      - ${DB_PORT}
     volumes:
       - ./database:/database
     networks:

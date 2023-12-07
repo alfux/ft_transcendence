@@ -18,6 +18,7 @@
     "@types/react-dom": "^18.2.14",
     "@types/three": "^0.157.2",
     "dotenv": "^16.3.1",
+    "dotenv-webpack": "^8.0.1",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "react": "^18.2.0",
