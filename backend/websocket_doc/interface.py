@@ -58,8 +58,10 @@ def show_item(event: tk.Event):
             data_type = None
         elif (event_doc["data"].get('type') != None):
             data_type = event_doc["data"]["type"]
+            data_type = f"{{{data_type}}}"
         else:
             data_type = ''.join([f"{k}: {event_doc['data'][k]['type']}, " for k in event_doc["data"]])
+            data_type = f"{{{data_type}}}"
 
         description = f"""{event_doc['name']} : {event_doc['desc']}
 
