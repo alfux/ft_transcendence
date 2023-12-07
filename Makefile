@@ -65,8 +65,7 @@ frontend-logs:
 
 run-dev:
 	cp .env ./backend/
-	echo "REACT_APP_BACKEND_URL=http://localhost" > ./pong/.env
-	echo "REACT_APP_BACKEND_PORT=3001" >> ./pong/.env
+	cp .env ./pong/
 	@echo "Building Dev images..."
 	$(COMPOSE) -f docker-compose-dev.yml up -d
 	@echo "$(COLOR_BOLD_YELLOW)"
