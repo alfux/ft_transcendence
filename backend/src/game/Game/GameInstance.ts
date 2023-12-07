@@ -186,16 +186,29 @@ export class GameInstance {
     */
   }
 
+  updateScore() {
+    this.player1.client.socket.emit("score", {
+      you: this.score_p1,
+      opponent: this.score_p2
+    })
+    this.player2.client.socket.emit("score", {
+      you: this.score_p2,
+      opponent: this.score_p1
+    })
+  }
+
   updateBallPos() {
     this.ball.position.x += this.delta_time * this.ball.speed.x;
     this.ball.position.y += this.delta_time * this.ball.speed.y;
 
     if (this.ball.position.x > 16) {
-      ++this.score_p1;
+      this.score_p1++;
+      this.updateScore()
       this.ball.position = Vec3.zero();
     }
     else if (this.ball.position.x < -16) {
-      ++this.score_p2;
+      this.score_p2++;
+      this.updateScore()
       this.ball.position = Vec3.zero();
     }
 
@@ -207,6 +220,11 @@ export class GameInstance {
     }
 
     this.notif_ball_pos(this.ball)
+  }
+
+  disconnect(client:Client) {
+    console.log("Player disconnected !")
+    
   }
 
   update() {
