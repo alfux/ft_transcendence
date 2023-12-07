@@ -25,7 +25,10 @@ configNames=("FRONTEND_SERVICE" \
              "JWT_SECRET_TOKEN" \
              "JWT_SECRET_REFRESH" \
              "JWT_EXPIRE_TOKEN" \
-             "JWT_EXPIRE_REFRESH")
+             "JWT_EXPIRE_REFRESH"\
+             "REACT_APP_BACKEND_URL"\
+             "REACT_APP_BACKEND_PORT"
+             )
 
 echo "#-----PROD_ENV-----" > .env
 for config in "${configNames[@]}"; do

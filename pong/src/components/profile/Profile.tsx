@@ -4,13 +4,12 @@ import React, { useRef, useEffect, useState } from 'react'
 import userEvent from '@testing-library/user-event';
 import usePayload from '../../react_hooks/use_auth'
 import { config } from '../../config';
+import AchievementsButton from './buttons/achievements/AchievementsButton';
+import MatchHistory from './buttons/matchhistory/MatchHistoryButton';
 const accessToken = Cookies.get('accessToken')
 type User = {
   image: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  nickName: string;
+  username:string
 }
 const Profile: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
@@ -41,27 +40,31 @@ const Profile: React.FC = () => {
 
   return (
     <div className="profile-box">
-      {data != null ? (
-        <img className="profile-photo" src={data.image}></img>
-      ) : <h2>nop</h2>}
-      {data != null ? (
-        <div className='main'>
-          {data != null ? (
-            <div className='stats'>
-              <p>Nickname</p>
-              <p>Rank</p>
-              <p>Lvl</p>
-            </div>
-          ) : <h2>nop</h2>}
-          {data != null ? (
-            <div className='stats-values'>
-              <p>{data.nickName}</p>
-              <p>1</p>
-              <p>10</p>
-            </div>
-          ) : <h2>nop</h2>}
+      <div className='profile-box-two'>
+        {data != null ? (
+          <img className="profile-photo" src={data.image}></img>
+        ) : <h2>nop</h2>}
+        {data != null ? (
+          <div className='main'>
+            {data != null ? (
+              <div className='stats'>
+                <p>Nickname</p>
+                <p>Rank</p>
+                <p>Lvl</p>
+                <AchievementsButton/>
+              </div>
+            ) : <h2>nop</h2>}
+            {data != null ? (
+              <div className='stats-values'>
+                <p>{data.username}</p>
+                <p>1</p>
+                <p>10</p>
+                <MatchHistory/>
+              </div>
+            ) : <h2>nop</h2>}
+          </div>
+        ) : <h2>nop</h2>}
         </div>
-      ) : <h2>nop</h2>}
     </div>
   );
 };

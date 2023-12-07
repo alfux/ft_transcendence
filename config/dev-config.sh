@@ -1,5 +1,9 @@
 #!/bin/bash
-
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+WHITE='\033[0m'
 input=0
 value=
 configNames=("FRONTEND_SERVICE" \
@@ -25,7 +29,9 @@ configNames=("FRONTEND_SERVICE" \
              "JWT_SECRET_TOKEN" \
              "JWT_SECRET_REFRESH" \
              "JWT_EXPIRE_TOKEN" \
-             "JWT_EXPIRE_REFRESH")
+             "JWT_EXPIRE_REFRESH"\
+             "REACT_APP_BACKEND_URL"\
+             "REACT_APP_BACKEND_PORT")
 
 defaultValues=("frontend"\
 				"backend"\
@@ -51,11 +57,12 @@ defaultValues=("frontend"\
 				"fnuribfhrnj,ezibglspẑs"\
 				"15m"\
 				"7d"\
+                "http://localhost"\
+                "3001"
 				)
-
-echo 'Type Enter for default config'
-echo 'Type 1 to create full config'
-echo 'Type 2 to create dev config'
+echo -e "${BLUE}Type Enter for default config (test with one pc local)"
+echo 'Type 1 to create full config from scratch (ignore)'
+echo -e "Type 2 to create dev config(test with multiple devices${WHITE})"
 read -p "Enter your choice: " input
 
 if [[ $input == '' ]]; then
@@ -94,15 +101,24 @@ elif [[ $input == '2' ]]; then
     echo "Type FrontEnd IP"
     read input
     sed -i "s/FRONT_URL=.*/FRONT_URL=${input}/" ".env"
+
     echo "Type BackEnd IP"
     read input
     sed -i "s/BACK_URL=.*/BACK_URL=${input}/" ".env"
+
     echo "Type Ip for 42Redirect <example 127.0.0.1>"
     read input
     echo "Type port for 42Redirect <example 3001>"
     read value
-    echo
     sed -i "s|API42_REDIRECT=.*|API42_REDIRECT=http://${input}:${value}/api/auth/login/|g" ".env"
 
-
+    echo "Now to declare variables for REACT...."
+    echo "Type again the backend IP)"
+    read input
+    sed -i "s#REACT_APP_BACKEND_URL=.*#REACT_APP_BACKEND_URL=http://${input}#" ".env"
+    echo "Type again the backend PORT)"
+    read input
+    sed -i "s/REACT_APP_BACKEND_PORT=.*/REACT_APP_BACKEND_PORT=${input}/" ".env"
+    echo -e "${GREEN}Success.${NC}"
+    echo -e "${YELLOW}If not working change the API42_CLIENT and API42_SECRET manully to your own api${NC}"
 fi

@@ -22,12 +22,11 @@ build:
 	@echo "Checking for .env file..."
 	@echo "$(COLOR_BOLD_YELLOW)"
 	@if [ ! -f .env ]; then \
-		echo "Copying .env.template to .env..."; \
-		echo "Please edit the .env file with your configurations."; \
+		echo "Please user <make env-dev> to generate first a env file."; \
 		exit 1; \
 	fi
-	@echo "Building: \c"
-	@$(MAKE) _build_with_progress
+	@echo "Building..."
+	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) up -d --build
 	
 
 env:
@@ -65,11 +64,15 @@ frontend-logs:
 	$(COMPOSE) logs -f $(FRONTEND_SERVICE)
 
 run-dev:
+	cp .env ./backend/
+	echo "REACT_APP_BACKEND_URL=http://localhost" > ./pong/.env
+	echo "REACT_APP_BACKEND_PORT=3001" >> ./pong/.env
 	@echo "Building Dev images..."
 	$(COMPOSE) -f docker-compose-dev.yml up -d
 	@echo "$(COLOR_BOLD_YELLOW)"
 	@echo "Database IP: $$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(DATABASE_NAME))"
 	@echo "Don't forget to change the host of <./backend/src/app.module.ts> in case the backend can't connect to the database."
+	@echo "$(COLOR_BOLD_RED)If does not work locally with server running on local, change .env DB_HOST to localhost from both .env in backend and from root of transcedence$(COLOR_BOLD_WHITE)"
 
 run-ip:
 	@echo "$(COLOR_BOLD_YELLOW)"
