@@ -14,6 +14,7 @@ import Chat from "../../components/chat/Chat";
 import MiniChat from "../../components/minichat/MiniChat";
 import MiniChatButton from "../../components/minichat/ChatButton";
 import createComponent from "./createComponent";
+import Score from "../../components/scorebar/ScoreBar";
 
 
 function RenderComponents(loginForm:string) {
@@ -23,7 +24,8 @@ function RenderComponents(loginForm:string) {
   useEffect(() => {
     const cleanup: (() => void)[] = [];
     handleUpdate()
-    if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm !== "Profile" && loginForm !== "Play") {
+	//Ne pas oublier d'enlever le "About" ici, ceci ne sert que de test
+    if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm !== "Profile" && loginForm !== "Play" && loginForm !== "About") {
       cleanup.push(createComponent(ProfileBar));
     }
     if (accessToken && payload?.authentication === LoggedStatus.Incomplete) {
@@ -38,6 +40,10 @@ function RenderComponents(loginForm:string) {
     if (loginForm === "Login" && !accessToken) {
       cleanup.push(createComponent(Login));
     }
+	if (loginForm === "About" && accessToken && payload?.authentication === LoggedStatus.Logged) {
+		//Ceci ne sert aussi que de test
+		cleanup.push(createComponent(Score));
+	}
     if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm === "Play") {
       cleanup.push(createComponent(MatchMaking));
      }
