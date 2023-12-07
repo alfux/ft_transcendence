@@ -18,15 +18,25 @@ COLOR_BOLD_WHITE=\033[1;37m
 .PHONY: dockerfile dockerfile_clean
 
 build:
-	@echo "Launching Docker containers..."
-	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) up -d --build
+	@echo "$(COLOR_BOLD_BLUE)"
+	@echo "Checking for .env file..."
+	@echo "$(COLOR_BOLD_YELLOW)"
+	@if [ ! -f .env ]; then \
+		echo "Copying .env.template to .env..."; \
+		echo "Please edit the .env file with your configurations."; \
+		exit 1; \
+	fi
+	@echo "Building: \c"
+	@$(MAKE) _build_with_progress
+	
 
 env:
 	bash ./config/prod-config.sh
 env-dev:
 	bash ./config/dev-config.sh
+clean-env:
+	rm .env
 re: dockerfile
-	
 	@echo "Stopping Docker containers..."
 	$(COMPOSE) down
 	@echo "Rebuilding Docker images..."
