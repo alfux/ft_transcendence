@@ -38,7 +38,3 @@ lerna-debug.log*
 
 # Env variables
 *.env
-
-# Docker
-front/Dockerfile
-backend/Dockerfile
