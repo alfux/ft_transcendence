@@ -1,7 +1,14 @@
+export enum LoggedStatus {
+    Logged,
+    Incomplete,
+    Unlogged,
+}
+
 export interface User {
     id:number
     username:string
     image:string
+    isAuthenticated:LoggedStatus
     conversations?:ConversationUser[]
     blocked?:User[]
     friends?:User[]
