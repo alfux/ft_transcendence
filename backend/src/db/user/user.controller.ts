@@ -107,7 +107,8 @@ export class UserController {
     const friend_req = await this.userService.sendFriendRequest(from, to)
     
     this.notificationService.emit([to], "friend_request_recv", {req:friend_req})
-    
+    console.log("to ",to.username)
+    console.log("from: ",from.username )
     return friend_req
   }
 
