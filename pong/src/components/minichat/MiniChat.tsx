@@ -178,12 +178,11 @@ const MiniChat: React.FC = () => {
   
 }
 useEffect(()=>{
-    
-  notifications.on("friend_request_recv", (req: FriendRequest, ) => {
+      notifications.on("friend_request_recv", (data:any) => {
     console.log("NOTIFICATION ONNNN")
   })
   
- })
+ }, [])
 
 
   return (
