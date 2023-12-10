@@ -9,12 +9,12 @@ import usePayload from '../../react_hooks/use_auth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import './MiniChat.css';
-import { Conversation, ConversationUser, User } from '../../THREE/ReactUI/backend_types';
+import { Conversation, ConversationUser, FriendRequest, User } from '../../THREE/ReactUI/backend_types';
 import { config } from '../../config';
 import Login from '../login/Login';
 import { channel } from 'diagnostics_channel';
 import { group } from 'console';
-
+import { notifications } from '../../notification/notification';
 
 enum ChannelOptions  {
   CREATE_CHANNEL = "create channel",
@@ -24,16 +24,17 @@ enum ChannelOptions  {
 
 const MiniChat: React.FC = () => {
   const [channels, setChannels] = useState<Conversation[] | null>();
-  const [me, setMe] = useState<User | null>()
+  const [me, setMe] = useState<User | undefined>(undefined)
   const [data, setData] = useState<User[] | null>(null);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | undefined>(undefined);
   const [selectedGroup, setSelectedGroup] = useState<ConversationUser | null>(null);
   const [selectedGroupOption, setSelectedGroupOption] = useState<ChannelOptions | null>(null);
   const [payload, updatePayload, handleUpdate] = usePayload();
   const [friends, setFriends] = useState<User[] | null>(null);
-  const [a,setA] = useState('a')
-  console.log(a)
+  // const [a,setA] = useState('a')
   // _______________________________________________________________________
+  
+  
   useEffect(() => {
     // Request all users
     const requestProfile = async () => {
@@ -56,7 +57,7 @@ const MiniChat: React.FC = () => {
       }
     };
     requestProfile();
-  }, [a])
+  }, [])
   useEffect(() => {
     // Request all owned channels
     const requestProfile = async () => {
@@ -80,7 +81,7 @@ const MiniChat: React.FC = () => {
     };
     console.log("TESTING")
     requestProfile();
-  }, [a])
+  }, [])
   useEffect(() => {
     // Request all owned channels
     const requestProfile = async () => {
@@ -142,11 +143,54 @@ const MiniChat: React.FC = () => {
  )})
 
 
+
+
+
+
+ async function sendInvite(){
+  const verify2FAEndpoint = `${config.backend_url}/api/user/friend_request`;
+  try {
+    const response = await fetch(verify2FAEndpoint, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(selectedUser),
+    });
+    if (response.ok) {
+     const data = await response.json();
+     console.log("RESONSE: ",data)
+     console.log(" sended friend request to", selectedUser?.username)
+    } else {
+  alert("didnt sended invate")
+      console.error('Error sending invite Server responded with status:', response.status);
+    }
+  } catch (error) {
+    console.error('Error verifying 2FA code:', error);
+  }
+  try{
+    //await requestNewToken()
+    handleUpdate()
+  }catch(error){
+    console.log(error)
+  }
+  
+}
+useEffect(()=>{
+    
+  notifications.on("friend_request_recv", (req: FriendRequest, ) => {
+    console.log("NOTIFICATION ONNNN")
+  })
+  
+ })
+
+
   return (
       <div className='a'>{selectedUser && <div className='user-profile'>
         {selectedUser && <img className='user-image' src={selectedUser.image}/>}
         {selectedUser && <p>{selectedUser.username}</p>}
-        {selectedUser && <button >Invite Friend</button>}
+        {selectedUser && <button onClick={sendInvite}>Invite Friend</button>}
       </div>}
       <div className="glass-container-minichat">
         <div className='chat-groups'>

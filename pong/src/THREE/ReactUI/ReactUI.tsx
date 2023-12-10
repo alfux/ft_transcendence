@@ -19,20 +19,20 @@ export function ReactUIParent(props: {
 
 
     function update_auth() { socket?.emit("authentification", localStorage.getItem("token")) }
-    useEffect(() => {
-        const socket = io(`${config.backend_url}/notifications`, {transports: ["websocket"]})
+    // useEffect(() => {
+    //     const socket = io(`${config.backend_url}/notifications`, {transports: ["websocket"]})
         
-        const token = localStorage.getItem("token")
-        if (token) {
-            socket.emit("authentification", token)
-        }
-        window.addEventListener('storage', update_auth);
-        setSocket(socket);
+    //     const token = localStorage.getItem("token")
+    //     if (token) {
+    //         socket.emit("authentification", token)
+    //     }
+    //     window.addEventListener('storage', update_auth);
+    //     setSocket(socket);
 
-        return (() => {
-            window.removeEventListener('storage', update_auth)
-        })
-    }, [])
+    //     return (() => {
+    //         window.removeEventListener('storage', update_auth)
+    //     })
+    // }, [])
 
     return (
         <div className='ui'>
