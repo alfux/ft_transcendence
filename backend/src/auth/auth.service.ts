@@ -49,12 +49,7 @@ export class AuthService {
       .then((tokens) => ({access_token:tokens[0], refresh_token:tokens[1]}))
   }
 
-  verifyJWT(token:string, key:string): JwtPayload {
-    this.jwtService.verify(token, {secret:key})
-    try {
-      return this.jwtService.verify(token, {secret:key});
-    } catch {
-      return null;
-    }
+  verifyJWT(token:string, key:string): Promise<JwtPayload | null> {
+    return this.jwtService.verifyAsync(token, {secret:key}).catch((e) => null);
   }
 }

@@ -107,7 +107,6 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 
     const active_keys = getActiveKeys()
 		if (Object.keys(active_keys).length !== 0) {
-			console.log(active_keys)
 			socket.emit("player_input", active_keys);
 		}
 
