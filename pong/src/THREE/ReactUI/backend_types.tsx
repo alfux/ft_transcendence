@@ -18,7 +18,13 @@ export interface User {
 
 export interface FriendRequest {
     id:number
-    sender?:User
+    sender?:{
+        db_id:number,
+        id:number,
+        username:string,
+        image:string,
+        email:string
+    }
     receiver?:User
 }
 

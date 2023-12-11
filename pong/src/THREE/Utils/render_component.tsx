@@ -14,14 +14,26 @@ import Chat from "../../components/chat/Chat";
 import MiniChat from "../../components/minichat/MiniChat";
 import MiniChatButton from "../../components/minichat/ChatButton";
 import createComponent from "./createComponent";
+import { notifications } from "../../notification/notification";
+import { FriendRequest } from "../ReactUI/backend_types";
+import Notifications from "../../components/notifications/Notifications";
+
 
 
 function RenderComponents(loginForm:string) {
   let accessToken = Cookies.get('access_token');
   let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
   const [payload, updatePayload, handleUpdate] = usePayload();
+  const cleanup: (() => void)[] = [];
+  const [notificationComponent, setNotificationComponent] = useState(null);
+  useEffect(() =>{
+    notifications.on("friend_request_recv", (data: {req: FriendRequest, }) => {
+      if (accessToken && payload?.authentication === LoggedStatus.Logged){
+        createComponent(Notifications)
+      }
+  })
+  },[])
   useEffect(() => {
-    const cleanup: (() => void)[] = [];
     handleUpdate()
     if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm !== "Profile" && loginForm !== "Play") {
       cleanup.push(createComponent(ProfileBar));

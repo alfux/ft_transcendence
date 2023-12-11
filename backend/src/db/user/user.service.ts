@@ -92,14 +92,24 @@ export class UserService {
   }
 
   async sendFriendRequest(from: User, to: User) {
+    const existingFriendRequest = await this.frRepository.findOne({
+      where: {
+        sender: from,
+        receiver: to
+      }
+    });
+  
+    if (existingFriendRequest) {
+      throw new Error('Friend request already exists');
+    }
     return await this.frRepository.save({
       sender: from,
       receiver: to
     })
   }
 
-  getFriendRequest(where: FindOptionsWhere<FriendRequest>, relations = [] as string[]) {
-    const connection = this.frRepository.findOne({ where: where, relations: relations })
+  async getFriendRequest(where: FindOptionsWhere<FriendRequest>, relations = [] as string[]) {
+    const connection = await this.frRepository.findOne({ where: where, relations: relations })
     if (!connection)
       throw new HttpException("Friend request not found", HttpStatus.BAD_REQUEST)
     return connection

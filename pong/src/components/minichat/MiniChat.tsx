@@ -31,23 +31,21 @@ const MiniChat: React.FC = () => {
   const [selectedGroupOption, setSelectedGroupOption] = useState<ChannelOptions | null>(null);
   const [payload, updatePayload, handleUpdate] = usePayload();
   const [friends, setFriends] = useState<User[] | null>(null);
+  const [friendsRequests, setFriendsRequests] = useState<User | undefined>();
   // const [a,setA] = useState('a')
   // _______________________________________________________________________
-  
-  
+
   useEffect(() => {
     // Request all users
     const requestProfile = async () => {
       try {
         const enable2FAEndpoint = `${config.backend_url}/api/user`;
-        console.log('Before fetch');
         const response = await fetch(enable2FAEndpoint, {
           method: 'GET',
           credentials: 'include',
         });
         if (response.ok) {
           const result = await response.json()
-          console.log(result)
           setData(result)
         } else {
           console.error('Could not get profile:', response.status);
@@ -63,7 +61,6 @@ const MiniChat: React.FC = () => {
     const requestProfile = async () => {
       try {
         const enable2FAEndpoint = `${config.backend_url}/api/conversation/own`;
-        console.log('Before fetch of conversation');
         const response = await fetch(enable2FAEndpoint, {
           method: 'GET',
           credentials: 'include',
@@ -79,7 +76,6 @@ const MiniChat: React.FC = () => {
         console.error('Error fetching profile Token:', error);
       }
     };
-    console.log("TESTING")
     requestProfile();
   }, [])
   useEffect(() => {
@@ -87,14 +83,12 @@ const MiniChat: React.FC = () => {
     const requestProfile = async () => {
       try {
         const enable2FAEndpoint = `${config.backend_url}/api/user/friends`;
-        console.log('Before fetch of conversation');
         const response = await fetch(enable2FAEndpoint, {
           method: 'GET',
           credentials: 'include',
         });
         if (response.ok) {
           const result = await response.json()
-          console.log("Friends",result)
           setFriends(result)
           
         } else {
@@ -130,7 +124,6 @@ const MiniChat: React.FC = () => {
 // Iterate groups and return a element with the first letter of the group
   const usersGroups = channels?.map((group:Conversation) =>{
     const title = group.title;
-    console.log(title)
     const firstTitleLetter = title?.charAt(0).toUpperCase()
     return (
        <p className="group-icons" key={group.id}>{firstTitleLetter}</p>
@@ -160,7 +153,7 @@ const MiniChat: React.FC = () => {
     });
     if (response.ok) {
      const data = await response.json();
-     console.log("RESONSE: ",data)
+     console.log("Response: ",data)
      console.log(" sended friend request to", selectedUser?.username)
     } else {
   alert("didnt sended invate")
@@ -170,19 +163,13 @@ const MiniChat: React.FC = () => {
     console.error('Error verifying 2FA code:', error);
   }
   try{
-    //await requestNewToken()
     handleUpdate()
   }catch(error){
     console.log(error)
   }
   
 }
-useEffect(()=>{
-      notifications.on("friend_request_recv", (data:any) => {
-    console.log("NOTIFICATION ONNNN")
-  })
-  
- }, [])
+
 
 
   return (

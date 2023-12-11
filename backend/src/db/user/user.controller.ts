@@ -104,12 +104,17 @@ export class UserController {
     const to = await this.userService.getUser({username:body.username})
     if (from.id === to.id)
       throw new HttpException("Can't add yourself as a friend, sry", HttpStatus.BAD_REQUEST)
-    const friend_req = await this.userService.sendFriendRequest(from, to)
+    try{
+      const friend_req = await this.userService.sendFriendRequest(from, to)
     
     this.notificationService.emit([to], "friend_request_recv", {req:friend_req})
     console.log("to ",to.username)
     console.log("from: ",from.username )
     return friend_req
+    }
+    catch{
+      return null
+    }
   }
 
   @Route({
