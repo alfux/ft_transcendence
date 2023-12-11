@@ -24,7 +24,6 @@ const ProfileBar: React.FC = () => {
     const requestProfile = async () => {
       try {//fetch Profile
         const enable2FAEndpoint = `${config.backend_url}/api/user/me`;
-        console.log('Before fetch');
         const response = await fetch(enable2FAEndpoint, {
           method: 'GET',
           credentials: 'include',
@@ -42,7 +41,6 @@ const ProfileBar: React.FC = () => {
     };
     requestProfile();
   }, [])
-  console.log("user:", data)
 
   return (
     <div className="profile-bar">

@@ -93,7 +93,7 @@ export class GameGateway implements OnGatewayConnection {
     })
   }
 
-  @Interval(6 / 100000)
+  @Interval(1 / 60)
   loop() {
     this.gameInstances.forEach((gi) => {
       gi.update()

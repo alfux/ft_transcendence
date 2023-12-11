@@ -10,7 +10,7 @@ import { socket } from "../../THREE/main";
 
 const accessToken = Cookies.get('accessToken')
 
-type User = {
+export type User = {
   id: number;
   email: string;
   image: string;
@@ -19,9 +19,14 @@ type User = {
   username: string;
 }
 
-const ScoreBar: React.FC = () => {
+const ScoreBar: React.FC<{user?: User}> = ({user}) => {
   const [payload, updatePayload, handleUpdate] = usePayload();
   const [data, setData] = useState<User | null>(null)
+  const	[score, setScore] = useState<number>(0);
+  socket.on("score", (score) => {
+	  setScore(user ? score.opponent : score.you);
+  });
+
   useEffect(() => {
     const requestScore = async () => {
       try {//fetch Score
@@ -42,12 +47,15 @@ const ScoreBar: React.FC = () => {
         console.error('Error fetching score Token:', error);
       }
     };
-    requestScore();
+	if (user)
+		setData(user);
+	else
+    	requestScore();
   }, [])
   console.log("user:", data)
 
   return (
-    <div id="score-component" className="score-bar">
+    <div id="score-component" className={(user) ? "ennemy-bar" : "score-bar"}>
       {data != null ? (
         <img className="score-photo" src={data.image}></img>
       ) : <h2>nop</h2>}
@@ -60,7 +68,7 @@ const ScoreBar: React.FC = () => {
       {data != null ? (
         <div className='stats-values'>
           <p>{data.username}</p>
-          <p>1</p>
+          <p>{score}</p>
         </div>
       ) : <h2>nop</h2>}
     </div>
