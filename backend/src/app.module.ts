@@ -6,8 +6,6 @@ import { User, FriendRequest, PlayRequest, UserModule } from './db/user'
 import { Message, MessageModule } from './db/message'
 import { Conversation, ConversationUser, ConversationUserInfos, ConversationModule } from './db/conversation'
 
-import { ChatModule } from './chat/chat.module'
-
 import { AuthModule } from './auth/auth.module'
 import { JwtAuthGuard } from './auth/jwt/jwt.guard'
 
@@ -19,6 +17,7 @@ import { config_db } from './config'
 import { NotificationsModule } from './notifications/notifications.module'
 import { ScheduleModule } from '@nestjs/schedule'
 import { PrivateConversation, PrivateConversationModule } from './db/private_conversation'
+import { Match } from './db/user/match/match.entity'
 
 @Module({
   imports: [
@@ -41,14 +40,15 @@ import { PrivateConversation, PrivateConversationModule } from './db/private_con
         PrivateConversation,
 
         FriendRequest,
-        PlayRequest
+        PlayRequest,
+
+        Match
       ],
       synchronize: true,
     }),
     UserModule,
     MessageModule,
     ConversationModule,
-    ChatModule,
     AuthModule,
     DebugModule,
     GameModule,

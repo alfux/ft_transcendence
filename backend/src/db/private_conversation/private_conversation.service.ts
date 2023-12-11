@@ -14,8 +14,6 @@ export class PrivateConversationService {
 
     @Inject(forwardRef(() => UserService))
     private userService: UserService,
-
-    private messageService: MessageService
   ) { }
 
   async getPrivateConversation(where: FindOptionsWhere<PrivateConversation>, relations = [] as string[]) {

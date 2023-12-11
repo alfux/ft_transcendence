@@ -21,7 +21,8 @@ export class GameGateway implements OnGatewayConnection {
 
   constructor(
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    
   ) { }
 
   async handleConnection(client: Socket) {

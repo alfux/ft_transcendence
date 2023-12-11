@@ -1,13 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, ManyToMany } from 'typeorm';
 
-import { User } from './user.entity';
+import { User } from '../user.entity';
 
 @Entity()
 export class Match {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column()
+  @CreateDateColumn()
   date: Date;
 
   @ManyToMany(() => User, user => user.matches)

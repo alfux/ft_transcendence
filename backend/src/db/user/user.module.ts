@@ -9,16 +9,18 @@ import { PlayRequest } from './play_request.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { ConversationModule } from '..';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { MatchService } from './match/match.service';
+import { Match } from './match/match.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, FriendRequest, PlayRequest]),
+    TypeOrmModule.forFeature([User, FriendRequest, PlayRequest, Match]),
     forwardRef(() => AuthModule),
     forwardRef(() => ConversationModule),
     forwardRef(() => NotificationsModule)
   ],
-  exports: [TypeOrmModule, UserService],
-  providers: [UserService],
+  exports: [TypeOrmModule, UserService, MatchService],
+  providers: [UserService, MatchService],
   controllers: [UserController],
 })
 export class UserModule {}

@@ -9,6 +9,7 @@ import { ConversationController } from './conversation.controller';
 import { UserModule } from '../user/user.module';
 import { MessageModule } from '../message';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { ConversationGateway } from './conversation.gateway';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
     NotificationsModule,
   ],
   exports: [TypeOrmModule, ConversationService],
-  providers: [ConversationService],
+  providers: [ConversationService, ConversationGateway],
   controllers: [ConversationController],
 })
 export class ConversationModule {}

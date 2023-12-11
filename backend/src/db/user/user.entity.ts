@@ -5,7 +5,7 @@ import { FriendRequest } from './friend_request.entity';
 import { PlayRequest } from './play_request.entity';
 import { LoggedStatus } from './logged_status.interface';
 import { PrivateConversation } from '../private_conversation/private_conversation.entity';
-import { Match } from './match.entity';
+import { Match } from './match/match.entity';
 
 @Entity()
 export class User {

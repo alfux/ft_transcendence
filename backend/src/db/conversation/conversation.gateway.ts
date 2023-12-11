@@ -8,13 +8,12 @@ import { ConversationService } from 'src/db/conversation'
 import { MessageService } from 'src/db/message'
 import { User, UserService } from 'src/db/user'
 import { Message } from 'src/db/message'
+import { CoolSocket } from 'src/socket/coolsocket.decorator'
 
 @WebSocketGateway({namespace:'chat'})
-export class ChatGateway implements OnGatewayConnection {
+export class ConversationGateway implements OnGatewayConnection {
 
   constructor (
-    private authService: AuthService,
-    private userService: UserService,
     private messageService: MessageService,
     private conversationService: ConversationService
     ) {}
@@ -30,6 +29,7 @@ export class ChatGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage('send_message')
+  @CoolSocket
   async handleMessage(client: Socket, data: { message: string, conversation_id: number }): Promise<void>
   {
     const user = this.connectedClients.get(client.id)
