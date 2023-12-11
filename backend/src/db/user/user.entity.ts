@@ -5,6 +5,7 @@ import { FriendRequest } from './friend_request.entity';
 import { PlayRequest } from './play_request.entity';
 import { LoggedStatus } from './logged_status.interface';
 import { PrivateConversation } from '../private_conversation/private_conversation.entity';
+import { Match } from './match.entity';
 
 @Entity()
 export class User {
@@ -62,4 +63,9 @@ export class User {
   play_requests_recv:PlayRequest[]
   @OneToMany(() => PlayRequest, (pr) => pr.sender)
   play_requests_sent:PlayRequest[]
+
+
+  @ManyToMany(() => Match, match => match.players)
+  @JoinTable()
+  matches: Match[];
 }
