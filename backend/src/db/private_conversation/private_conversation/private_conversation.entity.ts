@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinTable } from 'typeorm'
 
 import { User } from 'src/db/user'
-import { Message } from 'src/db/conversation/message'
+import { PrivateMessage } from 'src/db/private_conversation/private_message'
 
 
 @Entity()
@@ -13,6 +13,6 @@ export class PrivateConversation {
   @JoinTable()
   users: User[]
 
-  @OneToMany(() => Message, (message) => message.conversation)
-  messages: Message[]
+  @OneToMany(() => PrivateMessage, (message) => message.conversation)
+  messages: PrivateMessage[]
 }

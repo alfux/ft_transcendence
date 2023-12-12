@@ -5,50 +5,97 @@ export enum LoggedStatus {
 }
 
 export interface User {
-  id:number
-  username:string
-  image:string
-  isAuthenticated:LoggedStatus
-  conversations?:ConversationUser[]
-  blocked?:User[]
-  friends?:User[]
-  friends_requests_recv?:FriendRequest[]
-  friends_requests_sent?:FriendRequest[]
+  db_id: number
+  id: number
+  username: string
+  image: string
+  email: string
+
+  isAuthenticated: LoggedStatus
+
+  twoFactorAuth?: boolean
+  twoFactorAuthSecret?: string
+
+  conversations?: ConversationUser[]
+  privateConversations?: PrivateConversation[]
+
+  blocked?: User[]
+  friends?: User[]
+
+  friends_requests_recv?: FriendRequest[]
+  friends_requests_sent?: FriendRequest[]
+
+
+  play_requests_recv?: PlayRequest[]
+  play_requests_sent?: PlayRequest[]
 }
 
 export interface FriendRequest {
-  id:number
-  sender?:{
-      db_id:number,
-      id:number,
-      username:string,
-      image:string,
-      email:string
-  }
-  receiver?:User
+  id: number
+
+  sender?: User
+  receiver?: User
+}
+
+export interface PlayRequest {
+  id: number
+  sender?: User
+  receiver?: User
 }
 
 export interface Message {
-  id:number
-  content:string
-  sender?:ConversationUser
-  conversation?:Conversation
+  id: number
+
+  sender?: ConversationUser
+  conversation?: Conversation
+
+  content: string
 }
 
 export interface Conversation {
-  id:number
-  title:string
-  owner?:User
-  users?:User[]
-  messages?:Message[]
+  id: number
+  title: string
+  owner?: User
+  users?: User[]
+  messages?: Message[]
 }
 
 export interface ConversationUser {
-  id:number
-  joinedAt:Date
-  isAdmin:boolean
-  becameAdminAt:Date
-  user?:User
-  conversation?:Conversation
-  messages?:Message[]
+  id: number
+
+  user?: User
+  conversation?: Conversation
+
+  joinedAt: Date
+
+  isAdmin: boolean
+  becameAdminAt: Date
+
+  messages?: Message[]
+}
+
+
+export interface PrivateMessage {
+  id: number
+
+  sender?: User
+  conversation?: PrivateConversation
+
+  content: string
+}
+
+
+export interface PrivateConversation {
+  id: number
+  users?: User[]
+  messages?: PrivateMessage[]
+}
+
+export interface Match {
+  id: number
+
+  date: Date
+
+  players?: User[]
+  winner?: User
 }
