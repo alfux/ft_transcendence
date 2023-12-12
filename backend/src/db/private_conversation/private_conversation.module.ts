@@ -10,12 +10,16 @@ import { PrivateMessageService } from './private_message/private_message.service
 
 import { UserModule } from 'src/db/user'
 import { NotificationsModule } from 'src/notifications/'
+import { AuthModule } from 'src/auth'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([PrivateConversation, PrivateMessage]),
     forwardRef(() => UserModule),
     NotificationsModule,
+
+    forwardRef(() => UserModule),
+    forwardRef(() => AuthModule)
   ],
 
   providers: [

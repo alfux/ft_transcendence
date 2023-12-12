@@ -8,12 +8,15 @@ import { ConversationService } from 'src/db/conversation'
 import { Message, MessageService } from 'src/db/conversation/message'
 import { HttpUnauthorized } from 'src/exceptions'
 import { AuthService } from 'src/auth'
+import { Inject, forwardRef } from '@nestjs/common'
 
 @WebSocketGateway({ namespace: 'chat' })
 export class ConversationGateway implements OnGatewayConnection {
 
   constructor(
+    @Inject(forwardRef(() => AuthService))
     private authService: AuthService, //NE PAS ENELEVER
+    @Inject(forwardRef(() => UserService))
     private userService: UserService, //NE PAS ENELEVER
     private messageService: MessageService,
     private conversationService: ConversationService

@@ -9,6 +9,7 @@ import { AuthService } from 'src/auth/'
 import { GameInstance, Keyboard, Ball } from './Game'
 import { Client, CoolSocket } from 'src/socket/'
 import { UserService } from 'src/db/user'
+import { Inject, forwardRef } from '@nestjs/common'
 
 @WebSocketGateway({ namespace: 'game' })
 export class GameGateway implements OnGatewayConnection {
@@ -19,8 +20,10 @@ export class GameGateway implements OnGatewayConnection {
   private gameInstances: GameInstance[] = []
 
   constructor(
-    private authService: AuthService, //NE PAS ENLEVER
-    private userService: UserService  //NE PAS ENLEVER
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService, //NE PAS ENELEVER
+    @Inject(forwardRef(() => UserService))
+    private userService: UserService, //NE PAS ENELEVER
   ) { }
 
   async handleConnection(client: Socket) {

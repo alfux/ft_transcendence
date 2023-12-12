@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Module, forwardRef } from '@nestjs/common'
 
 import { UserModule } from 'src/db/user'
 import { GameGateway } from './game.gateway'
@@ -7,9 +7,9 @@ import { ConversationModule } from 'src/db/conversation'
 
 @Module({
   imports: [
-    UserModule,
     ConversationModule,
-    AuthModule
+    forwardRef(() => UserModule),
+    AuthModule,
   ],
 
   providers: [
