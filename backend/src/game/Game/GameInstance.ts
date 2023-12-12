@@ -155,22 +155,6 @@ export class GameInstance {
     this.notif_end = notif_end
   }
 
-  get_by_user_id(user_id:number) {
-    if (this.player1.client.user.id === user_id)
-      return this.player1
-    else if (this.player2.client.user.id === user_id)
-      return this.player2
-    return undefined
-  }
-
-  get_by_socket_id(socket_id:string) {
-    if (this.player1.client.socket.id === socket_id)
-      return this.player1
-    else if (this.player2.client.socket.id === socket_id)
-      return this.player2
-    return undefined
-  }
-
   other_one(client:Client) {
     return client.socket.id === this.player1.client.socket.id ? this.player2.client : this.player1.client
   }

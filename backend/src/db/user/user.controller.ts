@@ -1,13 +1,13 @@
-import { Req, Controller, Get, Post, Delete, Body, HttpException, HttpStatus, ValidationPipe, Inject, forwardRef } from '@nestjs/common'
+import { Req, Controller, Get, Post, Delete, Body, HttpException, HttpStatus, ValidationPipe } from '@nestjs/common'
 import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger'
 
 import { NotificationsService } from 'src/notifications'
 import { Request } from 'src/auth/interfaces/request.interface'
 
-import { FriendRequestService, MatchService, UserService } from '.'
+import { UserService } from '.'
 
 import { Route } from 'src/route'
-import { HttpBadRequest, HttpMissingArg, HttpNotFound, HttpUnauthorized } from 'src/exceptions'
+import { HttpBadRequest, HttpMissingArg, HttpUnauthorized } from 'src/exceptions'
 
 class SendFriendRequestBody {
   @ApiProperty({ description: 'User to send the request to' })
@@ -52,12 +52,6 @@ export class UserController {
 
   constructor(
     private userService: UserService,
-
-    @Inject(forwardRef(() => MatchService))
-    private matchService: MatchService,
-    @Inject(forwardRef(() => FriendRequestService))
-    private friendRequestService: FriendRequestService,
-
     private notificationService: NotificationsService
   ) { }
 
@@ -108,33 +102,7 @@ export class UserController {
     if (body.username === undefined)
       throw new HttpMissingArg()
 
-    const existing_friend_request = await this.friendRequestService.getFriendRequest({
-      sender: { id:req.user.id },
-      receiver: { username: body.username }
-    })
-    .catch((e) => {
-      if (!(e instanceof HttpNotFound))
-        throw e
-    })
-
-    if (existing_friend_request)
-      throw new HttpBadRequest()
-
-    const existing_recvd_friend_request = await this.friendRequestService.getFriendRequest({
-      receiver: { id:req.user.id },
-      sender: { username: body.username }
-    })
-    .catch((e) => {
-      if (!(e instanceof HttpNotFound))
-        throw e
-    })
-
-    if (existing_recvd_friend_request) {
-      this.userService.acceptFriendRequest(existing_recvd_friend_request.id)
-      return
-    }
-
-    return this.userService.sendFriendRequest(req.user.id, body.username)
+      return this.userService.sendFriendRequest(req.user.id, body.username)
   }
 
   @Route({
@@ -153,7 +121,7 @@ export class UserController {
         throw new HttpUnauthorized()
     }
 
-    const fr = await this.friendRequestService.getFriendRequest({ id: body.id }, ['sender', 'receiver'])
+    const fr = await this.userService.getFriendRequest({ id: body.id }, ['sender', 'receiver'])
     this.userService.acceptFriendRequest(body.id)
     this.notificationService.emit([fr.receiver, fr.sender], "friend_request_accepted", { req: fr })
   }
@@ -173,7 +141,7 @@ export class UserController {
         throw new HttpUnauthorized()
     }
 
-    const fr = await this.friendRequestService.getFriendRequest({ id: body.id }, ['sender', 'receiver'])
+    const fr = await this.userService.getFriendRequest({ id: body.id }, ['sender', 'receiver'])
     this.userService.denyFriendRequest(body.id)
     this.notificationService.emit([fr.receiver, fr.sender], "friend_request_denied", { req: fr })
   }
@@ -316,14 +284,5 @@ export class UserController {
     this.userService.denyPlayRequest(body.id)
   }
 
-
-  @Route({
-    method: Get('matches'),
-    description: { summary: 'Get the match history', description: 'Get the match history' }
-  })
-  async get_matches(@Req() req: Request) {
-    const matches = await this.matchService.getMatches({players: {id:req.user.id}}, ['players'])
-    return this.matchService.getMatches(matches.map((v) => {return {id:v.id}}), ['players', 'winner'])
-  }
 
 }

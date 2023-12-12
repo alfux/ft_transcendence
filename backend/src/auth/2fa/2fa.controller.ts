@@ -59,17 +59,17 @@ export class TwoFactorAuthenticationController {
     method: Post('enable'),
     description: { summary: "Enable 2FA", description: "Enable 2FA" }
   })
-  async enableTwoFactorAuth(@Req() request, @Body() body: AuthenticateParams) {
+  async enableTwoFactorAuth(@Req() request, @Body() body) {
     const user = await this.userService.getUser({ id: request.user.id })
 
     const secret = user.twoFactorAuthSecret
     const token = this.twoFactorAuthenticationService.generateToken(secret)
-    console.log('token', token, '\n', 'body token ', body.code)
+    console.log('token', token, '\n', 'body token ', body.verificationCode)
 
     try {
       const isCodeValid = this.twoFactorAuthenticationService.verifyTwoFactorAuthCode(
         secret,
-        body.code
+        body.verificationCode
       )
       if (!isCodeValid) {
         throw new UnauthorizedException('Wrong authentication code')
