@@ -1,27 +1,17 @@
 
-
-import Cookies from 'js-cookie';
 import React, { useState, useEffect, useRef, Dispatch, SetStateAction } from 'react';
-import jwt, { jwtDecode } from 'jwt-decode';
-import { JwtPayload, LoggedStatus } from '../../THREE/Utils/jwt.interface';
-import TwoFactorValidate from '../twofactorvalidate/TwoFactorValidate';
-import usePayload from '../../react_hooks/use_auth';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+
 import './Notifications.css';
-import { Conversation, ConversationUser, FriendRequest, User } from '../../THREE/ReactUI/backend_types';
 import { config } from '../../config';
-import Login from '../login/Login';
-import { channel } from 'diagnostics_channel';
-import { group } from 'console';
-import { notifications } from '../../notification/notification';
 
 
 
 
-const Notifications: React.FC = () => {
+const Notifications: React.FC<{ notificationData: { type: string; data: any } | null }> = ({ notificationData }) => {
     const [friendsRequest, setFriendsRequests] = useState<any | null>(null);
     const [toogleButton, setToogleButton] = useState<string>("show")
+
+
     useEffect(() =>{
         const fetchRequets = async () => {
             try {//fetch Profile
@@ -53,41 +43,65 @@ const Notifications: React.FC = () => {
             setToogleButton("show")
         }
     }
-    
-    const getNotificationContent = friendsRequest?.received?.map((user: any) => {
-        // Check if user.sent is defined before accessing its properties
-        if (user.sender) {
-          return (
-            <div key={user.sender.id}>
-              <img key={user.sender.id} src={user.sender.image} alt={user.sender.id} />
-              <p>Name: {user.sender.username}</p>
-              <p>{user.sender.username} has made a friend request.</p>
-              <div className="notifications-buttons-box">
-                <button>Accept</button>
-                <button>Reject</button>
-              </div>
-            </div>
-          );
-        } else {
-          // Handle the case where user.sent is undefined or null
-          return null; // or a default component or message
-        }
-      });
 
-    console.log("friends Request data: ",friendsRequest)
+    const getNotificationRequests = friendsRequest?.received?.map((user: any) => {
+        async function acceptFriend(){
+            const verify2FAEndpoint = `${config.backend_url}/api/user/friend_request_accept`;
+            try {
+              const response = await fetch(verify2FAEndpoint, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({id :user.id}),
+              });
+              if (response.ok) {
+              //  const data = await response.json();
+              //  console.log("Response: ",data)
+              } else {
+            alert("didnt sended accept request")
+                console.error('Error sending invite Server responded with status:', response.status);
+              }
+            } catch (error) {
+              console.error('Error fetching:', error);
+            }
+            try{
+            }catch(error){
+              console.log(error)
+            }
+          }
+          if (user?.sender) {
+            return (
+              <div key={user.sender?.id}>
+                <img key={user.sender?.id} src={user.sender?.image} alt={user.sender?.id} />
+                <p>Name: {user.sender?.username}</p>
+                <p>{user.sender?.username} has made a friend request.</p>
+                <div className="notifications-buttons-box">
+                  <button onClick={acceptFriend}>Accept</button>
+                  <button>Reject</button>
+                </div>
+              </div>
+            );
+          } else {
+            return null;
+          }
+        })
+        if (notificationData?.type === "friend_new")
+          console.log("data2 : ", notificationData.data)
     return (
-        <div className={`notifications-container-${toogleButton == "show" && friendsRequest?'on':'on'}`}>
-            <div className='notifications-content'>
-                <div className="notification-profile">
-                    {getNotificationContent}
+        <div key={1}className={`notifications-container-${toogleButton == "show" && friendsRequest?'on':'off'}`}>
+            <div  key={2} className='notifications-content'>
+                <div  key={3} className="notification-profile">
+                    {getNotificationRequests}
+                    {notificationData?.type ===  "friend_new" && <p >New Friend Added: {notificationData.data.user?.username} </p>}
                 </div>
             </div>
-                <div className='notification-popup'>
+                <div  key={4}className='notification-popup'>
                     <button onClick={toogleNotification}></button>
                 </div>
         </div>
     );
 };
-
 export default Notifications;
 

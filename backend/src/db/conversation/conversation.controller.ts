@@ -20,10 +20,14 @@ import { UserService } from 'src/db'
 
 import { Route } from 'src/route'
 import { NotificationsService } from 'src/notifications/notifications.service'
+import { AccessLevel } from './conversation_access_level.enum'
 
 class ConversationCreateParams {
   @ApiProperty({ description: 'Title of the conversation' })
   title: string
+  //add
+  password: string
+  access_level : AccessLevel
 }
 class ConversationIdParams {
   @ApiProperty({ description: 'Id of the conversation' })
@@ -100,14 +104,21 @@ export class ConversationController {
     responses: [{ status: 200, description: 'List of conversations retrieved successfully'}]
   })
   async createConversation(@Req() req: Request, @Body() body: ConversationCreateParams) {
+    // Duarte Modif now i can pass access level and password in the body
+    let access_level : AccessLevel | null = null
+    if (body.password){access_level = AccessLevel.PROTECTED}
+    else if (body.access_level) {access_level = AccessLevel.PRIVATE}
+    else{access_level = AccessLevel.PUBLIC}
+    console.log("Body: ",body.access_level)
     if (!body.title)
       throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
-    const conversation = await this.conversationService.createConversation(req.user.id, body.title)
+    const conversation = await this.conversationService.createConversation(req.user.id, body.title, access_level,body.password)
     this.notificationService.emit_everyone(
       "conv_create",
       {
         conversation:conversation
       })
+      console.log("done")
     return conversation
   }
 

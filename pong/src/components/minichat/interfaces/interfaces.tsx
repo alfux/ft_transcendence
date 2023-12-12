@@ -6,11 +6,9 @@ export interface ChatState {
     selectedGroup: string | null;
     selectedGroupOption: string | null;
 }
-// const [chat, setChat] = useState({
-//     groupOption : null,
-//     me : null,
-//     users :null,
-//     selectedUser : null,
-//     selectedGroup : null,
-//     selectedGroupOption : null,
-//   })
+
+export interface Channel{
+    title: any | null,
+    password: any | null,
+    access_level : any,
+}

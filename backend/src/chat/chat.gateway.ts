@@ -8,6 +8,7 @@ import { ConversationService } from 'src/db/conversation'
 import { MessageService } from 'src/db/message'
 import { User, UserService } from 'src/db/user'
 import { Message } from 'src/db/message'
+import { CoolSocket } from 'src/socket/coolsocket.decorator'
 
 @WebSocketGateway({namespace:'chat'})
 export class ChatGateway implements OnGatewayConnection {
@@ -30,8 +31,10 @@ export class ChatGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage('send_message')
+  @CoolSocket
   async handleMessage(client: Socket, data: { message: string, conversation_id: number }): Promise<void>
   {
+    console.log("message emited")
     const user = this.connectedClients.get(client.id)
     if (!user)
       return
@@ -44,7 +47,6 @@ export class ChatGateway implements OnGatewayConnection {
     //new_message.sender = user.user
 
     await this.messageService.createMessage(new_message)
-    
     this.connectedClients.forEach((value: { socket: Socket, user: any }) => {
       value.socket.emit('receive_message',
         {

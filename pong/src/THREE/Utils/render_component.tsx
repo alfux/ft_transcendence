@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import jwt, { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
 import { createRoot } from 'react-dom/client';
@@ -25,16 +25,42 @@ function RenderComponents(loginForm:string) {
   let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
   const [payload, updatePayload, handleUpdate] = usePayload();
   const cleanup: (() => void)[] = [];
-  const [notificationComponent, setNotificationComponent] = useState(null);
+  const [notificationData, setNotificationData] = useState<{ type: string; data: any } | null>(null);
+  const [showNotifications, setShowNotifications] = useState(true);
+  useEffect(() => {
+    const handleFriendRequestRecv = (data: { req: any }) => {
+      setNotificationData({ type: "friend_request_recv", data: data });
+      setShowNotifications(true);
+    };
+  
+    const handleFriendNew = (data: { req: any }) => {
+      setNotificationData({ type: "friend_new", data: data});
+      console.log("data1 :", data)
+      setShowNotifications(true);
+    };
+  
+    notifications.on("friend_request_recv", handleFriendRequestRecv);
+    notifications.on("friend_new", handleFriendNew);
+  }, []);
+
   useEffect(() =>{
-    notifications.on("friend_request_recv", (data: {req: FriendRequest, }) => {
-      if (accessToken && payload?.authentication === LoggedStatus.Logged){
-        createComponent(Notifications)
-      }
-  })
-  },[])
+    if (showNotifications) {
+      const newFormContainer = document.createElement('div');
+      const root = createRoot(newFormContainer);
+      root.render(<Notifications notificationData={notificationData} />);
+      document.body.appendChild(newFormContainer);
+      return () => {
+        setTimeout(() => {
+          root.unmount();
+          document.body.removeChild(newFormContainer);
+        });
+      };
+    }
+  }, [showNotifications, notificationData])
+
   useEffect(() => {
     handleUpdate()
+    
     if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm !== "Profile" && loginForm !== "Play") {
       cleanup.push(createComponent(ProfileBar));
     }
@@ -56,7 +82,7 @@ function RenderComponents(loginForm:string) {
      return ()=>{
       cleanup.forEach(cleanupFunction => cleanupFunction());
      };
-  }, [loginForm])
+  }, [loginForm, ])
   return null;
 }
 
