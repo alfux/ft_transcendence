@@ -10,6 +10,7 @@ import { Message, MessageService } from 'src/db/conversation/message'
 
 import { UserModule } from 'src/db/user'
 import { NotificationsModule } from 'src/notifications'
+import { AuthModule } from 'src/auth'
 
 
 @Module({
@@ -22,6 +23,7 @@ import { NotificationsModule } from 'src/notifications'
       Message
     ]),
     forwardRef(() => UserModule),
+    AuthModule,
     NotificationsModule,
   ],
   
