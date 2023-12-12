@@ -1,4 +1,4 @@
-import './ProfileBar.css'
+import './ScoreBar.css'
 import { config } from '../../config';
 import Cookies from 'js-cookie';
 import React, { useRef, useEffect, useState } from 'react'
@@ -6,9 +6,11 @@ import usePayload from '../../react_hooks/use_auth'
 import userEvent from '@testing-library/user-event';
 import { LoggedStatus } from '../../THREE/Utils/jwt.interface';
 
+import { socket } from "../../THREE/main";
+
 const accessToken = Cookies.get('accessToken')
 
-type User = {
+export type User = {
   id: number;
   email: string;
   image: string;
@@ -17,13 +19,19 @@ type User = {
   username: string;
 }
 
-const ProfileBar: React.FC = () => {
+const ScoreBar: React.FC<{user?: User}> = ({user}) => {
   const [payload, updatePayload, handleUpdate] = usePayload();
   const [data, setData] = useState<User | null>(null)
+  const	[score, setScore] = useState<number>(0);
+  socket.on("score", (score) => {
+	  setScore(user ? score.opponent : score.you);
+  });
+
   useEffect(() => {
-    const requestProfile = async () => {
-      try {//fetch Profile
+    const requestScore = async () => {
+      try {//fetch Score
         const enable2FAEndpoint = `${config.backend_url}/api/user/me`;
+        console.log('Before fetch');
         const response = await fetch(enable2FAEndpoint, {
           method: 'GET',
           credentials: 'include',
@@ -33,36 +41,38 @@ const ProfileBar: React.FC = () => {
           const result = await response.json()
           setData(result)
         } else {
-          console.error('Could not get profile:', response.status);
+          console.error('Could not get score:', response.status);
         }
       } catch (error) {
-        console.error('Error fetching profile Token:', error);
+        console.error('Error fetching score Token:', error);
       }
     };
-    requestProfile();
+	if (user)
+		setData(user);
+	else
+    	requestScore();
   }, [])
+  console.log("user:", data)
 
   return (
-    <div className="profile-bar">
+    <div id="score-component" className={(user) ? "ennemy-bar" : "score-bar"}>
       {data != null ? (
-        <img className="profile-photo" src={data.image}></img>
+        <img className="score-photo" src={data.image}></img>
       ) : <h2>nop</h2>}
       {data != null ? (
         <div className='stats'>
-          <p>Login</p>
-          <p>Rank</p>
-          <p>Lvl</p>
+          <p>Player</p>
+          <p>Score</p>
         </div>
       ) : <h2>nop</h2>}
       {data != null ? (
         <div className='stats-values'>
           <p>{data.username}</p>
-          <p>1</p>
-          <p>10</p>
+          <p>{score}</p>
         </div>
       ) : <h2>nop</h2>}
     </div>
   );
 };
 
-export default ProfileBar;
+export default ScoreBar;

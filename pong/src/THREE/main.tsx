@@ -17,6 +17,10 @@ import { LoggedStatus } from './Utils/jwt.interface';
 import MiniChatButton from '../components/minichat/ChatButton';
 import createComponent from './Utils/createComponent';
 import { notifications } from '../notification/notification'; 
+
+export const	accessToken = Cookies.get('access_token');
+export const	socket = coolSocket(`${config.backend_url}/game`, accessToken);
+
 export default function THREE_App(props: {
 	toggleProfile: () => void,
 	toggleChat: () => void,
@@ -24,13 +28,14 @@ export default function THREE_App(props: {
 }) {
 	const	divRef = useRef<HTMLDivElement>(null);
 	const [loginForm, setLoginForm] = useState('')
+	const	[gameState, setGameState] = useState(false);
 	const	[showProfile, setShowProfile] = useState(false)
-	let accessToken = Cookies.get('access_token');
 	let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
 	const	[twofactor, setTwoFactor] = useState(user?.isTwoFactorAuthEnable)
 	const [payload, updatePayload, handleUpdate] = usePayload();
 	const [logged, setLogged] = useState(false)
 	const cleanup: (() => void)[] = [];
+	
 	//Check if access token has expired remove token and reload page
 	useEffect(()=>{
 		console.log("What status are u: ",logged)
@@ -48,7 +53,7 @@ export default function THREE_App(props: {
 	  const socket = coolSocket(`${config.backend_url}/game`, accessToken);
 	  const socketChat = coolSocket(`${config.backend_url}/chat`, accessToken);
 
-    const	renderer = new THREE.WebGLRenderer({alpha: true});
+    	const	renderer = new THREE.WebGLRenderer({alpha: true});
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.autoClear = false;
@@ -66,15 +71,13 @@ export default function THREE_App(props: {
 			},
 		}, socket);
 
-
 		function mainloop() {
 			requestAnimationFrame(mainloop);
 			game_scene.update();
 			const option = menu_scene.update()
-			setLoginForm(option);
-			//			console.log(showProfile);
+			setLoginForm(option.option);
+			setGameState(option.game);
 		}
-
 
 		if (divRef.current) {
 			initKeyboardHandlers();
@@ -82,18 +85,18 @@ export default function THREE_App(props: {
 		}
 		mainloop();
 		return (() => {
-			divRef.current?.removeChild(renderer.domElement)
-
 			menu_scene.clean()
 			game_scene.clean()
 			renderer.dispose()
 			buffer.dispose();
+			divRef.current?.removeChild(renderer.domElement)
 		});
 	}, []);
+	
 	useEffect(() => {
 		handleUpdate()
-	}, [loginForm]);
-	RenderComponents(loginForm)
+	}, [loginForm, gameState]);
+	RenderComponents({option: loginForm, game: gameState})
 	useEffect(() =>{
 		if(accessToken && payload?.authentication === LoggedStatus.Logged && loginForm != "Chat"){
 			return createComponent(MiniChatButton);

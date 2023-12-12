@@ -11,6 +11,11 @@ import { Socket } from 'socket.io-client';
 import { JwtPayload } from '../Utils/';
 import { LoggedStatus } from '../Utils/jwt.interface';
 
+import createComponent from "../Utils/createComponent";
+import Score, { User } from "../../components/scorebar/ScoreBar";
+
+import { clock } from "../Utils/clock";
+
 enum MenuButtons {
   Login = "Login",
   Logout = "Logout",
@@ -30,7 +35,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   const font_params = { size: 0.4, height: 0.2 };
   const material_params = { color: 0x001616, side: THREE.DoubleSide };
   const theta = Math.PI / 6;
-  let option = "Login"
+  let option: {option: string, game: boolean} = {option: "Login", game: false};
   loader.load("fonts/Games_Regular.json", (font) => {
     const neon_login = new THREE.MeshBasicMaterial(material_params);
     const tlogin = new TextGeometry("Sign in", { ...font_params, font: font });
@@ -55,7 +60,6 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     logout.position.set(-0.9, 0, 1);
     logout.name = "Logout";
     logout.layers.set(1);
-
 
     const neon_play = new THREE.MeshBasicMaterial(material_params);
     const tplay = new TextGeometry("Play", { ...font_params, font: font });
@@ -152,7 +156,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   const sphere_mesh = new THREE.Mesh(sphere_geometry, sphere_material);
   sphere_mesh.name = "Sphere";
 
-  const scaling = 1;
+  const scaling = 2;
   const menu_parent = new THREE.Group();
   menu_parent.name = "Menu";
   menu_parent.add(sphere_mesh);
@@ -189,27 +193,43 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   const pointer = new THREE.Vector2();
   const raycaster = new THREE.Raycaster();
 
-  const clock = new THREE.Clock()
-  let delta_time = clock.getDelta()
-
   let deltaY = 0;
+  let	deltaT = clock.deltaT;
 
   let current: MenuButtons | null = null;
-  let start = false;
 
   let isLogged = false;
   console.log(payload)
   if (payload?.authentication === LoggedStatus.Logged)
     isLogged = true;
-  //A adapter en fonction de l'angle entre (0, 0, 1) et le vecteur normalisé ((0, 0, 20) - menu_parent.position)
+  
   let corr = 0.2 - 2 * Math.PI;
+
+  const	cleanup: Array<() => void> = [];
 
   window.addEventListener("wheel", handleWheel);
   window.addEventListener("click", handleClick);
   window.addEventListener("resize", handleResize);
   window.addEventListener("pointermove", handleMove);
 
-  function updateMenu() {
+	socket.on("start", handleStart);
+	socket.on("finish", handleFinish);
+
+	function	handleStart(data: {opponent: User}) {
+		option.game = true;
+		cleanup.push(createComponent(Score));
+		cleanup.push(createComponent(Score, data.opponent));
+	}
+
+	//	{winner:  'you' | 'opponent' , reason:  'won' | 'disconnect'}
+	function	handleFinish(data: {winner: string, reason: string}) {
+		option.game = false;
+		cleanup.forEach( (elem) => {
+			elem();
+		});
+	} 
+
+  function swapMenu() {
     if (isLogged) {
       menu_parent.getObjectByName("Create")?.layers.set(1);
       menu_parent.getObjectByName("lCreate")?.layers.set(1);
@@ -265,7 +285,6 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     let rot = (menu_parent.rotation.x - rot_speed * deltaY) % (2 * Math.PI);
     rot += (rot < 0) ? 2 * Math.PI : 0;
     menu_parent.rotation.x = rot;
-    option = getCurrent(menu_parent.rotation.x);
   }
 
   function handleClick(event: MouseEvent) {
@@ -284,8 +303,6 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
           params.toggleProfile();
           break
         case MenuButtons.Play:
-          start = true;
-          corr = 0.4 - 2 * Math.PI;
           socket.emit("search", {
             a:1,
             b:2
@@ -312,25 +329,25 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 
   function getCurrent(rot: number) {
     if (isLogged) {
-      if ((rot - corr) % (2 * Math.PI) < theta)
+      if ((rot - corr) % (2 * Math.PI) <= theta)
         return (MenuButtons.Logout);
-      if ((rot - corr) % (2 * Math.PI) < 3 * theta)
+      if ((rot - corr) % (2 * Math.PI) <= 3 * theta)
         return (MenuButtons.Play);
-      if ((rot - corr) % (2 * Math.PI) < 5 * theta)
+      if ((rot - corr) % (2 * Math.PI) <= 5 * theta)
         return (MenuButtons.Settings);
-      if ((rot - corr) % (2 * Math.PI) < 7 * theta)
+      if ((rot - corr) % (2 * Math.PI) <= 7 * theta)
         return (MenuButtons.Profile);
-      if ((rot - corr) % (2 * Math.PI) < 9 * theta)
+      if ((rot - corr) % (2 * Math.PI) <= 9 * theta)
         return (MenuButtons.About);
-      if ((rot - corr) % (2 * Math.PI) < 11 * theta)
+      if ((rot - corr) % (2 * Math.PI) <= 11 * theta)
         return (MenuButtons.Chat);
       return (MenuButtons.Logout);
     }
-    if ((rot - corr) % (2 * Math.PI) < 2 * theta)
+    if ((rot - corr) % (2 * Math.PI) <= 2 * theta)
       return (MenuButtons.Login);
-    if ((rot - corr) % (2 * Math.PI) < 6 * theta)
+    if ((rot - corr) % (2 * Math.PI) <= 6 * theta)
       return (MenuButtons.Create);
-    if ((rot - corr) % (2 * Math.PI) < 10 * theta)
+    if ((rot - corr) % (2 * Math.PI) <= 10 * theta)
       return (MenuButtons.About);
     return (MenuButtons.Login);
   }
@@ -341,32 +358,53 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     let distance = Math.abs(((group.rotation.x - corr) % phi) - phi / 2);
 
     if ((group.rotation.x - corr) % phi > phi / 2)
+	{
       rot = group.rotation.x + coef * (Math.pow((phi / 2) - distance, 2)) / (Math.pow(Math.abs(deltaY), 0.5) + 1);
+	  console.log("moving down");
+	}
     else
+	{
       rot = group.rotation.x - coef * (Math.pow((phi / 2) - distance, 2)) / (Math.pow(Math.abs(deltaY), 0.5) + 1);
+	  console.log("moving down");
+	}
     rot = rot % (2 * Math.PI);
     rot += (rot < 0) ? 2 * Math.PI : 0;
     group.rotation.x = rot;
   }
 
+	let		t = 0;
+	const	gamma = 1.5;
+	const	_a = 2 - 4 * gamma;
+	const	_b = (_a - 1) / (2 * _a);
+	const	_c = -_a * Math.pow(_b, 2);
+	const	fct = (t: number) => {
+		return ( _a * Math.pow(t - _b, 2) + _c);
+	};
 
-  let t = 0;
+	const	moveMenu = (t: number, height: number = 3.4, style: (t: number) => number = (t: number) => {return (t);}) => {
+		menu_parent.position.y = height * style(t);
+		menu_parent.scale.x = scaling - (scaling - 1) * style(t);
+		menu_parent.scale.y = scaling - (scaling - 1) * style(t);
+		menu_parent.scale.z = scaling - (scaling - 1) * style(t);
+	};
 
   function update() {
-    delta_time = clock.getDelta();
-    updateMenu();
-    if (start && t < Math.PI / 2) {
-      menu_parent.position.y = 3.4 * Math.sin(t);
-      menu_parent.scale.x = scaling - (scaling - 1) * 2 * t / Math.PI;
-      menu_parent.scale.y = scaling - (scaling - 1) * 2 * t / Math.PI;
-      menu_parent.scale.z = scaling - (scaling - 1) * 2 * t / Math.PI;
-      t += 0.05;
-      //menu_parent.lookAt(0, 0, 20);
-    }
-
-    const new_current = getCurrent(menu_parent.rotation.x)
+    const new_current = getCurrent(menu_parent.rotation.x);
+    
+	deltaT = clock.deltaT;
+    option.option = new_current;
+	swapMenu();
+    if (new_current === "Play" && t < 1.05) {
+		corr = 0.4 - 2 * Math.PI;
+		moveMenu(t, 3.2, fct);
+		t += 0.05;
+	} else if (new_current !== "Play" && t > -0.05) {
+		corr = 0.2 - 2 * Math.PI;
+		moveMenu(t, 3.2, fct);
+		t -= 0.05;
+	}
     if (menu_parent.children.length > 1 && (new_current !== current || current === null)) {
-      current = new_current
+      current = new_current;
       menu_parent.traverse((obj) => {
         if (obj.name === current) {
           if (obj.name === "Logout")
@@ -375,7 +413,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
             ((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(0x41ffff);
         }
         else if (obj.name === "l" + current) {
-          (obj as THREE.Light).color = new THREE.Color(0xffbbbb);;
+          (obj as THREE.Light).color = new THREE.Color(0xffbbbb);
           (obj as THREE.Light).intensity = 10;
         }
         else if (obj instanceof THREE.Mesh && obj.name !== "Sphere")
@@ -390,8 +428,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     if ((menu_parent.rotation.x - corr) % (Math.PI / 3) > 0.01)
       centerMenu(menu_parent, deltaY, isLogged ? Math.PI / 3 : 2 * Math.PI / 3);
     composer.render();
-    //renderer.render(scene,camera)
-    return option;
+    return (option);
   }
 
   return {

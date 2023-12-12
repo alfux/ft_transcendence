@@ -1,0 +1,128 @@
+.score-bar, .ennemy-bar {
+    display: flex;
+	position:absolute;
+	top: 1%;
+	left: 1%;
+	height: 10%;
+	width: 15%;
+	border-radius: 16px;
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	border-radius: 20px;
+	justify-content: space-around;
+  }
+
+.score-bar {
+	animation:
+		slideInYou 1.5s ease forwards,
+		colorChangeScore 1s infinite;
+}
+
+@keyframes	slideInYou {
+	0% {
+		top:	1%;
+		left:	1%;
+	}
+	20% {
+		top:	-100%;
+	}
+	40% {
+		top:	30%;
+		left:	70%;
+	}
+	60% {
+		top:	5%;
+	}
+	80% {
+		top:	20%;
+	}
+	100% {
+		top:	15%;
+		left:	70%;
+	}
+}
+
+.ennemy-bar {
+	animation:
+		slideInEnnemy 1.5s ease forwards,
+		colorChangeScoreEnnemy 1s infinite;
+}
+
+@keyframes	slideInEnnemy {
+	0% {
+		top:	1%;
+		left:	110%;
+	}
+	20% {
+		top:	-100%;
+	}
+	40% {
+		top:	30%;
+		left:	14%;
+	}
+	60% {
+		top:	5%;
+	}
+	80% {
+		top:	20%;
+	}
+	100% {
+		top:	15%;
+		left:	14%;
+	}
+}
+
+.score-bar, p{
+	align-items: center;
+	font-size: 100%;
+  color: #fff;
+  font-family: 'game', sans-serif;
+  text-shadow: 0 0 10px #fff , 0 0 4px blue, 0 0 8px blue, 0 0 60px blue 
+}
+  @keyframes colorChangeScore {
+	0% {
+	  box-shadow: 0 0 100px #ffffff;
+	  box-shadow: 0 0 200px #41ffff;
+	}
+	50% {
+	  box-shadow: 0 0 10px #ffffff;
+	  box-shadow: 0 0 20px #41ffff;
+	}
+	100% {
+		box-shadow: 0 0 10px #ffffff;
+		box-shadow: 0 0 20px #41ffff;
+	}
+  }
+
+  @keyframes colorChangeScoreEnnemy {
+	0% {
+	  box-shadow: 0 0 100px #ffffff;
+	  box-shadow: 0 0 200px #ff41ff;
+	}
+	50% {
+	  box-shadow: 0 0 10px #ffffff;
+	  box-shadow: 0 0 20px #ff41ff;
+	}
+	100% {
+		box-shadow: 0 0 10px #ffffff;
+		box-shadow: 0 0 20px #ff41ff;
+	}
+  }
+
+  .score-photo{
+    max-width: 30%;
+	max-height: 80%;
+    border-radius: 50%;
+	align-self: center;
+  }
+
+  .stats{
+	height: 100%;
+	width: 30%;
+	align-items: center;
+  }
+
+  .stats-values{
+
+  }
+
