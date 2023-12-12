@@ -9,6 +9,8 @@ import { Vec3, distance, scalaire, norm, Mat3, rotz, rotx } from '../Math';
 import { getActiveKeys, keyboard } from '../Utils/keyboard';
 import { Socket } from 'socket.io-client';
 
+import { clock } from "../Utils/clock";
+
 export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget, socket: Socket) {
 	const	camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
     camera.position.set(0, -30, 30);
@@ -37,15 +39,6 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 
 	let start = false;
 
-	//const	canvas = document.getElementById("Canvas");
-	//const	scorePrint = document.createElement("h1");
-	let s1 = 0;
-	let s2 = 0;
-	//let		score = document.createTextNode(s1 + " : " + s2);
-	//scorePrint.style.color = "white";
-	//scorePrint.appendChild(score);
-	//canvas?.appendChild(scorePrint);
-
 	window.addEventListener("pointermove", (event) => {
 		if (event.buttons === 1) {
 			const cpos = new Vec3(camera.position.x, camera.position.y, camera.position.z);
@@ -59,53 +52,44 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 
 	socket.on("start", handleStart);
 	socket.on("player_pos", updateRackets);
-	socket.on("ball_pos", updateBallPos)
+	socket.on("ball_pos", updateBallPos);
+	socket.on("finish", handleFinish);
 
 	function handleStart() {
 		start = true;
 	}
 
-	function updateScore() {
-		//scorePrint.removeChild(score);
-		//score = document.createTextNode(s1 + " : " + s2);
-		//scorePrint.appendChild(score);
+	function	handleFinish() {
+		start = false;
+		if (board.right_racket.gameObject)
+			board.right_racket.gameObject.position.y = 0;
+		if (board.left_racket.gameObject)
+			board.left_racket.gameObject.position.y = 0;
 	}
 
 	function updateRackets(positions: {
 		you: Obstacle,
 		opponent: Obstacle
 	}) {
-
-    console.log(positions)
-
 		board.right_racket.copy(positions.you)
-		if (board.right_racket.gameObject)
-			board.right_racket.gameObject.position.y = board.right_racket.position.y;
-
-      board.left_racket.copy(positions.opponent)
-		if (board.left_racket.gameObject)
-			board.left_racket.gameObject.position.y = board.left_racket.position.y;
+			if (board.right_racket.gameObject)
+				board.right_racket.gameObject.position.y = board.right_racket.position.y;
+		board.left_racket.copy(positions.opponent)
+			if (board.left_racket.gameObject)
+				board.left_racket.gameObject.position.y = board.left_racket.position.y;
 	}
 
 	function updateBallPos(ball: Ball) {
 		if (board.ball.gameObject) {
-			ball.gameObject = board.ball.gameObject
-			board.ball = ball
-
-      board.ball.gameObject?.position.set(board.ball.position.x, board.ball.position.y, board.ball.position.z)
+			ball.gameObject = board.ball.gameObject;
+			board.ball = ball;
+			board.ball.gameObject?.position.set(board.ball.position.x, board.ball.position.y, board.ball.position.z);
 		}
 	}
 
 
 	function update() {
-		//if (1 && camera.position.z > 30)
-		//{
-		//	camera.position.z -= 2.5;
-		//	camera.position.y += 2.5;
-		//	scene.rotation.z += 2 * 2.5 * Math.PI / 270;
-		//}
-
-    const active_keys = getActiveKeys()
+    	const active_keys = getActiveKeys();
 		if (Object.keys(active_keys).length !== 0) {
 			socket.emit("player_input", active_keys);
 		}
@@ -125,7 +109,6 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 					obj.material.dispose();
 				}
 			});
-			//canvas?.removeChild(scorePrint);
 		}
 	}
 }

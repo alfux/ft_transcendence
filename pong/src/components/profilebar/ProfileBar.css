@@ -10,7 +10,7 @@
 	border: 1px solid rgba(255, 255, 255, 0.3);
 	border-radius: 20px;
 	justify-content: space-around;
-	animation: colorChange 1s infinite;
+	animation: colorChangeProfileBar 1s infinite;
   }
 .profile-bar:hover{
 	height: 20vh;
@@ -23,18 +23,18 @@
   font-family: 'game', sans-serif;
   text-shadow: 0 0 10px #fff , 0 0 4px blue, 0 0 8px blue, 0 0 60px blue 
 }
-  @keyframes colorChange {
+  @keyframes colorChangeProfileBar {
 	0% {
 	  box-shadow: 0 0 100px #ffffff;
-	  box-shadow: 0 0 200px #0400ff;
+	  box-shadow: 0 0 200px #41ffff;
 	}
 	50% {
 	  box-shadow: 0 0 10px #ffffff;
-	  box-shadow: 0 0 20px #0400ff;
+	  box-shadow: 0 0 20px #41ffff;
 	}
 	100% {
 		box-shadow: 0 0 10px #ffffff;
-		box-shadow: 0 0 20px #0400ff;
+		box-shadow: 0 0 20px #41ffff;
 	}
   }
 

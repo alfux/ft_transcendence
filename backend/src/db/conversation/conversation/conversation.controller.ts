@@ -9,10 +9,16 @@ import { NotificationsService } from 'src/notifications/'
 import { HttpMissingArg, HttpUnauthorized } from 'src/exceptions'
 
 import { Route } from 'src/route'
+import { AccessLevel } from './conversation_access_level.enum'
+import { unescape } from 'querystring'
 
 class ConversationCreateParams {
   @ApiProperty({ description: 'Title of the conversation' })
   title: string
+  @ApiProperty({ description: 'Private or not' })
+  private: boolean
+  @ApiProperty({ description: 'Password of the conversation (empty if no password)' })
+  password?: string | ""
 }
 class ConversationIdParams {
   @ApiProperty({ description: 'Id of the conversation' })
@@ -66,7 +72,7 @@ export class ConversationController {
     responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
   })
   async getMeConversations(@Req() req: Request) {
-    return this.conversationService.getConversation({ users: { user: { id:req.user.id } } }, ['users', 'owner'])
+    return this.conversationService.getConversation({ users: { user: { id:req.user.id } } }, ['users', 'owner', 'conversations', 'conversations.conversation'])
     .catch((e) => {
       if (e instanceof HttpException && e.getStatus() === 400) {
         return []
@@ -105,12 +111,25 @@ export class ConversationController {
   async createConversation(@Req() req: Request, @Body() body: ConversationCreateParams) {
     if (body.title === undefined)
       throw new HttpMissingArg()
-    const conversation = await this.conversationService.createConversation(req.user.id, body.title)
+
+    let access_level = AccessLevel.PUBLIC
+    if (body.private)
+      access_level = AccessLevel.PRIVATE
+
+    if (body.password !== undefined && body.password.length > 0) {
+      access_level = AccessLevel.PROTECTED
+    }
+
+    if (body.password === undefined)
+      body.password = ""
+
+    const conversation = await this.conversationService.createConversation(req.user.id, body.title, access_level, body.password)
     this.notificationService.emit_everyone(
       "conv_create",
       {
         conversation: conversation
       })
+      console.log("done")
     return conversation
   }
 

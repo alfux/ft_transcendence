@@ -63,12 +63,14 @@ export class UserService {
   }
 
   async sendFriendRequest(from_id: number, to_username:string) {
-    const from = await this.getUser({ id: from_id })
-    const to = await this.getUser({ username: to_username }, ['blocked'])
+    const from = await this.getUser({ id: from_id }, ['friends'])
+    const to = await this.getUser({ username: to_username }, ['blocked', 'friends'])
 
     if (from.id === to.id)
       throw new HttpBadRequest()
     if (to.blocked.find((v) => v.id === from.id))
+      throw new HttpBadRequest()
+    if (to.friends.find((v) => v.id === from.id) || from.friends.find((v) => v.id === to.id))
       throw new HttpBadRequest()
 
     return this.frRepository.save({
@@ -81,8 +83,8 @@ export class UserService {
     })
   }
 
-  getFriendRequest(where: FindOptionsWhere<FriendRequest>, relations = [] as string[]) {
-    const connection = this.frRepository.findOne({ where: where, relations: relations })
+  async getFriendRequest(where: FindOptionsWhere<FriendRequest>, relations = [] as string[]) {
+    const connection = await this.frRepository.findOne({ where: where, relations: relations })
     if (!connection)
       throw new HttpNotFound("Friend Request")
     return connection
