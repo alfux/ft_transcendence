@@ -1,17 +1,20 @@
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, SubscribeMessage } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 
-import { User } from 'src/db/user'
+import { User, UserService } from 'src/db/user'
 import { Client, CoolSocket, getCoolClients } from 'src/socket/'
 import { ConversationService } from 'src/db/conversation'
 
 import { Message, MessageService } from 'src/db/conversation/message'
 import { HttpUnauthorized } from 'src/exceptions'
+import { AuthService } from 'src/auth'
 
 @WebSocketGateway({ namespace: 'chat' })
 export class ConversationGateway implements OnGatewayConnection {
 
   constructor(
+    private authService: AuthService, //NE PAS ENELEVER
+    private userService: UserService, //NE PAS ENELEVER
     private messageService: MessageService,
     private conversationService: ConversationService
   ) { }
