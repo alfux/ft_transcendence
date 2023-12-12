@@ -109,7 +109,7 @@ export class ConversationService {
     return connection
   }
 
-  async createConversation(user_id: number, title: string, access_level?: AccessLevel, password?: string) {
+  async createConversation(user_id: number, title: string, access_level: AccessLevel, password: string) {
     if (access_level && access_level == AccessLevel.PROTECTED && password === undefined) {
       throw new HttpMissingArg()
     }
