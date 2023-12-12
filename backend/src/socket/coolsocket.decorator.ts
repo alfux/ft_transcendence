@@ -8,6 +8,10 @@ import { CoolSocketPayload, Client } from '.'
 
 const connectedClients: Client[] = []
 
+export function getCoolClients(): Client[] {
+  return connectedClients
+}
+
 export function CoolSocket(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value
 

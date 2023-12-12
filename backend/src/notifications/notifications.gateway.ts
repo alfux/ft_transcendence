@@ -8,6 +8,7 @@ import { AuthService } from 'src/auth/auth.service'
 import { UserService } from 'src/db/user'
 import { NotificationsService } from './notifications.service'
 import { config_jwt } from 'src/config'
+import { CoolSocket } from 'src/socket'
 
 
 @WebSocketGateway({namespace:'notifications'})
@@ -31,6 +32,7 @@ export class NotificationsGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage("auth")
+  @CoolSocket
   async auth(client: Socket, data: {token:any, data: { 0: string }}) {
     const jwt_payload = await this.authService.verifyJWT(data.data[0], config_jwt.secret_token)
     if (!jwt_payload) {
