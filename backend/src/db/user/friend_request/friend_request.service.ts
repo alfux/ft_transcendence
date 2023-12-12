@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { FindOptionsWhere, Repository } from 'typeorm'
 
 import { FriendRequest } from '.'
+import { HttpNotFound } from 'src/exceptions'
 
 @Injectable()
 export class FriendRequestService {
@@ -14,14 +15,14 @@ export class FriendRequestService {
   async getFriendRequest(where: FindOptionsWhere<FriendRequest> = {}, relations = [] as string[]): Promise<FriendRequest> {
     const friendRequest = await this.friendRequestRepository.findOne({ where: where, relations: relations, })
     if (!friendRequest)
-      throw new HttpException('Friend request not found', HttpStatus.BAD_REQUEST)
+      throw new HttpNotFound("Friend Request")
     return friendRequest
   }
 
   async getFriendRequestes(where: FindOptionsWhere<FriendRequest> = {}, relations = [] as string[]): Promise<FriendRequest[]> {
     const friendRequest = await this.friendRequestRepository.find({ where: where, relations: relations, })
     if (!friendRequest)
-      throw new HttpException('Friend request not found', HttpStatus.BAD_REQUEST)
+      throw new HttpNotFound("Friend Request")
     return friendRequest
   }
 

@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { User } from '../user.entity'
 
 import { Match } from '.'
+import { HttpNotFound } from 'src/exceptions'
 
 @Injectable()
 export class MatchService {
@@ -16,14 +17,14 @@ export class MatchService {
   async getMatch(where: FindOptionsWhere<Match> = {}, relations = [] as string[]): Promise<Match> {
     const match = await this.matchRepository.findOne({ where: where, relations: relations, })
     if (!match)
-      throw new HttpException('Match not found', HttpStatus.BAD_REQUEST)
+      throw new HttpNotFound("Match")
     return match
   }
 
   async getMatches(where: FindOptionsWhere<Match> = {}, relations = [] as string[]): Promise<Match[]> {
     const match = await this.matchRepository.find({ where: where, relations: relations, })
     if (!match)
-      throw new HttpException('Match not found', HttpStatus.BAD_REQUEST)
+      throw new HttpNotFound("Match")
     return match
   }
 

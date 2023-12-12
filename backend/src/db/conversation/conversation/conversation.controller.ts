@@ -1,16 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Req,
-  Param,
-  HttpException,
-  HttpStatus,
-  Inject,
-  forwardRef
-} from '@nestjs/common'
+import { Body, Controller, Get, Post, Delete, Req, Param, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common'
 
 import { ApiBearerAuth, ApiTags, ApiProperty } from '@nestjs/swagger'
 
@@ -18,6 +6,7 @@ import { Request } from 'src/auth/interfaces/'
 import { UserService } from 'src/db/user'
 import { ConversationService } from './conversation.service'
 import { NotificationsService } from 'src/notifications/'
+import { HttpBadRequest, HttpMissingArg, HttpUnauthorized, HttpNotFound } from 'src/exceptions'
 
 import { Route } from 'src/route'
 
@@ -77,7 +66,12 @@ export class ConversationController {
     responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
   })
   async getMeConversations(@Req() req: Request) {
-    return this.conversationService.getConversationsByUserId(req.user.id)
+    return this.conversationService.getConversation({ users: { user: { id:req.user.id } } }, ['users', 'owner'])
+    .catch((e) => {
+      if (e instanceof HttpException && e.getStatus() === 400) {
+        return []
+      }
+    })
   }
 
   @Route({
@@ -86,7 +80,12 @@ export class ConversationController {
     responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
   })
   getOwnConversations(@Req() req: Request) {
-    return this.conversationService.getOwnConversationsByUserId(req.user.id)
+    return this.conversationService.getConversation({ owner: { id:req.user.id } }, ['users', 'owner'])
+    .catch((e) => {
+      if (e instanceof HttpException && e.getStatus() === 400) {
+        return []
+      }
+    })
   }
 
   @Route({
@@ -104,8 +103,8 @@ export class ConversationController {
     responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
   })
   async createConversation(@Req() req: Request, @Body() body: ConversationCreateParams) {
-    if (!body.title)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.title === undefined)
+      throw new HttpMissingArg()
     const conversation = await this.conversationService.createConversation(req.user.id, body.title)
     this.notificationService.emit_everyone(
       "conv_create",
@@ -121,7 +120,23 @@ export class ConversationController {
     responses: [{ status: 200, description: 'Conversation\'s content retrieved successfully' }]
   })
   async getConversation(@Param('id') id: number) {
-    return await this.conversationService.getConversation({ id: id }, ['users', 'users.user', 'owner', 'messages', 'messages.sender', 'messages.sender.user'])
+    if (id === undefined)
+      throw new HttpMissingArg()
+    return this.conversationService.getConversation({ id: id }, [
+      'users',
+      'users.user',
+      
+      'owner',
+      
+      'messages',
+      'messages.sender',
+      'messages.sender.user'
+    ])
+    .then((v) => {
+      if (v.users.find((x) => x.id === id) === undefined)
+        throw new HttpUnauthorized()
+      return v
+    })
   }
 
   @Route({
@@ -140,7 +155,7 @@ export class ConversationController {
     if (!conversation)
       return
     if (req.user.id != conversation.owner.id)
-      throw new HttpException('You do not own this conversation', HttpStatus.BAD_REQUEST)
+      throw new HttpUnauthorized()
     this.conversationService.deleteConversation({ id: id })
   }
 
@@ -150,8 +165,8 @@ export class ConversationController {
     responses: [{ status: 200, description: 'Conversation joined successfully' }]
   })
   async joinConversation(@Req() req: Request, @Body() body: ConversationIdParams) {
-    if (!body.id)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.id === undefined)
+      throw new HttpMissingArg()
     const user = await this.userService.getUser({ id: req.user.id })
     const conversation = await this.conversationService.getConversation({ id: body.id }, ['users', 'users.user'])
     this.notificationService.emit(
@@ -171,11 +186,11 @@ export class ConversationController {
     responses: [{ status: 200, description: 'Conversation joined successfully' }]
   })
   async promote(@Req() req: Request, @Body() body: PromoteParams) {
-    if (!body.conversation_user_id)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.conversation_user_id === undefined)
+      throw new HttpMissingArg()
     const conv_user = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, ['conversation', 'conversation.owner', 'conversation.users', 'conversation.users.user', 'user'])
     if (conv_user.conversation.owner.id !== req.user.id)
-      throw new HttpException('Not authorized', HttpStatus.BAD_REQUEST)
+      throw new HttpUnauthorized()
 
     this.notificationService.emit(
       conv_user.conversation.users.map((u) => u.user),
@@ -193,8 +208,8 @@ export class ConversationController {
     description: { summary: 'Kicks an user from the conversation', description: 'Kicks an user from the conversation. Only the owner or an admin is allowed to perform this action' }
   })
   async kick(@Req() req: Request, @Body() body: KickParams) {
-    if (!body.conversation_user_id)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.conversation_user_id === undefined)
+      throw new HttpMissingArg()
     const conv_user = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, ['user', 'conversation', 'conversation.owner', 'conversation.users', 'conversation.users.user'])
     const sender = await this.userService.getUser({ id: req.user.id })
 
@@ -213,7 +228,7 @@ export class ConversationController {
 
       this.conversationService.removeUserFromConversation({ id: conv_user.conversation.id }, conv_user)
     } else {
-      throw new HttpException('Not allowed', HttpStatus.BAD_REQUEST)
+      throw new HttpUnauthorized()
     }
   }
 
@@ -222,8 +237,8 @@ export class ConversationController {
     description: { summary: 'Mutes an user in a conversation', description: 'Mutes an user in a conversation. Only the owner or an admin is allowed to perform this action' }
   })
   async mute(@Req() req: Request, @Body() body: KickParams) {
-    if (!body.conversation_user_id)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.conversation_user_id === undefined)
+      throw new HttpMissingArg()
     const conv_user = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, ['conversation', 'conversation.owner'])
     const sender = await this.userService.getUser({ id: req.user.id })
 
@@ -231,7 +246,7 @@ export class ConversationController {
       (sender.id === conv_user.conversation.owner.id) ||
       (conv_user.conversation.users.find((u) => { u.user.id === sender.id })?.isAdmin))
     ) {
-      throw new HttpException('Not allowed', HttpStatus.BAD_REQUEST)
+      throw new HttpUnauthorized()
     }
 
     this.notificationService.emit(
@@ -250,8 +265,8 @@ export class ConversationController {
     responses: [{ status: 200, description: 'Conversation left successfully' }]
   })
   async leaveConversation(@Req() req: Request, @Body() body: ConversationIdParams) {
-    if (!body.id)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.id === undefined)
+      throw new HttpMissingArg()
     const conv_user = await this.conversationService.getConversationUser({ user: { id: req.user.id } }, ['conversation', 'conversation.users', 'conversation.users.user', 'user'])
     this.conversationService.removeUserFromConversation({ id: body.id }, conv_user)
 

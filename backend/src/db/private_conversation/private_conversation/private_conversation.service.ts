@@ -5,6 +5,7 @@ import { Repository, FindOptionsWhere } from 'typeorm'
 import { UserService } from 'src/db/user'
 
 import { PrivateConversation } from '.'
+import { HttpNotFound } from 'src/exceptions'
 
 @Injectable()
 export class PrivateConversationService {
@@ -19,14 +20,14 @@ export class PrivateConversationService {
   async getPrivateConversation(where: FindOptionsWhere<PrivateConversation>, relations = [] as string[]) {
     const connection = await this.conversationRepository.findOne({ where, relations, })
     if (!connection)
-      throw new HttpException('PrivateConversation not found', HttpStatus.NOT_FOUND)
+      throw new HttpNotFound("Private Conversation")
     return connection
   }
 
   async getPrivateConversations(where: FindOptionsWhere<PrivateConversation>, relations = [] as string[]) {
     const connection = await this.conversationRepository.find({ where, relations, })
     if (!connection)
-      throw new HttpException('PrivateConversation not found', HttpStatus.NOT_FOUND)
+      throw new HttpNotFound("Private Conversation")
     return connection
   }
 

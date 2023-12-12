@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 
 import { Request } from 'src/auth/interfaces/request.interface'
 import { MessageService } from 'src/db/conversation/message'
+import { HttpUnauthorized } from 'src/exceptions'
 
 import { Route } from 'src/route'
 
@@ -39,7 +40,7 @@ export class MessageController {
       (message.conversation.users.find((u) => { u.user.id == req.user.id })?.isAdmin)) {
       this.messageService.remove(message)
     } else {
-      throw new HttpException('Not allowed', HttpStatus.BAD_REQUEST)
+      throw new HttpUnauthorized()
     }
   }
 

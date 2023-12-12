@@ -3,6 +3,7 @@ import { FindOptionsWhere, Repository } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 
 import { Message } from '.'
+import { HttpNotFound } from 'src/exceptions'
 
 @Injectable()
 export class MessageService {
@@ -14,25 +15,19 @@ export class MessageService {
   async getMessage(where: FindOptionsWhere<Message>, relations = [] as string[]): Promise<Message> {
     const connection = await this.messageRepository.findOne({ where, relations })
     if (!connection)
-      throw new HttpException('Message not found', HttpStatus.NOT_FOUND)
+      throw new HttpNotFound("Message")
     return connection
   }
 
   async getMessages(where: FindOptionsWhere<Message>, relations = [] as string[]): Promise<Message[]> {
     const connection = await this.messageRepository.find({ where, relations })
     if (!connection)
-      throw new HttpException('Message not found', HttpStatus.NOT_FOUND)
+      throw new HttpNotFound("Message")
     return connection
   }
 
   async createMessage(message: Message): Promise<Message> {
-    try {
-      const new_message = await this.messageRepository.save(message)
-
-      return new_message
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST)
-    }
+    return this.messageRepository.save(message)
   }
 
   async remove(messages: Message[] | Message): Promise<void> {

@@ -7,6 +7,7 @@ import { Request } from 'src/auth/interfaces/request.interface'
 import { UserService } from '.'
 
 import { Route } from 'src/route'
+import { HttpBadRequest, HttpMissingArg, HttpUnauthorized } from 'src/exceptions'
 
 class SendFriendRequestBody {
   @ApiProperty({ description: 'User to send the request to' })
@@ -98,19 +99,10 @@ export class UserController {
     description: { summary: 'Sends a friend request', description: 'Sends a friend request' },
   })
   async send_friend_request(@Req() req: Request, @Body() body: SendFriendRequestBody) {
-    if (!body.username)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.username === undefined)
+      throw new HttpMissingArg()
 
-    const from = await this.userService.getUser({ id: req.user.id })
-    const to = await this.userService.getUser({ username: body.username })
-    if (from.id === to.id)
-      throw new HttpException("Can't add yourself as a friend, sry", HttpStatus.BAD_REQUEST)
-    const friend_req = await this.userService.sendFriendRequest(from, to)
-
-    this.notificationService.emit([to], "friend_request_recv", { req: friend_req })
-    console.log("to ", to.username)
-    console.log("from: ", from.username)
-    return friend_req
+      return this.userService.sendFriendRequest(req.user.id, body.username)
   }
 
   @Route({
@@ -118,15 +110,15 @@ export class UserController {
     description: { summary: 'Accepts a friend request', description: 'Accepts a friend request' },
   })
   async accept_friend_request(@Req() req: Request, @Body() body: AcceptFriendRequestBody) {
-    if (!body.id)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.id === undefined)
+      throw new HttpMissingArg()
 
     try {
       await this.userService.getUser({ id: req.user.id, friends_requests_recv: { id: body.id } })
     }
     catch (e) {
       if (e instanceof HttpException)
-        throw new HttpException("Request not foud or not allowed", HttpStatus.BAD_REQUEST)
+        throw new HttpUnauthorized()
     }
 
     const fr = await this.userService.getFriendRequest({ id: body.id }, ['sender', 'receiver'])
@@ -139,14 +131,14 @@ export class UserController {
     description: { summary: 'Deny a friend request', description: 'Deny a friend request' },
   })
   async deny_friend_request(@Req() req: Request, @Body() body: DenyFriendRequestBody) {
-    if (!body.id)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.id === undefined)
+      throw new HttpMissingArg()
     try {
       await this.userService.getUser({ id: req.user.id, friends_requests_recv: { id: body.id } })
     }
     catch (e) {
       if (e instanceof HttpException)
-        throw new HttpException("Request not foud or not allowed", HttpStatus.BAD_REQUEST)
+        throw new HttpUnauthorized()
     }
 
     const fr = await this.userService.getFriendRequest({ id: body.id }, ['sender', 'receiver'])
@@ -168,9 +160,9 @@ export class UserController {
     description: { summary: 'Removes a friend from friend list', description: 'Removes a friend from friend list' },
   })
   async remove_friend(@Req() req: Request, @Body() body: RemoveFriendBody) {
-    if (!body.user_id)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
-    this.userService.removeFriend(req.user.id, body.user_id)
+    if (body.user_id === undefined)
+      throw new HttpMissingArg()
+    await this.userService.removeFriend(req.user.id, body.user_id)
   }
 
   @Route({
@@ -187,10 +179,10 @@ export class UserController {
     description: { summary: 'Blocks a user', description: 'Blocks a user' },
   })
   async block_user(@Req() req: Request, @Body() body: BlockFriendBody) {
-    if (!body.user_id)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.user_id === undefined)
+      throw new HttpMissingArg()
     if (req.user.id === body.user_id)
-      throw new HttpException("Can't block yourself, sry", HttpStatus.BAD_REQUEST)
+      throw new HttpBadRequest()
     this.userService.blockUser(req.user.id, body.user_id)
     this.userService.removeFriend(req.user.id, body.user_id)
   }
@@ -200,10 +192,10 @@ export class UserController {
     description: { summary: 'Unblocks a user', description: 'Unblocks a user' },
   })
   async unblock_user(@Req() req: Request, @Body() body: BlockFriendBody) {
-    if (!body.user_id)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.user_id === undefined)
+      throw new HttpMissingArg()
     if (req.user.id === body.user_id)
-      throw new HttpException("Can't unblock yourself, sry", HttpStatus.BAD_REQUEST)
+      throw new HttpBadRequest()
     this.userService.unblockUser(req.user.id, body.user_id)
   }
 
@@ -234,18 +226,19 @@ export class UserController {
     description: { summary: 'Sends a play request', description: 'Sends a play request' },
   })
   async send_play_request(@Req() req: Request, @Body() body: SendPlayRequestBody) {
-    if (!body.username)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.username === undefined)
+      throw new HttpMissingArg()
 
     const from = await this.userService.getUser({ id: req.user.id })
     const to = await this.userService.getUser({ username: body.username })
     if (from.id === to.id)
-      throw new HttpException("Can't play with yourself, sry", HttpStatus.BAD_REQUEST)
-    const friend_req = await this.userService.sendFriendRequest(from, to)
-
-    this.notificationService.emit([to], "play_request_recv", { req: friend_req })
-
-    return friend_req
+      throw new HttpBadRequest()
+    //TODO
+    //const friend_req = await this.userService(from, to)
+//
+    //this.notificationService.emit([to], "play_request_recv", { req: friend_req })
+//
+    //return friend_req
   }
 
   @Route({
@@ -253,15 +246,15 @@ export class UserController {
     description: { summary: 'Accepts a friend request', description: 'Accepts a friend request' },
   })
   async accept_play_request(@Req() req: Request, @Body() body: AcceptPlayRequestBody) {
-    if (!body.id)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.id === undefined)
+      throw new HttpMissingArg()
 
     try {
       await this.userService.getUser({ id: req.user.id, play_requests_recv: { id: body.id } })
     }
     catch (e) {
       if (e instanceof HttpException)
-        throw new HttpException("Request not foud or not allowed", HttpStatus.BAD_REQUEST)
+        throw new HttpUnauthorized()
     }
 
     /*
@@ -278,14 +271,14 @@ export class UserController {
     description: { summary: 'Deny a play request', description: 'Deny a play request' },
   })
   async deny_play_request(@Req() req: Request, @Body() body: DenyPlayRequestBody) {
-    if (!body.id)
-      throw new HttpException("Missing parameter", HttpStatus.BAD_REQUEST)
+    if (body.id === undefined)
+      throw new HttpMissingArg()
     try {
       await this.userService.getUser({ id: req.user.id, play_requests_recv: { id: body.id } })
     }
     catch (e) {
       if (e instanceof HttpException)
-        throw new HttpException("Request not foud or not allowed", HttpStatus.BAD_REQUEST)
+        throw new HttpUnauthorized()
     }
 
     this.userService.denyPlayRequest(body.id)
