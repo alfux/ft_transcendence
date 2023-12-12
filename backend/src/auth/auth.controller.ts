@@ -8,7 +8,7 @@ import { Request } from 'src/auth/interfaces'
 import { AuthService } from '.'
 import { UserService } from 'src/db/user'
 import { config_hosts } from 'src/config'
-
+import { Route } from 'src/route'
 
 const cookie_options: CookieOptions = {
   httpOnly: false,
@@ -27,9 +27,12 @@ export class AuthController {
     private readonly userService: UserService
   ) { }
 
-  @Public()
+  @Route({
+    public:true,
+    method:Get('login'),
+    description: { summary: "Login", description: "Login" }
+  })
   @UseGuards(AuthGuard('42'))
-  @Get('login')
   async login_callback(@Req() req: Request, @Res() response: Response): Promise<void> {
 
     const tokens = await this.authService.login(req.user)
@@ -43,17 +46,24 @@ export class AuthController {
     response.status(302).redirect(url.href)
   }
 
+  @Route({
+    method:Get('logout'),
+    description: { summary: "Logout", description: "Logout" }
+  })
   @UseGuards(AuthGuard('42'))
-  @Get('logout')
   logout(@Res() response: Response) {
     response.clearCookie("access_token")
     response.clearCookie("refresh_token")
     response.status(200)
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('refresh')
+  @Route({
+    method:Get('refresh'),
+    description: { summary: "Refresh token", description: "Refresh token" }
+  })
   async refreshToken(@Req() req: Request, @Res() response: Response) {
+    console.log(req.user)
+
     const user = await this.userService.getUser({ id: req.user.id })
     const newToken = await this.authService.generateAccessToken(user);
     response.cookie('access_token', newToken, cookie_options);

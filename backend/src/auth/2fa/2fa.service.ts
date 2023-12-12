@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Inject, forwardRef } from '@nestjs/common'
 import { authenticator } from 'otplib'
 import { toDataURL } from 'qrcode'
 
@@ -8,7 +8,12 @@ import { UserService } from 'src/db/user'
 
 @Injectable()
 export class TwoFactorAuthenticationService {
-  constructor(private userService: UserService) { }
+
+  constructor(
+    @Inject(forwardRef(() => UserService))
+    private userService: UserService
+  ) { }
+
   async generateSecret(userEmail: string) {
     const user = await this.userService.getUser({ email: userEmail })
     const secret = speakeasy.generateSecret()

@@ -1,15 +1,8 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Req,
-} from '@nestjs/common'
-
+import { Body, Controller, Get, Inject, Post, Req, forwardRef } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags, ApiProperty } from '@nestjs/swagger'
 
 import { Request } from 'src/auth/interfaces/request.interface'
-import { UserService } from 'src/db/user'
+import { User, UserService } from 'src/db/user'
 import { PrivateConversationService } from '.'
 
 import { Route } from 'src/route'
@@ -26,6 +19,8 @@ export class PrivateConversationController {
 
   constructor(
     private conversationService: PrivateConversationService,
+
+    @Inject(forwardRef(() => UserService))
     private userService: UserService
   ) { }
 

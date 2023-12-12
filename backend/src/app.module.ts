@@ -10,7 +10,6 @@ import { Message } from 'src/db/conversation/message'
 import { User, FriendRequest, PlayRequest, Match, UserModule } from 'src/db/user'
 
 import { AuthModule } from 'src/auth/auth.module'
-import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard'
 
 import { NotificationsModule } from 'src/notifications/'
 
@@ -56,12 +55,5 @@ import { config_db } from 'src/config'
     NotificationsModule,
     PrivateConversationModule
   ],
-  
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-  ]
 })
 export class AppModule {}

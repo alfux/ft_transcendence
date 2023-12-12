@@ -4,7 +4,7 @@ import { Repository, FindOptionsWhere } from 'typeorm'
 
 import { UserService, User } from 'src/db/user'
 import { MessageService } from 'src/db/conversation/message'
-import { ConversationUser, ConversationUserInfos } from 'src/db/conversation'
+import { ConversationUser, ConversationUserInfos } from 'src/db/conversation/conversation_user'
 
 import { AccessLevel, Conversation } from '.'
 

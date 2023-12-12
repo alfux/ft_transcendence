@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UnauthorizedException } from '@nestjs/common'
+import { Body, Controller, Get, Post, Req, UnauthorizedException, Inject, forwardRef } from '@nestjs/common'
 import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger'
 
 import { Route } from 'src/route'
@@ -18,6 +18,8 @@ class AuthenticateParams {
 export class TwoFactorAuthenticationController {
   constructor(
     private twoFactorAuthenticationService: TwoFactorAuthenticationService,
+
+    @Inject(forwardRef(() => UserService))
     private userService: UserService,
   ) { }
 

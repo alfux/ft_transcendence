@@ -16,7 +16,6 @@ export function Route(params:{
     if (params.public) {
       Public()(target, key, descriptor)
     } else {
-      UseGuards(AuthGuard('jwt'))(target, key, descriptor)
       ApiBearerAuth()(target, key, descriptor)
     }
 
