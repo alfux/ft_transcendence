@@ -1,23 +1,24 @@
-import { Module } from '@nestjs/common'
+import { ScheduleModule } from '@nestjs/schedule'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { APP_GUARD } from '@nestjs/core'
+import { Module } from '@nestjs/common'
 
-import { User, FriendRequest, PlayRequest, UserModule } from './db/user'
-import { Message, MessageModule } from './db/message'
-import { Conversation, ConversationUser, ConversationUserInfos, ConversationModule } from './db/conversation'
+import { Conversation, ConversationUser, ConversationUserInfos, ConversationModule } from 'src/db/conversation'
+import { PrivateMessage, PrivateConversation, PrivateConversationModule } from 'src/db/private_conversation'
+import { Message } from 'src/db/conversation/message'
 
-import { AuthModule } from './auth/auth.module'
-import { JwtAuthGuard } from './auth/jwt/jwt.guard'
+import { User, FriendRequest, PlayRequest, Match, UserModule } from 'src/db/user'
 
-import { DebugModule } from './debug/debug.module'
+import { AuthModule } from 'src/auth/auth.module'
+import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard'
 
-import { GameModule } from './game/game.module'
+import { NotificationsModule } from 'src/notifications/'
 
-import { config_db } from './config'
-import { NotificationsModule } from './notifications/notifications.module'
-import { ScheduleModule } from '@nestjs/schedule'
-import { PrivateConversation, PrivateConversationModule } from './db/private_conversation'
-import { Match } from './db/user/match/match.entity'
+import { DebugModule } from 'src/debug/debug.module'
+
+import { GameModule } from 'src/game/game.module'
+
+import { config_db } from 'src/config'
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { Match } from './db/user/match/match.entity'
         ConversationUserInfos,
       
         PrivateConversation,
+        PrivateMessage,
 
         FriendRequest,
         PlayRequest,
@@ -47,7 +49,6 @@ import { Match } from './db/user/match/match.entity'
       synchronize: true,
     }),
     UserModule,
-    MessageModule,
     ConversationModule,
     AuthModule,
     DebugModule,
@@ -55,6 +56,7 @@ import { Match } from './db/user/match/match.entity'
     NotificationsModule,
     PrivateConversationModule
   ],
+  
   providers: [
     {
       provide: APP_GUARD,

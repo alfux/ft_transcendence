@@ -1,15 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm'
 
-import { User } from './user.entity';
+import { User } from 'src/db/user'
 
 @Entity()
 export class PlayRequest {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: number
 
   @ManyToOne(() => User, (user) => user.play_requests_sent)
-  sender:User
+  sender: User
 
   @ManyToOne(() => User, (user) => user.play_requests_recv)
-  receiver:User
+  receiver: User
 }

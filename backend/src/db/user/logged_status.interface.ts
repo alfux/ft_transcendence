@@ -1,5 +1,5 @@
 export enum LoggedStatus {
-    Logged,
-    Incomplete,
-    Unlogged,
+  Logged,
+  Incomplete,
+  Unlogged,
 }

@@ -1,10 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm'
-import { User } from '../user'
-import { Message } from '../message'
-import { ConversationUser } from './conversation_user/conversation_user.entity'
-import { ConversationUserInfos } from './conversation_user/conversation_user_infos.entity'
-import { AccessLevel } from './conversation_access_level.enum'
 
+import { User } from 'src/db/user'
+import { Message } from 'src/db/conversation/message'
+import { ConversationUser, ConversationUserInfos } from 'src/db/conversation'
+
+import { AccessLevel } from '.'
 
 @Entity()
 export class Conversation {

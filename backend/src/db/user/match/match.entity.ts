@@ -1,6 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, ManyToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, ManyToMany } from 'typeorm'
 
-import { User } from '../user.entity';
+import { User } from 'src/db/user'
 
 @Entity()
 export class Match {
@@ -8,11 +8,11 @@ export class Match {
   id: number
 
   @CreateDateColumn()
-  date: Date;
+  date: Date
 
   @ManyToMany(() => User, user => user.matches)
-  players: User[];
+  players: User[]
 
   @ManyToOne(() => User, { nullable: true })
-  winner: User;
+  winner: User
 }

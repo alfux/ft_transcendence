@@ -1,16 +1,14 @@
-// debug.module.ts
-
 import { Module } from '@nestjs/common'
 
-import { DebugController } from './debug.controller'
+import { AuthModule } from 'src/auth'
 import { UserModule } from 'src/db/user'
-import { ConversationModule, MessageModule } from 'src/db'
-import { AuthModule } from 'src/auth/auth.module'
+import { DebugController } from './debug.controller'
+import { ConversationModule } from 'src/db/conversation'
 
 @Module({
   imports: [
-    UserModule, ConversationModule, MessageModule, AuthModule
+    UserModule, ConversationModule, AuthModule
   ],
   controllers: [DebugController],
 })
-export class DebugModule {}
+export class DebugModule { }

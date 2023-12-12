@@ -1,14 +1,11 @@
-// src/chat/chat.gateway.ts
-
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, SubscribeMessage } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 
-import { AuthService } from 'src/auth/auth.service'
+import { User } from 'src/db/user'
+import { CoolSocket } from 'src/socket/'
 import { ConversationService } from 'src/db/conversation'
-import { MessageService } from 'src/db/message'
-import { User, UserService } from 'src/db/user'
-import { Message } from 'src/db/message'
-import { CoolSocket } from 'src/socket/coolsocket.decorator'
+
+import { Message, MessageService } from 'src/db/conversation/message'
 
 @WebSocketGateway({namespace:'chat'})
 export class ConversationGateway implements OnGatewayConnection {
@@ -49,7 +46,7 @@ export class ConversationGateway implements OnGatewayConnection {
           username: user.user.username,
           conversation_id: data.conversation_id,
           message: data.message
-        });
+        })
     })
   }
 }

@@ -1,10 +1,10 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Req } from '@nestjs/common'
-
+import { Controller, Delete, Get, HttpException, HttpStatus, Param, Req } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
-import { Route } from 'src/route'
 
-import { MessageService } from './message.service';
-import { Request } from 'src/auth/interfaces/request.interface';
+import { Request } from 'src/auth/interfaces/request.interface'
+import { MessageService } from 'src/db/conversation/message'
+
+import { Route } from 'src/route'
 
 @ApiBearerAuth()
 @ApiTags('messages')
@@ -20,7 +20,7 @@ export class MessageController {
     description: { summary: 'Get message by id', description: 'Get message by id' }
   })
   GetById(@Param('id') id: number) {
-    return this.messageService.getMessage({ id: id }, ['conversation', 'sender', 'sender.user']);
+    return this.messageService.getMessage({ id: id }, ['conversation', 'sender', 'sender.user'])
   }
 
   @Route({
@@ -33,7 +33,7 @@ export class MessageController {
       'sender', 'sender.user',
       'conversation', 'conversation.owner', 'conversation.users', 'conversation.users.user'
     ])
-  
+
     if ((message.sender.user.id === req.user.id) ||
       (message.conversation.owner.id === req.user.id) ||
       (message.conversation.users.find((u) => { u.user.id == req.user.id })?.isAdmin)) {
@@ -48,7 +48,7 @@ export class MessageController {
     description: { summary: 'Get all messages of a certain user', description: 'Get all messages of a certain user' }
   })
   GetFromUserId(@Param('user_id') user_id: number) {
-    return this.messageService.getMessages({ sender: { user:{id:user_id}} }, ['sender', 'sender.user'])
+    return this.messageService.getMessages({ sender: { user: { id: user_id } } }, ['sender', 'sender.user'])
   }
 
 }

@@ -1,25 +1,42 @@
-import { Module, forwardRef } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { Module, forwardRef } from '@nestjs/common'
+import { TypeOrmModule } from '@nestjs/typeorm'
 
-import { Conversation } from './conversation.entity';
-import { ConversationUser } from './conversation_user/conversation_user.entity';
-import { ConversationUserInfos } from './conversation_user/conversation_user_infos.entity';
-import { ConversationService } from './conversation.service';
-import { ConversationController } from './conversation.controller';
-import { UserModule } from '../user/user.module';
-import { MessageModule } from '../message';
-import { NotificationsModule } from 'src/notifications/notifications.module';
-import { ConversationGateway } from './conversation.gateway';
+import { ConversationUser, ConversationUserInfos } from 'src/db/conversation/conversation_user'
+import { Conversation, ConversationService } from 'src/db/conversation'
+import { ConversationController } from 'src/db/conversation/conversation/conversation.controller'
+import { ConversationGateway } from 'src/db/conversation/conversation/conversation.gateway'
+
+import { Message, MessageService } from 'src/db/conversation/message'
+
+import { UserModule } from 'src/db/user'
+import { NotificationsModule } from 'src/notifications'
+
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Conversation, ConversationUser, ConversationUserInfos]),
+    TypeOrmModule.forFeature([
+      Conversation,
+      ConversationUser,
+      ConversationUserInfos,
+    
+      Message
+    ]),
     forwardRef(() => UserModule),
-    MessageModule,
     NotificationsModule,
   ],
-  exports: [TypeOrmModule, ConversationService],
-  providers: [ConversationService, ConversationGateway],
+  
+  providers: [
+    ConversationService,
+    ConversationGateway,
+    MessageService
+  ],
+  
   controllers: [ConversationController],
+  
+  exports: [
+    TypeOrmModule,
+    ConversationService,
+    MessageService
+  ],
 })
 export class ConversationModule {}

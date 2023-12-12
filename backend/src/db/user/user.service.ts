@@ -2,31 +2,11 @@ import { Injectable, HttpStatus, HttpException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { FindOptionsWhere, Repository } from 'typeorm'
 
-import { User } from './user.entity'
-import { FriendRequest } from './friend_request.entity'
-import { NotificationsService } from 'src/notifications/notifications.service'
-import { PlayRequest } from './play_request.entity'
+import { User } from 'src/db/user'
 
-export interface Oauth42Token {
-  access_token: string
-  expires: string
-}
-
-
-/*
-function merge<T>(a:T, b:Partial<T>) {
-  for (const k in Object.keys(a)) {
-    if (b[k]) a[k] = b[k]
-  }
-} 
-*/
-function merge<T>(a: T, b: Partial<T>): void {
-  for (const key in b) {
-    if (b.hasOwnProperty(key)) {
-      a[key] = b[key]
-    }
-  }
-}
+import { PlayRequest } from './play_request/'
+import { FriendRequest } from './friend_request'
+import { NotificationsService } from 'src/notifications/'
 
 @Injectable()
 export class UserService {
@@ -55,32 +35,22 @@ export class UserService {
     return user
   }
 
-  /*
-  async createUser(user: Partial<User>): Promise<User> {
-    if (await this.getUser({ id: user.id }).catch(() => null))
-      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST)
-
-    const u = this.usersRepository.create(user)
-    return this.usersRepository.save(u)
-  }
-  */
-
-  async updateUser(user: Partial<User> & {id:number}): Promise<User> {
+  async updateUser(user: Partial<User> & { id: number }): Promise<User> {
 
     if (user.id === undefined)
       throw new HttpException("User not found", HttpStatus.BAD_REQUEST)
-    await this.getUser({id:user.id})
-    return this.usersRepository.save({id:user.id, ...user})
+    await this.getUser({ id: user.id })
+    return this.usersRepository.save({ id: user.id, ...user })
   }
 
-  async createUser(user: Partial<User> & {id:number}): Promise<User> {
+  async createUser(user: Partial<User> & { id: number }): Promise<User> {
     const new_user = this.usersRepository.create(user)
     const rep = await this.usersRepository.save(new_user)
     return rep
   }
 
-  async updateOrCreateUser(user: Partial<User> & {id:number}): Promise<User> {
-    let u = await this.getUser({id:user.id}).catch(() => null)
+  async updateOrCreateUser(user: Partial<User> & { id: number }): Promise<User> {
+    let u = await this.getUser({ id: user.id }).catch(() => null)
     if (!u) {
       return this.createUser(user)
     }
@@ -162,7 +132,6 @@ export class UserService {
 
     this.notificationService.emit([user], "blocked_delete", { user: blocked })
   }
-
 
   async acceptPlayRequest(id: number) {
     const request = await this.playRepository.findOne({ where: { id: id }, relations: ['sender', 'receiver'] })

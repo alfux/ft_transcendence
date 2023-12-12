@@ -1,9 +1,10 @@
 import { Injectable, HttpStatus, HttpException } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
 import { FindOptionsWhere, Repository } from 'typeorm'
+import { InjectRepository } from '@nestjs/typeorm'
 
-import { Match } from './match.entity'
 import { User } from '../user.entity'
+
+import { Match } from '.'
 
 @Injectable()
 export class MatchService {

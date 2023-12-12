@@ -1,7 +1,7 @@
-import { Socket } from "socket.io";
-import { User } from "src/db";
-import { Clock } from "./Clock";
 
+import { Client } from "src/socket/";
+
+import { Clock } from "./Clock";
 import { Vec3, distance, norm, scalaire, clamp } from './Math'
 import { Obstacle } from "./Obstacle";
 import { Ball } from "./Ball";
@@ -117,7 +117,6 @@ function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
 }
 
 export class Keyboard { [key: string]: { keydown: boolean, keypress: boolean } }
-export interface Client { socket: Socket, user: User }
 export interface Player { client: Client, racket: Obstacle }
 
 export class GameInstance {

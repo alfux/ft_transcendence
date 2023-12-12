@@ -1,3 +1,4 @@
-export { PrivateConversation } from './private_conversation.entity'
+export { PrivateConversation, PrivateConversationService } from './private_conversation'
 export { PrivateConversationModule } from './private_conversation.module'
-export { PrivateConversationService } from './private_conversation.service'
+
+export { PrivateMessage, PrivateMessageService } from './private_message'
