@@ -32,9 +32,9 @@ export class User {
 
 
 
-  @Column({ default: false })
+  @Column({ default: false, select: false })
   twoFactorAuth: boolean
-  @Column({ default: '' })
+  @Column({ default: '', select: false })
   twoFactorAuthSecret: string
 
 
