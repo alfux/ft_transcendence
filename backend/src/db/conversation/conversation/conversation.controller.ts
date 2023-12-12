@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Delete, Req, Param, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common'
+import { Body, Controller, Get, Post, Delete, Req, Param, HttpException, Inject, forwardRef } from '@nestjs/common'
 
 import { ApiBearerAuth, ApiTags, ApiProperty } from '@nestjs/swagger'
 
@@ -6,7 +6,7 @@ import { Request } from 'src/auth/interfaces/'
 import { UserService } from 'src/db/user'
 import { ConversationService } from './conversation.service'
 import { NotificationsService } from 'src/notifications/'
-import { HttpBadRequest, HttpMissingArg, HttpUnauthorized, HttpNotFound } from 'src/exceptions'
+import { HttpMissingArg, HttpUnauthorized } from 'src/exceptions'
 
 import { Route } from 'src/route'
 
