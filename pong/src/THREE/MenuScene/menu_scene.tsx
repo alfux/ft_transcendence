@@ -193,7 +193,6 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   const raycaster = new THREE.Raycaster();
 
   let deltaY = 0;
-  let	deltaT = clock.deltaT;
 
   let current: MenuButtons | null = null;
 
@@ -351,15 +350,9 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     let distance = Math.abs(((group.rotation.x - corr) % phi) - phi / 2);
 
     if ((group.rotation.x - corr) % phi > phi / 2)
-	{
       rot = group.rotation.x + coef * (Math.pow((phi / 2) - distance, 2)) / (Math.pow(Math.abs(deltaY), 0.5) + 1);
-	  console.log("moving down");
-	}
     else
-	{
       rot = group.rotation.x - coef * (Math.pow((phi / 2) - distance, 2)) / (Math.pow(Math.abs(deltaY), 0.5) + 1);
-	  console.log("moving down");
-	}
     rot = rot % (2 * Math.PI);
     rot += (rot < 0) ? 2 * Math.PI : 0;
     group.rotation.x = rot;
@@ -384,15 +377,16 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   function update() {
     const new_current = getCurrent(menu_parent.rotation.x);
     
-	deltaT = clock.deltaT;
     option.option = new_current;
 	swapMenu();
     if (new_current === "Play" && t < 1.05) {
-		corr = 0.4 - 2 * Math.PI;
+		if (t > 0.9)
+			corr = 0.4 - 2 * Math.PI;
 		moveMenu(t, 3.2, fct);
 		t += 0.05;
 	} else if (new_current !== "Play" && t > -0.05) {
-		corr = 0.2 - 2 * Math.PI;
+		if (t < 0.1)
+			corr = 0.2 - 2 * Math.PI;
 		moveMenu(t, 3.2, fct);
 		t -= 0.05;
 	}
@@ -418,7 +412,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
       });
     }
 
-    if ((menu_parent.rotation.x - corr) % (Math.PI / 3) > 0.01)
+    if (Math.abs(menu_parent.rotation.x - corr) % (Math.PI / 3) > 0.02)
       centerMenu(menu_parent, deltaY, isLogged ? Math.PI / 3 : 2 * Math.PI / 3);
     composer.render();
     return (option);
