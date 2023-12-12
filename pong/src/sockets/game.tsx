@@ -6,4 +6,3 @@ import { coolSocket } from "../THREE/Utils";
 
 let accessToken = Cookies.get('access_token');
 export const game = coolSocket(`${config.backend_url}/game`, accessToken)
-  

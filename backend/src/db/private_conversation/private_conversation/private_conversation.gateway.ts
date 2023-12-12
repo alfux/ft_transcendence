@@ -9,11 +9,16 @@ import { CoolSocket, getCoolClients, Client } from 'src/socket'
 import { PrivateMessage, PrivateMessageService } from 'src/db/private_conversation/private_message'
 import { PrivateConversationService } from './private_conversation.service'
 import { HttpUnauthorized } from 'src/exceptions'
+import { AuthService } from 'src/auth'
+import { UserService } from 'src/db/user'
 
 @WebSocketGateway({ namespace: 'private_chat' })
 export class PrivateConversationGateway implements OnGatewayConnection {
 
   constructor(
+    private authService: AuthService, //NE PAS ENELEVER
+    private userService: UserService, //NE PAS ENELEVER
+
     private messageService: PrivateMessageService,
     private conversationService: PrivateConversationService
   ) { }
