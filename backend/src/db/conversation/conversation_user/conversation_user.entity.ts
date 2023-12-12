@@ -1,7 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn } from 'typeorm'
-import { User } from '../../user'
-import { Message } from '../../message'
-import { Conversation } from '../conversation.entity'
+
+import { User } from 'src/db/user'
+import { Message } from 'src/db/conversation/message'
+import { Conversation } from 'src/db/conversation'
 
 @Entity()
 export class ConversationUser {
@@ -10,7 +11,7 @@ export class ConversationUser {
 
   @ManyToOne(() => User, (user) => user.conversations)
   @JoinColumn()
-  user:User
+  user: User
 
   @ManyToOne(() => Conversation, (conversation) => conversation.users)
   @JoinColumn()
@@ -19,10 +20,10 @@ export class ConversationUser {
   @CreateDateColumn()
   joinedAt: Date
 
-  @Column({default:false})
-  isAdmin: boolean;
+  @Column({ default: false })
+  isAdmin: boolean
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  becameAdminAt: Date;
+  becameAdminAt: Date
 
   @OneToMany(() => Message, (message) => message.sender)
   messages: Message[]

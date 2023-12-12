@@ -1,24 +1,23 @@
-import { Module } from '@nestjs/common'
+import { ScheduleModule } from '@nestjs/schedule'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { APP_GUARD } from '@nestjs/core'
+import { Module } from '@nestjs/common'
 
-import { User, FriendRequest, PlayRequest, UserModule } from './db/user'
-import { Message, MessageModule } from './db/message'
-import { Conversation, ConversationUser, ConversationUserInfos, ConversationModule } from './db/conversation'
+import { Conversation, ConversationUser, ConversationUserInfos, ConversationModule } from 'src/db/conversation'
+import { PrivateMessage, PrivateConversation, PrivateConversationModule } from 'src/db/private_conversation'
+import { Message } from 'src/db/conversation/message'
 
-import { ChatModule } from './chat/chat.module'
+import { User, FriendRequest, PlayRequest, Match, UserModule } from 'src/db/user'
 
-import { AuthModule } from './auth/auth.module'
-import { JwtAuthGuard } from './auth/jwt/jwt.guard'
+import { AuthModule } from 'src/auth/auth.module'
 
-import { DebugModule } from './debug/debug.module'
+import { NotificationsModule } from 'src/notifications/'
 
-import { GameModule } from './game/game.module'
+import { DebugModule } from 'src/debug/debug.module'
 
-import { config_db } from './config'
-import { NotificationsModule } from './notifications/notifications.module'
-import { ScheduleModule } from '@nestjs/schedule'
-import { PrivateConversation, PrivateConversationModule } from './db/private_conversation'
+import { GameModule } from 'src/game/game.module'
+
+import { config_db } from 'src/config'
 
 @Module({
   imports: [
@@ -39,27 +38,22 @@ import { PrivateConversation, PrivateConversationModule } from './db/private_con
         ConversationUserInfos,
       
         PrivateConversation,
+        PrivateMessage,
 
         FriendRequest,
-        PlayRequest
+        PlayRequest,
+
+        Match
       ],
       synchronize: true,
     }),
     UserModule,
-    MessageModule,
     ConversationModule,
-    ChatModule,
     AuthModule,
     DebugModule,
     GameModule,
     NotificationsModule,
     PrivateConversationModule
   ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-  ]
 })
 export class AppModule {}

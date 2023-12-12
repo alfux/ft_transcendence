@@ -4,12 +4,10 @@ import { WebSocketGateway, WebSocketServer, OnGatewayConnection, SubscribeMessag
 import { Server, Socket } from 'socket.io'
 import { Interval } from '@nestjs/schedule'
 
-import { AuthService } from 'src/auth/auth.service'
-import { UserService } from 'src/db/user'
+import { AuthService } from 'src/auth/'
 
-import { Ball } from './Game/Ball'
-import { GameInstance, Client, Keyboard } from './Game/GameInstance'
-import { CoolSocket } from 'src/socket/coolsocket.decorator'
+import { GameInstance, Keyboard, Ball } from './Game'
+import { Client, CoolSocket } from 'src/socket/'
 
 @WebSocketGateway({ namespace: 'game' })
 export class GameGateway implements OnGatewayConnection {
@@ -21,7 +19,6 @@ export class GameGateway implements OnGatewayConnection {
 
   constructor(
     private authService: AuthService,
-    private userService: UserService
   ) { }
 
   async handleConnection(client: Socket) {
@@ -46,7 +43,7 @@ export class GameGateway implements OnGatewayConnection {
     this.waiting.push(client)
 
     if (this.waiting.length >= 2) {
-      
+
       const p1 = this.waiting[0]
       const p2 = this.waiting[1]
 
@@ -60,10 +57,10 @@ export class GameGateway implements OnGatewayConnection {
         p1.socket.emit("ball_pos", inverted)
         p2.socket.emit("ball_pos", b)
       },
-      (winner, looser) => {
-        //TODO: update database
-        this.gameInstances = this.gameInstances.filter((v) => v !== gameInstance)
-      })
+        (winner, looser) => {
+          //TODO: update database
+          this.gameInstances = this.gameInstances.filter((v) => v !== gameInstance)
+        })
       this.gameInstances.push(gameInstance)
       gameInstance.start()
     }

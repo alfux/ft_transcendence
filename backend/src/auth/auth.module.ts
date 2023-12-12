@@ -1,38 +1,40 @@
-// auth.module.ts
-
 import { Module, forwardRef } from '@nestjs/common'
 import { PassportModule } from '@nestjs/passport'
-import { JwtModule } from '@nestjs/jwt'
+import { JwtModule as NestJwtModule } from '@nestjs/jwt'
 
-import { FortyTwoStrategy } from './42api/42api.strategy'
-import { JwtStrategy } from './jwt/jwt.strategy'
-import { JwtRefreshTokenStrategy } from './jwt/jwt_refresh.strategy'
-import { AuthController } from './auth.controller'
-import { AuthService } from './auth.service'
 import { UserModule } from 'src/db/user'
+import { AuthService } from './auth.service'
+import { AuthController } from './auth.controller'
 
-import { TwoFactorAuthenticationController } from './2fa/2fa.controller'
-import { TwoFactorAuthenticationService } from './2fa/2fa.service'
+import { JwtModule } from './jwt'
+import { FortyTwoModule } from './42api'
+import { TwoFactorAuthenticationModule } from './2fa'
 
 @Module({
   imports: [
-    JwtModule.register({}),
+    NestJwtModule.register({}),
     PassportModule.register({ defaultStrategy: '42' }),
-    forwardRef(() => UserModule)
+    forwardRef(() => UserModule),
+
+    TwoFactorAuthenticationModule,
+    FortyTwoModule,
+    JwtModule,
   ],
+
   controllers: [
     AuthController,
-    TwoFactorAuthenticationController
   ],
+
   providers: [
-    FortyTwoStrategy,
-    JwtStrategy,
-    JwtRefreshTokenStrategy,
-    TwoFactorAuthenticationService,
     AuthService
   ],
+
   exports: [
+    TwoFactorAuthenticationModule,
+    FortyTwoModule,
+    JwtModule,
+
     AuthService
   ],
 })
-export class AuthModule {}
+export class AuthModule { }

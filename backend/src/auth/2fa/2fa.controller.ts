@@ -1,11 +1,11 @@
-import { Body, Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { TwoFactorAuthenticationService } from './2fa.service';
-import { UserService } from 'src/db/user/user.service';
-import { Route } from 'src/route';
-import { LoggedStatus } from 'src/db/user/logged_status.interface';
-import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
-import { Request } from '../interfaces/request.interface';
+import { Body, Controller, Get, Post, Req, UnauthorizedException, Inject, forwardRef } from '@nestjs/common'
+import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger'
+
+import { Route } from 'src/route'
+import { Request } from 'src/auth/interfaces'
+import { UserService, LoggedStatus } from 'src/db/user'
+
+import { TwoFactorAuthenticationService } from '.'
 
 class AuthenticateParams {
   @ApiProperty({ description: 'The 2FA code from the authentication app' })
@@ -18,6 +18,8 @@ class AuthenticateParams {
 export class TwoFactorAuthenticationController {
   constructor(
     private twoFactorAuthenticationService: TwoFactorAuthenticationService,
+
+    @Inject(forwardRef(() => UserService))
     private userService: UserService,
   ) { }
 
@@ -27,28 +29,28 @@ export class TwoFactorAuthenticationController {
   })
   async authenticateTwoFactor(@Req() request, @Body() body: AuthenticateParams) {
     console.log(body)
-    const user = await this.userService.getUser({id:request.user.id})
-    const secret = user.twoFactorAuthSecret;
-  
+    const user = await this.userService.getUser({ id: request.user.id })
+    const secret = user.twoFactorAuthSecret
+
     //this can be used to send to email
     const token = this.twoFactorAuthenticationService.generateToken(secret)
     try {
       const isCodeValid = this.twoFactorAuthenticationService.verifyTwoFactorAuthCode(
         secret,
         body.code
-      );
+      )
       console.log("Secret: ", token, "Verification code: ", body.code)
       if (!isCodeValid) {
-        throw new UnauthorizedException('Wrong authentication code');
+        throw new UnauthorizedException('Wrong authentication code')
       }
     } catch (error) {
       // Log the error
-      console.error('Error in enableTwoFactorAuth:', error);
+      console.error('Error in enableTwoFactorAuth:', error)
 
       // Re-throw the error to maintain the original behavior (returning a 401 response)
-      throw new UnauthorizedException('Wrong authentication codee');
+      throw new UnauthorizedException('Wrong authentication codee')
     }
-    await this.userService.updateOrCreateUser({id:request.user.id, isAuthenticated:LoggedStatus.Logged})
+    await this.userService.updateOrCreateUser({ id: request.user.id, isAuthenticated: LoggedStatus.Logged })
     return "authenticated"
   }
 
@@ -58,30 +60,27 @@ export class TwoFactorAuthenticationController {
     description: { summary: "Enable 2FA", description: "Enable 2FA" }
   })
   async enableTwoFactorAuth(@Req() request, @Body() body) {
-    const user = await this.userService.getUser({id:request.user.id})
-  
+    const user = await this.userService.getUser({ id: request.user.id })
+
     const secret = user.twoFactorAuthSecret
     const token = this.twoFactorAuthenticationService.generateToken(secret)
     console.log('token', token, '\n', 'body token ', body.verificationCode)
-  
+
     try {
       const isCodeValid = this.twoFactorAuthenticationService.verifyTwoFactorAuthCode(
         secret,
         body.verificationCode
-      );
+      )
       if (!isCodeValid) {
-        throw new UnauthorizedException('Wrong authentication code');
+        throw new UnauthorizedException('Wrong authentication code')
       }
     } catch (error) {
-      // Log the error
-      console.error('Error in enableTwoFactorAuth:', error);
-
-      // Re-throw the error to maintain the original behavior (returning a 401 response)
-      throw new UnauthorizedException('Wrong authentication codee');
+      console.error('Error in enableTwoFactorAuth:', error)
+      throw new UnauthorizedException('Wrong authentication codee')
     }
 
     user.twoFactorAuth = true
-    return this.userService.updateOrCreateUser(user);
+    return this.userService.updateOrCreateUser(user)
   }
 
   @Route({
@@ -100,7 +99,7 @@ export class TwoFactorAuthenticationController {
     description: { summary: "Disables 2FA", description: "Disables 2FA" }
   })
   async disableTwoFactorAuth(@Req() request: Request) {
-    const user = await this.userService.getUser({id:request.user.id})
+    const user = await this.userService.getUser({ id: request.user.id })
     user.twoFactorAuth = false
     return this.userService.updateOrCreateUser(user)
   }
@@ -110,7 +109,7 @@ export class TwoFactorAuthenticationController {
     description: { summary: "Status of 2FA authentification", description: "Status of 2FA authentification" }
   })
   async twoFactorAuthStatus(@Req() request: Request) {
-    const user = await this.userService.getUser({id:request.user.id})
+    const user = await this.userService.getUser({ id: request.user.id })
     return user.twoFactorAuth ? true : false
   }
 }

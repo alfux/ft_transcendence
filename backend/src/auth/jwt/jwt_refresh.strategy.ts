@@ -1,8 +1,9 @@
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { Injectable, Req, UnauthorizedException } from '@nestjs/common';
-import { config_jwt } from 'src/config';
-import { JwtPayload } from '../interfaces/jwtpayload.interface';
+import { PassportStrategy } from '@nestjs/passport'
+import { ExtractJwt, Strategy } from 'passport-jwt'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
+
+import { config_jwt } from 'src/config'
+import { JwtPayload } from 'src/auth/interfaces'
 
 @Injectable()
 export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
@@ -19,18 +20,17 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-ref
 
   private static extractJwtRefreshCookie(request): string | null {
     if (request.cookies && 'refresh_token' in request.cookies)
-      return request.cookies.refresh_token;
-    return null;
+      return request.cookies.refresh_token
+    return null
   }
 
   async validate(request, payload: JwtPayload) {
     try {
       if (!request.cookies.refresh_token)
-        throw new UnauthorizedException('No refresh token provided');
-      return payload;
+        throw new UnauthorizedException('No refresh token provided')
+      return payload
     } catch (error) {
-      console.error(error)
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Invalid refresh token')
     }
   }
 }

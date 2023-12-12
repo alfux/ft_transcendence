@@ -2,31 +2,12 @@ import { Injectable, HttpStatus, HttpException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { FindOptionsWhere, Repository } from 'typeorm'
 
-import { User } from './user.entity'
-import { FriendRequest } from './friend_request.entity'
-import { NotificationsService } from 'src/notifications/notifications.service'
-import { PlayRequest } from './play_request.entity'
+import { User } from 'src/db/user'
 
-export interface Oauth42Token {
-  access_token: string
-  expires: string
-}
-
-
-/*
-function merge<T>(a:T, b:Partial<T>) {
-  for (const k in Object.keys(a)) {
-    if (b[k]) a[k] = b[k]
-  }
-} 
-*/
-function merge<T>(a: T, b: Partial<T>): void {
-  for (const key in b) {
-    if (b.hasOwnProperty(key)) {
-      a[key] = b[key]
-    }
-  }
-}
+import { PlayRequest } from './play_request/'
+import { FriendRequest } from './friend_request'
+import { NotificationsService } from 'src/notifications/'
+import { HttpBadRequest, HttpNotFound } from 'src/exceptions'
 
 @Injectable()
 export class UserService {
@@ -44,43 +25,33 @@ export class UserService {
   async getUser(where: FindOptionsWhere<User> = {}, relations = [] as string[]): Promise<User> {
     const user = await this.usersRepository.findOne({ where: where, relations: relations, })
     if (!user)
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST)
+      throw new HttpNotFound("User")
     return user
   }
 
   async getUsers(where: FindOptionsWhere<User> = {}, relations = [] as string[]): Promise<User[]> {
     const user = await this.usersRepository.find({ where: where, relations: relations, })
     if (!user)
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST)
+      throw new HttpNotFound("User")
     return user
   }
 
-  /*
-  async createUser(user: Partial<User>): Promise<User> {
-    if (await this.getUser({ id: user.id }).catch(() => null))
-      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST)
-
-    const u = this.usersRepository.create(user)
-    return this.usersRepository.save(u)
-  }
-  */
-
-  async updateUser(user: Partial<User> & {id:number}): Promise<User> {
+  async updateUser(user: Partial<User> & { id: number }): Promise<User> {
 
     if (user.id === undefined)
-      throw new HttpException("User not found", HttpStatus.BAD_REQUEST)
-    await this.getUser({id:user.id})
-    return this.usersRepository.save({id:user.id, ...user})
+      throw new HttpNotFound("User")
+    await this.getUser({ id: user.id })
+    return this.usersRepository.save({ id: user.id, ...user })
   }
 
-  async createUser(user: Partial<User> & {id:number}): Promise<User> {
+  async createUser(user: Partial<User> & { id: number }): Promise<User> {
     const new_user = this.usersRepository.create(user)
     const rep = await this.usersRepository.save(new_user)
     return rep
   }
 
-  async updateOrCreateUser(user: Partial<User> & {id:number}): Promise<User> {
-    let u = await this.getUser({id:user.id}).catch(() => null)
+  async updateOrCreateUser(user: Partial<User> & { id: number }): Promise<User> {
+    let u = await this.getUser({ id: user.id }).catch(() => null)
     if (!u) {
       return this.createUser(user)
     }
@@ -91,24 +62,36 @@ export class UserService {
     await this.usersRepository.delete(id)
   }
 
-  async sendFriendRequest(from: User, to: User) {
-    return await this.frRepository.save({
+  async sendFriendRequest(from_id: number, to_username:string) {
+    const from = await this.getUser({ id: from_id })
+    const to = await this.getUser({ username: to_username }, ['blocked'])
+
+    if (from.id === to.id)
+      throw new HttpBadRequest()
+    if (to.blocked.find((v) => v.id === from.id))
+      throw new HttpBadRequest()
+
+    return this.frRepository.save({
       sender: from,
       receiver: to
+    })
+    .then((x) => {
+      this.notificationService.emit([to], "friend_request_recv", { req: x });
+      return x
     })
   }
 
   getFriendRequest(where: FindOptionsWhere<FriendRequest>, relations = [] as string[]) {
     const connection = this.frRepository.findOne({ where: where, relations: relations })
     if (!connection)
-      throw new HttpException("Friend request not found", HttpStatus.BAD_REQUEST)
+      throw new HttpNotFound("Friend Request")
     return connection
   }
 
   async acceptFriendRequest(id: number) {
     const request = await this.frRepository.findOne({ where: { id: id }, relations: ['sender', 'receiver'] })
     if (!request)
-      throw new HttpException('Friend request not found', HttpStatus.BAD_REQUEST)
+      throw new HttpNotFound("Friend Request")
 
     const sender = await this.getUser({ id: request.sender.id }, ['friends'])
     const receiver = await this.getUser({ id: request.receiver.id }, ['friends'])
@@ -129,6 +112,11 @@ export class UserService {
   }
 
   async removeFriend(user_id: number, friend_id: number) {
+
+    if (user_id === friend_id) {
+      throw new HttpBadRequest()
+    }
+
     const user = await this.getUser({ id: user_id }, ['friends'])
     const friend = await this.getUser({ id: friend_id }, ['friends'])
 
@@ -156,18 +144,17 @@ export class UserService {
 
     const blocked = user.blocked.find((v) => v.id === blocked_user_id)
     if (!blocked)
-      return
-    user.blocked.filter((v) => v.id !== blocked_user_id)
+      throw new HttpBadRequest()
+    user.blocked = user.blocked.filter((v) => v.id !== blocked_user_id)
     this.usersRepository.save(user)
 
     this.notificationService.emit([user], "blocked_delete", { user: blocked })
   }
 
-
   async acceptPlayRequest(id: number) {
     const request = await this.playRepository.findOne({ where: { id: id }, relations: ['sender', 'receiver'] })
     if (!request)
-      throw new HttpException('Play request not found', HttpStatus.BAD_REQUEST)
+      throw new HttpNotFound("Play Request")
 
     const sender = await this.getUser({ id: request.sender.id })
     const receiver = await this.getUser({ id: request.receiver.id })
