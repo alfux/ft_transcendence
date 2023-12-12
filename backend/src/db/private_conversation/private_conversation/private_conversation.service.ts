@@ -6,6 +6,7 @@ import { UserService } from 'src/db/user'
 
 import { PrivateConversation } from '.'
 import { HttpNotFound } from 'src/exceptions'
+import { FindOptions, FindMultipleOptions } from 'src/db/types'
 
 @Injectable()
 export class PrivateConversationService {
@@ -17,14 +18,14 @@ export class PrivateConversationService {
     private userService: UserService,
   ) { }
 
-  async getPrivateConversation(where: FindOptionsWhere<PrivateConversation>, relations = [] as string[]) {
+  async getPrivateConversation(where: FindOptions<PrivateConversation>, relations = [] as string[]) {
     const connection = await this.conversationRepository.findOne({ where, relations, })
     if (!connection)
       throw new HttpNotFound("Private Conversation")
     return connection
   }
 
-  async getPrivateConversations(where: FindOptionsWhere<PrivateConversation>, relations = [] as string[]) {
+  async getPrivateConversations(where: FindMultipleOptions<PrivateConversation>, relations = [] as string[]) {
     const connection = await this.conversationRepository.find({ where, relations, })
     if (!connection)
       throw new HttpNotFound("Private Conversation")
