@@ -83,8 +83,8 @@ export class UserService {
     })
   }
 
-  getFriendRequest(where: FindOptionsWhere<FriendRequest>, relations = [] as string[]) {
-    const connection = this.frRepository.findOne({ where: where, relations: relations })
+  async getFriendRequest(where: FindOptionsWhere<FriendRequest>, relations = [] as string[]) {
+    const connection = await this.frRepository.findOne({ where: where, relations: relations })
     if (!connection)
       throw new HttpNotFound("Friend Request")
     return connection

@@ -29,6 +29,7 @@ export class ConversationGateway implements OnGatewayConnection {
   @CoolSocket
   async handleMessage(client: Socket, data: { message: string, conversation_id: number }): Promise<void>
   {
+    console.log("message emited")
     const user = this.connectedClients.get(client.id)
     if (!user)
       return
@@ -39,7 +40,6 @@ export class ConversationGateway implements OnGatewayConnection {
     new_message.content = data.message
 
     await this.messageService.createMessage(new_message)
-    
     this.connectedClients.forEach((value: { socket: Socket, user: any }) => {
       value.socket.emit('receive_message',
         {

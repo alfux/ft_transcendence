@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import jwt, { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
 import { createRoot } from 'react-dom/client';
@@ -15,12 +15,50 @@ import MiniChat from "../../components/minichat/MiniChat";
 import MiniChatButton from "../../components/minichat/ChatButton";
 import createComponent from "./createComponent";
 import ScoreBar from "../../components/scorebar/ScoreBar";
+import { notifications } from "../../notification/notification";
+import { FriendRequest } from "../ReactUI/backend_types";
+import Notifications from "../../components/notifications/Notifications";
+
 
 
 function RenderComponents(loginForm: {option: string, game: boolean}) {
   let accessToken = Cookies.get('access_token');
   let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
   const [payload, updatePayload, handleUpdate] = usePayload();
+  const cleanup: (() => void)[] = [];
+  const [notificationData, setNotificationData] = useState<{ type: string; data: any } | null>(null);
+  const [showNotifications, setShowNotifications] = useState(true);
+  useEffect(() => {
+    const handleFriendRequestRecv = (data: { req: any }) => {
+      setNotificationData({ type: "friend_request_recv", data: data });
+      setShowNotifications(true);
+    };
+  
+    const handleFriendNew = (data: { req: any }) => {
+      setNotificationData({ type: "friend_new", data: data});
+      console.log("data1 :", data)
+      setShowNotifications(true);
+    };
+  
+    notifications.on("friend_request_recv", handleFriendRequestRecv);
+    notifications.on("friend_new", handleFriendNew);
+  }, []);
+
+  useEffect(() =>{
+    if (showNotifications) {
+      const newFormContainer = document.createElement('div');
+      const root = createRoot(newFormContainer);
+      root.render(<Notifications notificationData={notificationData} />);
+      document.body.appendChild(newFormContainer);
+      return () => {
+        setTimeout(() => {
+          root.unmount();
+          document.body.removeChild(newFormContainer);
+        });
+      };
+    }
+  }, [showNotifications, notificationData])
+
   useEffect(() => {
     const cleanup: (() => void)[] = [];
     handleUpdate();
