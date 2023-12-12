@@ -72,12 +72,8 @@ export class ConversationController {
     responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
   })
   async getMeConversations(@Req() req: Request) {
-    return this.conversationService.getConversation({ users: { user: { id:req.user.id } } }, ['users', 'owner', 'conversations', 'conversations.conversation'])
-    .catch((e) => {
-      if (e instanceof HttpException && e.getStatus() === 400) {
-        return []
-      }
-    })
+    const conv = await this.conversationService.getConversation({ users: { user: { id:req.user.id } } }, ['users', 'owner', 'users.user'])
+    return this.conversationService.getConversation({ id:conv.id }, ['users', 'owner', 'users.user'])
   }
 
   @Route({
@@ -86,12 +82,7 @@ export class ConversationController {
     responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
   })
   getOwnConversations(@Req() req: Request) {
-    return this.conversationService.getConversation({ owner: { id:req.user.id } }, ['users', 'owner'])
-    .catch((e) => {
-      if (e instanceof HttpException && e.getStatus() === 400) {
-        return []
-      }
-    })
+    return this.conversationService.getConversation({ owner: { id:req.user.id } }, ['users', 'owner', 'users.user'])
   }
 
   @Route({

@@ -139,7 +139,7 @@ export class ConversationService {
   }
 
   async addUserToConversation(where: FindOptionsWhere<Conversation>, user: User) {
-    const conv = await this.conversationRepository.findOne({ where, relations: ["users"] })
+    const conv = await this.getConversation(where, ["users"])
 
     let conv_user = await this.getConversationUser({ user: { id: user.id } })
       .catch((e) => { if (e instanceof HttpNotFound) return undefined; else throw e })
