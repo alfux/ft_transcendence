@@ -29,7 +29,6 @@ const ScoreBar: React.FC<{user?: User}> = ({user}) => {
     const requestScore = async () => {
       try {//fetch Score
         const enable2FAEndpoint = `${config.backend_url}/api/user/me`;
-        console.log('Before fetch');
         const response = await fetch(enable2FAEndpoint, {
           method: 'GET',
           credentials: 'include',
@@ -50,7 +49,6 @@ const ScoreBar: React.FC<{user?: User}> = ({user}) => {
 	else
     	requestScore();
   }, [])
-  console.log("user:", data)
 
   return (
     <div id="score-component" className={(user) ? "ennemy-bar" : "score-bar"}>
