@@ -15,9 +15,8 @@ import MiniChat from "../../components/minichat/MiniChat";
 import MiniChatButton from "../../components/minichat/ChatButton";
 import createComponent from "./createComponent";
 import ScoreBar from "../../components/scorebar/ScoreBar";
-import { notifications } from "../../notification/notification";
-import { FriendRequest } from "../ReactUI/backend_types";
 import Notifications from "../../components/notifications/Notifications";
+import { notificationsSocket } from "../../sockets";
 
 
 
@@ -40,8 +39,9 @@ function RenderComponents(loginForm: {option: string, game: boolean}) {
       setShowNotifications(true);
     };
   
-    notifications.on("friend_request_recv", handleFriendRequestRecv);
-    notifications.on("friend_new", handleFriendNew);
+    notificationsSocket.on("friend_request_recv", handleFriendRequestRecv);
+    notificationsSocket.on("friend_new", handleFriendNew);
+    //TODO: notificationsSocket.off
   }, []);
 
   useEffect(() =>{

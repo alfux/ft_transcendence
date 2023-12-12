@@ -22,12 +22,12 @@ import {
   ConversationUser,
   FriendRequest,
   User,
-} from "../../THREE/ReactUI/backend_types";
+} from "../../THREE/Utils/backend_types";
 import { config } from "../../config";
 import Login from "../login/Login";
 import { channel } from "diagnostics_channel";
 import { group } from "console";
-import { notifications } from "../../notification/notification";
+import { notificationsSocket } from "../../sockets/";
 import { Channel } from "./interfaces/interfaces";
 
 enum ChannelOptions {
@@ -354,7 +354,7 @@ const MiniChat: React.FC = () => {
         e.preventDefault();
         const message = messageText;
         const conversation_id :number = conversation.id
-        notifications.emit("send_message", (data: {message:string, conversation_id:number}) =>{
+        notificationsSocket.emit("send_message", (data: {message:string, conversation_id:number}) =>{
           console.log("DATING",data)
         })
         setMessageText('')
@@ -378,7 +378,7 @@ const MiniChat: React.FC = () => {
   };
   useEffect(()=>{
     console.log("DATE")
-    notifications.emit("send_message", (data: {"as":string, 20:number}) =>{
+    notificationsSocket.emit("send_message", (data: {"as":string, 20:number}) =>{
       console.log("DATING")
     })
   },[])

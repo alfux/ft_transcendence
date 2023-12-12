@@ -3,6 +3,8 @@ import io from 'socket.io-client';
 import { config } from '../../config';
 import "./Chat.css"
 
+import { chatSocket } from "../../sockets";
+
 interface	Message {
   id: number;
   content: string;
@@ -29,7 +31,6 @@ interface	Chat_Settings
 
 export default function	Chat(props: Chat_Settings = {width: window.innerWidth / 2, height: window.innerHeight / 2})
 {
-	const	socket = io(`${config.backend_url}/chat`, { transports: ["websocket"] });
 	const	[msgs, setMsgs] = REACT.useState<Array<JSX.Element> >([
 		<li key={0} >Alexis: Bonjour !</li>,
 		<li key={1} >Duarte: Bonjour !</li>,
@@ -37,7 +38,7 @@ export default function	Chat(props: Chat_Settings = {width: window.innerWidth / 
 		<li key={3} >Carlos: Bonjour !</li>,
 	]);
 
-	socket.on("receive_message", handleReceive);
+	chatSocket.on("receive_message", handleReceive);
 
 	function	handleReceive(new_msg: Received) {
 		setMsgs((m) => {

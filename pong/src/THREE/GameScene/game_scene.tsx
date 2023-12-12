@@ -10,8 +10,9 @@ import { getActiveKeys, keyboard } from '../Utils/keyboard';
 import { Socket } from 'socket.io-client';
 
 import { clock } from "../Utils/clock";
+import { gameSocket } from '../../sockets';
 
-export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget, socket: Socket) {
+export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget) {
 	const	camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
     camera.position.set(0, -30, 30);
 	camera.up.set(0, 0, 1);
@@ -50,10 +51,10 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 		}
 	});
 
-	socket.on("start", handleStart);
-	socket.on("player_pos", updateRackets);
-	socket.on("ball_pos", updateBallPos);
-	socket.on("finish", handleFinish);
+	gameSocket.on("start", handleStart);
+	gameSocket.on("player_pos", updateRackets);
+	gameSocket.on("ball_pos", updateBallPos);
+	gameSocket.on("finish", handleFinish);
 
 	function handleStart() {
 		start = true;
@@ -91,7 +92,7 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 	function update() {
     	const active_keys = getActiveKeys();
 		if (Object.keys(active_keys).length !== 0) {
-			socket.emit("player_input", active_keys);
+			gameSocket.emit("player_input", active_keys);
 		}
 
 		renderer.setRenderTarget(target);

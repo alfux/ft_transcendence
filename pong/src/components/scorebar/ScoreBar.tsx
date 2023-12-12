@@ -6,9 +6,7 @@ import usePayload from '../../react_hooks/use_auth'
 import userEvent from '@testing-library/user-event';
 import { LoggedStatus } from '../../THREE/Utils/jwt.interface';
 
-import { socket } from "../../THREE/main";
-
-const accessToken = Cookies.get('accessToken')
+import { gameSocket } from '../../sockets';
 
 export type User = {
   id: number;
@@ -23,7 +21,7 @@ const ScoreBar: React.FC<{user?: User}> = ({user}) => {
   const [payload, updatePayload, handleUpdate] = usePayload();
   const [data, setData] = useState<User | null>(null)
   const	[score, setScore] = useState<number>(0);
-  socket.on("score", (score) => {
+  gameSocket.on("score", (score) => {
 	  setScore(user ? score.opponent : score.you);
   });
 

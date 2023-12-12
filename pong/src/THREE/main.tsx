@@ -16,16 +16,11 @@ import { config } from '../config';
 import { LoggedStatus } from './Utils/jwt.interface';
 import MiniChatButton from '../components/minichat/ChatButton';
 import createComponent from './Utils/createComponent';
-import { notifications } from '../notification/notification'; 
 
 export const	accessToken = Cookies.get('access_token');
 export const	socket = coolSocket(`${config.backend_url}/game`, accessToken);
 
-export default function THREE_App(props: {
-	toggleProfile: () => void,
-	toggleChat: () => void,
-	children: React.ReactNode
-}) {
+export default function THREE_App() {
 	const	divRef = useRef<HTMLDivElement>(null);
 	const [loginForm, setLoginForm] = useState('')
 	const	[gameState, setGameState] = useState(false);
@@ -60,16 +55,9 @@ export default function THREE_App(props: {
 		
 		const	buffer = new THREE.WebGLRenderTarget(25 * 512, (9 / 16) * 25 * 512);
 
-		const game_scene = create_game_scene(renderer, buffer, socket);
+		const game_scene = create_game_scene(renderer, buffer);
 		
-		const	menu_scene = create_menu_scene(renderer, buffer.texture, payload, {
-			toggleProfile: () => {
-				setShowProfile((prev) => {
-					console.log(prev);
-					return !prev
-				})
-			},
-		}, socket);
+		const	menu_scene = create_menu_scene(renderer, buffer.texture, payload);
 
 		function mainloop() {
 			requestAnimationFrame(mainloop);

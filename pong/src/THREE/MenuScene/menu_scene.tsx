@@ -15,6 +15,7 @@ import createComponent from "../Utils/createComponent";
 import Score, { User } from "../../components/scorebar/ScoreBar";
 
 import { clock } from "../Utils/clock";
+import { gameSocket } from '../../sockets';
 
 enum MenuButtons {
   Login = "Login",
@@ -28,9 +29,7 @@ enum MenuButtons {
   Null = "null"
 }
 
-export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: THREE.Texture, payload: JwtPayload | null, params: {
-  toggleProfile: () => void
-}, socket: Socket) {
+export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: THREE.Texture, payload: JwtPayload | null) {
   const loader = new FontLoader();
   const font_params = { size: 0.4, height: 0.2 };
   const material_params = { color: 0x001616, side: THREE.DoubleSide };
@@ -212,8 +211,8 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   window.addEventListener("resize", handleResize);
   window.addEventListener("pointermove", handleMove);
 
-	socket.on("start", handleStart);
-	socket.on("finish", handleFinish);
+	gameSocket.on("start", handleStart);
+	gameSocket.on("finish", handleFinish);
 
 	function	handleStart(data: {opponent: User}) {
 		option.game = true;
@@ -299,14 +298,8 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
           document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
           window.location.reload();
           break;
-        case MenuButtons.Profile:
-          params.toggleProfile();
-          break
         case MenuButtons.Play:
-          socket.emit("search", {
-            a:1,
-            b:2
-          })
+          gameSocket.emit("search")
           break
       }
       console.log("clicked on ball");

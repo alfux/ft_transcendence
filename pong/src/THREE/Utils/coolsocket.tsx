@@ -21,10 +21,5 @@ function promoteToCoolSocket(socket:Socket, token:string|undefined): CoolSocket 
 }
 
 export function coolSocket(url:string, token:string|undefined): CoolSocket {
-  console.log(token)
-  const socket = promoteToCoolSocket(io(url, { transports: ["websocket"] }), token)
-  socket.on("connect", () => {
-    socket.emit("auth", token)
-  })
-  return socket
+  return promoteToCoolSocket(io(url, { transports: ["websocket"] }), token)
 }

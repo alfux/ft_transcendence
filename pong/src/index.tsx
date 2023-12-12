@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import THREE_App from './THREE/main';
 import './index.css'
-import { ReactUIParent } from './THREE/ReactUI/ReactUI';
 
 import Chat from "./components/chat/Chat";
 import Cookies, { CookieAttributes } from 'js-cookie';
@@ -43,11 +42,7 @@ function App() {
 
   return (
     <div>
-      <THREE_App
-        toggleProfile={() => { setShowProfile((prev) => !prev) }}
-        toggleChat={() => { setShowChat((prev) => !prev) }}>
-        <ReactUIParent showProfile={showProfile} showChat={showChat} />
-      </THREE_App>
+      <THREE_App />
     </div>
   )
 }
