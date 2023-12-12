@@ -16,7 +16,8 @@ import { config } from '../config';
 import { LoggedStatus } from './Utils/jwt.interface';
 import MiniChatButton from '../components/minichat/ChatButton';
 import createComponent from './Utils/createComponent';
-import { notifications } from '../notification/notification'; 
+import { notifications } from '../notification/notification';
+import { clock } from "./Utils/clock";
 
 export const	accessToken = Cookies.get('access_token');
 export const	socket = coolSocket(`${config.backend_url}/game`, accessToken);
@@ -72,6 +73,7 @@ export default function THREE_App(props: {
 		}, socket);
 
 		function mainloop() {
+			clock.update();
 			requestAnimationFrame(mainloop);
 			game_scene.update();
 			const option = menu_scene.update()
