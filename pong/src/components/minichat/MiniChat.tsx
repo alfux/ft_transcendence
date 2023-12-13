@@ -324,6 +324,7 @@ const MiniChat: React.FC = () => {
   const CreateChannelProfile = () => {
 
     const joinChannel = async () =>{
+      console.log("me_id",selectedGroup?.id)
       try {
         const response = await fetch(`${config.backend_url}/api/conversation/join`, {
           method: "POST",
@@ -331,7 +332,7 @@ const MiniChat: React.FC = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({id : me?.db_id}),
+          body: JSON.stringify({id : selectedGroup?.id}),
         });
         if (response.ok) {
           console.log("Joined Succefully");
@@ -434,11 +435,8 @@ const MiniChat: React.FC = () => {
         e.preventDefault();
         const message = messageText;
         const conversation_id :number = selectedGroup?.id
-        console.log("messageText:", messageText, "group id", selectedGroup?.id)
-        chatSocket.emit("send_message", (data:{"jelflpa":string,1:number}) =>{
-          console.log("DATING",data)
-          setMessageText('')
-        })
+        chatSocket.emit("send_message", {message:message,conversation_id: conversation_id})
+        setMessageText("")
       }
     };
 
