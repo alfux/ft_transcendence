@@ -1,39 +1,22 @@
-class	Keyboard
+export class	Keyboard
 {
-	[key: string]: { keydown:boolean, keypress:boolean };
+	key: {
+		[key: string]: boolean
+	};
+
+	constructor() {
+		this.key = {};
+		window.addEventListener("keydown", handleKeydown);
+		window.addEventListener("keyup", handleKeyup);
+	}
 };
 
-export function initKeyboardHandlers() {
-	window.addEventListener("keydown", handleKeydown);
-	window.addEventListener("keyup", handleKeyup);
+function	handleKeydown(event: KeyboardEvent) {
+	keyboard.key[event.key] = true;
 }
 
-export function getActiveKeys(): { [key: string]: { keydown: boolean; keypress: boolean } } {
-	const activeKeys: { [key: string]: { keydown: boolean; keypress: boolean } } = {};
-
-	for (const key in keyboard) {
-		if (keyboard[key].keydown || keyboard[key].keypress) {
-			activeKeys[key] = { keydown: keyboard[key].keydown, keypress: keyboard[key].keypress };
-		}
-	}
-	return activeKeys;
+function	handleKeyup(event: KeyboardEvent) {
+	keyboard.key[event.key] = false;
 }
 
-export const keyboard = new Keyboard()
-
-function	removeKeyDowns() {
-	for (const k in keyboard) {
-		keyboard[k].keydown = false;
-	}
-}
-
-function	handleKeydown(event: KeyboardEvent)
-{
-	keyboard[event.key] = {keydown:true, keypress:true};
-	requestAnimationFrame(removeKeyDowns)
-}
-
-function	handleKeyup(event: KeyboardEvent)
-{
-	keyboard[event.key] = {keydown:false, keypress:false};
-}
+export const keyboard = new Keyboard();

@@ -6,7 +6,7 @@ import { Obstacle } from './obstacle';
 import { GameBoard } from './gameboard';
 import { Vec3, distance, scalaire, norm, Mat3, rotz, rotx } from '../Math';
 
-import { getActiveKeys, keyboard } from '../Utils/keyboard';
+import { keyboard } from '../Utils/keyboard';
 import { Socket } from 'socket.io-client';
 
 import { clock } from "../Utils/clock";
@@ -90,9 +90,8 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 
 
 	function update() {
-    	const active_keys = getActiveKeys();
-		if (Object.keys(active_keys).length !== 0) {
-			gameSocket.emit("player_input", active_keys);
+		if (Object.keys(keyboard.key).length !== 0) {
+			gameSocket.emit("player_input", keyboard);
 		}
 
 		renderer.setRenderTarget(target);

@@ -215,7 +215,6 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 
 	function	handleStart(data: {opponent: User, you: User}) {
 		option.game = true;
-		console.log("DATA: ", data);
 		cleanup.push(createComponent(Score, {user: data.you, you: true}));
 		cleanup.push(createComponent(Score, {user: data.opponent, you: false}));
 	}

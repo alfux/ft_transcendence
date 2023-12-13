@@ -6,12 +6,16 @@ import { Interval } from '@nestjs/schedule'
 
 import { AuthService } from 'src/auth/'
 
-import { GameInstance, Keyboard, Ball } from './Game'
+import { GameInstance, Ball } from './Game'
 import { Client, CoolSocket } from 'src/socket/'
 import { MatchService, UserService } from 'src/db/user'
 import { Inject, forwardRef } from '@nestjs/common'
 
 import { Player } from "./Game/GameInstance";
+
+class	Keyboard {
+	key: {[key: string]: boolean};
+};
 
 @WebSocketGateway({ namespace: 'game' })
 export class GameGateway implements OnGatewayConnection {

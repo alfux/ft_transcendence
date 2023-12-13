@@ -6,6 +6,14 @@ import { Vec3, distance, norm, scalaire, clamp } from './Math'
 import { Obstacle } from "./Obstacle";
 import { Ball } from "./Ball";
 
+class	Keyboard {
+	key: {[key: string]: boolean};
+
+	constructor() {
+		this.key = {};
+	}
+};
+
 function impact(ball: Ball, obstacle: Obstacle) {
   const d = new Vec3(
     obstacle.direction.y,
@@ -116,7 +124,6 @@ function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
 	ball.speed.set(nspeed * tmp.x / n, nspeed * tmp.y / n, nspeed * tmp.z / n);
 }
 
-export class Keyboard { [key: string]: { keydown: boolean, keypress: boolean } }
 export interface Player { client: Client, racket: Obstacle, keyboard: Keyboard }
 
 export class GameInstance {
@@ -193,24 +200,22 @@ export class GameInstance {
     let speed;
 	
 	speed = 0;
-    if (this.player2.keyboard.ArrowDown?.keypress)
+    if (this.player2.keyboard.key?.ArrowDown)
 		speed += -5;
-    if (this.player2.keyboard.ArrowUp?.keypress)
+    if (this.player2.keyboard.key?.ArrowUp)
 		speed += 5;
 	move = speed * this.delta_time;
 	this.player2.racket.position.y = clamp(this.player2.racket.position.y + move, -limit, limit);
 	this.player2.racket.speed = speed / 5; // Tune down probably
-	console.log("player2", speed);
 
 	speed = 0;
-	if (this.player1.keyboard.ArrowDown?.keypress)
+	if (this.player1.keyboard.key?.ArrowDown)
 		speed += 5;
-	if (this.player1.keyboard.ArrowUp?.keypress)
+	if (this.player1.keyboard.key?.ArrowUp)
 		speed += -5;
 	move = -speed * this.delta_time;
 	this.player1.racket.position.y = clamp(this.player1.racket.position.y + move, -limit, limit);
-	this.player1.racket.speed = speed; // Tune down probably
-	console.log("player1", speed);
+	this.player1.racket.speed = speed / 5; // Tune down probably
 
 	this.player1.client.socket.emit("player_pos", {
 		you: this.player1.racket,
