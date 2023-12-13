@@ -1,15 +1,16 @@
 import { Injectable, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
+import * as bcrypt from 'bcrypt';
 
 import { UserService, User } from 'src/db/user'
 import { MessageService } from 'src/db/conversation/message'
 import { ConversationUser, ConversationUserInfos } from 'src/db/conversation/conversation_user'
 
 import { AccessLevel, Conversation } from '.'
-import { HttpBadRequest, HttpMissingArg, HttpNotFound } from 'src/exceptions'
+import { HttpBadRequest, HttpMissingArg, HttpNotFound, HttpUnauthorized } from 'src/exceptions'
 
-import { FindOptions, FindMultipleOptions } from 'src/db/types'
+import { FindOptions, FindMultipleOptions, SelectOptions } from 'src/db/types'
 
 @Injectable()
 export class ConversationService {
@@ -96,6 +97,12 @@ export class ConversationService {
   }
 
 
+  async getConversationPassword(id:number) {
+    return this.conversationRepository.createQueryBuilder('conversation')
+      .where('conversation.id = :id', { id })
+      .addSelect(['conversation.password'])
+      .getOne();
+  }
 
   async getConversation(where: FindOptions<Conversation>, relations = [] as string[]) {
     const connection = await this.conversationRepository.findOne({ where, relations, })
@@ -111,9 +118,15 @@ export class ConversationService {
     return connection
   }
 
-  async createConversation(user_id: number, title: string, access_level: AccessLevel, password: string) {
-    if (access_level && access_level == AccessLevel.PROTECTED && password === undefined) {
+  async createConversation(user_id: number, title: string, access_level: AccessLevel, password?: string) {
+    if (access_level === AccessLevel.PROTECTED && (password === undefined || password === "")) {
       throw new HttpMissingArg()
+    }
+
+    const src_password = password
+    if (password) {
+      const saltOrRounds = 10;
+      password = await bcrypt.hash(password, saltOrRounds);
     }
 
     //TODO: hash le password
@@ -127,7 +140,7 @@ export class ConversationService {
       messages: []
     })
     const new_conv = await this.conversationRepository.save(new_conv_template)
-    return await this.addUserToConversation({ id: new_conv.id }, user)
+    return await this.addUserToConversation({ id: new_conv.id }, user, src_password)
   }
 
   async deleteConversation(where: FindOptions<Conversation>) {
@@ -141,10 +154,21 @@ export class ConversationService {
       })
   }
 
-  async addUserToConversation(where: FindOptions<Conversation>, user: User) {
+  async addUserToConversation(where: FindOptions<Conversation>, user: User, password?:string) {
     const conv = await this.getConversation(where, ["users"])
+    const conv_password = await this.getConversationPassword(conv.id)
 
-    let conv_user = await this.getConversationUser({ user: { id: user.id }, conversation: { id:conv.id } })
+    if (conv.access_level === AccessLevel.PROTECTED) {
+      if (!password) {
+        throw new HttpMissingArg()
+      }
+      const hash = await bcrypt.compare(password, conv_password.password);
+      if (!hash) {
+        throw new HttpUnauthorized()
+      }
+    }
+
+    let conv_user = await this.getConversationUser({ user: { id: user.id }, conversation: { id: conv.id } })
       .catch((e) => { if (e instanceof HttpNotFound) return undefined; else throw e })
 
     if (!conv_user) {

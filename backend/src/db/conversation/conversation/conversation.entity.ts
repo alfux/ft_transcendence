@@ -21,7 +21,7 @@ export class Conversation {
   })
   access_level:AccessLevel
 
-  @Column({nullable: true})
+  @Column({nullable: true, select: false})
   password?:string
 
   @ManyToOne(() => User)
