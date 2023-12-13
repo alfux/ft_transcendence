@@ -79,7 +79,7 @@ const TwoFactorAuthenticate: React.FC = () => {
 
   return (
     <div className="glass-container-twofactor">
-      <h1 className='twoFactorValidate'>2FA</h1>
+      <p className='twoFactorValidate'>2FA</p>
       <p>Scan QRCode</p>
       <p>Validate two-factor to enable</p>
       <form>

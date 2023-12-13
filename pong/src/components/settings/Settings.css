@@ -11,17 +11,39 @@
 	justify-content: center;
 	align-items: center;
 	position:absolute;
-	top: calc(50vh - calc(var(--profile-height)/2));
-	left: 30vh;
-	height: var(--profile-height);
-	width: var(--profile-width);
+	left: 30%;
+	height: 44%;
+	width: 20%;
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 	border: 1px solid rgba(255, 255, 255, 0.3);
 	border-radius: 20px;
 	gap: 5vh;
-	animation: slideTop 2s ease forwards, colorChange 2s infinite;
+	animation: slideSettings 2s ease forwards;
   }
 
+  @keyframes slideSettings {
+    0% {
+      display: flex;
+      position:absolute;
+      top: 1%;
+      left: 1%;
+      height: 10vh;
+      width: 30vh;
+      border-radius: 16px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      justify-content: space-around;
+    }
+    50%{
+      top: 40vh;
+    }
+    100% {
+      left: 18%;
+      top: 28%;
+      background: rgba(249, 248, 248, 0.2);
+    }
+    }
 
 /* __________________Settings__________________ */
 .glass-container-settings .settings{
@@ -30,20 +52,27 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
-  margin-top: 5%;
+  margin-top: 1%;
+  margin-left: 1%;
   font-size: 4vw;
   text-align:center; 
   color: white;
   font-family: 'game', sans-serif;
+  border-radius: 15px;
 }
 
 .glass-container-settings .QRCode{
   position: absolute;
- width: 10vh;
- height: 10vh;
- left: 50%;
+  width: 10vh;
+  height: 10vh;
+  left: 50%;
   bottom: 10%;
   transform: translateX(-50%);
+}
+
+.glass-container-settings .switch-container {
+  display: flex;
+  align-items: left;
 }
 
 .glass-container-settings .switch{
@@ -53,11 +82,6 @@
   height: 40px;
   width: 90px;;
   margin-top: 0 10px;
-}
-
-.glass-container-settings .switch-container {
-  display: flex;
-  align-items: left;
 }
 
 .glass-container-settings .switch-label{
@@ -95,6 +119,7 @@
   transition: 0.4s;
   border-radius: 50%;
 }
+
 .glass-container-settings input:checked + .slider{
   background-color: rgb(10, 110, 15);
 }

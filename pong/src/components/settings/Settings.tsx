@@ -88,7 +88,6 @@ const handleToggle = async () => {
   return (
     <div className="glass-container-settings">
       <div className='settings'>
-        <span >Settings</span>
         <div className="switch-container">
           <span className="switch-label">Enable/Disable 2FA</span>
           <label className="switch">

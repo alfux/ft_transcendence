@@ -1,12 +1,8 @@
 .glass-container-twofactor {
 	position: fixed;
-	right: 0px;
-	top: 35%;
-	height: 30%;
-	max-height: 800px;
-	min-height: 500px;
+	top: 28%;
+	height: 44%;
 	width: 80%;
-	max-width: 500px;
 	background: rgba(255, 255, 255, 0.2);
 	border-radius: 16px;
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
@@ -17,31 +13,20 @@
 	align-items: center;
 	flex-direction: column;
 	justify-content: center;
-	animation: slideInRight 2s ease forwards, colorChangeTwoFactor 2s infinite;
+	animation: slideInRight 2s ease forwards;
   }
 
   @keyframes slideInRight {
 	0% {
-	  left: calc(100% + 600px);
-	  box-shadow: 0 0 1000px #00ff00;
+	  right: 60%;
 	}
+	25%{
+		top: 55%;
+	  }
 	100% {
-	  left: calc(62%);
-	}
-  }
-
-  @keyframes colorChangeTwoFactor {
-	0% {
-	  box-shadow: 0 0 100px #ffffff;
-	  box-shadow: 0 0 200px #72056b;
-	}
-	50% {
-	  box-shadow: 0 0 10px #ffffff;
-	  box-shadow: 0 0 20px #72056b;
-	}
-	100% {
-		box-shadow: 0 0 10px #ffffff;
-		box-shadow: 0 0 20px #72056b;
+	right: 18%;
+	top: 28%;
+	background: rgba(249, 248, 248, 0.2);
 	}
   }
 
@@ -51,7 +36,6 @@
 		font-size: 3em;
 		color: #fff;
 		font-family: 'game', sans-serif;
-		text-shadow: 0 0 10px #fff , 0 0 30px #72056b, 0 0 40px rgb(0, 0, 0), 0 0 60px #72056b
   }
 
   .glass-container-twofactor p{
