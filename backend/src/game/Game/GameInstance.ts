@@ -207,7 +207,6 @@ export class GameInstance {
 	move = speed * this.delta_time;
 	this.player2.racket.position.y = clamp(this.player2.racket.position.y + move, -limit, limit);
 	this.player2.racket.speed = speed / 5; // Tune down probably
-	console.log("player 1", this.player2.keyboard);
 
 	speed = 0;
 	if (this.player1.keyboard.key?.ArrowDown)
@@ -216,8 +215,7 @@ export class GameInstance {
 		speed += -5;
 	move = -speed * this.delta_time;
 	this.player1.racket.position.y = clamp(this.player1.racket.position.y + move, -limit, limit);
-	this.player1.racket.speed = speed; // Tune down probably
-	console.log("player 2", this.player2.keyboard);
+	this.player1.racket.speed = speed / 5; // Tune down probably
 
 	this.player1.client.socket.emit("player_pos", {
 		you: this.player1.racket,
