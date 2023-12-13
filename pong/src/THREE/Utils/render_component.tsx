@@ -19,7 +19,7 @@ import { notifications } from "../../sockets/notifications";
 
 
 
-function RenderComponents(loginForm: {option: string, game: boolean}) {
+function RenderComponents(loginForm: { option: string, game: boolean }) {
   let accessToken = Cookies.get('access_token');
   let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
   const [payload, updatePayload, handleUpdate] = usePayload();
@@ -31,22 +31,22 @@ function RenderComponents(loginForm: {option: string, game: boolean}) {
       setNotificationData({ type: "friend_request_recv", data: data });
       setShowNotifications(true);
     };
-  
+
     const handleFriendNew = (data: { req: any }) => {
-      setNotificationData({ type: "friend_new", data: data});
+      setNotificationData({ type: "friend_new", data: data });
       setShowNotifications(true);
     };
     const handleFriendRequestDenied = (data: { req: any }) => {
-      setNotificationData({ type: "friend_request_denied", data: data});
+      setNotificationData({ type: "friend_request_denied", data: data });
       setShowNotifications(true);
     };
-  
+
     notifications.on("friend_request_recv", handleFriendRequestRecv);
     notifications.on("friend_new", handleFriendNew);
-    notifications.on("friend_request_denied",handleFriendRequestDenied);
+    notifications.on("friend_request_denied", handleFriendRequestDenied);
   }, []);
 
-  useEffect(() =>{
+  useEffect(() => {
     if (showNotifications) {
       const newFormContainer = document.createElement('div');
       const root = createRoot(newFormContainer);
@@ -64,8 +64,8 @@ function RenderComponents(loginForm: {option: string, game: boolean}) {
   useEffect(() => {
     const cleanup: (() => void)[] = [];
     handleUpdate();
-	if (loginForm.game)
-		return (() => {});
+    if (loginForm.game)
+      return (() => { });
     if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option !== "Profile" && loginForm.option !== "Play") {
       cleanup.push(createComponent(ProfileBar));
     }
@@ -81,17 +81,17 @@ function RenderComponents(loginForm: {option: string, game: boolean}) {
     if (loginForm.option === "Login" && !accessToken) {
       cleanup.push(createComponent(Login));
     }
-	if (loginForm.option === "About" && accessToken && payload?.authentication === LoggedStatus.Logged) {
-	}
+    if (loginForm.option === "About" && accessToken && payload?.authentication === LoggedStatus.Logged) {
+    }
     if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option === "Play") {
       cleanup.push(createComponent(MatchMaking));
     }
     if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option === "Game") {
-	  cleanup.push(createComponent(ScoreBar));
-	}
-     return ()=>{
+      cleanup.push(createComponent(ScoreBar));
+    }
+    return () => {
       cleanup.forEach(cleanupFunction => cleanupFunction());
-     };
+    };
   }, [loginForm.option, loginForm.game])
   return null;
 }

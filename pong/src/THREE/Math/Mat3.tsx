@@ -1,14 +1,12 @@
-import {Vec3} from "../Math";
+import { Vec3 } from "../Math";
 
-export class	Mat3
-{
-	j0:		Vec3;
-	j1:		Vec3;
-	j2:		Vec3;
-	det:	number;
+export class Mat3 {
+	j0: Vec3;
+	j1: Vec3;
+	j2: Vec3;
+	det: number;
 
-	constructor(v0: Vec3, v1: Vec3, v2: Vec3)
-	{
+	constructor(v0: Vec3, v1: Vec3, v2: Vec3) {
 		this.j0 = v0;
 		this.j1 = v1;
 		this.j2 = v2;
@@ -19,8 +17,7 @@ export class	Mat3
 		);
 	}
 
-	xV(v: Vec3)
-	{
+	xV(v: Vec3) {
 		return (
 			new Vec3(
 				this.j0.x * v.x + this.j1.x * v.y + this.j2.x * v.z,
@@ -30,8 +27,7 @@ export class	Mat3
 		);
 	}
 
-	xM(m: Mat3)
-	{
+	xM(m: Mat3) {
 		return (
 			new Mat3(
 				this.xV(m.j0),
@@ -41,8 +37,7 @@ export class	Mat3
 		);
 	}
 
-	inv()
-	{
+	inv() {
 		if (!this.det)
 			return (undefined);
 		return (
