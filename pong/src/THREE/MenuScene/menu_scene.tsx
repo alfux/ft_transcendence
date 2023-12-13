@@ -155,7 +155,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   const sphere_mesh = new THREE.Mesh(sphere_geometry, sphere_material);
   sphere_mesh.name = "Sphere";
 
-  const scaling = 2;
+  const scaling = 1.5;
   const menu_parent = new THREE.Group();
   menu_parent.name = "Menu";
   menu_parent.add(sphere_mesh);
@@ -167,7 +167,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   const texture = new THREE.MeshLambertMaterial({ map: game_texture });
   texture.transparent = true;
   const screen_plane = new THREE.Mesh(plane, texture);
-  screen_plane.position.set(0, 0, -1);
+  screen_plane.position.set(0, 0.35, -1);
 
   const video_element: HTMLVideoElement = document.getElementById("background-video-scene") as HTMLVideoElement;
   const video_background = new THREE.VideoTexture(video_element);
@@ -380,12 +380,12 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     
     option.option = new_current;
 	swapMenu();
-    if (new_current === "Play" && t < 1.05) {
+    if (new_current === "Play" && t < 1) {
 		if (t > 0.9)
 			corr = 0.4 - 2 * Math.PI;
 		moveMenu(t, 3.2, fct);
 		t += clock.deltaT;
-	} else if (new_current !== "Play" && t > -0.05) {
+	} else if (new_current !== "Play" && t > 0) {
 		if (t < 0.1)
 			corr = 0.2 - 2 * Math.PI;
 		moveMenu(t, 3.2, fct);
