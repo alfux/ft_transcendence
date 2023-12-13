@@ -199,7 +199,7 @@ export class GameInstance {
 		speed += 5;
 	move = speed * this.delta_time;
 	this.player2.racket.position.y = clamp(this.player2.racket.position.y + move, -limit, limit);
-	this.player2.racket.speed = speed; // Tune down probably
+	this.player2.racket.speed = speed / 5; // Tune down probably
 
 	speed = 0;
 	if (this.player1.keyboard.ArrowDown?.keypress)

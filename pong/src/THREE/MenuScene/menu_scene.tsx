@@ -172,7 +172,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   const video_element: HTMLVideoElement = document.getElementById("background-video-scene") as HTMLVideoElement;
   const video_background = new THREE.VideoTexture(video_element);
 
-  let general_scaling = Math.min(window.innerWidth, (1.6) * window.innerHeight) / 800;
+  let general_scaling = Math.min(1680 * window.innerWidth / window.screen.width, (16 / 9) * 1050 * window.innerHeight / window.screen.height) / 1000;
   const scene = new THREE.Scene();
   scene.background = video_background;
   scene.backgroundIntensity = 0.2;
@@ -264,7 +264,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   }
 
   function handleResize(evenet: Event) {
-    general_scaling = Math.min(window.innerWidth, (1.6) * window.innerHeight) / 800;
+    general_scaling = Math.min(1680 * window.innerWidth / window.screen.width, (16 / 9) * 1050 * window.innerHeight / window.screen.height) / 1000;
     scene.scale.set(general_scaling, general_scaling, general_scaling);
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;
