@@ -4,12 +4,10 @@ import { loadObj } from '../Utils/loader';
 import { Ball } from './ball';
 import { Obstacle } from './obstacle';
 import { GameBoard } from './gameboard';
-import { Vec3, distance, scalaire, norm, Mat3, rotz, rotx } from '../Math';
+import { Vec3, rotz, rotx } from '../Math';
 
 import { keyboard } from '../Utils/keyboard';
-import { Socket } from 'socket.io-client';
 
-import { clock } from "../Utils/clock";
 import { gameSocket } from '../../sockets';
 
 export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget) {
