@@ -32,7 +32,6 @@ export default function THREE_App() {
 	const [logged, setLogged] = useState(false)
 	const cleanup: (() => void)[] = [];
 	
-	console.log(window);
 	//Check if access token has expired remove token and reload page
 	useEffect(()=>{
 		console.log("What status are u: ",logged)
