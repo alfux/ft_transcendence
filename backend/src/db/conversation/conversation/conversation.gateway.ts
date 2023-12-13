@@ -34,8 +34,9 @@ export class ConversationGateway implements OnGatewayConnection {
   @CoolSocket
   async handleMessage(client: Client, data: { message: string, conversation_id: number }): Promise<void> {
     const conv = await this.conversationService.getConversation({ id: data.conversation_id }, ['users', 'users.user'])
+    console.log("data: ", data)
 
-    const user = conv.users.find((v) => v.user.id === client.user.id)
+    const user = conv.users.find((v) => { v.user.id === client.user.id })
     if (!user)
       throw new HttpUnauthorized()
 

@@ -22,8 +22,9 @@ export function CoolSocket(target: any, propertyKey: string, descriptor: Propert
     }
 
     try {
-      const payload: JwtPayload = this.authService.verifyJWT(data.token, config_jwt.secret_token)
+      const payload: JwtPayload = await this.authService.verifyJWT(data.token, config_jwt.secret_token)
       if (payload) {
+
         const user = await this.userService.getUser({ id: payload.id })
         if (user) {
           client = { socket: s, user: user }
