@@ -79,6 +79,8 @@
   box-shadow: 0 0 10px rgb(5, 0, 5);
   color: white;
   font-family: "game", sans-serif;
+  overflow-y:scroll;
+  scrollbar-color: transparent transparent;
 }
 
 .message-input {
@@ -110,6 +112,22 @@
   background-color: rgba(193, 14, 14, 0.894);
 }
 
+
+.message-output::-webkit-scrollbar {
+  width: 0.5em;
+}
+
+.message-output::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+.message-output::-webkit-scrollbar-track {
+  background-color: #f1f1f100;
+}
+
+.message-output::-webkit-scrollbar-thumb {
+  background-color: rgba(193, 14, 14, 0.894);
+}
 /* ______________________ */
 .chat-groups::-webkit-scrollbar {
   height: 0.5em;
@@ -175,7 +193,7 @@
 .a {
   position: fixed;
   bottom: 5%;
-  right: 1px;
+  right: -1px;
   display: flex;
   justify-content: end;
   align-items: center;
@@ -262,6 +280,7 @@
   background-color: rgba(5, 0, 0, 0.5);
   font-family: "game", sans-serif;
   color: white;
+  overflow-y: auto;
 }
 .channel-profile div{
   display: flex;

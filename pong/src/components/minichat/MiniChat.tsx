@@ -270,7 +270,8 @@ const MiniChat: React.FC = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(channelForm),
+          //body: JSON.stringify(channelForm.password === "" ? {title:channelForm.title, access_level:channelForm.access_level} : channelForm),
+          body: JSON.stringify(channelForm)
         });
         if (response.ok) {
           setNewChannel(channelName)
@@ -527,7 +528,7 @@ const MiniChat: React.FC = () => {
                 {selectedGroupOption === ChannelOptions.CHANNEL && displayChannelMessages}
               </div>
             </div>
-            <div className="message-input">{sendMessage()}</div>
+            {selectedGroupOption === ChannelOptions.CHANNEL && <div className="message-input">{sendMessage()}</div>}
           </div>
         </div>
       </div>
