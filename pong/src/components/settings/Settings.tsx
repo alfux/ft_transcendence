@@ -88,11 +88,11 @@ const handleToggle = async () => {
   return (
     <div className="glass-container-settings">
       <div className='settings'>
-        <h2>Settings</h2>
+        <span >Settings</span>
         <div className="switch-container">
           <span className="switch-label">Enable/Disable 2FA</span>
           <label className="switch">
-            <input type="checkbox" onChange={handleToggle} defaultChecked={payload?.isTwoFactorAuthEnable?true:false} />s
+            <input type="checkbox" onChange={handleToggle} defaultChecked={payload?.isTwoFactorAuthEnable?true:false} />
             <span className="slider"></span>
           </label>
         </div>
