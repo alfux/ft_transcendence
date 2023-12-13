@@ -213,10 +213,11 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	gameSocket.on("start", handleStart);
 	gameSocket.on("finish", handleFinish);
 
-	function	handleStart(data: {opponent: User}) {
+	function	handleStart(data: {opponent: User, you: User}) {
 		option.game = true;
-		cleanup.push(createComponent(Score, data.you));
-		cleanup.push(createComponent(Score, data.opponent));
+		console.log("DATA: ", data);
+		cleanup.push(createComponent(Score, {user: data.you, you: true}));
+		cleanup.push(createComponent(Score, {user: data.opponent, you: false}));
 	}
 
 	//	{winner:  'you' | 'opponent' , reason:  'won' | 'disconnect'}

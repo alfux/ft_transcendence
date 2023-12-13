@@ -17,41 +17,20 @@ export type User = {
   username: string;
 }
 
-const ScoreBar: React.FC<{user?: User}> = ({user}) => {
-  const [payload, updatePayload, handleUpdate] = usePayload();
-  const [data, setData] = useState<User | null>(null)
+interface	UserData {
+	user: User,
+	you: boolean
+}
+
+const ScoreBar: React.FC<{user?: UserData}> = ({user}) => {
+  const [data, setData] = useState<User | undefined>(user?.user);
   const	[score, setScore] = useState<number>(0);
-  gameSocket.on("score", (score) => {
-	  setScore(user ? score.opponent : score.you);
+  gameSocket.on("score", (s) => {
+	  setScore(user?.you ? s.you : s.opponent);
   });
 
-  useEffect(() => {
-    const requestScore = async () => {
-      try {//fetch Score
-        const enable2FAEndpoint = `${config.backend_url}/api/user/me`;
-        const response = await fetch(enable2FAEndpoint, {
-          method: 'GET',
-          credentials: 'include',
-        });
-
-        if (response.ok) {
-          const result = await response.json()
-          setData(result)
-        } else {
-          console.error('Could not get score:', response.status);
-        }
-      } catch (error) {
-        console.error('Error fetching score Token:', error);
-      }
-    };
-	if (user)
-		setData(user);
-	else
-    	requestScore();
-  }, [])
-
   return (
-    <div id="score-component" className={(user) ? "ennemy-bar" : "score-bar"}>
+    <div id="score-component" className={(user?.you) ? "score-bar" : "ennemy-bar"}>
       {data != null ? (
         <img className="score-photo" src={data.image}></img>
       ) : <h2>nop</h2>}

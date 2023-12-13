@@ -80,7 +80,6 @@ function impact(ball: Ball, obstacle: Obstacle) {
 
 function    manageSpin(ball: Ball, obstacle: Obstacle, tmp: Vec3)
 {
-	console.log(obstacle.speed);
 	const	way = new Vec3(
 		Math.sign(obstacle.speed ? obstacle.speed : 1) * obstacle.direction.x,
 		Math.sign(obstacle.speed ? obstacle.speed : 1) * obstacle.direction.y,
@@ -165,11 +164,11 @@ export class GameInstance {
     this.player1.client.socket.emit("start", {
       opponent: this.player2.client.user,
 	  you: this.player1.client.user
-    })
+    });
     this.player2.client.socket.emit("start", {
       opponent: this.player1.client.user,
 	  you: this.player2.client.user
-    })
+    });
   }
 
   updatePlayerPos() {
