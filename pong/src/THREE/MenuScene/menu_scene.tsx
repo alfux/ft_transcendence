@@ -156,7 +156,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   const sphere_mesh = new THREE.Mesh(sphere_geometry, sphere_material);
   sphere_mesh.name = "Sphere";
 
-  const scaling = 2;
+  const scaling = 1;
   const menu_parent = new THREE.Group();
   menu_parent.name = "Menu";
   menu_parent.add(sphere_mesh);
@@ -360,12 +360,12 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     if ((group.rotation.x - corr) % phi > phi / 2)
 	{
       rot = group.rotation.x + coef * (Math.pow((phi / 2) - distance, 2)) / (Math.pow(Math.abs(deltaY), 0.5) + 1);
-	  console.log("moving down");
+	  // console.log("moving down");
 	}
     else
 	{
       rot = group.rotation.x - coef * (Math.pow((phi / 2) - distance, 2)) / (Math.pow(Math.abs(deltaY), 0.5) + 1);
-	  console.log("moving down");
+	  // console.log("moving down");
 	}
     rot = rot % (2 * Math.PI);
     rot += (rot < 0) ? 2 * Math.PI : 0;

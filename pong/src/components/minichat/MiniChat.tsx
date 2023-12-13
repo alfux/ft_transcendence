@@ -40,7 +40,7 @@ enum ChannelOptions {
 const MiniChat: React.FC = () => {
   const [channels, setChannels] = useState<Conversation[] | null>();
   const [me, setMe] = useState<User | undefined>(undefined);
-  const [data, setData] = useState<User[] | null>(null);
+  const [allUsers, setAllUsers] = useState<User[] | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | undefined>(undefined);
   const [selectedGroup, setSelectedGroup] = useState<any | undefined>(
     undefined
@@ -53,11 +53,13 @@ const MiniChat: React.FC = () => {
   const [channelMessages, setChannelMessages] = useState<any | null>(null);
   const [messageText, setMessageText] = useState<any>("");
   const [conversation, setConversation] = useState<any>(null);
-  // _______________________________________________________________________
-
+  const [newChannel, setNewChannel] = useState<any | null>(null)
+  
+  /*======================================================================
+  ===================Fetch<GET>All Users==================================
+  ======================================================================== */
   useEffect(() => {
-    // Request all users
-    const requestProfile = async () => {
+    const requestAllUsers = async () => {
       try {
         const enable2FAEndpoint = `${config.backend_url}/api/user`;
         const response = await fetch(enable2FAEndpoint, {
@@ -66,7 +68,7 @@ const MiniChat: React.FC = () => {
         });
         if (response.ok) {
           const result = await response.json();
-          setData(result);
+          setAllUsers(result);
         } else {
           console.error("Could not get profile:", response.status);
         }
@@ -74,10 +76,13 @@ const MiniChat: React.FC = () => {
         console.error("Error fetching profile Token:", error);
       }
     };
-    requestProfile();
+    requestAllUsers();
   }, []);
+
+    /*======================================================================
+  ===================Fetch<GET> All Conversations========================
+  ======================================================================== */
   useEffect(() => {
-    // Request all owned channels
     const requestProfile = async () => {
       try {
         const conversation_url = `${config.backend_url}/api/conversation/`;
@@ -96,9 +101,12 @@ const MiniChat: React.FC = () => {
       }
     };
     requestProfile();
-  }, []);
+  }, [newChannel, selectedGroup]);
+
+    /*======================================================================
+  ===================Fetch<GET> All Friends From User=====================
+  ======================================================================== */
   useEffect(() => {
-    // Request all owned channels
     const requestProfile = async () => {
       try {
         const enable2FAEndpoint = `${config.backend_url}/api/user/friends`;
@@ -118,34 +126,44 @@ const MiniChat: React.FC = () => {
     };
     requestProfile();
   }, []);
-  // _________________________________________________________________________________________
-
-  // Function on click set the SelectedUser to the user clicked
+ 
+    /*======================================================================
+  ===================Change State To The User Select On Click================
+  ======================================================================== */
   function printInfo(user: User) {
+    console.log("seleted user: ", user)
     setSelectedUser(user);
   }
 
+    /*======================================================================
+  ===================Find the Own User Object <ME>=====================
+  ======================================================================== */
   useEffect(() => {
-    // Find the user corresponing to the payload id
-    const currentUser = data?.find((user) => user.id === payload?.id);
+    const currentUser = allUsers?.find((user) => user.id === payload?.id);
     if (currentUser) {
       setMe(currentUser);
     }
-  }, [data, payload]);
+  }, [payload]);
 
-  // Iterate all users and return a image of each user
-  const onlineUsers = data?.map((user: User) => {
+    /*======================================================================
+  ===================Iterate All Users And Set Selected User OnClick==========
+  ======================================================================== */
+  const onlineUsers = allUsers?.map((user: User) => {
     return user?.isAuthenticated === LoggedStatus.Logged ? (
       <img
         key={user.id}
         src={user.image}
         className="chat-img"
-        onClick={() => printInfo(user)}
+        onClick={() => setSelectedUser(user)}
       />
     ) : null;
   });
 
-  // Iterate groups and return a element with the first letter of the group
+    /*======================================================================
+  ===================Iterate All Channels<Conversations/Group> And OnClick===
+  ======================Set Seletect Group And Set The Group Option=============
+  ========================================================================= */
+  
   const usersGroups = channels?.map((group: Conversation) => {
     const title = group.title;
     const firstTitleLetter = title?.charAt(0).toUpperCase();
@@ -156,6 +174,7 @@ const MiniChat: React.FC = () => {
         onClick={() => {
           setSelectedGroup(group);
           setSelectedGroupOption(ChannelOptions.CHANNEL);
+          
           console.log("group Info: ", group);
         }}
       >
@@ -163,8 +182,9 @@ const MiniChat: React.FC = () => {
       </div>
     );
   });
-
-  // Iterate Channel and return image of users
+      /*======================================================================
+  ===================Iterate All Friend And On Click Set Selected Friend==========
+  ======================================================================== */
   const myFriends = friends?.map((friend: User) => {
     return friend?.isAuthenticated === LoggedStatus.Logged ? (
       <img
@@ -176,20 +196,29 @@ const MiniChat: React.FC = () => {
     ) : null;
   });
 
-  const channelUsers = selectedGroup?.users?.map((channelInfo: any) => {
-    const user: User = channelInfo.user;
-    console.log("Users In group:: ", user);
-    return (
-      <img
-        className="group-icons"
-        src={user?.image}
-        key={user?.id}
-        onClick={() => printInfo(user)}
-      />
-    );
-  });
+      /*======================================================================
+  ===================Iterate Users From Selected Group And Return Image ==========
+  ==================That OnClick Set Selected User========================= 
+  =========================================================================*/
+    const channelUsers = selectedGroup?.users?.map((channelInfo: any) => {
+      const user: User = channelInfo.user;
+      console.log("Users In group:: ", user);
+      return (
+        <img
+          className="group-icons"
+          src={user?.image}
+          key={user?.id}
+          onClick={() => setSelectedUser(user)}
+        />
+      );
+    });
+
+        /*======================================================================
+  ===================Fetch<Post> Request To Send Invite To Another User==========
+  ======================================================================== */
   async function sendInvite() {
     const verify2FAEndpoint = `${config.backend_url}/api/user/friend_request`;
+    console.log("selectedUser: ",selectedUser)
     try {
       const response = await fetch(verify2FAEndpoint, {
         method: "POST",
@@ -220,6 +249,9 @@ const MiniChat: React.FC = () => {
     }
   }
 
+        /*======================================================================
+  ===================Create A Channel Form To Create A Channel==========
+  ======================================================================== */
   const CreateChannelForm = () => {
     const [channelName, setChannelName] = useState<any>("");
     const [password, setPassword] = useState<any>("");
@@ -242,6 +274,7 @@ const MiniChat: React.FC = () => {
           body: JSON.stringify(channelForm),
         });
         if (response.ok) {
+          setNewChannel(channelName)
           console.log("FETCHED POST");
         } else {
           console.log("NOT FETCH");
@@ -285,7 +318,49 @@ const MiniChat: React.FC = () => {
       </div>
     );
   };
-  // Get the id of the convertion
+
+       /*======================================================================
+  ===================Create Channel Profille When Clicked On==========
+  ======================================================================== */
+  const CreateChannelProfile = () => {
+
+    const joinChannel = async () =>{
+      try {
+        const response = await fetch(`${config.backend_url}/api/conversation/join`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload?.id),
+        });
+        if (response.ok) {
+          console.log("Joined Succefully");
+        } else {
+          console.log("didnt Succede Join Channel");
+        }
+      } catch (error) {
+        console.error("Error Fetching:", error);
+      }
+    };
+    console.log("Me ",payload?.id)
+    setSelectedUser(undefined)
+    return (
+      <div className="channel-profile">
+        <div>
+          <p>Channel Name: {selectedGroup.title}</p>
+          <p>Owner : {selectedGroup.owner.username}</p>
+          <img src={selectedGroup.owner.image}/>
+          <p>Date Creation :</p>
+          <p> {selectedGroup?.users[0]?.becameAdminAt}</p>
+        </div>
+        <button onClick={joinChannel}>Join</button>
+      </div>
+    );
+  };
+        /*======================================================================
+  ===================Fetch<Get> All Messages From A Channel==========
+  ======================================================================== */
   useEffect(()=>{
     const requestConversation = async () => {
       if (!channelMessages)
@@ -311,6 +386,9 @@ const MiniChat: React.FC = () => {
     requestConversation();
   },[channelMessages])
 
+    /*======================================================================
+  ===================Fetch<Get> Messages From His Own Id====================
+  ======================================================================== */
   useEffect(() => {
     const requestMessages = async () => {
       if (!me){
@@ -336,7 +414,9 @@ const MiniChat: React.FC = () => {
     };
     requestMessages();
   }, [selectedGroup]);
-
+  /*======================================================================
+  ===================If Channel Have messages Display the messages==========
+  ======================================================================== */
   const displayChannelMessages = channelMessages?.map((message: any) => {
     console.log("message Content", message);
     return (
@@ -347,18 +427,20 @@ const MiniChat: React.FC = () => {
       </div>
     );
   });
-
+        /*======================================================================
+  ===================Send a Message On Click TO the Selected Conversatio(Group)==========
+  ======================================================================== */
   const sendMessage = () => {
     const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key == "Enter") {
         e.preventDefault();
         const message = messageText;
-        const conversation_id :number = conversation.id
+        const conversation_id :number = selectedGroup?.id
+        console.log("messageText:", messageText, "group id", selectedGroup?.id)
         notifications.emit("send_message", (data: {message:string, conversation_id:number}) =>{
           console.log("DATING",data)
         })
         setMessageText('')
-
       }
     };
 
@@ -382,6 +464,9 @@ const MiniChat: React.FC = () => {
       console.log("DATING")
     })
   },[])
+          /*======================================================================
+  ===================Structure Html Return==========
+  ======================================================================== */
   return (
     <div className="a">
       {selectedUser && (
@@ -399,6 +484,8 @@ const MiniChat: React.FC = () => {
         {selectedGroupOption == ChannelOptions.CREATE_CHANNEL && (
           <CreateChannelForm />
         )}
+        {/* JOIN Option and Data About it*/}
+        {selectedGroupOption == ChannelOptions.CHANNEL && (<CreateChannelProfile/>)}
         <div className="chat-groups">
           {
             <img

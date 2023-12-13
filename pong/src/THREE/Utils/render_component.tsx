@@ -36,12 +36,16 @@ function RenderComponents(loginForm: {option: string, game: boolean}) {
   
     const handleFriendNew = (data: { req: any }) => {
       setNotificationData({ type: "friend_new", data: data});
-      console.log("data1 :", data)
+      setShowNotifications(true);
+    };
+    const handleFriendRequestDenied = (data: { req: any }) => {
+      setNotificationData({ type: "friend_request_denied", data: data});
       setShowNotifications(true);
     };
   
     notifications.on("friend_request_recv", handleFriendRequestRecv);
     notifications.on("friend_new", handleFriendNew);
+    notifications.on("friend_request_denied",handleFriendRequestDenied);
   }, []);
 
   useEffect(() =>{

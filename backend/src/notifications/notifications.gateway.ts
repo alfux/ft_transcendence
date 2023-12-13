@@ -32,7 +32,6 @@ export class NotificationsGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage("auth")
-  @CoolSocket
   async auth(client: Socket, data: {token:any, data: { 0: string }}) {
     const jwt_payload = await this.authService.verifyJWT(data.data[0], config_jwt.secret_token)
     if (!jwt_payload) {
