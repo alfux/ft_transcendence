@@ -8,7 +8,7 @@ import { AuthService } from 'src/auth/'
 
 import { GameInstance, Keyboard, Ball } from './Game'
 import { Client, CoolSocket } from 'src/socket/'
-import { UserService } from 'src/db/user'
+import { MatchService, UserService } from 'src/db/user'
 import { Inject, forwardRef } from '@nestjs/common'
 
 import { Player } from "./Game/GameInstance";
@@ -26,6 +26,9 @@ export class GameGateway implements OnGatewayConnection {
     private authService: AuthService, //NE PAS ENELEVER
     @Inject(forwardRef(() => UserService))
     private userService: UserService, //NE PAS ENELEVER
+
+    private matchService: MatchService
+
   ) { }
 
   async handleConnection(client: Socket) {
@@ -34,6 +37,15 @@ export class GameGateway implements OnGatewayConnection {
   async handleDisconnect(client: Socket): Promise<any> {
     this.connectedClients = this.connectedClients.filter((v) => v.socket !== client)
     this.waiting = this.waiting.filter((v) => v.socket !== client)
+
+    const game_instance = this.gameInstances.find((gi) => gi.player1.client.socket.id === client.id || gi.player2.client.socket.id === client.id)
+    if (!game_instance)
+      return
+    const player = game_instance.get_by_socket_id(client.id)
+    if (!player)
+      return
+
+    game_instance.disconnect(player.client)
   }
 
   @SubscribeMessage('search')
@@ -65,7 +77,10 @@ export class GameGateway implements OnGatewayConnection {
         p2.socket.emit("ball_pos", b)
       },
         (winner, looser) => {
-          //TODO: update database
+          this.matchService.createMatch({
+            players: [winner.user, looser.user],
+            winner: winner.user
+          })
           this.gameInstances = this.gameInstances.filter((v) => v !== gameInstance)
         })
       this.gameInstances.push(gameInstance)

@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm'
 
 import { Message } from '.'
 import { HttpNotFound } from 'src/exceptions'
+import { FindOptions, FindMultipleOptions } from 'src/db/types'
 
 @Injectable()
 export class MessageService {
@@ -12,14 +13,14 @@ export class MessageService {
     private messageRepository: Repository<Message>,
   ) { }
 
-  async getMessage(where: FindOptionsWhere<Message>, relations = [] as string[]): Promise<Message> {
+  async getMessage(where: FindOptions<Message>, relations = [] as string[]): Promise<Message> {
     const connection = await this.messageRepository.findOne({ where, relations })
     if (!connection)
       throw new HttpNotFound("Message")
     return connection
   }
 
-  async getMessages(where: FindOptionsWhere<Message>, relations = [] as string[]): Promise<Message[]> {
+  async getMessages(where: FindMultipleOptions<Message>, relations = [] as string[]): Promise<Message[]> {
     const connection = await this.messageRepository.find({ where, relations })
     if (!connection)
       throw new HttpNotFound("Message")

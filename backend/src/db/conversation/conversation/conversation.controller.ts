@@ -6,7 +6,7 @@ import { Request } from 'src/auth/interfaces/'
 import { UserService } from 'src/db/user'
 import { ConversationService } from './conversation.service'
 import { NotificationsService } from 'src/notifications/'
-import { HttpMissingArg, HttpUnauthorized } from 'src/exceptions'
+import { HttpBadRequest, HttpMissingArg, HttpUnauthorized } from 'src/exceptions'
 
 import { Route } from 'src/route'
 import { AccessLevel } from './conversation_access_level.enum'
@@ -129,9 +129,10 @@ export class ConversationController {
     description: { summary: 'Get conversation content', description: 'Returns the conversation\'s messages' },
     responses: [{ status: 200, description: 'Conversation\'s content retrieved successfully' }]
   })
-  async getConversation(@Param('id') id: number) {
+  async getConversation(@Req() req: Request, @Param('id') id: number) {
     if (id === undefined)
       throw new HttpMissingArg()
+
     return this.conversationService.getConversation({ id: id }, [
       'users',
       'users.user',
@@ -143,7 +144,7 @@ export class ConversationController {
       'messages.sender.user'
     ])
     .then((v) => {
-      if (v.users.find((x) => x.id === id) === undefined)
+      if (v.users.find((x) => x.user.id === req.user.id) === undefined)
         throw new HttpUnauthorized()
       return v
     })
@@ -179,6 +180,10 @@ export class ConversationController {
       throw new HttpMissingArg()
     const user = await this.userService.getUser({ id: req.user.id })
     const conversation = await this.conversationService.getConversation({ id: body.id }, ['users', 'users.user'])
+    
+    if (conversation.users.find((u) => u.user.id === user.id))
+      throw new HttpBadRequest()
+    
     this.notificationService.emit(
       conversation.users.map((u) => u.user),
       "conv_join",
