@@ -4,7 +4,7 @@ import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger'
 import { NotificationsService } from 'src/notifications'
 import { Request } from 'src/auth/interfaces/request.interface'
 
-import { FriendRequestService, MatchService, UserService } from '.'
+import { FriendRequestService, MatchService, PlayRequestService, UserService } from '.'
 
 import { Route } from 'src/route'
 import { HttpBadRequest, HttpMissingArg, HttpNotFound, HttpUnauthorized } from 'src/exceptions'
@@ -57,6 +57,8 @@ export class UserController {
     private matchService: MatchService,
     @Inject(forwardRef(() => FriendRequestService))
     private friendRequestService: FriendRequestService,
+    @Inject(forwardRef(() => PlayRequestService))
+    private playRequestService: PlayRequestService,
 
     private notificationService: NotificationsService
   ) { }
@@ -107,34 +109,7 @@ export class UserController {
   async send_friend_request(@Req() req: Request, @Body() body: SendFriendRequestBody) {
     if (body.username === undefined)
       throw new HttpMissingArg()
-
-    const existing_friend_request = await this.friendRequestService.getFriendRequest({
-      sender: { id:req.user.id },
-      receiver: { username: body.username }
-    })
-    .catch((e) => {
-      if (!(e instanceof HttpNotFound))
-        throw e
-    })
-
-    if (existing_friend_request)
-      throw new HttpBadRequest()
-
-    const existing_recvd_friend_request = await this.friendRequestService.getFriendRequest({
-      receiver: { id:req.user.id },
-      sender: { username: body.username }
-    })
-    .catch((e) => {
-      if (!(e instanceof HttpNotFound))
-        throw e
-    })
-
-    if (existing_recvd_friend_request) {
-      this.userService.acceptFriendRequest(existing_recvd_friend_request.id)
-      return
-    }
-
-    return this.userService.sendFriendRequest(req.user.id, body.username)
+    return this.friendRequestService.sendFriendRequest({ id: req.user.id }, { username: body.username })
   }
 
   @Route({
@@ -145,16 +120,15 @@ export class UserController {
     if (body.id === undefined)
       throw new HttpMissingArg()
 
-    try {
-      await this.userService.getUser({ id: req.user.id, friends_requests_recv: { id: body.id } })
-    }
-    catch (e) {
+    await this.userService.getUser({ id: req.user.id, friends_requests_recv: { id: body.id } }).catch((e) => {
       if (e instanceof HttpException)
         throw new HttpUnauthorized()
-    }
+      else
+        throw e
+    })
 
     const fr = await this.friendRequestService.getFriendRequest({ id: body.id }, ['sender', 'receiver'])
-    this.userService.acceptFriendRequest(body.id)
+    this.friendRequestService.acceptFriendRequest(body.id)
     this.notificationService.emit([fr.receiver, fr.sender], "friend_request_accepted", { req: fr })
   }
 
@@ -174,7 +148,7 @@ export class UserController {
     }
 
     const fr = await this.friendRequestService.getFriendRequest({ id: body.id }, ['sender', 'receiver'])
-    this.userService.denyFriendRequest(body.id)
+    this.friendRequestService.denyFriendRequest(body.id)
     this.notificationService.emit([fr.receiver, fr.sender], "friend_request_denied", { req: fr })
   }
 
@@ -231,8 +205,6 @@ export class UserController {
     this.userService.unblockUser(req.user.id, body.user_id)
   }
 
-
-
   @Route({
     method: Get('play_request'),
     description: { summary: 'Get all play requests', description: 'Get all play requests' },
@@ -266,11 +238,11 @@ export class UserController {
     if (from.id === to.id)
       throw new HttpBadRequest()
     //TODO
-    //const friend_req = await this.userService(from, to)
-//
-    //this.notificationService.emit([to], "play_request_recv", { req: friend_req })
-//
-    //return friend_req
+    const play_req = await this.playRequestService.sendPlayRequest({id:from.id}, {username:to.username})
+
+    this.notificationService.emit([to], "play_request_recv", { req: play_req })
+
+    return play_req
   }
 
   @Route({
@@ -289,12 +261,10 @@ export class UserController {
         throw new HttpUnauthorized()
     }
 
-    /*
-    const fr = await this.userService.getFriendRequest({id:body.id}, ['sender', 'receiver'])
-    this.notificationService.emit([fr.receiver, fr.sender], "play_request_accepted", {req:fr})
-    */
+    const pr = await this.playRequestService.getPlayRequest({ id: body.id }, ['sender', 'receiver'])
+    this.notificationService.emit([pr.receiver, pr.sender], "play_request_accepted", { req: pr })
 
-    this.userService.acceptPlayRequest(body.id)
+    this.playRequestService.acceptPlayRequest(body.id)
     //TODO: launch game with those 2 players
   }
 
@@ -305,6 +275,7 @@ export class UserController {
   async deny_play_request(@Req() req: Request, @Body() body: DenyPlayRequestBody) {
     if (body.id === undefined)
       throw new HttpMissingArg()
+
     try {
       await this.userService.getUser({ id: req.user.id, play_requests_recv: { id: body.id } })
     }
@@ -313,17 +284,16 @@ export class UserController {
         throw new HttpUnauthorized()
     }
 
-    this.userService.denyPlayRequest(body.id)
+    this.playRequestService.denyPlayRequest(body.id)
   }
-
 
   @Route({
     method: Get('matches'),
     description: { summary: 'Get the match history', description: 'Get the match history' }
   })
   async get_matches(@Req() req: Request) {
-    const matches = await this.matchService.getMatches({players: {id:req.user.id}}, ['players'])
-    return this.matchService.getMatches(matches.map((v) => {return {id:v.id}}), ['players', 'winner'])
+    const matches = await this.matchService.getMatches({ players: { id: req.user.id } }, ['players'])
+    return this.matchService.getMatches(matches.map((v) => { return { id: v.id } }), ['players', 'winner'])
   }
 
 }
