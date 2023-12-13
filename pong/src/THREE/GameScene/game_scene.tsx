@@ -13,8 +13,8 @@ import { clock } from "../Utils/clock";
 import { gameSocket } from '../../sockets';
 
 export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget) {
-	const	camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
-    camera.position.set(0, -30, 30);
+	const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
+	camera.position.set(0, -30, 30);
 	camera.up.set(0, 0, 1);
 	camera.lookAt(0, 0, 0);
 
@@ -60,7 +60,7 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 		start = true;
 	}
 
-	function	handleFinish() {
+	function handleFinish() {
 		start = false;
 		if (board.right_racket.gameObject)
 			board.right_racket.gameObject.position.y = 0;
@@ -73,11 +73,11 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 		opponent: Obstacle
 	}) {
 		board.right_racket.copy(positions.you)
-			if (board.right_racket.gameObject)
-				board.right_racket.gameObject.position.y = board.right_racket.position.y;
+		if (board.right_racket.gameObject)
+			board.right_racket.gameObject.position.y = board.right_racket.position.y;
 		board.left_racket.copy(positions.opponent)
-			if (board.left_racket.gameObject)
-				board.left_racket.gameObject.position.y = board.left_racket.position.y;
+		if (board.left_racket.gameObject)
+			board.left_racket.gameObject.position.y = board.left_racket.position.y;
 	}
 
 	function updateBallPos(ball: Ball) {
