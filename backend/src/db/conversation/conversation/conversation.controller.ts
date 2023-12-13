@@ -129,7 +129,7 @@ export class ConversationController {
     description: { summary: 'Get conversation content', description: 'Returns the conversation\'s messages' },
     responses: [{ status: 200, description: 'Conversation\'s content retrieved successfully' }]
   })
-  async getConversation(@Param('id') id: number) {
+  async getConversation(@Req() req: Request, @Param('id') id: number) {
     if (id === undefined)
       throw new HttpMissingArg()
     return this.conversationService.getConversation({ id: id }, [
@@ -143,9 +143,9 @@ export class ConversationController {
       'messages.sender.user'
     ])
     .then((v) => {
-      if (v.users.find((x) => x.id === id) === undefined)
+      if (v.users.find((x) => x.user.id === req.user.id) === undefined)
         throw new HttpUnauthorized()
-      return v
+        return v
     })
   }
 

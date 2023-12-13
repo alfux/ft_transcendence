@@ -1,6 +1,6 @@
 class	Keyboard
 {
-	[key: string]: {keydown:boolean, keypress:boolean};
+	[key: string]: { keydown:boolean, keypress:boolean };
 };
 
 export function initKeyboardHandlers() {

@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, FindOptionsWhere } from 'typeorm'
+import { Repository } from 'typeorm'
 
 import { UserService, User } from 'src/db/user'
 import { MessageService } from 'src/db/conversation/message'
@@ -8,6 +8,8 @@ import { ConversationUser, ConversationUserInfos } from 'src/db/conversation/con
 
 import { AccessLevel, Conversation } from '.'
 import { HttpBadRequest, HttpMissingArg, HttpNotFound } from 'src/exceptions'
+
+import { FindOptions, FindMultipleOptions } from 'src/db/types'
 
 @Injectable()
 export class ConversationService {
@@ -27,14 +29,14 @@ export class ConversationService {
     private messageService: MessageService
   ) { }
 
-  async getConversationUser(where: FindOptionsWhere<ConversationUser>, relations = [] as string[]) {
+  async getConversationUser(where: FindOptions<ConversationUser>, relations = [] as string[]) {
     const connection = await this.convUserRepository.findOne({ where: where, relations: relations })
     if (!connection)
       throw new HttpNotFound("Conversation user")
     return connection
   }
 
-  async getConversationUsers(where: FindOptionsWhere<ConversationUser>, relations = [] as string[]) {
+  async getConversationUsers(where: FindMultipleOptions<ConversationUser>, relations = [] as string[]) {
     const connection = await this.convUserRepository.find({ where: where, relations: relations })
     if (!connection)
       throw new HttpNotFound("Conversation user")
@@ -49,14 +51,14 @@ export class ConversationService {
     })
   }
 
-  async deleteConversationUser(where: FindOptionsWhere<Conversation>, clear_messages = false) {
+  async deleteConversationUser(where: FindOptions<Conversation>, clear_messages = false) {
     const conversationUser = await this.getConversationUser(where, (clear_messages ? ['messages'] : []))
     if (clear_messages)
       this.messageService.remove(conversationUser.messages)
     this.convUserRepository.remove(conversationUser)
   }
 
-  async deleteConversationUsers(where: FindOptionsWhere<Conversation>, clear_messages = false) {
+  async deleteConversationUsers(where: FindOptions<Conversation>, clear_messages = false) {
     const conversationUsers = await this.getConversationUsers(where, (clear_messages ? ['messages'] : []))
     conversationUsers.forEach((u) => {
       if (clear_messages)
@@ -67,26 +69,26 @@ export class ConversationService {
 
 
 
-  async getConversationUserInfos(where: FindOptionsWhere<ConversationUserInfos>, relations = [] as string[]) {
+  async getConversationUserInfos(where: FindOptions<ConversationUserInfos>, relations = [] as string[]) {
     const connection = await this.userInfosRepository.findOne({ where: where, relations: relations })
     if (!connection)
       throw new HttpNotFound("Conversation user infos")
     return connection
   }
 
-  async getConversationUsersInfos(where: FindOptionsWhere<ConversationUserInfos>, relations = [] as string[]) {
+  async getConversationUsersInfos(where: FindMultipleOptions<ConversationUserInfos>, relations = [] as string[]) {
     const connection = await this.userInfosRepository.find({ where: where, relations: relations })
     if (!connection)
       throw new HttpNotFound("Conversation user infos")
     return connection
   }
 
-  async deleteConversationUserInfo(where: FindOptionsWhere<Conversation>) {
+  async deleteConversationUserInfo(where: FindOptions<Conversation>) {
     const userInfo = await this.getConversationUserInfos(where)
     this.userInfosRepository.remove(userInfo)
   }
 
-  async deleteConversationUserInfos(where: FindOptionsWhere<Conversation>) {
+  async deleteConversationUserInfos(where: FindOptions<Conversation>) {
     const userInfos = await this.getConversationUsersInfos(where)
     userInfos.forEach((u) => {
       this.userInfosRepository.remove(u)
@@ -95,14 +97,14 @@ export class ConversationService {
 
 
 
-  async getConversation(where: FindOptionsWhere<Conversation>, relations = [] as string[]) {
+  async getConversation(where: FindOptions<Conversation>, relations = [] as string[]) {
     const connection = await this.conversationRepository.findOne({ where, relations, })
     if (!connection)
       throw new HttpNotFound("Conversation")
     return connection
   }
 
-  async getConversations(where: FindOptionsWhere<Conversation>, relations = [] as string[]) {
+  async getConversations(where: FindMultipleOptions<Conversation>, relations = [] as string[]) {
     const connection = await this.conversationRepository.find({ where, relations, })
     if (!connection)
       throw new HttpNotFound("Conversation")
@@ -116,7 +118,7 @@ export class ConversationService {
 
     //TODO: hash le password
     const user = await this.userService.getUser({ id: user_id })
-    const new_conv = await this.conversationRepository.save({
+    const new_conv_template = this.conversationRepository.create({
       title: title,
       owner: user,
       access_level: access_level,
@@ -124,10 +126,11 @@ export class ConversationService {
       users: [],
       messages: []
     })
+    const new_conv = await this.conversationRepository.save(new_conv_template)
     return await this.addUserToConversation({ id: new_conv.id }, user)
   }
 
-  async deleteConversation(where: FindOptionsWhere<Conversation>) {
+  async deleteConversation(where: FindOptions<Conversation>) {
     this.getConversation(where, ['users', 'messages'])
       .then((conversation) => {
         return Promise.all([
@@ -138,10 +141,10 @@ export class ConversationService {
       })
   }
 
-  async addUserToConversation(where: FindOptionsWhere<Conversation>, user: User) {
+  async addUserToConversation(where: FindOptions<Conversation>, user: User) {
     const conv = await this.getConversation(where, ["users"])
 
-    let conv_user = await this.getConversationUser({ user: { id: user.id } })
+    let conv_user = await this.getConversationUser({ user: { id: user.id }, conversation: { id:conv.id } })
       .catch((e) => { if (e instanceof HttpNotFound) return undefined; else throw e })
 
     if (!conv_user) {
@@ -152,7 +155,7 @@ export class ConversationService {
     return this.conversationRepository.save(conv)
   }
 
-  async removeUserFromConversation(where: FindOptionsWhere<Conversation>, user: ConversationUser) {
+  async removeUserFromConversation(where: FindOptions<Conversation>, user: ConversationUser) {
     const conv = await this.getConversation(where, ['users'])
     conv.users = conv.users.filter(u => u.id != user.id)
     this.conversationRepository.save(conv)
