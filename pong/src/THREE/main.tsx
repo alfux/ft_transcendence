@@ -4,7 +4,7 @@ import io from "socket.io-client";
 import { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
 
-import { coolSocket, initKeyboardHandlers, JwtPayload } from './Utils'
+import { coolSocket, JwtPayload } from './Utils'
 import { create_menu_scene } from "./MenuScene";
 import { create_game_scene } from "./GameScene";
 import usePayload from '../react_hooks/use_auth'
@@ -70,10 +70,8 @@ export default function THREE_App() {
 			setGameState(option.game);
 		}
 
-		if (divRef.current) {
-			initKeyboardHandlers();
+		if (divRef.current)
 			divRef.current.appendChild(renderer.domElement);
-		}
 		mainloop();
 		return (() => {
 			menu_scene.clean()
