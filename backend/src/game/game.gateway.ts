@@ -11,6 +11,8 @@ import { Client, CoolSocket } from 'src/socket/'
 import { UserService } from 'src/db/user'
 import { Inject, forwardRef } from '@nestjs/common'
 
+import { Player } from "./Game/GameInstance";
+
 @WebSocketGateway({ namespace: 'game' })
 export class GameGateway implements OnGatewayConnection {
 
@@ -57,8 +59,8 @@ export class GameGateway implements OnGatewayConnection {
       console.log("Starting game with: ", p1.user.username, p2.user.username)
       const gameInstance = new GameInstance(p1, p2, (b: Ball) => {
         const inverted = b.clone()
-        inverted.position.x *= -1
-        console.log(b.position)
+       	inverted.position.x *= -1
+//		console.log(b.position)
         p1.socket.emit("ball_pos", inverted)
         p2.socket.emit("ball_pos", b)
       },
@@ -80,19 +82,21 @@ export class GameGateway implements OnGatewayConnection {
     if (!game_instance)
       return
 
-    const sender = game_instance.player1.client.socket.id === client.socket.id ? game_instance.player1 : game_instance.player2
-    const receiver = game_instance.player2.client.socket.id === client.socket.id ? game_instance.player1 : game_instance.player2
+	let	sender: Player;
+	let	receiver: Player;
 
-    game_instance.updatePlayerPos(sender, keyboard)
-
-    receiver.client.socket.emit("player_pos", {
-      you: receiver.racket,
-      opponent: sender.racket
-    })
-    sender.client.socket.emit("player_pos", {
-      you: sender.racket,
-      opponent: receiver.racket
-    })
+	if (game_instance.player1.client.socket.id === client.socket.id)
+	{
+		sender = game_instance.player1;
+		receiver = game_instance.player2;
+		game_instance.player1.keyboard = keyboard;
+	}
+	else
+	{
+		sender = game_instance.player2;
+		receiver = game_instance.player1;
+		game_instance.player2.keyboard = keyboard;
+	}
   }
 
   @Interval(1 / 60)

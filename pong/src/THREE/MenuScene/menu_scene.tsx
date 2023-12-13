@@ -215,7 +215,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 
 	function	handleStart(data: {opponent: User}) {
 		option.game = true;
-		cleanup.push(createComponent(Score));
+		cleanup.push(createComponent(Score, data.you));
 		cleanup.push(createComponent(Score, data.opponent));
 	}
 
@@ -359,7 +359,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   }
 
 	let		t = 0;
-	const	gamma = 1.5;
+	const	gamma = 1.2;
 	const	_a = 2 - 4 * gamma;
 	const	_b = (_a - 1) / (2 * _a);
 	const	_c = -_a * Math.pow(_b, 2);
@@ -383,12 +383,12 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 		if (t > 0.9)
 			corr = 0.4 - 2 * Math.PI;
 		moveMenu(t, 3.2, fct);
-		t += 0.05;
+		t += clock.deltaT;
 	} else if (new_current !== "Play" && t > -0.05) {
 		if (t < 0.1)
 			corr = 0.2 - 2 * Math.PI;
 		moveMenu(t, 3.2, fct);
-		t -= 0.05;
+		t -= clock.deltaT;
 	}
     if (menu_parent.children.length > 1 && (new_current !== current || current === null)) {
       current = new_current;
