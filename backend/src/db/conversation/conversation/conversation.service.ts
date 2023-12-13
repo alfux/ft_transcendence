@@ -118,7 +118,7 @@ export class ConversationService {
 
     //TODO: hash le password
     const user = await this.userService.getUser({ id: user_id })
-    const new_conv = await this.conversationRepository.save({
+    const new_conv_template = this.conversationRepository.create({
       title: title,
       owner: user,
       access_level: access_level,
@@ -126,6 +126,7 @@ export class ConversationService {
       users: [],
       messages: []
     })
+    const new_conv = await this.conversationRepository.save(new_conv_template)
     return await this.addUserToConversation({ id: new_conv.id }, user)
   }
 
@@ -143,7 +144,7 @@ export class ConversationService {
   async addUserToConversation(where: FindOptions<Conversation>, user: User) {
     const conv = await this.getConversation(where, ["users"])
 
-    let conv_user = await this.getConversationUser({ user: { id: user.id } })
+    let conv_user = await this.getConversationUser({ user: { id: user.id }, conversation: { id:conv.id } })
       .catch((e) => { if (e instanceof HttpNotFound) return undefined; else throw e })
 
     if (!conv_user) {
