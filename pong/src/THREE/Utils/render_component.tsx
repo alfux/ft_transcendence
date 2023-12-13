@@ -10,13 +10,12 @@ import ProfileBar from '../../components/profilebar/ProfileBar';
 import Profile from '../../components/profile/Profile';
 import TwoFactorAuthenticate from '../../components/twofactorauthenticate/TwoFactorAuthenticate';
 import MatchMaking from "../../components/matchmaking/matchMaking";
-import Chat from "../../components/chat/Chat";
 import MiniChat from "../../components/minichat/MiniChat";
 import MiniChatButton from "../../components/minichat/ChatButton";
 import createComponent from "./createComponent";
 import ScoreBar from "../../components/scorebar/ScoreBar";
 import Notifications from "../../components/notifications/Notifications";
-import { notificationsSocket } from "../../sockets";
+import { notifications } from "../../sockets/notifications";
 
 
 
@@ -35,13 +34,16 @@ function RenderComponents(loginForm: {option: string, game: boolean}) {
   
     const handleFriendNew = (data: { req: any }) => {
       setNotificationData({ type: "friend_new", data: data});
-      console.log("data1 :", data)
+      setShowNotifications(true);
+    };
+    const handleFriendRequestDenied = (data: { req: any }) => {
+      setNotificationData({ type: "friend_request_denied", data: data});
       setShowNotifications(true);
     };
   
-    notificationsSocket.on("friend_request_recv", handleFriendRequestRecv);
-    notificationsSocket.on("friend_new", handleFriendNew);
-    //TODO: notificationsSocket.off
+    notifications.on("friend_request_recv", handleFriendRequestRecv);
+    notifications.on("friend_new", handleFriendNew);
+    notifications.on("friend_request_denied",handleFriendRequestDenied);
   }, []);
 
   useEffect(() =>{
