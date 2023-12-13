@@ -31,7 +31,7 @@ export class Ball {
 		return new Ball(this.radius, this.position.clone(), this.speed.clone(), this.spin)
 	}
 
-	set(ref: THREE.Object3D | undefined) {
+	set(ref?: THREE.Object3D) {
 		this.gameObject = ref;
 	}
 };

@@ -19,7 +19,7 @@ import { notifications } from "../../sockets/notifications";
 
 
 
-function RenderComponents(loginForm: { option: string, game: boolean }) {
+export function RenderComponents(loginForm: { option: string, game: boolean }) {
   let accessToken = Cookies.get('access_token');
   let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
   const [payload, updatePayload, handleUpdate] = usePayload();
@@ -95,5 +95,3 @@ function RenderComponents(loginForm: { option: string, game: boolean }) {
   }, [loginForm.option, loginForm.game])
   return null;
 }
-
-export default RenderComponents;

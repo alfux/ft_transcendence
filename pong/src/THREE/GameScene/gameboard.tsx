@@ -17,7 +17,7 @@ export class GameBoard {
 		this.ball = new Ball(0.5);
 	}
 
-	set(ref: { ball: THREE.Object3D | undefined, lr: THREE.Object3D | undefined, rr: THREE.Object3D | undefined }) {
+	set(ref: { ball?: THREE.Object3D, lr?: THREE.Object3D, rr?: THREE.Object3D }) {
 		this.ball.set(ref.ball);
 		this.left_racket.set(ref.lr);
 		this.right_racket.set(ref.rr);

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-class GameClock {
+export class GameClock {
   clock: THREE.Clock;
   deltaT: number;
 

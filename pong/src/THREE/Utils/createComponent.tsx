@@ -6,7 +6,7 @@ interface UserData {
   you: boolean
 }
 
-function createComponent(
+export function createComponent(
   Component: React.FC<{}> | React.FC<{ user?: UserData }>,
   user?: UserData
 ) {
@@ -24,4 +24,3 @@ function createComponent(
     });
   };
 }
-export default createComponent;

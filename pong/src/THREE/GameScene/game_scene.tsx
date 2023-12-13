@@ -9,6 +9,7 @@ import { Vec3, rotz, rotx } from '../Math';
 import { keyboard } from '../Utils/keyboard';
 
 import { gameSocket } from '../../sockets';
+import { CustomLightingShader, sphere_fragment, sphere_vertex } from './shaders';
 
 export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget) {
 	const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
@@ -27,16 +28,27 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 			lr: group.getObjectByName("LRacket"),
 			rr: group.getObjectByName("RRacket")
 		});
+
+		
+		const sphere_effect_geometry = new THREE.IcosahedronGeometry(1, 30)
+		const sphere_effect_shader = new CustomLightingShader({
+			vertexShader: sphere_vertex,
+			fragmentShader: sphere_fragment,
+			uniforms: {
+			  time: { value: 0 },
+			  spin: { value: board.ball.spin }
+			},
+			wireframe: true
+		  })
+
+		
+
+
 	});
 	board.ball.speed.set(20, 0, 0);
 
 	const scene = new THREE.Scene();
 	scene.add(game_parent, ambient);
-
-	const clock = new THREE.Clock();
-	let delta_time = clock.getDelta()
-
-	let start = false;
 
 	window.addEventListener("pointermove", (event) => {
 		if (event.buttons === 1) {
@@ -55,11 +67,9 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 	gameSocket.on("finish", handleFinish);
 
 	function handleStart() {
-		start = true;
 	}
 
 	function handleFinish() {
-		start = false;
 		if (board.right_racket.gameObject)
 			board.right_racket.gameObject.position.y = 0;
 		if (board.left_racket.gameObject)
