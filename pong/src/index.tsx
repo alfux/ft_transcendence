@@ -4,7 +4,6 @@ import THREE_App from './THREE/main';
 import './index.css'
 import { ReactUIParent } from './THREE/ReactUI/ReactUI';
 
-import Chat from "./components/chat/Chat";
 import Cookies, { CookieAttributes } from 'js-cookie';
 
 const root = ReactDOM.createRoot(

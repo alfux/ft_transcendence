@@ -6,6 +6,7 @@ export enum LoggedStatus {
 
 export interface User {
     id:number
+    db_id:number
     username:string
     image:string
     isAuthenticated:LoggedStatus

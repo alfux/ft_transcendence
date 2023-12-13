@@ -10,7 +10,6 @@ import ProfileBar from '../../components/profilebar/ProfileBar';
 import Profile from '../../components/profile/Profile';
 import TwoFactorAuthenticate from '../../components/twofactorauthenticate/TwoFactorAuthenticate';
 import MatchMaking from "../../components/matchmaking/matchMaking";
-import Chat from "../../components/chat/Chat";
 import MiniChat from "../../components/minichat/MiniChat";
 import MiniChatButton from "../../components/minichat/ChatButton";
 import createComponent from "./createComponent";

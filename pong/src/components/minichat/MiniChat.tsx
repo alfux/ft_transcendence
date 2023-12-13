@@ -27,7 +27,7 @@ import { config } from "../../config";
 import Login from "../login/Login";
 import { channel } from "diagnostics_channel";
 import { group } from "console";
-import { notifications } from "../../notification/notification";
+import { chatSocket, notifications } from "../../notification/notification";
 import { Channel } from "./interfaces/interfaces";
 
 enum ChannelOptions {
@@ -83,7 +83,7 @@ const MiniChat: React.FC = () => {
   ===================Fetch<GET> All Conversations========================
   ======================================================================== */
   useEffect(() => {
-    const requestProfile = async () => {
+    const requestConversation = async () => {
       try {
         const conversation_url = `${config.backend_url}/api/conversation/`;
         const response = await fetch(conversation_url, {
@@ -100,8 +100,8 @@ const MiniChat: React.FC = () => {
         console.error("Error fetching Conversation:", error);
       }
     };
-    requestProfile();
-  }, [newChannel, selectedGroup]);
+    requestConversation();
+  }, [selectedGroup, newChannel]);
 
     /*======================================================================
   ===================Fetch<GET> All Friends From User=====================
@@ -125,7 +125,7 @@ const MiniChat: React.FC = () => {
       }
     };
     requestProfile();
-  }, []);
+  }, [selectedUser]);
  
     /*======================================================================
   ===================Change State To The User Select On Click================
@@ -143,7 +143,7 @@ const MiniChat: React.FC = () => {
     if (currentUser) {
       setMe(currentUser);
     }
-  }, [payload]);
+  }, [allUsers]);
 
     /*======================================================================
   ===================Iterate All Users And Set Selected User OnClick==========
@@ -202,7 +202,6 @@ const MiniChat: React.FC = () => {
   =========================================================================*/
     const channelUsers = selectedGroup?.users?.map((channelInfo: any) => {
       const user: User = channelInfo.user;
-      console.log("Users In group:: ", user);
       return (
         <img
           className="group-icons"
@@ -332,7 +331,7 @@ const MiniChat: React.FC = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(payload?.id),
+          body: JSON.stringify({id : me?.db_id}),
         });
         if (response.ok) {
           console.log("Joined Succefully");
@@ -343,7 +342,6 @@ const MiniChat: React.FC = () => {
         console.error("Error Fetching:", error);
       }
     };
-    console.log("Me ",payload?.id)
     setSelectedUser(undefined)
     return (
       <div className="channel-profile">
@@ -366,8 +364,7 @@ const MiniChat: React.FC = () => {
       if (!channelMessages)
         return
       try {
-        console.log("THE ID OF message IS", channelMessages[0].id)
-        const fetchConversation = `${config.backend_url}/api/messages/${channelMessages[0].id}`;
+        const fetchConversation = `${config.backend_url}/api/conversation/${selectedGroup?.id}}`;
         const response = await fetch(fetchConversation, {
           method: "GET",
           credentials: "include",
@@ -384,7 +381,7 @@ const MiniChat: React.FC = () => {
       }
     };
     requestConversation();
-  },[channelMessages])
+  },[selectedGroup])
 
     /*======================================================================
   ===================Fetch<Get> Messages From His Own Id====================
@@ -394,8 +391,9 @@ const MiniChat: React.FC = () => {
       if (!me){
         return
       }
+      console.log("selected group: ",selectedGroup?.id)
       try {
-        const fetchMessage = `${config.backend_url}/api/messages/from/${me?.id}`;
+        const fetchMessage = `${config.backend_url}/api/conversation/${selectedGroup?.id}`;
         const response = await fetch(fetchMessage, {
           method: "GET",
           credentials: "include",
@@ -403,10 +401,10 @@ const MiniChat: React.FC = () => {
         if (response.ok) {
           const result = await response.json();
           console.log("Messages:", result);
-          setChannelMessages(result);
+          setChannelMessages(result.messages);
         } else {
           setChannelMessages(undefined);
-          console.error("Could not get me messages:", response.status);
+          console.error("Could not get channel messages:", response.status);
         }
       } catch (error) {
         console.error("Error fetching profile me messages:", error);
@@ -437,10 +435,10 @@ const MiniChat: React.FC = () => {
         const message = messageText;
         const conversation_id :number = selectedGroup?.id
         console.log("messageText:", messageText, "group id", selectedGroup?.id)
-        notifications.emit("send_message", (data: {message:string, conversation_id:number}) =>{
+        chatSocket.emit("send_message", (data:{"jelflpa":string,1:number}) =>{
           console.log("DATING",data)
+          setMessageText('')
         })
-        setMessageText('')
       }
     };
 
@@ -458,12 +456,8 @@ const MiniChat: React.FC = () => {
       </div>
     );
   };
-  useEffect(()=>{
-    console.log("DATE")
-    notifications.emit("send_message", (data: {"as":string, 20:number}) =>{
-      console.log("DATING")
-    })
-  },[])
+
+
           /*======================================================================
   ===================Structure Html Return==========
   ======================================================================== */
@@ -532,8 +526,7 @@ const MiniChat: React.FC = () => {
                   selectedUser && (
                     <img src={selectedUser.image} className="user-image" />
                   ) && <p>{selectedUser.username}: Hi</p>}
-                {selectedGroupOption === ChannelOptions.CHANNEL &&
-                  displayChannelMessages}
+                {selectedGroupOption === ChannelOptions.CHANNEL && displayChannelMessages}
               </div>
             </div>
             <div className="message-input">{sendMessage()}</div>
