@@ -275,6 +275,8 @@ export class GameInstance {
   }
 
   finish(winner:Client, reason:string) {
+    this.notif_end(winner, this.other_one(winner))
+
     this.player1.client.socket.emit("finish", {
       winner: winner.socket.id === this.player1.client.socket.id ? "you" : "opponent",
       reason: reason
@@ -285,12 +287,11 @@ export class GameInstance {
       reason: reason
     })
 
-    this.notif_end(winner, this.other_one(winner))
   }
 
   update() {
     this.updateBallPos();
-	this.updatePlayerPos();
+	  this.updatePlayerPos();
     this.delta_time = this.clock.getDelta()
   }
 }
