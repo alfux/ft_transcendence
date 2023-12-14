@@ -124,7 +124,12 @@ function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
 	ball.speed.set(nspeed * tmp.x / n, nspeed * tmp.y / n, nspeed * tmp.z / n);
 }
 
-export interface Player { client: Client, racket: Obstacle, keyboard: Keyboard }
+export interface Player {
+	client: Client,
+	racket: Obstacle,
+	keyboard: Keyboard,
+	mouse: {x: number, y: number}
+}
 
 export class GameInstance {
 
@@ -155,11 +160,24 @@ export class GameInstance {
   notif_ball_pos:(ball:Ball)=>void
   notif_end:(winner:Client, looser:Client)=>void
 
-  constructor(player1: Client, player2: Client, notif_ball_pos:(ball:Ball)=>void, notif_end:(winner:Client, looser:Client)=>void) {
-    this.player1 = { client: player1, racket: this.obstacles.left_racket, keyboard: new Keyboard() }
-    this.player2 = { client: player2, racket: this.obstacles.right_racket, keyboard: new Keyboard() }
+  classic_mode: boolean;
+
+  constructor(player1: Client, player2: Client, notif_ball_pos:(ball:Ball)=>void, notif_end:(winner:Client, looser:Client)=>void, classic: boolean = false) {
+    this.player1 = {
+		client: player1,
+		racket: this.obstacles.left_racket,
+		keyboard: new Keyboard(),
+		mouse: {x: 0, y: 0}
+	}
+    this.player2 = {
+		client: player2,
+		racket: this.obstacles.right_racket,
+		keyboard: new Keyboard(),
+		mouse: {x: 0, y: 0}
+	}
     this.notif_ball_pos = notif_ball_pos
     this.notif_end = notif_end
+	this.classic_mode = classic;
   }
 
   get_by_user_id(user_id:number) {
@@ -182,33 +200,22 @@ export class GameInstance {
     return client.socket.id === this.player1.client.socket.id ? this.player2.client : this.player1.client
   }
 
-  start() {
-    this.clock.start()
-    this.player1.client.socket.emit("start", {
-      opponent: this.player2.client.user,
-	  you: this.player1.client.user
-    });
-    this.player2.client.socket.emit("start", {
-      opponent: this.player1.client.user,
-	  you: this.player2.client.user
-    });
-  }
-
-  updatePlayerPos() {
-    const limit = 7;
-    let move = 0;
-    let speed;
-
-	if (this.score_p1 >= 11 || this.score_p2 >= 11)
-	{
-		this.player1.racket.position.y = 0;
-		this.player1.racket.speed = 0;
-		this.player2.racket.position.y = 0;
-		this.player2.racket.speed = 0;
-
+	start() {
+		this.clock.start()
+		this.player1.client.socket.emit("start", {
+			opponent: this.player2.client.user,
+			you: this.player1.client.user
+		});
+		this.player2.client.socket.emit("start", {
+			opponent: this.player1.client.user,
+			you: this.player2.client.user
+		});
 	}
-	else
-	{
+
+	keyboardPos() {
+    	let move = 0;
+    	let speed;
+
 		speed = 0;
     	if (this.player2.keyboard.key?.ArrowDown)
 			speed += -5;
@@ -216,9 +223,7 @@ export class GameInstance {
 			speed += 5;
 		move = speed * this.delta_time;
 		this.player2.racket.position.y = clamp(
-			this.player2.racket.position.y + move,
-			-limit,
-			limit
+			this.player2.racket.position.y + move, -7, 7
 		);
 		this.player2.racket.speed = speed / 5; // Tune down probably
 
@@ -229,21 +234,40 @@ export class GameInstance {
 			speed += -5;
 		move = -speed * this.delta_time;
 		this.player1.racket.position.y = clamp(
-			this.player1.racket.position.y + move,
-			-limit,
-			limit
+			this.player1.racket.position.y + move, -7, 7
 		);
 		this.player1.racket.speed = speed / 5; // Tune down probably
-		}
+	}
 
-	this.player1.client.socket.emit("player_pos", {
-		you: this.player1.racket,
-		opponent: this.player2.racket
-	});
-	this.player2.client.socket.emit("player_pos", {
-		you: this.player2.racket,
-		opponent: this.player1.racket
-	});
+	mousePos() {
+		this.player1.racket.position.y = clamp(this.player1.mouse.y, -7, 7);
+		this.player2.racket.position.y = clamp(this.player2.mouse.y, -7, 7);
+		console.log("MouseEvent player1: ", this.player1.mouse.y);
+		console.log("MouseEvent player2: ", this.player2.mouse.y);
+		console.log("player1: ", this.player1.racket.position.y);
+		console.log("player2: ", this.player2.racket.position.y);
+	}
+
+	updatePlayerPos() {
+		if (this.score_p1 >= 11 || this.score_p2 >= 11) {
+			this.player1.racket.position.y = 0;
+			this.player1.racket.speed = 0;
+			this.player2.racket.position.y = 0;
+			this.player2.racket.speed = 0;
+		}
+		else if (this.classic_mode)
+			this.keyboardPos();
+		else
+			this.mousePos();
+
+		this.player1.client.socket.emit("player_pos", {
+			you: this.player1.racket,
+			opponent: this.player2.racket
+		});
+		this.player2.client.socket.emit("player_pos", {
+			you: this.player2.racket,
+			opponent: this.player1.racket
+		});
   }
 
   updateScore() {
@@ -309,8 +333,8 @@ export class GameInstance {
   }
 
   update() {
-    this.updateBallPos();
-	  this.updatePlayerPos();
+	this.updateBallPos();
+	this.updatePlayerPos();
     this.delta_time = this.clock.getDelta()
   }
 }

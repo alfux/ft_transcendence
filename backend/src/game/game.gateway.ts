@@ -102,21 +102,25 @@ export class GameGateway implements OnGatewayConnection {
     if (!game_instance)
       return
 
-	let	sender: Player;
-	let	receiver: Player;
+	if (game_instance.player1.client.socket.id === client.socket.id)
+		game_instance.player1.keyboard = keyboard;
+	else
+		game_instance.player2.keyboard = keyboard;
+  }
+
+  @SubscribeMessage("pointer")
+  @CoolSocket
+  async	handlePlayerPointer(client: Client, mouse: {x: number, y: number}) {
+	  const game_instance = this.gameInstances.find((gi) =>
+	  	gi.player1.client.socket.id === client.socket.id ||
+		gi.player2.client.socket.id === client.socket.id)
+	if (!game_instance)
+		return ;
 
 	if (game_instance.player1.client.socket.id === client.socket.id)
-	{
-		sender = game_instance.player1;
-		receiver = game_instance.player2;
-		game_instance.player1.keyboard = keyboard;
-	}
+		game_instance.player1.mouse = mouse;
 	else
-	{
-		sender = game_instance.player2;
-		receiver = game_instance.player1;
-		game_instance.player2.keyboard = keyboard;
-	}
+		game_instance.player2.mouse = mouse;
   }
 
   @Interval(1 / 60)

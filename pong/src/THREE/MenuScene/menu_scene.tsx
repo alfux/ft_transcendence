@@ -443,6 +443,12 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
       document.body.style.cursor = "pointer";
     else
       document.body.style.cursor = "default";
+	if (option.game) {
+		gameSocket.emit("pointer", {
+			x: 14 * ((event.clientX / window.innerWidth) - 0.5),
+			y: -14 * ((event.clientY / window.innerHeight) - 0.5)
+		});
+	}
   }
 
   function getCurrent(rot: number) {
