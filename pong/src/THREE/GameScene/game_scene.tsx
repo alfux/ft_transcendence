@@ -62,10 +62,6 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 
 	function	handleFinish() {
 		start = false;
-		if (board.right_racket.gameObject)
-			board.right_racket.gameObject.position.y = 0;
-		if (board.left_racket.gameObject)
-			board.left_racket.gameObject.position.y = 0;
 	}
 
 	function updateRackets(positions: {

@@ -26,8 +26,18 @@ enum MenuButtons {
   Profile = "Profile",
   Chat = "Chat",
   Create = "Create",
+  YouWin = "YouWin",
+  YouLoose= "YouLoose",
   Null = "null"
-}
+};
+
+enum MenuState {
+	Unlogged,
+	Logged,
+	Winner,
+	Looser,
+	Endgame
+};
 
 export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: THREE.Texture, payload: JwtPayload | null) {
   const loader = new FontLoader();
@@ -138,7 +148,36 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     chat.name = "Chat";
     chat.layers.set(1);
 
-    menu_parent.add(login, play, settings, create, about, profile, chat, logout, llogin, lplay, lsettings, lcreate, labout, lprofile, lchat, llogout)
+	const neon_youwin = new THREE.MeshBasicMaterial(material_params);
+    const tyouwin = new TextGeometry("You win !", { ...font_params, font: font });
+    const lyouwin = new THREE.DirectionalLight(0xffbbbb, 0);
+    lyouwin.position.set(0, Math.cos(-3 * theta), Math.sin(-3 * theta));
+    lyouwin.target = sphere_mesh;
+    lyouwin.name = "lYouWin";
+    lyouwin.layers.set(1);
+    const youwin = new THREE.Mesh(tyouwin, neon_youwin);
+    youwin.position.set(1.25, Math.cos(-3 * theta), Math.sin(-3 * theta));
+    youwin.rotation.set(-3 * theta + Math.PI / 2, Math.PI, 0);
+    youwin.name = "YouWin";
+    youwin.layers.set(1);
+
+	const neon_youloose = new THREE.MeshBasicMaterial(material_params);
+    const tyouloose = new TextGeometry("You loose !", { ...font_params, font: font });
+    const lyouloose = new THREE.DirectionalLight(0xffbbbb, 0);
+    lyouloose.position.set(0, Math.cos(-3 * theta), Math.sin(-3 * theta));
+    lyouloose.target = sphere_mesh;
+    lyouloose.name = "lYouLoose";
+    lyouloose.layers.set(1);
+    const youloose = new THREE.Mesh(tyouloose, neon_youloose);
+    youloose.position.set(1.6, Math.cos(-3 * theta), Math.sin(-3 * theta));
+    youloose.rotation.set(-3 * theta + Math.PI / 2, Math.PI, 0);
+    youloose.name = "YouLoose";
+    youloose.layers.set(1);
+
+    menu_parent.add(
+		login, play, settings, create, about, profile, chat, logout, youwin, youloose,
+		llogin, lplay, lsettings, lcreate, labout, lprofile, lchat, llogout, lyouwin, lyouloose
+	);
   }, (prog) => {
     console.log((prog.loaded) + " bytes loaded");
   }, (err) => {
@@ -196,6 +235,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 
   let current: MenuButtons | null = null;
 
+  let menu_state = MenuState.Unlogged;
   let isLogged = false;
   console.log(payload)
   if (payload?.authentication === LoggedStatus.Logged)
@@ -222,45 +262,131 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	//	{winner:  'you' | 'opponent' , reason:  'won' | 'disconnect'}
 	function	handleFinish(data: {winner: string, reason: string}) {
 		option.game = false;
+		unsetAll();
+		if (data.winner === "you")
+		{
+			menu_parent.getObjectByName("YouWin")?.layers.set(0);
+			menu_parent.getObjectByName("lYouWin")?.layers.set(0);
+			menu_state = MenuState.Winner;
+			endgame.animate();
+		}
+		else
+		{
+			menu_parent.getObjectByName("YouLoose")?.layers.set(0);
+			menu_parent.getObjectByName("lYouLoose")?.layers.set(0);
+			menu_state = MenuState.Looser;
+			endgame.animate();
+		}
 		cleanup.forEach( (elem) => {
 			elem();
 		});
 	} 
 
-  function swapMenu() {
-    if (isLogged) {
-      menu_parent.getObjectByName("Create")?.layers.set(1);
-      menu_parent.getObjectByName("lCreate")?.layers.set(1);
-      menu_parent.getObjectByName("Login")?.layers.set(1);
-      menu_parent.getObjectByName("lLogin")?.layers.set(1);
-      menu_parent.getObjectByName("Logout")?.layers.set(0);
-      menu_parent.getObjectByName("lLogout")?.layers.set(0);
-      menu_parent.getObjectByName("Profile")?.layers.set(0);
-      menu_parent.getObjectByName("lProfile")?.layers.set(0);
-      menu_parent.getObjectByName("Settings")?.layers.set(0);
-      menu_parent.getObjectByName("lSettings")?.layers.set(0);
-      menu_parent.getObjectByName("Chat")?.layers.set(0);
-      menu_parent.getObjectByName("lChat")?.layers.set(0);
-      menu_parent.getObjectByName("Play")?.layers.set(0);
-      menu_parent.getObjectByName("lPlay")?.layers.set(0);
-    }
-    else {
-      menu_parent.getObjectByName("Create")?.layers.set(0);
-      menu_parent.getObjectByName("lCreate")?.layers.set(0);
-      menu_parent.getObjectByName("Login")?.layers.set(0);
-      menu_parent.getObjectByName("lLogin")?.layers.set(0);
-      menu_parent.getObjectByName("Logout")?.layers.set(1);
-      menu_parent.getObjectByName("lLogout")?.layers.set(1);
-      menu_parent.getObjectByName("Profile")?.layers.set(1);
-      menu_parent.getObjectByName("lProfile")?.layers.set(1);
-      menu_parent.getObjectByName("Settings")?.layers.set(1);
-      menu_parent.getObjectByName("lSettings")?.layers.set(1);
-      menu_parent.getObjectByName("Chat")?.layers.set(1);
-      menu_parent.getObjectByName("lChat")?.layers.set(1);
-      menu_parent.getObjectByName("Play")?.layers.set(1);
-      menu_parent.getObjectByName("lPlay")?.layers.set(1);
-    }
-  }
+	function	setLoggedMenu() {
+		menu_parent.getObjectByName("Create")?.layers.set(1);
+		menu_parent.getObjectByName("lCreate")?.layers.set(1);
+		menu_parent.getObjectByName("Login")?.layers.set(1);
+		menu_parent.getObjectByName("lLogin")?.layers.set(1);
+		menu_parent.getObjectByName("Logout")?.layers.set(0);
+		menu_parent.getObjectByName("lLogout")?.layers.set(0);
+		menu_parent.getObjectByName("Profile")?.layers.set(0);
+		menu_parent.getObjectByName("lProfile")?.layers.set(0);
+		menu_parent.getObjectByName("About")?.layers.set(0);
+		menu_parent.getObjectByName("lAbout")?.layers.set(0);
+		menu_parent.getObjectByName("Settings")?.layers.set(0);
+		menu_parent.getObjectByName("lSettings")?.layers.set(0);
+		menu_parent.getObjectByName("Chat")?.layers.set(0);
+		menu_parent.getObjectByName("lChat")?.layers.set(0);
+		menu_parent.getObjectByName("Play")?.layers.set(0);
+		menu_parent.getObjectByName("lPlay")?.layers.set(0);
+		menu_parent.getObjectByName("YouWin")?.layers.set(1);
+		menu_parent.getObjectByName("lYouWin")?.layers.set(1);
+		menu_parent.getObjectByName("YouLoose")?.layers.set(1);
+		menu_parent.getObjectByName("lYouLoose")?.layers.set(1);
+		menu_state = MenuState.Logged;
+		console.log("Set logged menu");
+	}
+
+	function	setUnloggedMenu() {
+		menu_parent.getObjectByName("Create")?.layers.set(0);
+		menu_parent.getObjectByName("lCreate")?.layers.set(0);
+		menu_parent.getObjectByName("Login")?.layers.set(0);
+		menu_parent.getObjectByName("lLogin")?.layers.set(0);
+		menu_parent.getObjectByName("Logout")?.layers.set(1);
+		menu_parent.getObjectByName("lLogout")?.layers.set(1);
+		menu_parent.getObjectByName("Profile")?.layers.set(1);
+		menu_parent.getObjectByName("lProfile")?.layers.set(1);
+		menu_parent.getObjectByName("About")?.layers.set(0);
+		menu_parent.getObjectByName("lAbout")?.layers.set(0);
+		menu_parent.getObjectByName("Settings")?.layers.set(1);
+		menu_parent.getObjectByName("lSettings")?.layers.set(1);
+		menu_parent.getObjectByName("Chat")?.layers.set(1);
+		menu_parent.getObjectByName("lChat")?.layers.set(1);
+		menu_parent.getObjectByName("Play")?.layers.set(1);
+		menu_parent.getObjectByName("lPlay")?.layers.set(1);
+		menu_parent.getObjectByName("YouWin")?.layers.set(1);
+		menu_parent.getObjectByName("lYouWin")?.layers.set(1);
+		menu_parent.getObjectByName("YouLoose")?.layers.set(1);
+		menu_parent.getObjectByName("lYouLoose")?.layers.set(1);
+		menu_state = MenuState.Unlogged;
+		console.log("Set Unlogged menu");
+	}
+
+	function	unsetAll() {
+		menu_parent.traverse((obj) => {
+			if (obj.name !== "Sphere")
+				obj.layers.set(1);
+		});
+	}
+
+	class	EndgameAnimation {
+		t:		number;
+
+		constructor() {
+			this.t = 0;
+		}
+
+		animate() {
+			if (this.t < 1) {
+				requestAnimationFrame(() => {
+					this.animate();
+				});
+				if (this.t === 0)
+					menu_parent.position.set(0, 0, 0);
+				this.t += clock.deltaT;
+				if (this.t < 1)
+					menu_parent.rotation.set(0, fct(this.t) * Math.PI, 0);
+				else
+					menu_parent.rotation.set(0, Math.PI, 0);
+			}
+			else if (this.t < 3.5)
+			{
+				requestAnimationFrame(() => {
+					this.animate();
+				});
+				this.t += clock.deltaT;
+			}
+			else
+			{
+				this.t = 0;
+				requestAnimationFrame(() => {
+					menu_parent.rotation.set(3 * theta, 0, 0);
+					menu_state = MenuState.Endgame;
+				});
+			}
+		}
+	};
+
+	const	endgame = new EndgameAnimation();
+
+	function swapMenu() {
+		if (menu_state === MenuState.Winner || menu_state === MenuState.Looser)
+			return ;
+		if (isLogged && menu_state !== MenuState.Logged && menu_parent.children.length > 1)
+			setLoggedMenu();
+		else if (!isLogged && menu_state !== MenuState.Unlogged && menu_parent.children.length > 1)
+			setUnloggedMenu();
+	}
 
   function handleResize(evenet: Event) {
     general_scaling = Math.min(1680 * window.innerWidth / window.screen.width, (16 / 9) * 1050 * window.innerHeight / window.screen.height) / 1000;
@@ -320,6 +446,10 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   }
 
   function getCurrent(rot: number) {
+	if (menu_state === MenuState.Winner)
+		return (MenuButtons.YouWin);
+	if (menu_state === MenuState.Looser)
+		return (MenuButtons.YouLoose);
     if (isLogged) {
       if ((rot - corr) % (2 * Math.PI) <= theta)
         return (MenuButtons.Logout);
@@ -392,6 +522,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	}
     if (menu_parent.children.length > 1 && (new_current !== current || current === null)) {
       current = new_current;
+	  console.log("current", current, "newcurrent", new_current);
       menu_parent.traverse((obj) => {
         if (obj.name === current) {
           if (obj.name === "Logout")
