@@ -17,6 +17,7 @@ import { create_game_scene } from "./GameScene";
 import usePayload from '../react_hooks/use_auth'
 
 import MiniChatButton from '../components/minichat/ChatButton';
+import { init_modules } from './GameScene/shaders';
 
 export const accessToken = Cookies.get('access_token');
 
@@ -44,6 +45,7 @@ export default function THREE_App() {
 	}, [user && user.exp < Date.now() / 1000])
 
 	useEffect(() => {
+    init_modules() //Pour les shaders, svp ne pas enlever
 
 		const renderer = new THREE.WebGLRenderer({ alpha: true });
 		renderer.setSize(window.innerWidth, window.innerHeight);

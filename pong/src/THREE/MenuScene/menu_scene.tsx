@@ -11,7 +11,7 @@ import { Socket } from 'socket.io-client';
 import { JwtPayload } from '../Utils/';
 import { LoggedStatus } from '../Utils/jwt.interface';
 
-import createComponent from "../Utils/createComponent";
+import { createComponent } from "../Utils/createComponent";
 import Score, { User } from "../../components/scorebar/ScoreBar";
 
 import { clock } from "../Utils/clock";
@@ -177,6 +177,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 	scene.background = video_background;
 	scene.backgroundIntensity = 0.2;
 	scene.add(menu_parent, ambient, screen_plane);
+	//scene.add(ambient, screen_plane);
 	scene.scale.set(general_scaling, general_scaling, general_scaling);
 
 	const composer = new EffectComposer(renderer);

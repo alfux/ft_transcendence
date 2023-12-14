@@ -12,7 +12,7 @@ import TwoFactorAuthenticate from '../../components/twofactorauthenticate/TwoFac
 import MatchMaking from "../../components/matchmaking/matchMaking";
 import MiniChat from "../../components/minichat/MiniChat";
 import MiniChatButton from "../../components/minichat/ChatButton";
-import createComponent from "./createComponent";
+import { createComponent } from "./createComponent";
 import ScoreBar from "../../components/scorebar/ScoreBar";
 import Notifications from "../../components/notifications/Notifications";
 import { notifications } from "../../sockets/notifications";
