@@ -6,7 +6,7 @@ import { Request } from 'src/auth/interfaces/'
 import { UserService } from 'src/db/user'
 import { ConversationService } from './conversation.service'
 import { NotificationsService } from 'src/notifications/'
-import { HttpMissingArg, HttpUnauthorized } from 'src/exceptions'
+import { HttpBadRequest, HttpMissingArg, HttpUnauthorized } from 'src/exceptions'
 
 import { Route } from 'src/route'
 import { AccessLevel } from './conversation_access_level.enum'
@@ -18,9 +18,15 @@ class ConversationCreateParams {
   @ApiProperty({ description: 'Private or not' })
   private: boolean
   @ApiProperty({ description: 'Password of the conversation (empty if no password)' })
-  password?: string | ""
+  password?: string
 }
-class ConversationIdParams {
+class ConversationJoinParams {
+  @ApiProperty({ description: 'Id of the conversation' })
+  id: number
+  @ApiProperty({ description: 'Optional password if conversation is protected' })
+  password?:string
+}
+class ConversationLeaveParams {
   @ApiProperty({ description: 'Id of the conversation' })
   id: number
 }
@@ -107,12 +113,12 @@ export class ConversationController {
     if (body.private)
       access_level = AccessLevel.PRIVATE
 
-    if (body.password !== undefined && body.password.length > 0) {
+    if (body.password !== undefined) {
+      if (body.password === "") {
+        throw new HttpBadRequest()
+      }
       access_level = AccessLevel.PROTECTED
     }
-
-    if (body.password === undefined)
-      body.password = ""
 
     const conversation = await this.conversationService.createConversation(req.user.id, body.title, access_level, body.password)
     this.notificationService.emit_everyone(
@@ -175,8 +181,7 @@ export class ConversationController {
     description: { summary: 'Join a conversation', description: 'Makes the authenticated user join the conversation' },
     responses: [{ status: 200, description: 'Conversation joined successfully' }]
   })
-  async joinConversation(@Req() req: Request, @Body() body: ConversationIdParams) {
-    console.log(body)
+  async joinConversation(@Req() req: Request, @Body() body: ConversationJoinParams) {
     if (body.id === undefined)
       throw new HttpMissingArg()
     const user = await this.userService.getUser({ id: req.user.id })
@@ -189,7 +194,8 @@ export class ConversationController {
         conversation: conversation,
         user: user
       })
-      this.conversationService.addUserToConversation({ id: body.id }, user)
+
+    await this.conversationService.addUserToConversation({ id: body.id }, user, body.password)
   }
 
   @Route({
@@ -276,7 +282,7 @@ export class ConversationController {
     description: { summary: 'Leaves a conversation', description: 'Makes the authenticated user leave the conversation' },
     responses: [{ status: 200, description: 'Conversation left successfully' }]
   })
-  async leaveConversation(@Req() req: Request, @Body() body: ConversationIdParams) {
+  async leaveConversation(@Req() req: Request, @Body() body: ConversationLeaveParams) {
     if (body.id === undefined)
       throw new HttpMissingArg()
     const conv_user = await this.conversationService.getConversationUser({ user: { id: req.user.id } }, ['conversation', 'conversation.users', 'conversation.users.user', 'user'])

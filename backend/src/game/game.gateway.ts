@@ -82,11 +82,11 @@ export class GameGateway implements OnGatewayConnection {
         p2.socket.emit("ball_pos", b)
       },
         (winner, looser) => {
+          this.gameInstances = this.gameInstances.filter((v) => v !== gameInstance)
           this.matchService.createMatch({
             players: [winner.user, looser.user],
             winner: winner.user
           })
-          this.gameInstances = this.gameInstances.filter((v) => v !== gameInstance)
         })
       this.gameInstances.push(gameInstance)
       gameInstance.start()
