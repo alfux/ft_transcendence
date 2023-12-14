@@ -28,7 +28,7 @@ enum MenuButtons {
   Create = "Create",
   YouWin = "YouWin",
   YouLoose= "YouLoose",
-  Null = "null"
+  Null = "null",
 };
 
 enum MenuState {
