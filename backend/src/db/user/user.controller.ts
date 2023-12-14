@@ -80,16 +80,7 @@ export class UserController {
   }
 
   @Route({
-    method: Get('/'),
-    description: { summary: 'Get all users info', description: 'Returns all users info' },
-    responses: [{ status: 200, description: 'Found user successfully' }]
-  })
-  getAllUsers() {
-    return this.userService.getUsers()
-  }
-
-  @Route({
-    method: Patch("/"),
+    method: Patch("/me"),
     description: { summary: 'Update user infos', description: 'Update user infos' }
   })
   async update_user_infos(@Req() req: Request, @Body() body: UpdateUserInfosBody) {
@@ -102,6 +93,15 @@ export class UserController {
     return await this.userService.updateUser(user)
   }
 
+
+  @Route({
+    method: Get('/'),
+    description: { summary: 'Get all users info', description: 'Returns all users info' },
+    responses: [{ status: 200, description: 'Found user successfully' }]
+  })
+  getAllUsers() {
+    return this.userService.getUsers()
+  }
 
   @Route({
     method: Get('friend_request'),
