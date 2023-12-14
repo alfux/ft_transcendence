@@ -1,4 +1,4 @@
-import { Req, Controller, Get, Post, Delete, Body, HttpException, HttpStatus, ValidationPipe, Inject, forwardRef } from '@nestjs/common'
+import { Req, Controller, Get, Post, Delete, Patch, Body, HttpException, Inject, forwardRef } from '@nestjs/common'
 import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger'
 
 import { NotificationsService } from 'src/notifications'
@@ -8,6 +8,15 @@ import { FriendRequestService, MatchService, UserService } from '.'
 
 import { Route } from 'src/route'
 import { HttpBadRequest, HttpMissingArg, HttpNotFound, HttpUnauthorized } from 'src/exceptions'
+
+class UpdateUserInfosBody {
+  @ApiProperty({ description: 'Username displayed' })
+  username: string
+  @ApiProperty({ description: 'Image of the user' })
+  image: string
+  @ApiProperty({ description: 'Email of the user' })
+  email: string
+}
 
 class SendFriendRequestBody {
   @ApiProperty({ description: 'User to send the request to' })
@@ -77,6 +86,20 @@ export class UserController {
   })
   getAllUsers() {
     return this.userService.getUsers()
+  }
+
+  @Route({
+    method: Patch("/"),
+    description: { summary: 'Update user infos', description: 'Update user infos' }
+  })
+  async update_user_infos(@Req() req: Request, @Body() body: UpdateUserInfosBody) {
+    const user = await this.userService.getUser({id: req.user.id})
+
+    user.username = body.username
+    user.image = body.image
+    user.email = body.email
+
+    return await this.userService.updateUser(user)
   }
 
 
