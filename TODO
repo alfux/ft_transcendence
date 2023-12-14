@@ -27,8 +27,7 @@ DANS LE SUJET QU'IL RESTE A FAIRE:
 (back: KO, front: OK?)
 
 
-# Des stats (telles que : victoires et défaites, rang et niveaux, hauts faits, etc.) doivent
-être affichées sur le profil de l’utilisateur.
+# Des stats (telles que : victoires et défaites, rang et niveaux, hauts faits, etc.) doivent être affichées sur le profil de l’utilisateur.
 (back: KO, front: KO)
 
 # Chaque utilisateur doit avoir un Match History (historique comportant les parties 1 contre 1, les niveaux et ainsi de suite). Toute personne loguée doit pouvoir le consulter.

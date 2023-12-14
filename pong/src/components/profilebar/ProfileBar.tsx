@@ -5,26 +5,17 @@ import React, { useRef, useEffect, useState } from 'react'
 import usePayload from '../../react_hooks/use_auth'
 import userEvent from '@testing-library/user-event';
 import { LoggedStatus } from '../../THREE/Utils/jwt.interface';
-
-const accessToken = Cookies.get('accessToken')
-
-type User = {
-  id: number;
-  email: string;
-  image: string;
-  isAuthenticated: LoggedStatus;
-  twoFactorAuth: boolean;
-  username: string;
-}
+import { Match, User } from '../../THREE/Utils/backend_types';
 
 const ProfileBar: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
   const [data, setData] = useState<User | null>(null)
+  const [matches, setMatches] = useState<Match[] | null>(null)
+
   useEffect(() => {
     const requestProfile = async () => {
       try {//fetch Profile
-        const enable2FAEndpoint = `${config.backend_url}/api/user/me`;
-        const response = await fetch(enable2FAEndpoint, {
+        const response = await fetch(`${config.backend_url}/api/user/me`, {
           method: 'GET',
           credentials: 'include',
         });
@@ -39,7 +30,27 @@ const ProfileBar: React.FC = () => {
         console.error('Error fetching profile Token:', error);
       }
     };
+
+    const requestMatchHist = async () => {
+      try {//fetch Matches
+        const response = await fetch(`${config.backend_url}/api/user/matches`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const result = await response.json()
+          setMatches(result)
+        } else {
+          console.error('Could not get matches:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching profile Token:', error);
+      }
+    };
+
     requestProfile();
+    requestMatchHist();
   }, [])
 
   return (
@@ -47,20 +58,16 @@ const ProfileBar: React.FC = () => {
       {data != null ? (
         <img className="profile-photo" src={data.image}></img>
       ) : <h2>nop</h2>}
-      {data != null ? (
-        <div className='stats'>
-          <p>Login</p>
-          <p>Rank</p>
-          <p>Lvl</p>
-        </div>
-      ) : <h2>nop</h2>}
-      {data != null ? (
-        <div className='stats-values'>
-          <p>{data.username}</p>
-          <p>1</p>
-          <p>10</p>
-        </div>
-      ) : <h2>nop</h2>}
+      <div className='stats'>
+        <p>Login</p>
+        <p>Won</p>
+        <p>Lost</p>
+      </div>
+      <div className='stats-values'>
+        {data ? <p>{data.username}</p> : <h2>no infos</h2>}
+        {matches && data ? <p>{matches.filter((m) => m.winner?.username === data.username).length}</p> : <h2>no infos</h2>}
+        {matches && data ? <p>{matches.filter((m) => m.winner?.username !== data.username).length}</p> : <h2>no infos</h2>}
+      </div>
     </div>
   );
 };
