@@ -198,24 +198,43 @@ export class GameInstance {
     const limit = 7;
     let move = 0;
     let speed;
-	
-	speed = 0;
-    if (this.player2.keyboard.key?.ArrowDown)
-		speed += -5;
-    if (this.player2.keyboard.key?.ArrowUp)
-		speed += 5;
-	move = speed * this.delta_time;
-	this.player2.racket.position.y = clamp(this.player2.racket.position.y + move, -limit, limit);
-	this.player2.racket.speed = speed / 5; // Tune down probably
 
-	speed = 0;
-	if (this.player1.keyboard.key?.ArrowDown)
-		speed += 5;
-	if (this.player1.keyboard.key?.ArrowUp)
-		speed += -5;
-	move = -speed * this.delta_time;
-	this.player1.racket.position.y = clamp(this.player1.racket.position.y + move, -limit, limit);
-	this.player1.racket.speed = speed / 5; // Tune down probably
+	if (this.score_p1 >= 11 || this.score_p2 >= 11)
+	{
+		this.player1.racket.position.y = 0;
+		this.player1.racket.speed = 0;
+		this.player2.racket.position.y = 0;
+		this.player2.racket.speed = 0;
+
+	}
+	else
+	{
+		speed = 0;
+    	if (this.player2.keyboard.key?.ArrowDown)
+			speed += -5;
+    	if (this.player2.keyboard.key?.ArrowUp)
+			speed += 5;
+		move = speed * this.delta_time;
+		this.player2.racket.position.y = clamp(
+			this.player2.racket.position.y + move,
+			-limit,
+			limit
+		);
+		this.player2.racket.speed = speed / 5; // Tune down probably
+
+		speed = 0;
+		if (this.player1.keyboard.key?.ArrowDown)
+			speed += 5;
+		if (this.player1.keyboard.key?.ArrowUp)
+			speed += -5;
+		move = -speed * this.delta_time;
+		this.player1.racket.position.y = clamp(
+			this.player1.racket.position.y + move,
+			-limit,
+			limit
+		);
+		this.player1.racket.speed = speed / 5; // Tune down probably
+		}
 
 	this.player1.client.socket.emit("player_pos", {
 		you: this.player1.racket,

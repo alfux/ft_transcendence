@@ -71,20 +71,8 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 		}
 	});
 
-	gameSocket.on("start", handleStart);
 	gameSocket.on("player_pos", updateRackets);
 	gameSocket.on("ball_pos", updateBallPos);
-	gameSocket.on("finish", handleFinish);
-
-	function handleStart() {
-	}
-
-	function handleFinish() {
-		if (board.right_racket.gameObject)
-			board.right_racket.gameObject.position.y = 0;
-		if (board.left_racket.gameObject)
-			board.left_racket.gameObject.position.y = 0;
-	}
 
 	function updateRackets(positions: {
 		you: Obstacle,
