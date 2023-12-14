@@ -11,7 +11,7 @@ import { Socket } from 'socket.io-client';
 import { JwtPayload } from '../Utils/';
 import { LoggedStatus } from '../Utils/jwt.interface';
 
-import createComponent from "../Utils/createComponent";
+import { createComponent } from "../Utils/createComponent";
 import Score, { User } from "../../components/scorebar/ScoreBar";
 
 import { clock } from "../Utils/clock";
