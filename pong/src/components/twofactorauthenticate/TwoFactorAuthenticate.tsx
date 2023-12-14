@@ -81,7 +81,7 @@ const TwoFactorAuthenticate: React.FC = () => {
     <div className="glass-container-twofactor">
       <p className='twoFactorValidate'>2FA</p>
       <p>Scan QRCode</p>
-      <p>Validate two-factor to enable</p>
+      <p>Validate 2FA to enable</p>
       <form>
         <input type="number" maxLength={1} id="digit1" onInput={() => handleInput('digit1', 'digit2')} />
         <input type="number" maxLength={1} id="digit2" onInput={() => handleInput('digit2', 'digit3')} />

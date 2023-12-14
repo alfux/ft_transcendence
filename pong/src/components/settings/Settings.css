@@ -10,7 +10,8 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	position:absolute;
+  left: 18%;
+  top: 28%;
 	left: 30%;
 	height: 44%;
 	width: 20%;
@@ -47,17 +48,15 @@
 
 /* __________________Settings__________________ */
 .glass-container-settings .settings{
-  position: absolute;
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 100%;
-  margin-top: 1%;
-  margin-left: 1%;
-  font-size: 4vw;
-  text-align:center; 
+  width: 80%;
+  margin-top: 15%;
+  margin-left: 2.5%;
+  text-align:left; 
   color: white;
-  font-family: 'game', sans-serif;
   border-radius: 15px;
 }
 
@@ -66,64 +65,55 @@
   width: 10vh;
   height: 10vh;
   left: 50%;
-  bottom: 10%;
+  bottom: 5%;
   transform: translateX(-50%);
 }
 
 .glass-container-settings .switch-container {
-  display: flex;
-  align-items: left;
-}
-
-.glass-container-settings .switch{
-  position: relative;
   display: inline;
-  margin-top: 12%;
-  height: 40px;
-  width: 90px;;
-  margin-top: 0 10px;
+  align-items: left;
+  margin-bottom: 3vh;
 }
 
-.glass-container-settings .switch-label{
+.glass-container-settings .switchLabel{
   font-size: 1.33vw;
-  margin-top: 15%;
-  margin-left: 5%;
   font-family: 'game', sans-serif;
   color: white;
+}
+
+.glass-container-settings .switchButton{
+  position: absolute;
+  right: 0%;
+}
+
+.glass-container-settings .switchButton input {
+  display: none;
 }
 
 .glass-container-settings .slider{
   position: absolute;
   cursor: pointer;
-  top: 0%;
-  right: 0%;
-  width: 3vw;
-  height: 3vh;
+  width: 3.5vmin;
+  height: 3.5vmin;
   background-color: rgb(173, 15, 23);
-  transition: .4s;
-  border-radius: 50px;
-}
-
-.glass-container-settings .switch input {
-  display: none;
-}
-
-.glass-container-settings .slider:before{
-  position: absolute;
-  content: "";
-  height: 80%;
-  width: 50%;
-  left: 0.2vh;
-  bottom: 0.2vw;
-  background-color:white;
-  transition: 0.4s;
-  border-radius: 50%;
+  border-radius: 20px;
 }
 
 .glass-container-settings input:checked + .slider{
   background-color: rgb(10, 110, 15);
 }
 
+.glass-container-settings .slider:before{
+  position: absolute;
+  content: "";
+  height: 75%;
+  width: 50%;
+  left: 0.2vw;
+  bottom: 0.35vh;
+  background-color:white;
+  border-radius: 50%;
+}
+
 .glass-container-settings input:checked + .slider::before{
-  transform: translateX(75%);
+  transform: translateX(60%);
 }
