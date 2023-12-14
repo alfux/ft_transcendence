@@ -3,7 +3,7 @@ import { Socket } from 'socket.io-client';
 import React, { useEffect, useState } from 'react';
 import MiniChat from './MiniChat';
 import './ChatButton.css';
-import createComponent from '../../THREE/Utils/createComponent';
+import { createComponent } from '../../THREE/Utils';
 
 const MiniChatButton: React.FC = () => {
   const [isMiniChatVisible, setMiniChatVisibility] = useState<boolean>(false);

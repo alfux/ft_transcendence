@@ -35,7 +35,7 @@ export class Obstacle {
 		this.speed = other.speed
 	}
 
-	set(ref: THREE.Object3D | undefined) {
+	set(ref?: THREE.Object3D) {
 		this.gameObject = ref;
 	}
 }

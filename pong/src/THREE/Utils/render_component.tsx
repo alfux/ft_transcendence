@@ -10,17 +10,16 @@ import ProfileBar from '../../components/profilebar/ProfileBar';
 import Profile from '../../components/profile/Profile';
 import TwoFactorAuthenticate from '../../components/twofactorauthenticate/TwoFactorAuthenticate';
 import MatchMaking from "../../components/matchmaking/matchMaking";
-import Chat from "../../components/chat/Chat";
 import MiniChat from "../../components/minichat/MiniChat";
 import MiniChatButton from "../../components/minichat/ChatButton";
-import createComponent from "./createComponent";
+import { createComponent } from "./createComponent";
 import ScoreBar from "../../components/scorebar/ScoreBar";
 import Notifications from "../../components/notifications/Notifications";
-import { notificationsSocket } from "../../sockets";
+import { notifications } from "../../sockets/notifications";
 
 
 
-function RenderComponents(loginForm: {option: string, game: boolean}) {
+export function RenderComponents(loginForm: { option: string, game: boolean }) {
   let accessToken = Cookies.get('access_token');
   let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
   const [payload, updatePayload, handleUpdate] = usePayload();
@@ -32,19 +31,22 @@ function RenderComponents(loginForm: {option: string, game: boolean}) {
       setNotificationData({ type: "friend_request_recv", data: data });
       setShowNotifications(true);
     };
-  
+
     const handleFriendNew = (data: { req: any }) => {
-      setNotificationData({ type: "friend_new", data: data});
-      console.log("data1 :", data)
+      setNotificationData({ type: "friend_new", data: data });
       setShowNotifications(true);
     };
-  
-    notificationsSocket.on("friend_request_recv", handleFriendRequestRecv);
-    notificationsSocket.on("friend_new", handleFriendNew);
-    //TODO: notificationsSocket.off
+    const handleFriendRequestDenied = (data: { req: any }) => {
+      setNotificationData({ type: "friend_request_denied", data: data });
+      setShowNotifications(true);
+    };
+
+    notifications.on("friend_request_recv", handleFriendRequestRecv);
+    notifications.on("friend_new", handleFriendNew);
+    notifications.on("friend_request_denied", handleFriendRequestDenied);
   }, []);
 
-  useEffect(() =>{
+  useEffect(() => {
     if (showNotifications) {
       const newFormContainer = document.createElement('div');
       const root = createRoot(newFormContainer);
@@ -62,8 +64,8 @@ function RenderComponents(loginForm: {option: string, game: boolean}) {
   useEffect(() => {
     const cleanup: (() => void)[] = [];
     handleUpdate();
-	if (loginForm.game)
-		return (() => {});
+    if (loginForm.game)
+      return (() => { });
     if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option !== "Profile" && loginForm.option !== "Play") {
       cleanup.push(createComponent(ProfileBar));
     }
@@ -79,19 +81,17 @@ function RenderComponents(loginForm: {option: string, game: boolean}) {
     if (loginForm.option === "Login" && !accessToken) {
       cleanup.push(createComponent(Login));
     }
-	if (loginForm.option === "About" && accessToken && payload?.authentication === LoggedStatus.Logged) {
-	}
+    if (loginForm.option === "About" && accessToken && payload?.authentication === LoggedStatus.Logged) {
+    }
     if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option === "Play") {
       cleanup.push(createComponent(MatchMaking));
     }
     if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option === "Game") {
-	  cleanup.push(createComponent(ScoreBar));
-	}
-     return ()=>{
+      cleanup.push(createComponent(ScoreBar));
+    }
+    return () => {
       cleanup.forEach(cleanupFunction => cleanupFunction());
-     };
+    };
   }, [loginForm.option, loginForm.game])
   return null;
 }
-
-export default RenderComponents;

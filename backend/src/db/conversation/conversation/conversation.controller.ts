@@ -138,6 +138,7 @@ export class ConversationController {
   async getConversation(@Req() req: Request, @Param('id') id: number) {
     if (id === undefined)
       throw new HttpMissingArg()
+    console.log("test")
     return this.conversationService.getConversation({ id: id }, [
       'users',
       'users.user',
@@ -161,7 +162,7 @@ export class ConversationController {
     responses: [{ status: 200, description: 'Conversation deleted successfully' }]
   })
   async deleteConversation(@Req() req: Request, @Param('id') id: number) {
-
+    
     const conversation = await this.conversationService.getConversation({ id: id }, ['owner'])
     this.notificationService.emit_everyone(
       "conv_delete",
@@ -185,6 +186,7 @@ export class ConversationController {
       throw new HttpMissingArg()
     const user = await this.userService.getUser({ id: req.user.id })
     const conversation = await this.conversationService.getConversation({ id: body.id }, ['users', 'users.user'])
+    console.log("good")
     this.notificationService.emit(
       conversation.users.map((u) => u.user),
       "conv_join",

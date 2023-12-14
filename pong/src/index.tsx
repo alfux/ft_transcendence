@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import THREE_App from './THREE/main';
 import './index.css'
 
-import Chat from "./components/chat/Chat";
 import Cookies, { CookieAttributes } from 'js-cookie';
 
 const root = ReactDOM.createRoot(
