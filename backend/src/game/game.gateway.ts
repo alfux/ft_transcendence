@@ -76,6 +76,7 @@ export class GameGateway implements OnGatewayConnection {
       const gameInstance = new GameInstance(p1, p2, (b: Ball) => {
         const inverted = b.clone()
        	inverted.position.x *= -1
+        inverted.spin *= -1
 //		console.log(b.position)
         p1.socket.emit("ball_pos", inverted)
         p2.socket.emit("ball_pos", b)

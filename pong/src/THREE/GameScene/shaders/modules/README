@@ -1,0 +1,10 @@
+dans threejs, avant de compiler les shaders threejs va chercher tout les #includes <...> et les remplacer par le contenu du fichier
+précisé dans <...>
+
+ils appellent ca des "ShaderChunk" dans le code, et dans les shaders des matériaux par défault (MeshBasicMaterial par exemple),
+ils utilisent ces shaderchunks pour rapidement coder des shaders.
+
+pour faire mes propres shaders affectés par la lumière j'ai créé (a partir de ce qu'il y a dans threejs) le
+shaderchunk lighting.glsl.tsx, et j'en ai profité pour en faire d'autres
+
+tout se fait init dans init_modules, ou on donne les sources des shaderchunks a threejs
