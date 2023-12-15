@@ -1,3 +1,5 @@
+
+
 .glass-container-minichat {
   display: flex;
   flex-direction: column;
@@ -79,8 +81,12 @@
   box-shadow: 0 0 10px rgb(5, 0, 5);
   color: white;
   font-family: "game", sans-serif;
+  overflow-y:scroll;
+  scrollbar-color: transparent transparent;
 }
-
+.message-output:hover {
+  background: rgba(8, 8, 8, 0.8);
+}
 .message-input {
   display: flex;
   width: 90%;
@@ -92,6 +98,10 @@
   background: rgba(8, 8, 8, 0.5);
   box-shadow: 0 0 10px rgb(5, 0, 5);
   color: white;
+}
+
+.message-input input{
+ background-color: ;
 }
 
 .chat-options::-webkit-scrollbar {
@@ -110,6 +120,22 @@
   background-color: rgba(193, 14, 14, 0.894);
 }
 
+
+.message-output::-webkit-scrollbar {
+  width: 0.5em;
+}
+
+.message-output::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+.message-output::-webkit-scrollbar-track {
+  background-color: #f1f1f100;
+}
+
+.message-output::-webkit-scrollbar-thumb {
+  background-color: rgba(193, 14, 14, 0.894);
+}
 /* ______________________ */
 .chat-groups::-webkit-scrollbar {
   height: 0.5em;
@@ -164,7 +190,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 30%;
+  width: 300px;
   border-radius: 15px;
   height: 200px;
   background: rgba(8, 8, 8, 0.5);
@@ -172,21 +198,28 @@
   box-shadow: 0 0 30px rgb(3, 227, 235);
   color: white;
 }
-.a {
-  position: fixed;
-  bottom: 5%;
-  right: 1px;
-  display: flex;
-  justify-content: end;
-  align-items: center;
-  width: 30%;
-  height: 65%;
+
+.user-profile button {
+  margin-top: 1%;
+  width: 80%;
+  border-radius: 10px;
+  font-family: "game", sans-serif;
+  color: white;
+  background-color: black;
+  box-shadow: 0 0 30px rgba(236, 3, 197, 0.942);
+  cursor: pointer;
+  
+}
+.user-profile button:hover{
+  box-shadow: 0 0 30px rgb(3, 227, 235);
 }
 
+
 .user-image {
+  margin-top: 20px;
   border-radius: 50%;
-  width: 50%;
-  height: 40%;
+  width: 100px;
+  height: 100px;
 }
 .group-img {
   width: 40px;
@@ -253,8 +286,8 @@
   flex-direction: column;
   position: fixed;
   justify-content: center;
-  top: 50%;
-  right: 21%;
+  top: 0%;
+  right: 3%;
   width: 15%;
   height: 30%;
   border: 1px solid rgb(255, 255, 255);
@@ -262,6 +295,7 @@
   background-color: rgba(5, 0, 0, 0.5);
   font-family: "game", sans-serif;
   color: white;
+  overflow-y: auto;
 }
 .channel-profile div{
   display: flex;

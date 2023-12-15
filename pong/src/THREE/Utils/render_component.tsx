@@ -16,6 +16,7 @@ import { createComponent } from "./createComponent";
 import ScoreBar from "../../components/scorebar/ScoreBar";
 import Notifications from "../../components/notifications/Notifications";
 import { notifications } from "../../sockets/notifications";
+import { chatSocket } from "../../sockets/chat";
 
 
 
@@ -40,7 +41,6 @@ export function RenderComponents(loginForm: { option: string, game: boolean }) {
       setNotificationData({ type: "friend_request_denied", data: data });
       setShowNotifications(true);
     };
-
     notifications.on("friend_request_recv", handleFriendRequestRecv);
     notifications.on("friend_new", handleFriendNew);
     notifications.on("friend_request_denied", handleFriendRequestDenied);
@@ -86,10 +86,19 @@ export function RenderComponents(loginForm: { option: string, game: boolean }) {
     if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option === "Play") {
       cleanup.push(createComponent(MatchMaking));
     }
-    if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option === "Game") {
-      cleanup.push(createComponent(ScoreBar));
-    }
+  if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option === "Chat"){
+    const newFormContainer = document.createElement('div');
+    const root = createRoot(newFormContainer);
+    root.render(<MiniChat width='90%' height='60%' bottom="15%" right="20%" />);
+    document.body.appendChild(newFormContainer);
     return () => {
+      setTimeout(() => {
+        root.unmount();
+        document.body.removeChild(newFormContainer);
+      });
+    };
+  }
+     return ()=>{
       cleanup.forEach(cleanupFunction => cleanupFunction());
     };
   }, [loginForm.option, loginForm.game])

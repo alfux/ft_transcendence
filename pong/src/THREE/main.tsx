@@ -18,6 +18,7 @@ import usePayload from '../react_hooks/use_auth'
 
 import MiniChatButton from '../components/minichat/ChatButton';
 import { init_modules } from './GameScene/shaders';
+import { chatSocket } from '../sockets/chat';
 
 export const accessToken = Cookies.get('access_token');
 
