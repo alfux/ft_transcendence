@@ -17,6 +17,7 @@ import { LoggedStatus } from './Utils/jwt.interface';
 import MiniChatButton from '../components/minichat/ChatButton';
 import createComponent from './Utils/createComponent';
 import { clock } from "./Utils/clock";
+import { chatSocket } from '../sockets/chat';
 
 export const	accessToken = Cookies.get('access_token');
 export const	socket = coolSocket(`${config.backend_url}/game`, accessToken);
@@ -93,7 +94,7 @@ export default function THREE_App() {
 			return createComponent(MiniChatButton);
 		  }
 	},[loginForm === "Chat"])
-	
+
 	return (
 		<div ref={divRef} id="Canvas">
 			<div>
