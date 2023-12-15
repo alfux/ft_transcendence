@@ -28,6 +28,7 @@ const ChannelProfile: React.FC<ChatProps> = (props) => {
 // Need to check if i am the owner if i am the owner i need to pass the rights to second person or another admin
   const leaveChannel = async () => {
     try {
+      console.log("lla",props.selectedGroup)
       const response = await fetch(
         `${config.backend_url}/api/conversation/leave`,
         {

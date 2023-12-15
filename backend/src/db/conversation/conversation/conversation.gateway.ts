@@ -48,6 +48,7 @@ export class ConversationGateway implements OnGatewayConnection {
 
     getCoolClients().forEach((value) => {
       if (conv.users.find((v) => v.user.id === value.user.id)) {
+        console.log(value.user.username)
         value.socket.emit('receive_message',
           {
             username: client.user.username,

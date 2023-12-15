@@ -26,6 +26,7 @@ const ChatDisplay: React.FC<ChatProps> = (props) => {
         props.displayContainer.current.scrollHeight
       );
     }
+    props.setNotificationType(null)
   }, [props.channelMessages]);
 
   return (
