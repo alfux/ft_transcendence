@@ -65,6 +65,14 @@
   text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue
 }
 
+.profile-box a {
+  align-items: center;
+  font-size: 100%;
+  color: #fff;
+  font-family: 'game', sans-serif;
+  text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue
+}
+
 @keyframes colorChange {
   0% {
     box-shadow: 0 0 100px #ffffff;

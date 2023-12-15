@@ -11,8 +11,12 @@ import { User, Match } from '../../THREE/Utils/backend_types';
 
 const Profile: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
+
   const [data, setData] = useState<User | null>(null)
   const [matches, setMatches] = useState<Match[] | null>(null)
+
+  const [isEditingUsername, setIsEditingUsername] = useState(false)
+  const [editUsernameValue, setEditUsernameValue] = useState('')
 
   useEffect(() => {
     const requestProfile = async () => {
@@ -42,6 +46,7 @@ const Profile: React.FC = () => {
 
         if (response.ok) {
           const result = await response.json()
+          console.log(result)
           setMatches(result)
         } else {
           console.error('Could not get matches:', response.status);
@@ -62,7 +67,7 @@ const Profile: React.FC = () => {
     const file = event.target.files[0]
     const reader = new FileReader();
 
-    const sendFile = async (image_b64:string) => {
+    const sendFile = async (image_b64: string) => {
       try {
         const response = await fetch(`${config.backend_url}/api/user/me`, {
           method: 'PATCH',
@@ -78,7 +83,6 @@ const Profile: React.FC = () => {
         if (response.ok) {
           console.log('File uploaded successfully.');
           const result = await response.json()
-          console.log(result)
           setData(result)
         } else {
           console.error('Failed to upload file.');
@@ -93,9 +97,52 @@ const Profile: React.FC = () => {
       const base64String = res.split(',')[1]
       sendFile(base64String)
     };
-  
+
     reader.readAsDataURL(file);
 
+  }
+
+  function handleKeyDown(e: any) {
+    if (e.key === 'Enter') {
+      setIsEditingUsername(false)
+      const sendUsername = async () => {
+        try {
+          const response = await fetch(`${config.backend_url}/api/user/me`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              username: editUsernameValue
+            }),
+          });
+  
+          if (response.ok) {
+            console.log('Updated username successfully.');
+            const result = await response.json()
+            setData(result)
+          } else {
+            console.error('Failed to update username.');
+          }
+        } catch (error) {
+          console.error('Error uploading username:', error);
+        }
+      }
+      sendUsername()
+    }
+  }
+
+  function changeNick(e: any) {
+    if (!data)
+      return
+
+    //No sql injec
+    if (!(/^[a-zA-Z0-9]*$/.test(e.target.value))) {
+      return
+    }
+
+    setEditUsernameValue(e.target.value)
   }
 
   return (
@@ -124,9 +171,25 @@ const Profile: React.FC = () => {
           </div>
 
           <div className='stats-values'>
-            {data ? <p>{data.username}</p> : <h2>no infos</h2>}
-            {matches && data ? <p>{matches.filter((m) => m.winner?.username === data.username).length}</p> : <h2>no infos</h2>}
-            {matches && data ? <p>{matches.filter((m) => m.winner?.username !== data.username).length}</p> : <h2>no infos</h2>}
+            {data ? (
+              isEditingUsername ?
+                <input
+                  type="text"
+                  value={editUsernameValue}
+                  onChange={changeNick}
+                  onKeyDown={handleKeyDown}
+                  placeholder={data.username}
+                /> :
+                <a onClick={
+                  (e: any) => {
+                    setIsEditingUsername(true);
+                    setEditUsernameValue(data.username)
+                  }}>{data.username}</a>
+            ) :
+              <h2>no infos</h2>
+            }
+            {matches && data ? <p>{matches.filter((m) => m.winner?.id === data.id).length}</p> : <h2>no infos</h2>}
+            {matches && data ? <p>{matches.filter((m) => m.winner?.id !== data.id).length}</p> : <h2>no infos</h2>}
           </div>
         </div>
 
