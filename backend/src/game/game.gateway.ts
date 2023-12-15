@@ -117,10 +117,15 @@ export class GameGateway implements OnGatewayConnection {
 	if (!game_instance)
 		return ;
 
-	if (game_instance.player1.client.socket.id === client.socket.id)
-		game_instance.player1.mouse = mouse;
-	else
-		game_instance.player2.mouse = mouse;
+	if (mouse.x && mouse.y)
+	{
+		if (game_instance.player1.client.socket.id === client.socket.id)
+			game_instance.player1.mouse = mouse;
+		else
+			game_instance.player2.mouse = mouse;
+	}
+	console.log("player 1: ", game_instance.player1.mouse);
+	console.log("player 2: ", game_instance.player2.mouse);
   }
 
   @Interval(1 / 60)

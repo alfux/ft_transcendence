@@ -242,10 +242,6 @@ export class GameInstance {
 	mousePos() {
 		this.player1.racket.position.y = clamp(this.player1.mouse.y, -7, 7);
 		this.player2.racket.position.y = clamp(this.player2.mouse.y, -7, 7);
-		console.log("MouseEvent player1: ", this.player1.mouse.y);
-		console.log("MouseEvent player2: ", this.player2.mouse.y);
-		console.log("player1: ", this.player1.racket.position.y);
-		console.log("player2: ", this.player2.racket.position.y);
 	}
 
 	updatePlayerPos() {

@@ -39,7 +39,7 @@ enum MenuState {
 	Endgame
 };
 
-export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: THREE.Texture, payload: JwtPayload | null) {
+export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: THREE.Texture, payload: JwtPayload | null, mousecast: THREE.Vector2) {
   const loader = new FontLoader();
   const font_params = { size: 0.4, height: 0.2 };
   const material_params = { color: 0x001616, side: THREE.DoubleSide };
@@ -202,7 +202,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   menu_parent.scale.set(scaling, scaling, scaling);
   menu_parent.up.set(0, 1, 0);
   menu_parent.lookAt(0, 0, 20);
-  const plane = new THREE.PlaneGeometry(25, (9 / 16) * 25, 10, 10);
+  const plane = new THREE.PlaneGeometry(25, (9 / 16) * 25);
   const texture = new THREE.MeshLambertMaterial({ map: game_texture });
   texture.transparent = true;
   const screen_plane = new THREE.Mesh(plane, texture);
@@ -437,6 +437,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     raycaster.setFromCamera(pointer, camera);
 
     const intersect = raycaster.intersectObjects(scene.children);
+	const inter_plane = raycaster.intersectObject(screen_plane);
     if (intersect.length > 0 && current === "Logout"
       && (intersect[0].object.name === current
         || intersect[0].object.name === "Sphere"))
@@ -444,10 +445,8 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     else
       document.body.style.cursor = "default";
 	if (option.game) {
-		gameSocket.emit("pointer", {
-			x: 14 * ((event.clientX / window.innerWidth) - 0.5),
-			y: -14 * ((event.clientY / window.innerHeight) - 0.5)
-		});
+		mousecast.x = 2 * inter_plane[0]?.point.x / (general_scaling * 25);
+		mousecast.y = 2 * inter_plane[0]?.point.y / (general_scaling * 25 * 9 / 16);
 	}
   }
 
@@ -515,12 +514,12 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     
     option.option = new_current;
 	swapMenu();
-    if (new_current === "Play" && t < 1) {
+    if ((new_current === "Play" || new_current === "Chat") && t < 1) {
 		if (t > 0.9)
 			corr = 0.4 - 2 * Math.PI;
 		moveMenu(t, 3.2, fct);
 		t += clock.deltaT;
-	} else if (new_current !== "Play" && t > 0) {
+	} else if (new_current !== "Play" && new_current != "Chat" && t > 0) {
 		if (t < 0.1)
 			corr = 0.2 - 2 * Math.PI;
 		moveMenu(t, 3.2, fct);
