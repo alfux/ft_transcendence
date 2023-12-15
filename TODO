@@ -16,7 +16,7 @@ DANS LE SUJET QU'IL RESTE A FAIRE:
 # Changer son username
 (back: OK, front: KO)
 # Changer son image de profil
-(back: OK, front: KO)
+(back: OK, front: OK)
 
 # L’utilisateur doit pouvoir activer l’authentification à deux facteurs, ou 2FA, comme Google Authenticator ou l’envoi d’un SMS sur son téléphone portable
 (rémi: j'ai cassé ca je le fix apres)
