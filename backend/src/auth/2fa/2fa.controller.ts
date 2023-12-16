@@ -6,11 +6,7 @@ import { Request } from 'src/auth/interfaces'
 import { UserService, LoggedStatus } from 'src/db/user'
 
 import { TwoFactorAuthenticationService } from '.'
-
-class AuthenticateParams {
-  @ApiProperty({ description: 'The 2FA code from the authentication app' })
-  code: string
-}
+import * as DTO from './2fa.dto'
 
 @ApiBearerAuth()
 @ApiTags('2fa')
@@ -27,7 +23,7 @@ export class TwoFactorAuthenticationController {
     method: Post('authenticate'),
     description: { summary: "Authenticate using 2FA", description: "Authenticate using 2FA" }
   })
-  async authenticateTwoFactor(@Req() request, @Body() body: AuthenticateParams) {
+  async authenticateTwoFactor(@Req() request, @Body() body: DTO.AuthenticateParams) {
     console.log(body)
     const user = await this.userService.getUser({ id: request.user.id })
     const secret = user.twoFactorAuthSecret
@@ -59,7 +55,7 @@ export class TwoFactorAuthenticationController {
     method: Post('enable'),
     description: { summary: "Enable 2FA", description: "Enable 2FA" }
   })
-  async enableTwoFactorAuth(@Req() request, @Body() body: AuthenticateParams) {
+  async enableTwoFactorAuth(@Req() request, @Body() body: DTO.AuthenticateParams) {
     const user = await this.userService.getUser({ id: request.user.id })
 
     const secret = user.twoFactorAuthSecret
