@@ -8,51 +8,7 @@ import { FriendRequestService, MatchService, UserService } from '.'
 
 import { Route } from 'src/route'
 import { HttpBadRequest, HttpMissingArg, HttpNotFound, HttpUnauthorized } from 'src/exceptions'
-
-class UpdateUserInfosBody {
-  @ApiProperty({ description: 'Username displayed' })
-  username: string
-  @ApiProperty({ description: 'Image of the user' })
-  image: string
-  @ApiProperty({ description: 'Email of the user' })
-  email: string
-}
-
-class SendFriendRequestBody {
-  @ApiProperty({ description: 'User to send the request to' })
-  username: string
-}
-class AcceptFriendRequestBody {
-  @ApiProperty({ description: 'Id of the request' })
-  id: number
-}
-class DenyFriendRequestBody {
-  @ApiProperty({ description: 'Id of the request' })
-  id: number
-}
-class RemoveFriendBody {
-  @ApiProperty({ description: 'Id of the user to remove' })
-  user_id: number
-}
-
-class SendPlayRequestBody {
-  @ApiProperty({ description: 'User to send the request to' })
-  username: string
-}
-class AcceptPlayRequestBody {
-  @ApiProperty({ description: 'Id of the request' })
-  id: number
-}
-class DenyPlayRequestBody {
-  @ApiProperty({ description: 'Id of the request' })
-  id: number
-}
-
-
-class BlockFriendBody {
-  @ApiProperty({ description: 'Id of the user to block' })
-  user_id: number
-}
+import * as DTO from './user.dto'
 
 @ApiBearerAuth()
 @ApiTags('user')
@@ -83,7 +39,7 @@ export class UserController {
     method: Patch("me"),
     description: { summary: 'Update user infos', description: 'Update user infos' }
   })
-  async update_user_infos(@Req() req: Request, @Body() body: UpdateUserInfosBody) {
+  async update_user_infos(@Req() req: Request, @Body() body: DTO.UpdateUserInfosBody) {
     const user = await this.userService.getUser({id: req.user.id})
 
     console.log(body)
@@ -130,7 +86,7 @@ export class UserController {
     method: Post('friend_request'),
     description: { summary: 'Sends a friend request', description: 'Sends a friend request' },
   })
-  async send_friend_request(@Req() req: Request, @Body() body: SendFriendRequestBody) {
+  async send_friend_request(@Req() req: Request, @Body() body: DTO.SendFriendRequestBody) {
     if (body.username === undefined)
       throw new HttpMissingArg()
 
@@ -167,7 +123,7 @@ export class UserController {
     method: Post('friend_request_accept'),
     description: { summary: 'Accepts a friend request', description: 'Accepts a friend request' },
   })
-  async accept_friend_request(@Req() req: Request, @Body() body: AcceptFriendRequestBody) {
+  async accept_friend_request(@Req() req: Request, @Body() body: DTO.AcceptFriendRequestBody) {
     if (body.id === undefined)
       throw new HttpMissingArg()
 
@@ -188,7 +144,7 @@ export class UserController {
     method: Post('friend_request_deny'),
     description: { summary: 'Deny a friend request', description: 'Deny a friend request' },
   })
-  async deny_friend_request(@Req() req: Request, @Body() body: DenyFriendRequestBody) {
+  async deny_friend_request(@Req() req: Request, @Body() body: DTO.DenyFriendRequestBody) {
     if (body.id === undefined)
       throw new HttpMissingArg()
     try {
@@ -217,7 +173,7 @@ export class UserController {
     method: Post('remove_friend'),
     description: { summary: 'Removes a friend from friend list', description: 'Removes a friend from friend list' },
   })
-  async remove_friend(@Req() req: Request, @Body() body: RemoveFriendBody) {
+  async remove_friend(@Req() req: Request, @Body() body: DTO.RemoveFriendBody) {
     if (body.user_id === undefined)
       throw new HttpMissingArg()
     await this.userService.removeFriend(req.user.id, body.user_id)
@@ -236,7 +192,7 @@ export class UserController {
     method: Post('blocked'),
     description: { summary: 'Blocks a user', description: 'Blocks a user' },
   })
-  async block_user(@Req() req: Request, @Body() body: BlockFriendBody) {
+  async block_user(@Req() req: Request, @Body() body: DTO.BlockFriendBody) {
     if (body.user_id === undefined)
       throw new HttpMissingArg()
     if (req.user.id === body.user_id)
@@ -249,7 +205,7 @@ export class UserController {
     method: Delete('blocked'),
     description: { summary: 'Unblocks a user', description: 'Unblocks a user' },
   })
-  async unblock_user(@Req() req: Request, @Body() body: BlockFriendBody) {
+  async unblock_user(@Req() req: Request, @Body() body: DTO.BlockFriendBody) {
     if (body.user_id === undefined)
       throw new HttpMissingArg()
     if (req.user.id === body.user_id)
@@ -283,7 +239,7 @@ export class UserController {
     method: Post('play_request'),
     description: { summary: 'Sends a play request', description: 'Sends a play request' },
   })
-  async send_play_request(@Req() req: Request, @Body() body: SendPlayRequestBody) {
+  async send_play_request(@Req() req: Request, @Body() body: DTO.SendPlayRequestBody) {
     if (body.username === undefined)
       throw new HttpMissingArg()
 
@@ -303,7 +259,7 @@ export class UserController {
     method: Post('play_request_accept'),
     description: { summary: 'Accepts a friend request', description: 'Accepts a friend request' },
   })
-  async accept_play_request(@Req() req: Request, @Body() body: AcceptPlayRequestBody) {
+  async accept_play_request(@Req() req: Request, @Body() body: DTO.AcceptPlayRequestBody) {
     if (body.id === undefined)
       throw new HttpMissingArg()
 
@@ -328,7 +284,7 @@ export class UserController {
     method: Post('play_request_deny'),
     description: { summary: 'Deny a play request', description: 'Deny a play request' },
   })
-  async deny_play_request(@Req() req: Request, @Body() body: DenyPlayRequestBody) {
+  async deny_play_request(@Req() req: Request, @Body() body: DTO.DenyPlayRequestBody) {
     if (body.id === undefined)
       throw new HttpMissingArg()
     try {
