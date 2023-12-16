@@ -18,7 +18,6 @@ import usePayload from '../react_hooks/use_auth'
 
 import MiniChatButton from '../components/minichat/ChatButton';
 import { init_modules } from './GameScene/shaders';
-import { chatSocket } from '../sockets/chat';
 
 export const accessToken = Cookies.get('access_token');
 
@@ -34,7 +33,6 @@ export default function THREE_App() {
 
 	//Check if access token has expired remove token and reload page
 	useEffect(() => {
-		console.log("What status are u: ", logged)
 		setLogged(true)
 		user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
 		if (user?.exp && user.exp < Date.now() / 1000) {
@@ -95,7 +93,6 @@ export default function THREE_App() {
 			return createComponent(MiniChatButton);
 		}
 	}, [loginForm === "Chat"])
-
 	return (
 		<div ref={divRef} id="Canvas">
 			<div>

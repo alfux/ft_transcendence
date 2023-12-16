@@ -1,4 +1,4 @@
-import { chatSocket } from "../../../sockets/chat";
+
 import { notifications } from "../../../sockets/notifications";
 import { User } from "../../scorebar/ScoreBar";
 import { ChatProps } from "../MiniChat";

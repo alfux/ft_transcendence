@@ -142,7 +142,8 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
       setNotificationType(data);
       console.log("dataaaaaaaaaaa", data)
     });
-    //joined new conversation
+
+    // joined new conversation
     notifications.on("conv_join",  (data: { req: any })=>{
       setNotificationType(data);
       console.log("conv_join")
@@ -160,14 +161,8 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
     setNotificationType(null)
 
 
-
-    const handleTest = (data: { req: any }) => {
-      setNotificationType(data)
-      console.log("ASGNOAISGHIUASHGIUSAHIGJAS")
-    };
-    chatSocket.on("received_message", handleTest);
-    
 	  },[]);
+
   /*======================================================================
   ===================Find the Own User Object <ME>=====================
   ======================================================================== */
@@ -283,8 +278,7 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
       }
     };
     requestMessages();
-    setNotificationType(null)
-  }, [selectedGroup, messageReceived, notificationType]);
+  }, [selectedGroup, notificationType]);
 
   
   useEffect(() => {

@@ -16,7 +16,6 @@ import { createComponent } from "./createComponent";
 import ScoreBar from "../../components/scorebar/ScoreBar";
 import Notifications from "../../components/notifications/Notifications";
 import { notifications } from "../../sockets/notifications";
-import { chatSocket } from "../../sockets/chat";
 
 
 
@@ -86,18 +85,18 @@ export function RenderComponents(loginForm: { option: string, game: boolean }) {
     if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option === "Play") {
       cleanup.push(createComponent(MatchMaking));
     }
-  if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option === "Chat"){
-    const newFormContainer = document.createElement('div');
-    const root = createRoot(newFormContainer);
-    root.render(<MiniChat width='90%' height='60%' bottom="15%" right="20%" />);
-    document.body.appendChild(newFormContainer);
-    return () => {
-      setTimeout(() => {
-        root.unmount();
-        document.body.removeChild(newFormContainer);
-      });
-    };
-  }
+  // if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option === "Chat"){
+  //   const newFormContainer = document.createElement('div');
+  //   const root = createRoot(newFormContainer);
+  //   root.render(<MiniChat width='90%' height='60%' bottom="15%" right="20%" />);
+  //   document.body.appendChild(newFormContainer);
+  //   return () => {
+  //     setTimeout(() => {
+  //       root.unmount();
+  //       document.body.removeChild(newFormContainer);
+  //     });
+  //   };
+  // }
      return ()=>{
       cleanup.forEach(cleanupFunction => cleanupFunction());
     };
