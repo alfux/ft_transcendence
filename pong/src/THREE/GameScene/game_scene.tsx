@@ -12,7 +12,7 @@ import { keyboard } from '../Utils/keyboard';
 import { gameSocket } from '../../sockets';
 import { CustomLightingShader, spin_fragment, spin_vertex } from './shaders';
 
-export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget, mousecast: THREE.Vector2) {
+export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget, mousecast: THREE.Vector2, mousespeed: THREE.Vector2) {
 	const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
 	//camera.position.set(0, -2, 2);
 	camera.position.set(0, -30, 30);
@@ -57,8 +57,8 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 	});
 	board.ball.speed.set(20, 0, 0);
 
-	const	mouse_plane = new THREE.PlaneGeometry(32, 18, 1, 1);
-	const	mouse_material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0.1});
+	const	mouse_plane = new THREE.PlaneGeometry(500, 500);
+	const	mouse_material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0});
 	const	mouse_mesh = new THREE.Mesh(mouse_plane, mouse_material);
 	const scene = new THREE.Scene();
 	scene.add(game_parent, ambient, mouse_mesh);
@@ -75,7 +75,9 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 		const	intersect = raycaster.intersectObject(mouse_mesh);
 		gameSocket.emit("pointer", {
 			x: intersect[0]?.point.x,
-			y: intersect[0]?.point.y
+			y: intersect[0]?.point.y,
+			sx: mousespeed.x,
+			sy: mousespeed.y
 		});
 		if (event.buttons === 1) {
 			const cpos = new Vec3(camera.position.x, camera.position.y, camera.position.z);

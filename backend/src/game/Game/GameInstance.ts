@@ -102,7 +102,19 @@ function    manageSpin(ball: Ball, obstacle: Obstacle, tmp: Vec3)
     ball.spin = ((1 - spin) * obstacle.speed + ball.spin) / 2;
 }
 
-function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
+function	manageDir(imp: Vec3, obstacle: Obstacle, tmp: Vec3) {
+	const	t = distance(imp, obstacle.position);
+
+	if (obstacle.position.x * Math.sign(obstacle.position.x) !== 14)
+		return ;
+	tmp.set(
+		tmp.x + imp.x - obstacle.position.x,
+		tmp.y + imp.y - obstacle.position.y,
+		tmp.z + imp.z - obstacle.position.z
+	);
+}
+
+function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3, classic: boolean)
 {
 	const	normal = new Vec3(ball.position.x - imp.x, ball.position.y - imp.y, ball.position.z - imp.z);
 	const	nspeed = norm(ball.speed);
@@ -112,23 +124,27 @@ function	bounce(ball: Ball, obstacle: Obstacle, imp: Vec3)
 	normal.set(normal.x / n, normal.y / n, normal.z / n);
 	n = scalaire(ball.speed, normal);
 	if (n > 0)
-		return ;
+		return (false);
 	normal.set(-normal.x * n, -normal.y * n, -normal.z * n);
 	tmp.set(
 		2 * normal.x + ball.speed.x,
 		2 * normal.y + ball.speed.y,
 		2 * normal.z + ball.speed.z
 	);
-	manageSpin(ball, obstacle, tmp);
+	if (classic)
+		manageDir(imp, obstacle, tmp);
+	else
+		manageSpin(ball, obstacle, tmp);
 	n = norm(tmp);
 	ball.speed.set(nspeed * tmp.x / n, nspeed * tmp.y / n, nspeed * tmp.z / n);
+	return (true);
 }
 
 export interface Player {
 	client: Client,
 	racket: Obstacle,
 	keyboard: Keyboard,
-	mouse: {x: number, y: number}
+	mouse: {x: number, y: number, sx: number, sy: number}
 }
 
 export class GameInstance {
@@ -143,6 +159,8 @@ export class GameInstance {
 
   clock: Clock = new Clock(false)
   ball: Ball = new Ball(0.5)
+  max_bounce: number = 0;
+  finished: boolean;
   obstacles: { [key:string]: Obstacle } & {
     upper_border:Obstacle,
     lower_border:Obstacle,
@@ -156,6 +174,8 @@ export class GameInstance {
   }
 
   delta_time: number = 0
+  reset_speed_time_p1: number = 0;
+  reset_speed_time_p2: number = 0;
 
   notif_ball_pos:(ball:Ball)=>void
   notif_end:(winner:Client, looser:Client)=>void
@@ -167,17 +187,21 @@ export class GameInstance {
 		client: player1,
 		racket: this.obstacles.left_racket,
 		keyboard: new Keyboard(),
-		mouse: {x: 0, y: 0}
+		mouse: {x: 0, y: 0, sx: 0, sy: 0}
 	}
     this.player2 = {
 		client: player2,
 		racket: this.obstacles.right_racket,
 		keyboard: new Keyboard(),
-		mouse: {x: 0, y: 0}
+		mouse: {x: 0, y: 0, sx: 0, sy: 0}
 	}
     this.notif_ball_pos = notif_ball_pos
     this.notif_end = notif_end
 	this.classic_mode = classic;
+	this.max_bounce = 0;
+	this.reset_speed_time_p1 = 0;
+	this.reset_speed_time_p2 = 0;
+	this.finished = false;
   }
 
   get_by_user_id(user_id:number) {
@@ -240,18 +264,27 @@ export class GameInstance {
 	}
 
 	mousePos() {
-		this.player1.racket.position.y = clamp(this.player1.mouse.y, -7, 7);
-		this.player2.racket.position.y = clamp(this.player2.mouse.y, -7, 7);
+		let	buffer: number;
+
+		buffer = clamp(this.player1.mouse.y, -7, 7);
+		if (Math.abs(this.player1.racket.position.y - buffer) < 0.1)
+			this.reset_speed_time_p1 += this.delta_time;
+		else
+			this.reset_speed_time_p1 = 0;
+		this.player1.racket.position.y = buffer;
+		this.player1.racket.speed = (Math.abs(this.player1.mouse.y) < 7) ? this.player1.mouse.sy / 5 : 0;
+
+		buffer = clamp(this.player2.mouse.y, -7, 7);
+		if (Math.abs(this.player2.racket.position.y - buffer) < 0.1)
+			this.reset_speed_time_p2 += this.delta_time;
+		else
+			this.reset_speed_time_p2 = 0;
+		this.player2.racket.position.y = buffer;
+		this.player2.racket.speed = (Math.abs(this.player2.mouse.y) < 7) ? -this.player2.mouse.sy / 5 : 0;
 	}
 
 	updatePlayerPos() {
-		if (this.score_p1 >= 11 || this.score_p2 >= 11) {
-			this.player1.racket.position.y = 0;
-			this.player1.racket.speed = 0;
-			this.player2.racket.position.y = 0;
-			this.player2.racket.speed = 0;
-		}
-		else if (this.classic_mode)
+		if (this.classic_mode)
 			this.keyboardPos();
 		else
 			this.mousePos();
@@ -283,9 +316,29 @@ export class GameInstance {
 
   }
 
+	pushdir() {
+		let	n = norm(this.ball.speed);
+
+		console.log(this.max_bounce, " --> ");
+		if (this.max_bounce < 4) {
+			this.max_bounce++;
+			console.log(this.max_bounce);
+			return ;
+		}
+		this.max_bounce = 0;
+		console.log(this.max_bounce);
+		this.ball.speed.x += Math.sign(scalaire(this.ball.speed, new Vec3(1, 0, 0)));
+		n /= norm(this.ball.speed);
+		this.ball.speed.set(
+			this.ball.speed.x * n,
+			this.ball.speed.y * n,
+			this.ball.speed.z * n
+		);
+	}
+
   updateBallPos() {
-    this.ball.position.x += this.delta_time * this.ball.speed.x;
-    this.ball.position.y += this.delta_time * this.ball.speed.y;
+    this.ball.position.x += this.delta_time * this.ball.speed.x * 2;
+    this.ball.position.y += this.delta_time * this.ball.speed.y * 2;
 
     if (this.ball.position.x > 16) {
       this.score_p1++;
@@ -301,8 +354,14 @@ export class GameInstance {
     let imp;
     for (const key in this.obstacles) {
       imp = impact(this.ball, this.obstacles[key]);
-      if (imp !== undefined)
-        bounce(this.ball, this.obstacles[key], imp);
+      if (imp !== undefined) {
+        if (bounce(this.ball, this.obstacles[key], imp, this.classic_mode)) {
+			if (key === "upper_border" || key === "lower_border")
+				this.pushdir();
+			else
+				this.max_bounce = 0;
+		}
+	  }
     }
 
     this.notif_ball_pos(this.ball)
@@ -314,6 +373,16 @@ export class GameInstance {
   }
 
   finish(winner:Client, reason:string) {
+	if (this.finished)
+		return ;
+	this.finished = true;
+	this.player1.racket.position.y = 0;
+	this.player1.racket.speed = 0;
+	this.player2.racket.position.y = 0;
+	this.player2.racket.speed = 0;
+	this.max_bounce = 0;
+	this.ball.spin = 0;
+	this.update();
     this.notif_end(winner, this.other_one(winner))
 
     this.player1.client.socket.emit("finish", {
@@ -331,6 +400,14 @@ export class GameInstance {
   update() {
 	this.updateBallPos();
 	this.updatePlayerPos();
-    this.delta_time = this.clock.getDelta()
+	if (this.reset_speed_time_p1 > 0.1) {
+		this.player1.mouse.sx = 0;
+		this.player1.mouse.sy = 0;
+	}
+	if (this.reset_speed_time_p2 > 0.1) {
+		this.player2.mouse.sx = 0;
+		this.player2.mouse.sy = 0;
+	}
+    this.delta_time = this.clock.getDelta();
   }
 }

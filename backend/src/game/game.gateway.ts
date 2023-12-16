@@ -54,7 +54,7 @@ export class GameGateway implements OnGatewayConnection {
 
   @SubscribeMessage('search')
   @CoolSocket
-  async handleSearch(client: Client) {
+  async handleSearch(client: Client, classic: boolean) {
 
     console.log(client.user)
 
@@ -87,7 +87,8 @@ export class GameGateway implements OnGatewayConnection {
             players: [winner.user, looser.user],
             winner: winner.user
           })
-        })
+        },
+		classic);
       this.gameInstances.push(gameInstance)
       gameInstance.start()
     }
@@ -110,7 +111,7 @@ export class GameGateway implements OnGatewayConnection {
 
   @SubscribeMessage("pointer")
   @CoolSocket
-  async	handlePlayerPointer(client: Client, mouse: {x: number, y: number}) {
+  async	handlePlayerPointer(client: Client, mouse: {x: number, y: number, sx: number, sy: number}) {
 	  const game_instance = this.gameInstances.find((gi) =>
 	  	gi.player1.client.socket.id === client.socket.id ||
 		gi.player2.client.socket.id === client.socket.id)
@@ -124,8 +125,6 @@ export class GameGateway implements OnGatewayConnection {
 		else
 			game_instance.player2.mouse = mouse;
 	}
-	console.log("player 1: ", game_instance.player1.mouse);
-	console.log("player 2: ", game_instance.player2.mouse);
   }
 
   @Interval(1 / 60)
