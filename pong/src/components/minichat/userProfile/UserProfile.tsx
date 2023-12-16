@@ -100,13 +100,13 @@ const UserProfile: React.FC<ChatProps> = (props) => {
         </div>
       )}
       {props.selectedUser && !props.selectedGroup && <button>Profile</button>}
-      {props.selectedUser && !props.selectedGroup && (
+      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && !props.selectedGroup && (
         <button>Invite Game</button>
       )}
-      {props.selectedUser && !props.selectedGroup && (
+      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && !props.selectedGroup && (
         <button>Remove Friend</button>
       )}
-      {props.selectedUser && !props.selectedGroup && (
+      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && !props.selectedGroup && (
         <button>Block Friend</button>
       )}
       {props.selectedGroupOption == ChannelOptions.ONLINE_USERS &&

@@ -4,6 +4,7 @@ import './matchMaking.css'
 import React, { useRef, useEffect, useState } from 'react'
 import usePayload from '../../react_hooks/use_auth'
 import userEvent from '@testing-library/user-event';
+import ReactAudioPlayer from 'react-audio-player';
 const accessToken = Cookies.get('accessToken')
 type User = {
   avatar: string;
@@ -63,6 +64,7 @@ const MatchMaking: React.FC = () => {
         <button>Invite</button>
         <button>Find Match</button>
       </div>
+      <ReactAudioPlayer className='audio' src="./game.mp3" controls autoPlay={true}/>
     </div>
   );
 };

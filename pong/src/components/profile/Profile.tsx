@@ -6,6 +6,7 @@ import usePayload from '../../react_hooks/use_auth'
 import { config } from '../../config';
 import AchievementsButton from './buttons/achievements/AchievementsButton';
 import MatchHistory from './buttons/matchhistory/MatchHistoryButton';
+import ReactAudioPlayer from 'react-audio-player';
 const accessToken = Cookies.get('accessToken')
 type User = {
   image: string;
@@ -61,6 +62,7 @@ const Profile: React.FC = () => {
                 <p>10</p>
                 <MatchHistory/>
               </div>
+              
             ) : <h2>nop</h2>}
           </div>
         ) : <h2>nop</h2>}
