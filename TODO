@@ -1,57 +1,6 @@
 Pour voir tout les //TODO dans les fichiers:
 find ./backend/src ./pong/src -name '*.ts' -or -name '*.tsx' | tr '\n' ' ' | xargs grep "TODO"
 
-
-DANS LE SUJET QU'IL RESTE A FAIRE:
-
-# Votre site web doit être une application web monopage. L’utilisateur doit pouvoir utiliser les boutons Précédent et Suivant du navigateur.
-(back:OK, front:KO)
-
-# L’utilisateur ne doit pas rencontrer d’erreurs non gérées ou d’avertissement sur votre site
-(back: ???, front: ???)
-
-# Votre site web doit être protégé contre les injections SQL.
-(back: KO, front: KO)
-
-# L’utilisateur doit pouvoir activer l’authentification à deux facteurs, ou 2FA, comme Google Authenticator ou l’envoi d’un SMS sur son téléphone portable
-(rémi: j'ai cassé ca je le fix apres)
-(back: KO, front: OK)
-
-# L’utilisateur doit pouvoir ajouter d’autres utilisateurs comme ami(e)s et voir leur statut en temps réel (en ligne, hors-ligne, en pleine partie, etc.).
-(rémi: plus que la partie "en ligne, hors-ligne, en pleine partie" a faire)
-(back: KO, front: OK?)
-
-
-# Des stats (telles que : victoires et défaites, rang et niveaux, hauts faits, etc.) doivent être affichées sur le profil de l’utilisateur.
-(back: OK, front: OK)
-
-# Chaque utilisateur doit avoir un Match History (historique comportant les parties 1 contre 1, les niveaux et ainsi de suite). Toute personne loguée doit pouvoir le consulter.
-(back: OK, front: KO)
-
-# L’utilisateur doit pouvoir envoyer des direct messages à d’autres utilisateurs.
-(back: KO, front: KO)
-
-# L’utilisateur doit pouvoir en bloquer d’autres. Ainsi, il ne verra plus les messages envoyés par les comptes qu’il aura bloqués.
-(On peut bloquer des user, mais il voit toujours les messages)
-(back: KO, front: KO)
-
-# Le propriétaire du channel peut définir un mot de passe requis pour accéder au channel, le modifier, et le retirer
-(rémi: plus que la partie "le modifier, et le retirer" a faire)
-(back: KO, front: KO)
-
-# Un utilisateur qui est administrateur d’un channel peut expulser, bannir ou mettre en sourdine (pour un temps limité) d’autres utilisateurs, mais pas les
-propriétaires du channel.
-(back: KO, front: KO)
-
-# Grâce à l’interface de chat, l’utilisateur doit pouvoir en inviter d’autres à faire une partie de Pong.
-(back: KO, front: KO)
-
-# Grâce à l’interface de chat, l’utilisateur doit pouvoir accéder aux profils d’autres joueurs
-(back: KO, front: KO)
-
-# Vous devez offrir quelques options de customisation (par exemple, des power-ups ou des maps différentes) mais l’utilisateur doit pouvoir jouer à la version par défaut sans options s’il le souhaite.
-(back: KO, front: KO)
-
 ________________________________________________________________________
 
 Subject:
@@ -85,8 +34,7 @@ ____________________________________________________________________________
 
 📋Your website must be protected against SQL injections. ❌
 
-📋You must implement some kind of server-side validation for forms and any user ❌ (Need to Test)
-input.
+📋You must implement some kind of server-side validation for forms and any user input. ✅
 
 _____________________________________________________________________________
 
