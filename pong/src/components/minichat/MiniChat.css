@@ -1,5 +1,20 @@
 
 
+@keyframes chat-on{
+  0%{
+    width: 0%;
+    height: 0%;
+  }
+  50%{
+    width: 35%;
+    height: 50%;
+  }
+  100%{
+    width: 69%;
+    height: 100%;
+  }
+}
+
 .glass-container-minichat {
   display: flex;
   flex-direction: column;
@@ -7,6 +22,7 @@
   height: 100%;
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;
+  animation: chat-on linear 1s;
 }
 
 .chat-options {
@@ -40,12 +56,30 @@
   align-items: center;
 }
 
-.chat-img {
+.chat-img-online {
   margin-top: 10%;
   width: 40px;
   height: 40px;
   border-radius: 50%;
+  box-shadow: 0 0 30px rgb(16, 242, 4);
 }
+
+.chat-img-offline {
+  margin-top: 10%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgb(242, 24, 4);
+}
+
+.chat-img-ingame {
+  margin-top: 10%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgb(206, 238, 1);
+}
+
 .chat-img:hover {
   width: 60px;
   height: 60px;
@@ -190,14 +224,34 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 300px;
+  width: 30%;
   border-radius: 15px;
   height: 200px;
   background: rgba(8, 8, 8, 0.5);
   border: 1px solid rgb(3, 227, 235);
   box-shadow: 0 0 30px rgb(3, 227, 235);
   color: white;
+  overflow-y: auto;
+  scrollbar-color: transparent transparent;
 }
+
+ 
+ .user-profile::-webkit-scrollbar {
+   width: 0.5em;
+ }
+ 
+ .user-profile::-webkit-scrollbar-thumb {
+   background-color: transparent;
+ }
+ 
+ .user-profile::-webkit-scrollbar-track {
+   background-color: #f1f1f100;
+ }
+ 
+ .user-profile::-webkit-scrollbar-thumb {
+   background-color: rgba(193, 14, 14, 0.894);
+ }
+
 
 .user-profile button {
   margin-top: 1%;
@@ -221,6 +275,30 @@
   width: 100px;
   height: 100px;
 }
+.status-online{
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: green;
+}
+
+.status-offline{
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgb(128, 2, 0);
+}
+.status-ingame{
+
+}
+.status-div{
+  display: flex;
+  position: relative;
+  align-items: center;
+  gap: 10px;
+}
+
+
 .group-img {
   width: 40px;
   height: 40px;
@@ -272,6 +350,42 @@
   gap: 2%;
 }
 
+.chat-user-online {
+  display:flex;
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(11, 236, 3, 0.942);
+  box-shadow: 0 0 20px rgba(11, 236, 3, 0.942);
+  margin-left: 5%;
+  cursor: pointer;
+}
+
+.chat-user-online:hover{
+  box-shadow: 0 0 20px rgba(236, 3, 197, 0.942);
+  border: 2px solid rgba(236, 3, 197, 0.942);
+}
+
+.chat-user-offline:hover{
+  box-shadow: 0 0 20px rgba(236, 3, 197, 0.942);
+  border: 2px solid rgba(236, 3, 197, 0.942);
+}
+
+.chat-user-offline {
+  display:flex;
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(236, 3, 3, 0.942);
+  box-shadow: 0 0 20px rgba(236, 3, 3, 0.942);
+  margin-left: 5%;
+  cursor: pointer;
+}
+
 .channel-creator div {
   display: flex;
   flex-direction: column;
@@ -297,13 +411,41 @@
   color: white;
   overflow-y: auto;
 }
+
+ 
+.channel-profile::-webkit-scrollbar {
+  width: 0.5em;
+}
+
+.channel-profile::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+.channel-profile::-webkit-scrollbar-track {
+  background-color: #f1f1f100;
+}
+
+.channel-profile::-webkit-scrollbar-thumb {
+  background-color: rgba(193, 14, 14, 0.894);
+}
 .channel-profile div{
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin-top: 5%;
   width: 100%;
   height: 100%;
+}
+.channel-profile button{
+  margin-top: 1%;
+  width: 50%;
+  border-radius: 10px;
+  font-family: "game", sans-serif;
+  color: white;
+  background-color: black;
+  box-shadow: 0 0 30px rgba(236, 3, 197, 0.942);
+  cursor: pointer;
 }
 .channel-profile img{
   width: 40%;

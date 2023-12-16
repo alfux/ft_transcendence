@@ -63,7 +63,7 @@ const ChannelProfile: React.FC<ChatProps> = (props) => {
         {!props.isInChannel ? (
           <button onClick={joinChannel}>Join Channel</button>
         ) : (
-          <button onClick={leaveChannel}>Leave Leave Channel</button>
+          <button onClick={leaveChannel}>Leave Channel</button>
         )}
       </div>
     </div>

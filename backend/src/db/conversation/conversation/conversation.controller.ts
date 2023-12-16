@@ -138,7 +138,6 @@ export class ConversationController {
   async getConversation(@Req() req: Request, @Param('id') id: number) {
     if (id === undefined)
       throw new HttpMissingArg()
-    console.log("test")
     return this.conversationService.getConversation({ id: id }, [
       'users',
       'users.user',

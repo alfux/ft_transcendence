@@ -9,10 +9,10 @@ const UserProfile: React.FC<ChatProps> = (props) => {
   ===================Fetch<Post> Request To Send Invite To Another User==========
   ======================================================================== */
   async function sendInvite() {
-    const verify2FAEndpoint = `${config.backend_url}/api/user/friend_request`;
+    const url = `${config.backend_url}/api/user/friend_request`;
     console.log("selectedUser: ", props.selectedUser);
     try {
-      const response = await fetch(verify2FAEndpoint, {
+      const response = await fetch(url, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -54,8 +54,6 @@ const UserProfile: React.FC<ChatProps> = (props) => {
       });
     }
   }, [props.selectedGroup]);
-  console.log("selected channel: ", props.selectedGroup);
-  console.log("channelrights: ", channelRights);
 
   async function promoteUser() {
     await Promise.all(
@@ -69,7 +67,7 @@ const UserProfile: React.FC<ChatProps> = (props) => {
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({conversation_user_id :user.id}),
+              body: JSON.stringify({ conversation_user_id: user.id }),
             });
 
             if (response.ok) {
@@ -95,6 +93,22 @@ const UserProfile: React.FC<ChatProps> = (props) => {
         <img className="user-image" src={props.selectedUser.image} />
       )}
       {props.selectedUser && <p>{props.selectedUser.username}</p>}
+      {props.selectedUser && (
+        <div className="status-div">
+          <p>Status</p>
+          <div className={props.selectedUser.isAuthenticated === 0?"status-online":"status-offline"}></div>
+        </div>
+      )}
+      {props.selectedUser && !props.selectedGroup && <button>Profile</button>}
+      {props.selectedUser && !props.selectedGroup && (
+        <button>Invite Game</button>
+      )}
+      {props.selectedUser && !props.selectedGroup && (
+        <button>Remove Friend</button>
+      )}
+      {props.selectedUser && !props.selectedGroup && (
+        <button>Block Friend</button>
+      )}
       {props.selectedGroupOption == ChannelOptions.ONLINE_USERS &&
         props.selectedUser && (
           <button onClick={sendInvite}>Invite Friend</button>
