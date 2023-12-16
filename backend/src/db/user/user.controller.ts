@@ -80,17 +80,20 @@ export class UserController {
   }
 
   @Route({
-    method: Patch("/me"),
+    method: Patch("me"),
     description: { summary: 'Update user infos', description: 'Update user infos' }
   })
   async update_user_infos(@Req() req: Request, @Body() body: UpdateUserInfosBody) {
     const user = await this.userService.getUser({id: req.user.id})
 
+    console.log(body)
+
     user.username = body.username
     user.image = body.image
     user.email = body.email
 
-    return await this.userService.updateUser(user)
+    await this.userService.updateUser(user)
+    return this.userService.getUser({id: user.id})
   }
 
 

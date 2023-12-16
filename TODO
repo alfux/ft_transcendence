@@ -13,11 +13,6 @@ DANS LE SUJET QU'IL RESTE A FAIRE:
 # Votre site web doit être protégé contre les injections SQL.
 (back: KO, front: KO)
 
-# Changer son username
-(back: OK, front: KO)
-# Changer son image de profil
-(back: OK, front: KO)
-
 # L’utilisateur doit pouvoir activer l’authentification à deux facteurs, ou 2FA, comme Google Authenticator ou l’envoi d’un SMS sur son téléphone portable
 (rémi: j'ai cassé ca je le fix apres)
 (back: KO, front: OK)
@@ -28,7 +23,7 @@ DANS LE SUJET QU'IL RESTE A FAIRE:
 
 
 # Des stats (telles que : victoires et défaites, rang et niveaux, hauts faits, etc.) doivent être affichées sur le profil de l’utilisateur.
-(back: KO, front: KO)
+(back: OK, front: OK)
 
 # Chaque utilisateur doit avoir un Match History (historique comportant les parties 1 contre 1, les niveaux et ainsi de suite). Toute personne loguée doit pouvoir le consulter.
 (back: OK, front: KO)

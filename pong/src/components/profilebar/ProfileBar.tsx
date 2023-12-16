@@ -59,7 +59,7 @@ const ProfileBar: React.FC = () => {
         <img className="profile-photo" src={data.image}></img>
       ) : <h2>nop</h2>}
       <div className='stats'>
-        <p>Login</p>
+        <p>Nickname</p>
         <p>Won</p>
         <p>Lost</p>
       </div>
