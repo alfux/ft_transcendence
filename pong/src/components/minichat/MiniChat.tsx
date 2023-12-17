@@ -15,6 +15,7 @@ import ChannelForm from "./channelForm/ChannelForm";
 import usePayload from "../../react_hooks/use_auth";
 import { JwtPayload } from "../../THREE/Utils";
 import { chatSocket } from "../../sockets/chat";
+import { notifications } from "../../sockets/notifications";
 
 export enum ChannelOptions {
   CREATE_CHANNEL = "create channel",
@@ -36,6 +37,8 @@ export interface ChatProps {
   channelMessages: any | null;
   messageText: any;
   toogledButton : string | null;
+  notificationType : any;
+  setNotificationType : (notificationType : any) => void;
   setToogledButton : (toogledButton :string | null) => void;
   setSelectedChannel: (channel: any | undefined) => void;
   setSelectedChannelOption: (option: ChannelOptions) => void;
@@ -84,6 +87,7 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
   const [messageReceived, setMessageReceived] = useState<any>(null)
   const [isInChannel, setIsInChannel] = useState<boolean>(false);
   const [toogledButton, setToogledButton] = useState<string | null>(null);
+  const [notificationType, setNotificationType] = useState<any>(null)
   /*======================================================================
   ===================Functions to Pass To Children To Set State===============
   ======================================================================== */
@@ -113,6 +117,8 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
     channelMessages,
     messageText,
     toogledButton,
+    notificationType,
+    setNotificationType,
     setToogledButton,
     setSelectedChannel: handleSelectGroup,
     setSelectedChannelOption: handleSelectGroupOption,
@@ -131,16 +137,32 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
     displayContainer,
   };
   useEffect(() => {
-		const handleMessageReceived = (data: { req: any }) => {
-		  setMessageReceived(data)
-		  console.log("received:", data);
-		};
-		
-		chatSocket.on("received_message", handleMessageReceived);
-		return () => {
-		  chatSocket.off("received_message", handleMessageReceived);
-		};
+		//message receive
+		chatSocket.on("receive_message", (data: { req: any })=>{
+      setNotificationType(data);
+      console.log("dataaaaaaaaaaa", data)
+    });
+
+    // joined new conversation
+    notifications.on("conv_join",  (data: { req: any })=>{
+      setNotificationType(data);
+      console.log("conv_join")
+    });
+    //have a new friend
+    notifications.on("friend_new",  (data: { req: any })=>{
+      setNotificationType(data);
+      console.log("friend_new")
+    });
+    //new channel created
+    notifications.on("conv_create",  (data: { req: any })=>{
+      setNotificationType(data);
+      console.log("conv_create")
+    });
+    setNotificationType(null)
+
+
 	  },[]);
+
   /*======================================================================
   ===================Find the Own User Object <ME>=====================
   ======================================================================== */
@@ -149,7 +171,8 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
     if (currentUser) {
       setMe(currentUser);
     }
-  }, [allUsers]);
+    setNotificationType(null)
+  }, [allUsers, notificationType]);
 
 
   /*======================================================================
@@ -174,7 +197,8 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
       }
     };
     requestConversation();
-  }, [newChannel]);
+    setNotificationType(null)
+  }, [newChannel, notificationType]);
   /*======================================================================
   ===================Fetch<GET>All Users==================================
   ======================================================================== */
@@ -198,7 +222,8 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
       }
     };
     requestAllUsers();
-  }, [messageText]);
+    setNotificationType(null)
+  }, [messageText, notificationType]);
 
   /*======================================================================
   ===================Fetch<GET> All Friends From User=====================
@@ -222,7 +247,8 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
       }
     };
     requestProfile();
-  }, [selectedUser]);
+    setNotificationType(null)
+  }, [selectedUser, notificationType]);
 
   /*======================================================================
   ===================Fetch<Get> Messages From His Own Id====================
@@ -252,33 +278,7 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
       }
     };
     requestMessages();
-  }, [selectedGroup, messageReceived]);
-
-  /*======================================================================
-  ===================Fetch<Get> All Messages From A Channel==========
-  ======================================================================== */
-  useEffect(() => {
-    const requestConversation = async () => {
-      if (!channelMessages) return;
-      try {
-        const fetchConversation = `${config.backend_url}/api/conversation/${selectedGroup?.id}}`;
-        const response = await fetch(fetchConversation, {
-          method: "GET",
-          credentials: "include",
-        });
-        if (response.ok) {
-          const result = await response.json();
-          console.log("Conversation:", result.conversation);
-          setConversation(result.conversation);
-        } else {
-          console.error("Could not get conversation stuff:", response.status);
-        }
-      } catch (error) {
-        console.error("Error fetching conversation:", error);
-      }
-    };
-    requestConversation();
-  }, [selectedGroup]);
+  }, [selectedGroup, notificationType]);
 
   
   useEffect(() => {
@@ -291,7 +291,8 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
       }
     }
     );
-  }, [selectedGroup]);
+    setNotificationType(null)
+  }, [selectedGroup, notificationType]);
 
   const componentSize: React.CSSProperties = {
     width: width,

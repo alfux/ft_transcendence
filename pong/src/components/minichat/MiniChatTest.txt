@@ -28,7 +28,8 @@ import Login from "../login/Login";
 import { channel } from "diagnostics_channel";
 import { group } from "console";
 import { Channel } from "./interfaces/interfaces";
-import { chatSocket } from "../../sockets/chat";
+import { chatSocket } from "../../sockets/notifications";
+
 
 enum ChannelOptions {
   CREATE_CHANNEL = "create channel",

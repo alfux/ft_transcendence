@@ -4,32 +4,32 @@ import { ChannelOptions, ChatProps } from "../MiniChat";
 
 const UsersLayout: React.FC<ChatProps> = (props) => {
   const onlineUsers = props.allUsers?.map((user: User) => {
-    return user?.isAuthenticated === LoggedStatus.Logged ? (
+    return (
       <img
         key={user.id}
         src={user.image}
-        className="chat-img"
+        className={user?.isAuthenticated === 0?"chat-user-online":"chat-user-offline"}
         onClick={() => props.setSelectedUser(user)}
       />
-    ) : null;
+    )
   });
 
   const myFriends = props.friends?.map((friend: User) => {
-    return friend?.isAuthenticated === LoggedStatus.Logged ? (
+    return (
       <img
-        className="group-icons"
+      className={friend?.isAuthenticated === 0?"chat-user-online":"chat-user-offline"}
         src={friend.image}
         key={friend.id}
         onClick={() => props.setSelectedUser(friend)}
       />
-    ) : null;
+    )
   });
 
   const channelUsers = props.selectedGroup?.users?.map((channelInfo: any) => {
     const user: User = channelInfo.user;
     return (
       <img
-        className="group-icons"
+      className={user?.isAuthenticated === 0?"chat-user-online":"chat-user-offline"}
         src={user?.image}
         key={user?.id}
         onClick={() => {props.setSelectedUser(user);props.setToogledButton("User")}}

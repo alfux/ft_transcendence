@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { ChannelOptions, ChatProps } from "../MiniChat";
-import { chatSocket } from "../../../sockets/chat";
 import { User } from "../../scorebar/ScoreBar";
 
 const ChatDisplay: React.FC<ChatProps> = (props) => {
