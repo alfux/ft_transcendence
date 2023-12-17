@@ -18,6 +18,7 @@ import usePayload from '../react_hooks/use_auth'
 
 import MiniChatButton from '../components/minichat/ChatButton';
 import { init_modules } from './GameScene/shaders';
+import { config } from '../config';
 
 export const accessToken = Cookies.get('access_token');
 
@@ -30,16 +31,36 @@ export default function THREE_App() {
 	let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
 	const [payload, updatePayload, handleUpdate] = usePayload();
 	const [logged, setLogged] = useState(false)
-
+	const requestNewToken = async () =>{
+		try {
+		  const url = `${config.backend_url}/api/auth/refresh`;
+		  console.log('Before fetch');
+		  const response = await fetch(url, {
+			  method: 'GET',
+			  credentials: 'include',
+		  });
+		  if (response.ok) {
+			const test = await response.json()
+			console.log("AccessTokenRefreshed: ", test)
+			// alert(console.log("AccessTokenRefreshed"))
+		  } else {
+			// alert(console.log("AccessToken Didnt not refreshed"))
+			console.error('Could not get new AccessToken:', response.status);
+		  }
+	  } catch (error) {
+		document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
+			window.location.reload();
+		  console.error('Error fetching new refresh Token:', error);
+	  }
+};
 	//Check if access token has expired remove token and reload page
 	useEffect(() => {
 		setLogged(true)
 		user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
 		if (user?.exp && user.exp < Date.now() / 1000) {
-			// fetchData()
-			alert("Token expired");
-			document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
-			window.location.reload();
+			// alert("Token expired");
+			requestNewToken();
+
 		}
 	}, [user && user.exp < Date.now() / 1000])
 
