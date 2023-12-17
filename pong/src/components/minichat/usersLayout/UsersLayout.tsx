@@ -4,7 +4,7 @@ import { ChannelOptions, ChatProps } from "../MiniChat";
 
 const UsersLayout: React.FC<ChatProps> = (props) => {
   const onlineUsers = props.allUsers?.map((user: User) => {
-    return user?.isAuthenticated === LoggedStatus.Logged ? (
+    return user.isAuthenticated === LoggedStatus.Logged && user.id !== props.me?.id ? (
       <img
         key={user.id}
         src={user.image}

@@ -15,6 +15,7 @@ import ChannelForm from "./channelForm/ChannelForm";
 import usePayload from "../../react_hooks/use_auth";
 import { JwtPayload } from "../../THREE/Utils";
 import { chatSocket } from "../../sockets/chat";
+import { notificationsSocket } from "../../sockets";
 
 export enum ChannelOptions {
   CREATE_CHANNEL = "create channel",
@@ -24,9 +25,9 @@ export enum ChannelOptions {
 }
 
 export interface ChatProps {
-  isInChannel:boolean;
-  me : User | undefined;
-  payload : JwtPayload | null;
+  isInChannel: boolean;
+  me: User | undefined;
+  payload: JwtPayload | null;
   channels: Conversation[] | null;
   friends: User[] | null;
   allUsers: User[] | null;
@@ -35,8 +36,8 @@ export interface ChatProps {
   selectedGroupOption: ChannelOptions | null;
   channelMessages: any | null;
   messageText: any;
-  toogledButton : string | null;
-  setToogledButton : (toogledButton :string | null) => void;
+  toogledButton: string | null;
+  setToogledButton: (toogledButton: string | null) => void;
   setSelectedChannel: (channel: any | undefined) => void;
   setSelectedChannelOption: (option: ChannelOptions) => void;
   setSelectedUser: (user: User | undefined) => void;
@@ -60,10 +61,10 @@ interface ChatSize {
   width: string;
   height: string;
   bottom: string;
-  right:string;
+  right: string;
 }
 
-const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
+const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
   const [payload, updatePayload, handleUpdate] = usePayload();
   const [channels, setChannels] = useState<Conversation[] | null>(null);
   const [selectedGroupOption, setSelectedGroupOption] =
@@ -131,16 +132,16 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
     displayContainer,
   };
   useEffect(() => {
-		const handleMessageReceived = (data: { req: any }) => {
-		  setMessageReceived(data)
-		  console.log("received:", data);
-		};
-		
-		chatSocket.on("received_message", handleMessageReceived);
-		return () => {
-		  chatSocket.off("received_message", handleMessageReceived);
-		};
-	  },[]);
+    const handleMessageReceived = (data: { req: any }) => {
+      setMessageReceived(data)
+      console.log("received:", data);
+    };
+
+    chatSocket.on("received_message", handleMessageReceived);
+    return () => {
+      chatSocket.off("received_message", handleMessageReceived);
+    };
+  }, []);
   /*======================================================================
   ===================Find the Own User Object <ME>=====================
   ======================================================================== */
@@ -174,7 +175,23 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
       }
     };
     requestConversation();
-  }, [newChannel]);
+
+    notificationsSocket.on("conv_create", (data: { conversation: Conversation }) => {
+      setChannels((prev) => {
+        return (prev === null) ? [data.conversation] : [data.conversation, ...prev]
+      })
+    })
+    notificationsSocket.on("conv_delete", (data: { conversation: Conversation }) => {
+      setChannels((prev) => {
+        return (prev === null) ? prev : prev.filter((c) => c.id !== data.conversation.id)
+      })
+    })
+
+    return () => {
+      notificationsSocket.off("conv_create")
+      notificationsSocket.off("conv_delete")
+    }
+  }, []);
   /*======================================================================
   ===================Fetch<GET>All Users==================================
   ======================================================================== */
@@ -198,7 +215,17 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
       }
     };
     requestAllUsers();
-  }, [messageText]);
+
+    notificationsSocket.on("user_create", (data: { user: User }) => {
+      setAllUsers((prev) => {
+        return (prev === null) ? [data.user] : [data.user, ...prev]
+      })
+    })
+
+    return () => {
+      notificationsSocket.off("user_create")
+    }
+  }, []);
 
   /*======================================================================
   ===================Fetch<GET> All Friends From User=====================
@@ -222,7 +249,17 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
       }
     };
     requestProfile();
-  }, [selectedUser]);
+
+    notificationsSocket.on("friend_new", (user: User) => {
+      setFriends((prev) => {
+        return (prev === null) ? [user] : [user, ...prev]
+      })
+    })
+
+    return () => {
+      notificationsSocket.off("friend_new")
+    }
+  }, []);
 
   /*======================================================================
   ===================Fetch<Get> Messages From His Own Id====================
@@ -280,7 +317,7 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
     requestConversation();
   }, [selectedGroup]);
 
-  
+
   useEffect(() => {
     setIsInChannel(false)
     selectedGroup?.users.map((channelUser: any) => {
@@ -303,7 +340,7 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
     justifyContent: 'end',
     alignItems: 'center',
   };
-  
+
   return (
     <div style={componentSize}>
       {selectedUser && <UserProfile {...groupsProps} />}
@@ -311,7 +348,7 @@ const MiniChat: React.FC<ChatSize> = ({width, height, bottom, right}) => {
         {selectedGroupOption === ChannelOptions.CREATE_CHANNEL && (
           <ChannelForm {...groupsProps} />
         )}
-        {selectedGroupOption === ChannelOptions.CHANNEL && toogledButton === "Channel" &&<ChannelProfile {...groupsProps} />}
+        {selectedGroupOption === ChannelOptions.CHANNEL && toogledButton === "Channel" && <ChannelProfile {...groupsProps} />}
         <Groups {...groupsProps} />
         <ChatMain {...groupsProps} />
       </div>

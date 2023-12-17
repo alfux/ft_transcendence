@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Post, Req, forwardRef } from '@nestjs/common'
+import { Body, Controller, Get, Inject, Param, ParseIntPipe, Post, Req, forwardRef } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags, ApiProperty } from '@nestjs/swagger'
 
 import { Request } from 'src/auth/interfaces/request.interface'
@@ -17,7 +17,10 @@ export class PrivateConversationController {
     private conversationService: PrivateConversationService,
 
     @Inject(forwardRef(() => UserService))
-    private userService: UserService
+    private userService: UserService,
+
+    private privateConvService: PrivateConversationService
+
   ) { }
 
   @Route({
@@ -27,6 +30,20 @@ export class PrivateConversationController {
   })
   async getMeConversations(@Req() req: Request) {
     return this.userService.getUser({ id: req.user.id }, ['privateConversations']).then((u) => u.privateConversations)
+  }
+
+  @Route({
+    method: Get('/:id'),
+    description: { summary: 'Get users\'s private conversations with someone else', description: 'Get users\'s private conversations with someone else' },
+  })
+  async getConversationByUserId(@Req() req: Request, @Param('id', ParseIntPipe) user_id:number) {
+    return this.privateConvService.getPrivateConversation({
+      users: [{
+        id: user_id
+      }, {
+        id: req.user.id
+      }]
+    }, ['users', 'messages'])
   }
 
   @Route({

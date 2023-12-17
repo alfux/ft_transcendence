@@ -13,7 +13,10 @@ class WebsocketEventSpecs(typing.TypedDict):
     desc:str
     data:typing.Dict[str, WebsocketEventDataSpecs] | WebsocketEventDataSpecs
 
-docs: typing.Dict[ str, typing.Dict[typing.Literal["emits"] | typing.Literal["receives"], typing.List[WebsocketEventSpecs]] ] = {}
+WebsocketNamespace=typing.Dict[typing.Literal["emits"] | typing.Literal["receives"], typing.List[WebsocketEventSpecs]]
+WebsocketDocs=typing.Dict[ str, WebsocketNamespace ]
+
+docs: WebsocketDocs = {}
 
 for file in os.listdir(os.getcwd()):
     if file.endswith("_doc.json"):
@@ -91,10 +94,14 @@ for websocket_name in docs:
     for event in docs[websocket_name]["receives"]:
         tree.insert(receives_tree, tk.END, text=event["name"])
 
-
 tree.pack(side=tk.LEFT, fill=tk.BOTH)
 event_frame.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
+
+
 root.mainloop()
+
+
+
 
 
 

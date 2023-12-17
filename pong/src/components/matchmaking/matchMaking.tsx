@@ -3,18 +3,13 @@ import Cookies from 'js-cookie';
 import './matchMaking.css'
 import React, { useRef, useEffect, useState } from 'react'
 import usePayload from '../../react_hooks/use_auth'
-import userEvent from '@testing-library/user-event';
-const accessToken = Cookies.get('accessToken')
-type User = {
-  avatar: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  nickName: string;
-}
+import { User } from '../../THREE/Utils/backend_types';
+import { backend_fetch } from '../backend_fetch';
+
 const MatchMaking: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
-  const [data, setData] = useState<User | null>(null)
+  const [data, setData] = useState<User | undefined>()
+
   useEffect(() => {
     const requestProfile = async () => {
       try {//fetch Profile
@@ -35,7 +30,9 @@ const MatchMaking: React.FC = () => {
       }
     };
     requestProfile();
+    //backend_fetch()
   }, [])
+
   return (
     <div className="glass-container-matchmaking">
       <div className='sub-container'>
@@ -44,11 +41,11 @@ const MatchMaking: React.FC = () => {
       <div className='players'>
         <div className='player-one'>
           <div className='player-info-one'>
-            <p>{data?.nickName}</p>
+            <p>{data?.username}</p>
             <p>player rank</p>
             <p>lvl 10</p>
           </div>
-          <img src={data?.avatar}></img>
+          <img src={data?.image}></img>
         </div>
         <div className='player-two'>
           <div className='player-info-two'>

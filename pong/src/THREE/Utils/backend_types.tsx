@@ -4,6 +4,12 @@ export enum LoggedStatus {
   Unlogged,
 }
 
+export enum AccessLevel {
+  PUBLIC = 'public',
+  PRIVATE = 'private',
+  PROTECTED = 'protected',
+}
+
 export interface User {
   db_id: number
   id: number
@@ -55,6 +61,7 @@ export interface Message {
 export interface Conversation {
   id: number
   title: string
+  access_level: AccessLevel
   owner?: User
   users?: User[]
   messages?: Message[]

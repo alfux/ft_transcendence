@@ -1,17 +1,10 @@
-import './Login.css'
-import Cookies from 'js-cookie';
-import React, { useRef, useEffect, useState } from 'react'
+import React from 'react'
 import usePayload from '../../react_hooks/use_auth'
 import { config } from '../../config';
 
-
-const accessToken = Cookies.get('accessToken')
-
-
+import './Login.css'
 
 const Login: React.FC = () => {
-	const [twoFactor, setTwoFactor] = useState(false)
-	const [logged, setLogged] = useState(false)
   const [payload, updatePayload, handleUpdate] = usePayload();
     const fetchData = async () => {
         try {

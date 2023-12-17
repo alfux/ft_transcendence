@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Delete, Req, Param, HttpException, Inject, forwardRef } from '@nestjs/common'
+import { Body, Controller, Get, Post, Delete, Req, Param, HttpException, Inject, forwardRef, ParseIntPipe } from '@nestjs/common'
 
 import { ApiBearerAuth, ApiTags, ApiProperty } from '@nestjs/swagger'
 
@@ -56,31 +56,20 @@ export class ConversationController {
   @Route({
     method: Post('/'),
     description: { summary: 'Create a conversation', description: 'Create a conversation. Owner will automatically be the creator' },
-    responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
+    responses: [{ status: 200, description: 'Conversation created successfully' }]
   })
   async createConversation(@Req() req: Request, @Body() body: DTO.ConversationCreateParams) {
-    if (body.title === undefined)
-      throw new HttpMissingArg()
-
-    let access_level = AccessLevel.PUBLIC
-    if (body.private)
-      access_level = AccessLevel.PRIVATE
-
-    if (body.password !== undefined) {
-      if (body.password === "") {
-        throw new HttpBadRequest()
+    if (body.access_level === AccessLevel.PROTECTED) {
+      if (body.password === undefined || body.password.length < 4) {
+        throw new HttpBadRequest("Missing password or password too short")
       }
-      access_level = AccessLevel.PROTECTED
     }
 
-    const conversation = await this.conversationService.createConversation(req.user.id, body.title, access_level, body.password)
-    this.notificationService.emit_everyone(
-      "conv_create",
-      {
-        conversation: conversation
-      })
-      console.log("done")
-    return conversation
+    return this.conversationService.createConversation(req.user.id, body.title, body.access_level, body.password)
+    .then((new_conv) => {
+      this.notificationService.emit_everyone("conv_create", { conversation: new_conv })
+      return new_conv
+    })
   }
 
   @Route({
@@ -88,7 +77,7 @@ export class ConversationController {
     description: { summary: 'Get conversation content', description: 'Returns the conversation\'s messages' },
     responses: [{ status: 200, description: 'Conversation\'s content retrieved successfully' }]
   })
-  async getConversation(@Req() req: Request, @Param('id') id: number) {
+  async getConversation(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
     if (id === undefined)
       throw new HttpMissingArg()
     console.log("test")
@@ -114,7 +103,7 @@ export class ConversationController {
     description: { summary: 'Delete a conversation', description: 'Deletes a conversation' },
     responses: [{ status: 200, description: 'Conversation deleted successfully' }]
   })
-  async deleteConversation(@Req() req: Request, @Param('id') id: number) {
+  async deleteConversation(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
     
     const conversation = await this.conversationService.getConversation({ id: id }, ['owner'])
     this.notificationService.emit_everyone(

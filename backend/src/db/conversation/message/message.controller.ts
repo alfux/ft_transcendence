@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, HttpException, HttpStatus, Param, Req } from '@nestjs/common'
+import { Controller, Delete, Get, HttpException, HttpStatus, Param, ParseIntPipe, Req } from '@nestjs/common'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 
 import { Request } from 'src/auth/interfaces/request.interface'
@@ -20,7 +20,7 @@ export class MessageController {
     method: Get(':id'),
     description: { summary: 'Get message by id', description: 'Get message by id' }
   })
-  GetById(@Param('id') id: number) {
+  GetById(@Param('id', ParseIntPipe) id: number) {
     return this.messageService.getMessage({ id: id }, ['conversation', 'sender', 'sender.user'])
   }
 
@@ -28,7 +28,7 @@ export class MessageController {
     method: Delete(':id'),
     description: { summary: 'Delete message by id', description: 'Delete message by id. Only allowed for message owner or conversation admin' }
   })
-  async DeleteById(@Param('id') id: number, @Req() req: Request) {
+  async DeleteById(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
 
     const message = await this.messageService.getMessage({ id: id }, [
       'sender', 'sender.user',
@@ -48,7 +48,7 @@ export class MessageController {
     method: Get('from/:user_id'),
     description: { summary: 'Get all messages of a certain user', description: 'Get all messages of a certain user' }
   })
-  GetFromUserId(@Param('user_id') user_id: number) {
+  GetFromUserId(@Param('user_id', ParseIntPipe) user_id: number) {
     return this.messageService.getMessages({ sender: { user: { id: user_id } } }, ['sender', 'sender.user'])
   }
 

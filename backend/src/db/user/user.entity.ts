@@ -7,6 +7,7 @@ import { PlayRequest } from './play_request/'
 import { Match } from './match'
 
 import { LoggedStatus } from '.'
+
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()

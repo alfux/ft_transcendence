@@ -56,7 +56,7 @@ const Notifications: React.FC<{
   useEffect(() => {});
   const getNotificationRequests = friendsRequest?.received?.map((user: any) => {
     async function acceptFriend() {
-      const url = `${config.backend_url}/api/user/friend_request_accept`;
+      const url = `${config.backend_url}/api/user/friend_request/accept`;
       try {
         const response = await fetch(url, {
           method: "POST",
