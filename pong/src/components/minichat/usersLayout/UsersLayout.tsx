@@ -10,8 +10,6 @@ const UsersLayout: React.FC<ChatProps> = (props: ChatProps) => {
       user: User,
       conversation: Conversation
     }) => {
-
-      console.log("CONV JOIN", data.conversation, props.selectedGroup)
       
       if (props.selectedGroup && props.selectedGroup.id === data.conversation.id) {
         props.setSelectedChannel(data.conversation)
@@ -21,7 +19,6 @@ const UsersLayout: React.FC<ChatProps> = (props: ChatProps) => {
       user: User,
       conversation: Conversation
     }) => {
-      console.log("CONV LEAVE: ", data.user, data.conversation)
       if (props.selectedGroup && props.selectedGroup.id === data.conversation.id) {
         props.setSelectedChannel(data.conversation)
       }

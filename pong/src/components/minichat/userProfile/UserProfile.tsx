@@ -53,6 +53,13 @@ const UserProfile: React.FC<ChatProps> = (props) => {
   }
 
   /*======================================================================
+  ===================Fetch<Delete> Request To Remove Friend==========
+  ======================================================================== */
+  async function sendFriendRemove() {
+    backend_fetch(`${config.backend_url}/api/user/friends/${props.selectedUser!.id}`, { method: 'DELETE' })
+  }
+
+  /*======================================================================
   ===================Check if is owner or admin and set const string==========
   ======================================================================== */
   useEffect(() => {
@@ -113,24 +120,27 @@ const UserProfile: React.FC<ChatProps> = (props) => {
           <div className={props.selectedUser.isAuthenticated === 0 ? "status-online" : "status-offline"}></div>
         </div>
       )}
+
       {props.selectedUser && !props.selectedGroup && <button>Profile</button>}
-      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && !props.selectedGroup && (
+      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && ( // && !props.selectedGroup
         <button>Invite Game</button>
       )}
-      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && !props.selectedGroup && (
-        <button>Remove Friend</button>
+      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && ( // && !props.selectedGroup
+        <button onClick={sendFriendRemove}>Remove Friend</button>
       )}
-      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && !props.selectedGroup && (
+      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && ( // && !props.selectedGroup
         <button>Block Friend</button>
       )}
-      {props.selectedGroupOption == ChannelOptions.ONLINE_USERS &&
-        props.selectedUser && props.friends?.find((u) => u.id !== props.selectedUser?.id) && (
-          <button onClick={sendFriendInvite}>Invite Friend</button>
-        )}
       {props.selectedGroupOption == ChannelOptions.FRIENDS &&
         props.selectedUser && (
           <button onClick={sendPlayInvite}>Invite Play</button>
         )}
+
+      {props.selectedGroupOption == ChannelOptions.ONLINE_USERS &&
+        props.selectedUser && props.friends?.find((u) => u.id !== props.selectedUser?.id) && (
+          <button onClick={sendFriendInvite}>Invite Friend</button>
+        )}
+
       {channelRights == "Owner" &&
         props.selectedUser?.db_id !== props.me?.db_id &&
         props.selectedGroupOption == ChannelOptions.CHANNEL && (
