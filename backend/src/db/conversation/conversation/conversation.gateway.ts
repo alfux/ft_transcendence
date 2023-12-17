@@ -18,6 +18,7 @@ export class ConversationGateway implements OnGatewayConnection {
     private authService: AuthService, //NE PAS ENELEVER
     @Inject(forwardRef(() => UserService))
     private userService: UserService, //NE PAS ENELEVER
+
     private messageService: MessageService,
     private conversationService: ConversationService
   ) { }
@@ -34,10 +35,12 @@ export class ConversationGateway implements OnGatewayConnection {
   @CoolSocket
   async handleMessage(client: Client, data: { message: string, conversation_id: number }): Promise<void> {
     const conv = await this.conversationService.getConversation({ id: data.conversation_id }, ['users', 'users.user'])
-
     const user = conv.users.find((v) => v.user.id === client.user.id)
-    // if (!user)
-    //   throw new HttpUnauthorized()
+
+    const mutedUntil = new Date(user.mutedUntil)
+    if (mutedUntil.getTime() > Date.now()) {
+      return
+    }
 
     const new_message = new Message()
     new_message.content = data.message

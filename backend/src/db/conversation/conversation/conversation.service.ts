@@ -12,6 +12,32 @@ import { HttpBadRequest, HttpMissingArg, HttpNotFound, HttpUnauthorized } from '
 
 import { FindOptions, FindMultipleOptions, SelectOptions } from 'src/db/types'
 
+import ms from 'ms'
+
+export const CONVERSATION_USER_DEFAULT = ['conversation', 'user']
+
+export const CONVERSATION_MESSAGES_DEFAULT = [
+  'messages', 'messages.sender',
+  ...CONVERSATION_USER_DEFAULT.map((v) => `messages.sender.${v}`)
+]
+
+export const CONVERSATION_DEFAULT = ['owner', 'users',
+  ...CONVERSATION_USER_DEFAULT.map((v) => `users.${v}`)
+]
+
+
+function addCurrentTime(duration: string): number {
+  const durationInMilliseconds = ms(duration);
+  if (isNaN(durationInMilliseconds)) {
+    throw new HttpBadRequest('Invalid duration string');
+  }
+
+  const currentTime = new Date().getTime();
+  const result = currentTime + durationInMilliseconds;
+
+  return result;
+}
+
 @Injectable()
 export class ConversationService {
   constructor(
@@ -97,7 +123,7 @@ export class ConversationService {
   }
 
 
-  async getConversationPassword(id:number) {
+  async getConversationPassword(id: number) {
     return this.conversationRepository.createQueryBuilder('conversation')
       .where('conversation.id = :id', { id })
       .addSelect(['conversation.password'])
@@ -120,7 +146,7 @@ export class ConversationService {
 
   async createConversation(user_id: number, title: string, access_level: AccessLevel, password?: string) {
     if (access_level === AccessLevel.PROTECTED && (password === undefined || password === "")) {
-      throw new HttpMissingArg()
+      throw new HttpMissingArg("Password is needed for a conversation with an access level of PROTECTED")
     }
 
     const src_password = password
@@ -137,9 +163,9 @@ export class ConversationService {
       access_level: access_level,
       users: [],
       messages: []
-    }, access_level === AccessLevel.PROTECTED ? {password:password} : {}))
+    }, access_level === AccessLevel.PROTECTED ? { password: password } : {}))
     const new_conv = await this.conversationRepository.save(new_conv_template)
-    return await this.addUserToConversation({ id: new_conv.id }, user, src_password)
+    return this.addUserToConversation({ id: new_conv.id }, user, src_password)
   }
 
   async deleteConversation(where: FindOptions<Conversation>) {
@@ -153,17 +179,17 @@ export class ConversationService {
       })
   }
 
-  async addUserToConversation(where: FindOptions<Conversation>, user: User, password?:string) {
+  async addUserToConversation(where: FindOptions<Conversation>, user: User, password?: string) {
     const conv = await this.getConversation(where, ["users"])
     const conv_password = await this.getConversationPassword(conv.id)
 
     if (conv.access_level === AccessLevel.PROTECTED) {
       if (!password) {
-        throw new HttpMissingArg()
+        throw new HttpMissingArg("Password is needed for a conversation with an access level of PROTECTED")
       }
       const hash = await bcrypt.compare(password, conv_password.password);
       if (!hash) {
-        throw new HttpUnauthorized()
+        throw new HttpUnauthorized("Wrong password")
       }
     }
 
@@ -175,13 +201,14 @@ export class ConversationService {
       conv_user = await this.createConversationUser(user, conv_ref)
     }
     conv.users.push(conv_user)
-    return this.conversationRepository.save(conv).then((new_conv) => this.getConversation({id:new_conv.id}, ["users", "users.user", "owner"]))
+    return this.conversationRepository.save(conv).then((new_conv) => this.getConversation({ id: new_conv.id }, [...CONVERSATION_DEFAULT]))
   }
 
   async removeUserFromConversation(where: FindOptions<Conversation>, user: ConversationUser) {
     const conv = await this.getConversation(where, ['users'])
     conv.users = conv.users.filter(u => u.id != user.id)
-    return this.conversationRepository.save(conv).then((new_conv) => this.getConversation({id:new_conv.id}, ["users", "users.user", "owner"]))
+
+    return this.conversationRepository.save(conv).then((new_conv) => this.getConversation({ id: new_conv.id }, [...CONVERSATION_DEFAULT]))
   }
 
   async makeUserAdmin(user: ConversationUser) {
@@ -190,7 +217,11 @@ export class ConversationService {
     return this.convUserRepository.save(user)
   }
 
-
+  async muteUser(user: ConversationUser, duration: string) {
+    const date = new Date(addCurrentTime(duration));
+    user.mutedUntil = date
+    return this.convUserRepository.save(user)
+  }
 
 
 }

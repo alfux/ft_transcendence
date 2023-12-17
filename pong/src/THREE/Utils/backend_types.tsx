@@ -39,20 +39,20 @@ export interface User {
 export interface FriendRequest {
   id: number
 
-  sender?: User
-  receiver?: User
+  sender: User
+  receiver: User
 }
 
 export interface PlayRequest {
   id: number
-  sender?: User
-  receiver?: User
+  sender: User
+  receiver: User
 }
 
 export interface Message {
   id: number
 
-  sender?: ConversationUser
+  sender: ConversationUser
   conversation?: Conversation
 
   content: string
@@ -62,16 +62,16 @@ export interface Conversation {
   id: number
   title: string
   access_level: AccessLevel
-  owner?: User
-  users?: ConversationUser[]
+  owner: User
+  users: ConversationUser[]
   messages?: Message[]
 }
 
 export interface ConversationUser {
   id: number
 
-  user?: User
-  conversation?: Conversation
+  user: User
+  conversation: Conversation
 
   joinedAt: Date
 
@@ -85,8 +85,8 @@ export interface ConversationUser {
 export interface PrivateMessage {
   id: number
 
-  sender?: User
-  conversation?: PrivateConversation
+  sender: User
+  conversation: PrivateConversation
 
   content: string
 }
@@ -103,6 +103,6 @@ export interface Match {
 
   date: Date
 
-  players?: User[]
-  winner?: User
+  players: User[]
+  winner: User
 }

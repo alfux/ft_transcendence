@@ -4,7 +4,7 @@ import { ApiBearerAuth, ApiTags, ApiProperty } from '@nestjs/swagger'
 
 import { Request } from 'src/auth/interfaces/'
 import { UserService } from 'src/db/user'
-import { ConversationService } from './conversation.service'
+import { CONVERSATION_DEFAULT, CONVERSATION_MESSAGES_DEFAULT, CONVERSATION_USER_DEFAULT, ConversationService } from './conversation.service'
 import { NotificationsService } from 'src/notifications/'
 import { HttpBadRequest, HttpMissingArg, HttpUnauthorized } from 'src/exceptions'
 
@@ -31,8 +31,7 @@ export class ConversationController {
     responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
   })
   async getMeConversations(@Req() req: Request) {
-    const conv = await this.conversationService.getConversation({ users: { user: { id: req.user.id } } }, ['users', 'owner', 'users.user'])
-    return this.conversationService.getConversation({ id: conv.id }, ['users', 'owner', 'users.user'])
+    return this.conversationService.getConversation({ users: { user: { id: req.user.id } } }, [...CONVERSATION_DEFAULT])
   }
 
   @Route({
@@ -41,7 +40,7 @@ export class ConversationController {
     responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
   })
   getOwnConversations(@Req() req: Request) {
-    return this.conversationService.getConversation({ owner: { id: req.user.id } }, ['users', 'owner', 'users.user'])
+    return this.conversationService.getConversation({ owner: { id: req.user.id } }, [...CONVERSATION_DEFAULT])
   }
 
   @Route({
@@ -50,7 +49,7 @@ export class ConversationController {
     responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
   })
   getAllConversations() {
-    return this.conversationService.getConversations({}, ['users', 'users.user', 'owner'])
+    return this.conversationService.getConversations({}, [...CONVERSATION_DEFAULT])
   }
 
   @Route({
@@ -78,21 +77,10 @@ export class ConversationController {
     responses: [{ status: 200, description: 'Conversation\'s content retrieved successfully' }]
   })
   async getConversation(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
-    if (id === undefined)
-      throw new HttpMissingArg()
-    return this.conversationService.getConversation({ id: id }, [
-      'users',
-      'users.user',
-
-      'owner',
-
-      'messages',
-      'messages.sender',
-      'messages.sender.user'
-    ])
+    return this.conversationService.getConversation({ id: id }, [...CONVERSATION_DEFAULT, ...CONVERSATION_MESSAGES_DEFAULT])
       .then((v) => {
         if (v.users.find((x) => x.user.id === req.user.id) === undefined)
-          throw new HttpUnauthorized()
+          throw new HttpUnauthorized('You are not in the conversation')
         return v
       })
   }
@@ -103,18 +91,12 @@ export class ConversationController {
     responses: [{ status: 200, description: 'Conversation deleted successfully' }]
   })
   async deleteConversation(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    const conversation = await this.conversationService.getConversation({ id: id }, [...CONVERSATION_DEFAULT])
+    if (req.user.id !== conversation.owner.id)
+      throw new HttpUnauthorized("You are not the owner")
 
-    const conversation = await this.conversationService.getConversation({ id: id }, ['owner'])
-    this.notificationService.emit_everyone(
-      "conv_delete",
-      {
-        conversation: conversation
-      })
-    if (!conversation)
-      return
-    if (req.user.id != conversation.owner.id)
-      throw new HttpUnauthorized()
-    this.conversationService.deleteConversation({ id: id })
+    return this.conversationService.deleteConversation({ id: id })
+      .then(() => this.notificationService.emit_everyone("conv_delete", { conversation: conversation }))
   }
 
   @Route({
@@ -125,15 +107,12 @@ export class ConversationController {
   async joinConversation(@Req() req: Request, @Body() body: DTO.ConversationJoinParams) {
     const user = await this.userService.getUser({ id: req.user.id })
 
-    return this.conversationService.addUserToConversation({ id: body.id }, user, body.password).then((conv) => {
-      this.notificationService.emit(
-        conv.users.map((u) => u.user),
-        "conv_join",
-        {
-          conversation: conv,
-          user: user
-        })
-    })
+    return this.conversationService.addUserToConversation({ id: body.id }, user, body.password)
+      .then((conv) => {
+        this.notificationService.emit(
+          conv.users.map((u) => u.user),
+          "conv_join", { conversation: conv, user: user })
+      })
   }
 
   @Route({
@@ -142,20 +121,19 @@ export class ConversationController {
     responses: [{ status: 200, description: 'Conversation left successfully' }]
   })
   async leaveConversation(@Req() req: Request, @Body() body: DTO.ConversationLeaveParams) {
-    const conv_user = await this.conversationService.getConversationUser({ user: { id: req.user.id }, conversation: { id:body.id } },
-      ['conversation', 'user', 'conversation.users', 'conversation.users.user', 'conversation.owner'])
+    const conversation = await this.conversationService.getConversation({ id: body.id }, [...CONVERSATION_DEFAULT])
 
-    console.log(conv_user.conversation)
+    const conv_user = conversation.users.find((u) => u.user.id === req.user.id)
+    if (conv_user === undefined) {
+      throw new HttpBadRequest('Cannot leave: not in conversation')
+    }
 
-    return this.conversationService.removeUserFromConversation({ id: body.id }, conv_user).then((conv) => {
-      this.notificationService.emit(
-        conv_user.conversation.users.map((u) => u.user),
-        "conv_leave",
-        {
-          conversation: conv,
-          user: conv_user.user
-        })
-    })
+    return this.conversationService.removeUserFromConversation({ id: body.id }, conv_user)
+      .then((conv) => {
+        this.notificationService.emit(
+          conversation.users.map((u) => u.user),
+          "conv_leave", { conversation: conv, user: conv_user.user })
+      })
   }
 
 
@@ -165,21 +143,20 @@ export class ConversationController {
     responses: [{ status: 200, description: 'Conversation joined successfully' }]
   })
   async promote(@Req() req: Request, @Body() body: DTO.PromoteParams) {
-    if (body.conversation_user_id === undefined)
-      throw new HttpMissingArg()
-    const conv_user = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, ['conversation', 'conversation.owner', 'conversation.users', 'conversation.users.user', 'user'])
-    if (conv_user.conversation.owner.id !== req.user.id)
-      throw new HttpUnauthorized()
 
-    this.notificationService.emit(
-      conv_user.conversation.users.map((u) => u.user),
-      "conv_promote",
-      {
-        conversation: conv_user.conversation,
-        user: conv_user.user
+    const conv_user = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, [...CONVERSATION_USER_DEFAULT])
+    const conversation = await this.conversationService.getConversation({ id: conv_user.id }, [...CONVERSATION_DEFAULT])
+
+    if (conversation.owner.id !== req.user.id)
+      throw new HttpUnauthorized("Only the owner can make other admins")
+
+    return this.conversationService.makeUserAdmin(conv_user)
+      .then(() => {
+        this.notificationService.emit(
+          conv_user.conversation.users.map((u) => u.user),
+          "conv_promote", { conversation: conversation, user: conv_user.user }
+        )
       })
-
-    this.conversationService.makeUserAdmin(conv_user)
   }
 
   @Route({
@@ -187,27 +164,30 @@ export class ConversationController {
     description: { summary: 'Kicks an user from the conversation', description: 'Kicks an user from the conversation. Only the owner or an admin is allowed to perform this action' }
   })
   async kick(@Req() req: Request, @Body() body: DTO.KickParams) {
-    if (body.conversation_user_id === undefined)
-      throw new HttpMissingArg()
-    const conv_user = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, ['user', 'conversation', 'conversation.owner', 'conversation.users', 'conversation.users.user'])
+
+    const target = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, [...CONVERSATION_USER_DEFAULT])
+    const conversation = await this.conversationService.getConversation({ id: target.id }, [...CONVERSATION_DEFAULT])
+
     const sender = await this.userService.getUser({ id: req.user.id })
 
     if (
-      (sender.id === conv_user.conversation.owner.id) ||
-      (conv_user.conversation.users.find((u) => { u.user.id === sender.id })?.isAdmin)
+      (sender.id === conversation.owner.id) ||
+      (conversation.users.find((u) => { u.user.id === sender.id })?.isAdmin)
     ) {
-      this.notificationService.emit(
-        conv_user.conversation.users.map((u) => u.user),
-        "conv_kick",
-        {
-          conversation: conv_user.conversation,
-          user: conv_user.user,
-          issuer: sender
-        })
 
-      this.conversationService.removeUserFromConversation({ id: conv_user.conversation.id }, conv_user)
+      return this.conversationService.removeUserFromConversation({ id: conversation.id }, target)
+        .then(() => {
+          this.notificationService.emit(
+            conversation.users.map((u) => u.user),
+            "conv_kick",
+            {
+              conversation: conversation,
+              user: target.user,
+              issuer: sender
+            })
+        })
     } else {
-      throw new HttpUnauthorized()
+      throw new HttpUnauthorized("You are not owner nor an admin")
     }
   }
 
@@ -215,26 +195,34 @@ export class ConversationController {
     method: Post('mute'),
     description: { summary: 'Mutes an user in a conversation', description: 'Mutes an user in a conversation. Only the owner or an admin is allowed to perform this action' }
   })
-  async mute(@Req() req: Request, @Body() body: DTO.KickParams) {
-    if (body.conversation_user_id === undefined)
-      throw new HttpMissingArg()
-    const conv_user = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, ['conversation', 'conversation.owner'])
+  async mute(@Req() req: Request, @Body() body: DTO.MuteParams) {
+
+    const target = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, [...CONVERSATION_USER_DEFAULT])
+    const conversation = await this.conversationService.getConversation({ id: target.conversation.id }, [...CONVERSATION_DEFAULT])
+
     const sender = await this.userService.getUser({ id: req.user.id })
 
-    if (!(
-      (sender.id === conv_user.conversation.owner.id) ||
-      (conv_user.conversation.users.find((u) => { u.user.id === sender.id })?.isAdmin))
+    if (
+      (sender.id === conversation.owner.id) ||
+      (conversation.users.find((u) => { u.user.id === sender.id })?.isAdmin === true)
     ) {
-      throw new HttpUnauthorized()
+
+      await this.conversationService.muteUser(target, body.duration)
+        .then(() => {
+          this.notificationService.emit(
+            conversation.users.map((u) => u.user),
+            "conv_mute",
+            {
+              conversation: conversation,
+              user: target.user,
+              issuer: sender
+            })
+        })
+
+    }
+    else {
+      throw new HttpUnauthorized("You are not owner nor an admin")
     }
 
-    this.notificationService.emit(
-      conv_user.conversation.users.map((u) => u.user),
-      "conv_mute",
-      {
-        conversation: conv_user.conversation,
-        user: conv_user.user,
-        issuer: sender
-      })
   }
 }

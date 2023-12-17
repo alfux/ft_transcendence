@@ -53,7 +53,7 @@ export class UserFriendRequestController {
       sender: { id: req.user.id },
       receiver: { id: body.user_id }
     })
-      .then((e) => { throw new HttpBadRequest() })
+      .then((e) => { throw new HttpBadRequest("Friend request already existing") })
       .catch((e) => { if (!(e instanceof HttpNotFound)) throw e })
 
 

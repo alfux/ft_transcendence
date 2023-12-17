@@ -53,7 +53,7 @@ export class UserPlayRequestController {
       sender: { id: req.user.id },
       receiver: { id: body.user_id }
     })
-      .then((e) => { throw new HttpBadRequest() })
+      .then((e) => { throw new HttpBadRequest("Play request already exists") })
       .catch((e) => { if (!(e instanceof HttpNotFound)) throw e })
 
 

@@ -43,11 +43,11 @@ export class FriendRequestService {
 
   async sendFriendRequest(from:User, to:User) {
     if (from.id === to.id)
-      throw new HttpBadRequest()
+      throw new HttpBadRequest("Can't send request to yourself")
     if (to.blocked.find((v) => v.id === from.id))
-      throw new HttpBadRequest()
+      throw new HttpBadRequest("You are blocked")
     if (to.friends.find((v) => v.id === from.id) || from.friends.find((v) => v.id === to.id))
-      throw new HttpBadRequest()
+      throw new HttpBadRequest("You already have this user as friend")
 
     return this.createFriendRequest({
       sender: from,

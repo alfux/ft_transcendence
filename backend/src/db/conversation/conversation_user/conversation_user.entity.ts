@@ -25,6 +25,9 @@ export class ConversationUser {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   becameAdminAt: Date
 
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  mutedUntil: Date
+
   @OneToMany(() => Message, (message) => message.sender)
   messages: Message[]
 }

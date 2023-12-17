@@ -115,9 +115,26 @@ const UserProfile: React.FC<ChatProps> = (props) => {
       )}
       {props.selectedUser && <p>{props.selectedUser.username}</p>}
       {props.selectedUser && (
-        <div className="status-div">
-          <p>Status</p>
-          <div className={props.selectedUser.isAuthenticated === 0 ? "status-online" : "status-offline"}></div>
+        <div>
+          <div className="status-div">
+            <p>Status</p>
+            <div className={props.selectedUser.isAuthenticated === 0 ? "status-online" : "status-offline"}></div>
+          </div>
+
+          {
+            props.selectedGroupOption === ChannelOptions.CHANNEL && props.selectedGroup ?
+              <div>
+                <div className="channel-rights-dev">
+                  <p>Admin</p>
+                  <div className={props.selectedGroup.users!.find((u) => u.user!.id === props.selectedUser!.id)?.isAdmin || props.selectedGroup.owner!.id === props.selectedUser!.id ? "status-online" : "status-offline"}></div>
+                </div>
+                <div className="channel-rights-dev">
+                  <p>Owner</p>
+                  <div className={props.selectedGroup.owner!.id === props.selectedUser!.id ? "status-online" : "status-offline"}></div>
+                </div>
+              </div>
+              : undefined
+          }
         </div>
       )}
 

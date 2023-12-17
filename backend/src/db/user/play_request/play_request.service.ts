@@ -43,9 +43,9 @@ export class PlayRequestService {
 
   async sendPlayRequest(from:User, to:User) {
     if (from.id === to.id)
-      throw new HttpBadRequest()
+      throw new HttpBadRequest("You can't send request to yourself")
     if (to.blocked.find((v) => v.id === from.id))
-      throw new HttpBadRequest()
+      throw new HttpBadRequest("You are blocked")
 
     return this.createPlayRequest({
       sender: from,
