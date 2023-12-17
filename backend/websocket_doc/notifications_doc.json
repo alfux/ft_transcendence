@@ -41,6 +41,10 @@
         "user": {
           "type": "User",
           "desc": "The user"
+        },
+        "conv_user": {
+          "type": "ConversationUser",
+          "desc": "The conversation user"
         }
       }
     },
@@ -55,6 +59,10 @@
         "user": {
           "type": "User",
           "desc": "The user"
+        },
+        "conv_user": {
+          "type": "ConversationUser",
+          "desc": "The conversation user"
         }
       }
     },

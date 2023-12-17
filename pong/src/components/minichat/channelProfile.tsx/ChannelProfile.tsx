@@ -55,10 +55,10 @@ const ChannelProfile: React.FC<ChatProps> = (props) => {
       {!props.selectedUser} &&{" "}
       <div>
         <p>Channel Name: {props.selectedGroup?.title}</p>
-        <p>Owner : {props.selectedGroup?.owner.username}</p>
-        <img src={props.selectedGroup?.owner.image} />
+        <p>Owner : {props.selectedGroup?.owner!.username}</p>
+        <img src={props.selectedGroup?.owner!.image} />
         <p>Date Creation :</p>
-        <p> {props.selectedGroup?.users[0]?.becameAdminAt}</p>
+        <p> {props.selectedGroup?.users![0]?.becameAdminAt}</p>
 
         {!props.isInChannel ? (
           <button onClick={joinChannel}>Join Channel</button>

@@ -24,6 +24,7 @@ export class ConversationJoinParams {
   
   @ApiProperty({ description: 'Optional password if conversation is protected' })
   @IsString()
+  @IsOptional()
   password?:string
 }
 
