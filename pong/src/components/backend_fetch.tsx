@@ -11,9 +11,9 @@ export async function backend_fetch(url: string, init?: RequestInit, body?:any) 
       return rep.json()
     } else {
       const json = await rep.json()
-      console.error(`Couldn't fetch ${url}: ${rep.status} : ${JSON.stringify(json,null,2)}`)
+      console.trace(`Couldn't fetch ${url}: ${rep.status} : ${JSON.stringify(json,null,2)}`)
     }
   } catch (error) {
-    console.error(`Couldn't fetch ${url}: ${error}`)
+    console.trace(`Couldn't fetch ${url}: ${error}`)
   }
 }
