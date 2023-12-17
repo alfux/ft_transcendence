@@ -9,7 +9,7 @@ export class PrivateConversation {
   @PrimaryGeneratedColumn()
   id: number
 
-  @ManyToMany(() => User, user => user.privateConversations, { eager: true })
+  @ManyToMany(() => User, user => user.privateConversations)
   @JoinTable()
   users: User[]
 

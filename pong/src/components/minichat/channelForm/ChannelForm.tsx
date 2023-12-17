@@ -2,6 +2,7 @@ import { useState } from "react";
 import { config } from "../../../config";
 import { ChatProps } from "../MiniChat";
 import { Channel } from "../interfaces/interfaces";
+import { AccessLevel } from "../../../THREE/Utils/backend_types";
 
 const ChannelForm: React.FC<ChatProps> = (props) => {
     const [channelName, setChannelName] = useState<any>("");
@@ -13,8 +14,9 @@ const ChannelForm: React.FC<ChatProps> = (props) => {
       const channelForm: Channel = {
         title: channelName,
         password: password,
-        access_level: isPrivate,
+        access_level: isPrivate ? AccessLevel.PRIVATE : AccessLevel.PUBLIC,
       };
+      console.log(channelForm)
       try {
         const response = await fetch(`${config.backend_url}/api/conversation`, {
           method: "POST",

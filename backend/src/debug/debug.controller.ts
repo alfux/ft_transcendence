@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Post } from '@nestjs/common'
 import { ApiTags, ApiProperty } from '@nestjs/swagger'
 
-import { UserService, User } from 'src/db/user'
+import { UserService, User, LoggedStatus } from 'src/db/user'
 import { ConversationService } from 'src/db/conversation'
 import { Message, MessageService } from 'src/db/conversation'
 
@@ -27,7 +27,7 @@ export class DebugController {
     description: { summary: 'Add user' }
   })
   add_user(@Body() body: DTO.AddUserParams): Promise<User> {
-    return this.userService.createUser(body)
+    return this.userService.createUser(Object.assign({}, body, {isAuthenticated: LoggedStatus.Logged}))
   }
 
   @Route({

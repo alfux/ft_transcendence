@@ -1,16 +1,20 @@
-import { Injectable, HttpStatus, HttpException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { FindOptionsWhere, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 
 import { FriendRequest } from '.'
-import { HttpNotFound } from 'src/exceptions'
+import { HttpBadRequest, HttpNotFound } from 'src/exceptions'
 import { FindOptions, FindMultipleOptions } from 'src/db/types'
+import { User } from '../user.entity'
+import { NotificationsService } from 'src/notifications'
 
 @Injectable()
 export class FriendRequestService {
   constructor(
     @InjectRepository(FriendRequest)
     private friendRequestRepository: Repository<FriendRequest>,
+
+    private notificationService: NotificationsService
   ) { }
 
   async getFriendRequest(where: FindOptions<FriendRequest> = {}, relations = [] as string[]): Promise<FriendRequest> {
@@ -35,6 +39,24 @@ export class FriendRequestService {
 
   async removeFriendRequest(request: FriendRequest) {
     this.friendRequestRepository.remove(request)
+  }
+
+  async sendFriendRequest(from:User, to:User) {
+    if (from.id === to.id)
+      throw new HttpBadRequest()
+    if (to.blocked.find((v) => v.id === from.id))
+      throw new HttpBadRequest()
+    if (to.friends.find((v) => v.id === from.id) || from.friends.find((v) => v.id === to.id))
+      throw new HttpBadRequest()
+
+    return this.createFriendRequest({
+      sender: from,
+      receiver: to
+    })
+    .then((x) => {
+      this.notificationService.emit([to], "friend_request_recv", { req: x });
+      return x
+    })
   }
 
 }

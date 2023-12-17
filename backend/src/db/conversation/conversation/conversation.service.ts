@@ -124,21 +124,20 @@ export class ConversationService {
     }
 
     const src_password = password
-    if (password) {
+    if (access_level === AccessLevel.PROTECTED) {
       const saltOrRounds = 10;
       password = await bcrypt.hash(password, saltOrRounds);
     }
 
     //TODO: hash le password
     const user = await this.userService.getUser({ id: user_id })
-    const new_conv_template = this.conversationRepository.create({
+    const new_conv_template = this.conversationRepository.create(Object.assign({}, {
       title: title,
       owner: user,
       access_level: access_level,
-      password: password,
       users: [],
       messages: []
-    })
+    }, access_level === AccessLevel.PROTECTED ? {password:password} : {}))
     const new_conv = await this.conversationRepository.save(new_conv_template)
     return await this.addUserToConversation({ id: new_conv.id }, user, src_password)
   }

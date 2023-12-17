@@ -5,13 +5,13 @@ import { ChannelOptions, ChatProps } from "../MiniChat";
 
 
 const Groups: React.FC<ChatProps> = (props) => {
-  const displayChannels = props.channels?.map((group: Conversation) => {
+  const displayChannels = props.channels?.map((group: Conversation, index:number) => {
     const title = group.title;
     const firstTitleLetter = title?.charAt(0).toUpperCase();
     return (
       <div
         className="group-icons"
-        key={group.id}
+        key={index}
         onClick={() => {
           props.setSelectedChannel(group);
           props.setSelectedUser(undefined);

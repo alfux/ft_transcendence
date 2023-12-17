@@ -21,8 +21,8 @@ export class UpdateUserInfosBody {
 
 export class SendFriendRequestBody {
   @ApiProperty({ description: 'User to send the request to' })
-  @IsString()
-  username: string
+  @IsNumber()
+  user_id: number
 }
 export class AcceptFriendRequestBody {
   @ApiProperty({ description: 'Id of the request' })
@@ -42,8 +42,8 @@ export class RemoveFriendBody {
 
 export class SendPlayRequestBody {
   @ApiProperty({ description: 'User to send the request to' })
-  @IsString()
-  username: string
+  @IsNumber()
+  user_id: number
 }
 export class AcceptPlayRequestBody {
   @ApiProperty({ description: 'Id of the request' })

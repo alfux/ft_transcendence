@@ -51,10 +51,22 @@ stop:
 clean: dockerfile_clean
 	@echo "Removing Docker containers and images..."
 	$(COMPOSE) down --volumes
+
 fclean:clean
 	docker network prune -f
 	docker system prune -af
 	rm .env
+
+purge:
+	@docker stop $$(docker ps -qa);\
+	docker rm $$(docker ps -qa);\
+	docker rmi -f $$(docker images -qa);\
+	docker volume rm $$(docker volume ls -q);\
+	docker network rm $$(docker network ls -q);\
+	sudo rm -rf wordpress_data
+	sudo rm -rf mariadb_data
+	docker system prune --all --force
+
 backend-logs:
 	@echo "Showing logs for the backend service..."
 	$(COMPOSE) logs -f $(BACKEND_SERVICE)

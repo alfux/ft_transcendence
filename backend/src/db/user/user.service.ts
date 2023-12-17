@@ -1,11 +1,11 @@
-import { Injectable, HttpStatus, HttpException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { FindOptionsWhere, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 
-import { MatchService, User } from 'src/db/user'
+import { User } from 'src/db/user'
 
-import { PlayRequest, PlayRequestService } from './play_request/'
-import { FriendRequest, FriendRequestService } from './friend_request'
+import { PlayRequestService } from './play_request/'
+import { FriendRequestService } from './friend_request'
 import { NotificationsService } from 'src/notifications/'
 import { HttpBadRequest, HttpNotFound } from 'src/exceptions'
 import { FindOptions, FindMultipleOptions } from '../types'
@@ -17,6 +17,7 @@ export class UserService {
     private usersRepository: Repository<User>,
     
     private friendRequestService: FriendRequestService,
+
     private playRequestService: PlayRequestService,
 
     private notificationService: NotificationsService
@@ -47,6 +48,7 @@ export class UserService {
   async createUser(user: Partial<User> & { id: number }): Promise<User> {
     const new_user = this.usersRepository.create(user)
     const rep = await this.usersRepository.save(new_user)
+    this.notificationService.emit_everyone("user_create", { user: rep })
     return rep
   }
 
@@ -62,49 +64,6 @@ export class UserService {
     await this.usersRepository.delete(id)
   }
 
-  async sendFriendRequest(from_id: number, to_username:string) {
-    const from = await this.getUser({ id: from_id }, ['friends'])
-    const to = await this.getUser({ username: to_username }, ['blocked', 'friends'])
-
-    if (from.id === to.id)
-      throw new HttpBadRequest()
-    if (to.blocked.find((v) => v.id === from.id))
-      throw new HttpBadRequest()
-    if (to.friends.find((v) => v.id === from.id) || from.friends.find((v) => v.id === to.id))
-      throw new HttpBadRequest()
-
-    return this.friendRequestService.createFriendRequest({
-      sender: from,
-      receiver: to
-    })
-    .then((x) => {
-      this.notificationService.emit([to], "friend_request_recv", { req: x });
-      return x
-    })
-  }
-
-  async acceptFriendRequest(id: number) {
-    const request = await this.friendRequestService.getFriendRequest({ id: id }, ['sender', 'receiver'])
-    if (!request)
-      throw new HttpNotFound("Friend Request")
-
-    const sender = await this.getUser({ id: request.sender.id }, ['friends'])
-    const receiver = await this.getUser({ id: request.receiver.id }, ['friends'])
-
-    sender.friends.push(receiver)
-    receiver.friends.push(sender)
-    this.usersRepository.save(sender)
-    this.usersRepository.save(receiver)
-    this.friendRequestService.removeFriendRequest(request)
-
-    this.notificationService.emit([sender], "friend_new", { user: { id: receiver.id, username: receiver.username, image: receiver.image } })
-    this.notificationService.emit([receiver], "friend_new", { user: { id: sender.id, username: sender.username, image: sender.image } })
-  }
-
-  async denyFriendRequest(id: number) {
-    const request = await this.friendRequestService.getFriendRequest({ id: id }, ['sender', 'receiver'])
-    this.friendRequestService.removeFriendRequest(request)
-  }
 
   async removeFriend(user_id: number, friend_id: number) {
 
@@ -114,6 +73,10 @@ export class UserService {
 
     const user = await this.getUser({ id: user_id }, ['friends'])
     const friend = await this.getUser({ id: friend_id }, ['friends'])
+
+    if (user.friends.find((u) => u.id === friend_id) === undefined &&
+      friend.friends.find((u) => u.id === user_id) === undefined )
+      throw new HttpNotFound("Friend")
 
     user.friends = user.friends.filter((v) => v.id !== friend_id)
     friend.friends = friend.friends.filter((v) => v.id !== user_id)
@@ -139,30 +102,50 @@ export class UserService {
 
     const blocked = user.blocked.find((v) => v.id === blocked_user_id)
     if (!blocked)
-      throw new HttpBadRequest()
+      throw new HttpNotFound("Blocked user")
     user.blocked = user.blocked.filter((v) => v.id !== blocked_user_id)
     this.usersRepository.save(user)
 
     this.notificationService.emit([user], "blocked_delete", { user: blocked })
   }
 
+
+  async acceptFriendRequest(id: number) {
+    const request = await this.friendRequestService.getFriendRequest({ id: id }, ['sender', 'receiver'])
+    if (!request)
+      throw new HttpNotFound("Friend Request")
+
+    const sender = await this.getUser({ id: request.sender.id }, ['friends'])
+    const receiver = await this.getUser({ id: request.receiver.id }, ['friends'])
+
+    sender.friends.push(receiver)
+    receiver.friends.push(sender)
+    this.usersRepository.save(sender)
+    this.usersRepository.save(receiver)
+    this.friendRequestService.removeFriendRequest(request)
+
+    this.notificationService.emit([sender, receiver], "friend_request_accepted", { req: request })
+    this.notificationService.emit([sender], "friend_new", { user: { id: receiver.id, username: receiver.username, image: receiver.image } })
+    this.notificationService.emit([receiver], "friend_new", { user: { id: sender.id, username: sender.username, image: sender.image } })
+  }
+
+  async denyFriendRequest(id: number) {
+    const request = await this.friendRequestService.getFriendRequest({ id: id }, ['sender', 'receiver'])
+    this.friendRequestService.removeFriendRequest(request)
+    this.notificationService.emit([request.receiver, request.sender], "friend_request_denied", { req: request })
+  }
+
   async acceptPlayRequest(id: number) {
     const request = await this.playRequestService.getPlayRequest({ id: id }, ['sender', 'receiver'])
-    if (!request)
-      throw new HttpNotFound("Play Request")
-
-    const sender = await this.getUser({ id: request.sender.id })
-    const receiver = await this.getUser({ id: request.receiver.id })
 
     this.playRequestService.removePlayRequest(request)
-
-    this.notificationService.emit([receiver], "play_request_recv", { user: { id: sender.id, username: sender.username, image: sender.image } })
+    this.notificationService.emit([request.receiver, request.sender], "play_request_accepted", { req: request })
   }
 
   async denyPlayRequest(id: number) {
     const request = await this.playRequestService.getPlayRequest({ id: id }, ['sender', 'receiver'])
+    
     this.playRequestService.removePlayRequest(request)
-
     this.notificationService.emit([request.sender, request.receiver], "friend_request_denied", { req: request })
   }
 

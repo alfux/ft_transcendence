@@ -5,10 +5,6 @@ import { User } from './user.entity'
 import { UserService } from './user.service'
 import { UserController } from './user.controller'
 
-import { FriendRequest, FriendRequestService } from './friend_request'
-import { PlayRequest, PlayRequestService } from './play_request'
-import { Match, MatchService } from './match'
-
 import { AuthModule } from 'src/auth/auth.module'
 
 import { ConversationModule } from 'src/db/conversation'
@@ -16,6 +12,8 @@ import { NotificationsModule } from 'src/notifications/'
 import { FriendRequestModule } from './friend_request/friend_request.module'
 import { PlayRequestModule } from './play_request/play_request.module'
 import { MatchModule } from './match/match.module'
+import { UserFriendRequestController } from './user.friend_request.controller'
+import { UserPlayRequestController } from './user.play_request.controller'
 
 @Module({
   imports: [
@@ -35,7 +33,9 @@ import { MatchModule } from './match/match.module'
   ],
 
   controllers: [
-    UserController
+    UserController,
+    UserFriendRequestController,
+    UserPlayRequestController
   ],
 
   exports: [

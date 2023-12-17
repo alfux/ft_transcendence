@@ -1,13 +1,13 @@
-import { Req, Controller, Get, Post, Delete, Patch, Body, HttpException, Inject, forwardRef } from '@nestjs/common'
-import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger'
+import { Req, Controller, Get, Post, Delete, Patch, Body, Inject, forwardRef, Param, ParseIntPipe } from '@nestjs/common'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 
 import { NotificationsService } from 'src/notifications'
 import { Request } from 'src/auth/interfaces/request.interface'
 
-import { FriendRequestService, MatchService, UserService } from '.'
+import { FriendRequestService, MatchService, PlayRequestService, UserService } from '.'
 
 import { Route } from 'src/route'
-import { HttpBadRequest, HttpMissingArg, HttpNotFound, HttpUnauthorized } from 'src/exceptions'
+import { HttpBadRequest, HttpMissingArg } from 'src/exceptions'
 import * as DTO from './user.dto'
 
 @ApiBearerAuth()
@@ -22,6 +22,8 @@ export class UserController {
     private matchService: MatchService,
     @Inject(forwardRef(() => FriendRequestService))
     private friendRequestService: FriendRequestService,
+    @Inject(forwardRef(() => PlayRequestService))
+    private playRequestService: PlayRequestService,
 
     private notificationService: NotificationsService
   ) { }
@@ -42,8 +44,6 @@ export class UserController {
   async update_user_infos(@Req() req: Request, @Body() body: DTO.UpdateUserInfosBody) {
     const user = await this.userService.getUser({id: req.user.id})
 
-    console.log(body)
-
     user.username = body.username
     user.image = body.image
     user.email = body.email
@@ -63,104 +63,6 @@ export class UserController {
   }
 
   @Route({
-    method: Get('friend_request'),
-    description: { summary: 'Get all friend requests', description: 'Get all friend requests' },
-  })
-  async get_friend_request(@Req() req: Request) {
-    const user = await this.userService.getUser({ id: req.user.id }, [
-      'friends_requests_recv',
-      'friends_requests_recv.sender',
-      'friends_requests_recv.receiver',
-
-      'friends_requests_sent',
-      'friends_requests_sent.sender',
-      'friends_requests_sent.receiver'
-    ])
-    return {
-      received: user.friends_requests_recv,
-      sent: user.friends_requests_sent
-    }
-  }
-
-  @Route({
-    method: Post('friend_request'),
-    description: { summary: 'Sends a friend request', description: 'Sends a friend request' },
-  })
-  async send_friend_request(@Req() req: Request, @Body() body: DTO.SendFriendRequestBody) {
-    if (body.username === undefined)
-      throw new HttpMissingArg()
-
-    const existing_friend_request = await this.friendRequestService.getFriendRequest({
-      sender: { id:req.user.id },
-      receiver: { username: body.username }
-    })
-    .catch((e) => {
-      if (!(e instanceof HttpNotFound))
-        throw e
-    })
-
-    if (existing_friend_request)
-      throw new HttpBadRequest()
-
-    const existing_recvd_friend_request = await this.friendRequestService.getFriendRequest({
-      receiver: { id:req.user.id },
-      sender: { username: body.username }
-    })
-    .catch((e) => {
-      if (!(e instanceof HttpNotFound))
-        throw e
-    })
-
-    if (existing_recvd_friend_request) {
-      this.userService.acceptFriendRequest(existing_recvd_friend_request.id)
-      return
-    }
-
-    return this.userService.sendFriendRequest(req.user.id, body.username)
-  }
-
-  @Route({
-    method: Post('friend_request_accept'),
-    description: { summary: 'Accepts a friend request', description: 'Accepts a friend request' },
-  })
-  async accept_friend_request(@Req() req: Request, @Body() body: DTO.AcceptFriendRequestBody) {
-    if (body.id === undefined)
-      throw new HttpMissingArg()
-
-    try {
-      await this.userService.getUser({ id: req.user.id, friends_requests_recv: { id: body.id } })
-    }
-    catch (e) {
-      if (e instanceof HttpException)
-        throw new HttpUnauthorized()
-    }
-
-    const fr = await this.friendRequestService.getFriendRequest({ id: body.id }, ['sender', 'receiver'])
-    this.userService.acceptFriendRequest(body.id)
-    this.notificationService.emit([fr.receiver, fr.sender], "friend_request_accepted", { req: fr })
-  }
-
-  @Route({
-    method: Post('friend_request_deny'),
-    description: { summary: 'Deny a friend request', description: 'Deny a friend request' },
-  })
-  async deny_friend_request(@Req() req: Request, @Body() body: DTO.DenyFriendRequestBody) {
-    if (body.id === undefined)
-      throw new HttpMissingArg()
-    try {
-      await this.userService.getUser({ id: req.user.id, friends_requests_recv: { id: body.id } })
-    }
-    catch (e) {
-      if (e instanceof HttpException)
-        throw new HttpUnauthorized()
-    }
-
-    const fr = await this.friendRequestService.getFriendRequest({ id: body.id }, ['sender', 'receiver'])
-    this.userService.denyFriendRequest(body.id)
-    this.notificationService.emit([fr.receiver, fr.sender], "friend_request_denied", { req: fr })
-  }
-
-  @Route({
     method: Get('friends'),
     description: { summary: 'Returns the friend list', description: 'Returns the friend list' }
   })
@@ -170,13 +72,11 @@ export class UserController {
   }
 
   @Route({
-    method: Post('remove_friend'),
+    method: Delete('friends/:id'),
     description: { summary: 'Removes a friend from friend list', description: 'Removes a friend from friend list' },
   })
-  async remove_friend(@Req() req: Request, @Body() body: DTO.RemoveFriendBody) {
-    if (body.user_id === undefined)
-      throw new HttpMissingArg()
-    await this.userService.removeFriend(req.user.id, body.user_id)
+  async remove_friend(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    return this.userService.removeFriend(req.user.id, id)
   }
 
   @Route({
@@ -197,105 +97,18 @@ export class UserController {
       throw new HttpMissingArg()
     if (req.user.id === body.user_id)
       throw new HttpBadRequest()
-    this.userService.blockUser(req.user.id, body.user_id)
-    this.userService.removeFriend(req.user.id, body.user_id)
+    this.userService.removeFriend(req.user.id, body.user_id).catch((e) => {})
+    return this.userService.blockUser(req.user.id, body.user_id)
   }
 
   @Route({
-    method: Delete('blocked'),
+    method: Delete('blocked/:id'),
     description: { summary: 'Unblocks a user', description: 'Unblocks a user' },
   })
-  async unblock_user(@Req() req: Request, @Body() body: DTO.BlockFriendBody) {
-    if (body.user_id === undefined)
-      throw new HttpMissingArg()
-    if (req.user.id === body.user_id)
+  async unblock_user(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    if (req.user.id === id)
       throw new HttpBadRequest()
-    this.userService.unblockUser(req.user.id, body.user_id)
-  }
-
-
-
-  @Route({
-    method: Get('play_request'),
-    description: { summary: 'Get all play requests', description: 'Get all play requests' },
-  })
-  async get_play_request(@Req() req: Request) {
-    const user = await this.userService.getUser({ id: req.user.id }, [
-      'play_requests_recv',
-      'play_requests_recv.sender',
-      'play_requests_recv.receiver',
-
-      'play_requests_sent',
-      'play_requests_sent.sender',
-      'play_requests_sent.receiver'
-    ])
-    return {
-      received: user.play_requests_recv,
-      sent: user.play_requests_sent
-    }
-  }
-
-  @Route({
-    method: Post('play_request'),
-    description: { summary: 'Sends a play request', description: 'Sends a play request' },
-  })
-  async send_play_request(@Req() req: Request, @Body() body: DTO.SendPlayRequestBody) {
-    if (body.username === undefined)
-      throw new HttpMissingArg()
-
-    const from = await this.userService.getUser({ id: req.user.id })
-    const to = await this.userService.getUser({ username: body.username })
-    if (from.id === to.id)
-      throw new HttpBadRequest()
-    //TODO
-    //const friend_req = await this.userService(from, to)
-//
-    //this.notificationService.emit([to], "play_request_recv", { req: friend_req })
-//
-    //return friend_req
-  }
-
-  @Route({
-    method: Post('play_request_accept'),
-    description: { summary: 'Accepts a friend request', description: 'Accepts a friend request' },
-  })
-  async accept_play_request(@Req() req: Request, @Body() body: DTO.AcceptPlayRequestBody) {
-    if (body.id === undefined)
-      throw new HttpMissingArg()
-
-    try {
-      await this.userService.getUser({ id: req.user.id, play_requests_recv: { id: body.id } })
-    }
-    catch (e) {
-      if (e instanceof HttpException)
-        throw new HttpUnauthorized()
-    }
-
-    /*
-    const fr = await this.userService.getFriendRequest({id:body.id}, ['sender', 'receiver'])
-    this.notificationService.emit([fr.receiver, fr.sender], "play_request_accepted", {req:fr})
-    */
-
-    this.userService.acceptPlayRequest(body.id)
-    //TODO: launch game with those 2 players
-  }
-
-  @Route({
-    method: Post('play_request_deny'),
-    description: { summary: 'Deny a play request', description: 'Deny a play request' },
-  })
-  async deny_play_request(@Req() req: Request, @Body() body: DTO.DenyPlayRequestBody) {
-    if (body.id === undefined)
-      throw new HttpMissingArg()
-    try {
-      await this.userService.getUser({ id: req.user.id, play_requests_recv: { id: body.id } })
-    }
-    catch (e) {
-      if (e instanceof HttpException)
-        throw new HttpUnauthorized()
-    }
-
-    this.userService.denyPlayRequest(body.id)
+    return this.userService.unblockUser(req.user.id, id)
   }
 
 

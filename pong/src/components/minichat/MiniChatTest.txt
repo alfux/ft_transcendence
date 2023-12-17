@@ -167,13 +167,13 @@ const MiniChatTest: React.FC = () => {
   ======================Set Seletect Group And Set The Group Option=============
   ========================================================================= */
 
-  const usersGroups = channels?.map((group: Conversation) => {
+  const usersGroups = channels?.map((group: Conversation, index:number) => {
     const title = group.title;
     const firstTitleLetter = title?.charAt(0).toUpperCase();
     return (
       <div
         className="group-icons"
-        key={group.id}
+        key={index}
         onClick={() => {
           setSelectedGroup(group);
           setSelectedGroupOption(ChannelOptions.CHANNEL);

@@ -1,6 +1,16 @@
 {
   "emits": [
     {
+      "name": "user_create",
+      "desc": "A new user has been created",
+      "data": {
+        "user": {
+          "type": "User",
+          "desc": "The created user"
+        }
+      }
+    },
+    {
       "name": "conv_create",
       "desc": "A new conversation has been created",
       "data": {
@@ -181,6 +191,16 @@
     {
       "name": "play_request_accepted",
       "desc": "The user you invited wants to play with you !",
+      "data": {
+        "req": {
+          "type": "PlayRequest",
+          "desc": "The play request object"
+        }
+      }
+    },
+    {
+      "name": "play_request_denied",
+      "desc": "A user has denied a play invite you sent",
       "data": {
         "req": {
           "type": "PlayRequest",

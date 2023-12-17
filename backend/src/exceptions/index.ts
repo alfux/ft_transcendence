@@ -1,20 +1,20 @@
 import { HttpException, HttpStatus } from "@nestjs/common";
 
 export class HttpUnauthorized extends HttpException {
-  constructor() {
-    super("Unauthorized", HttpStatus.UNAUTHORIZED)
+  constructor(what?: string) {
+    super(what===undefined ? "Unauthorized" : "Unauthorized: " + what, HttpStatus.UNAUTHORIZED)
   }
 }
 
 export class HttpBadRequest extends HttpException {
-  constructor() {
-    super("Bad request", HttpStatus.BAD_REQUEST)
+  constructor(what?: string) {
+    super(what===undefined ? "Bad request" : "Bad request:" + what, HttpStatus.BAD_REQUEST)
   }
 }
 
 export class HttpMissingArg extends HttpException {
-  constructor() {
-    super("Missing argument", HttpStatus.BAD_REQUEST)
+  constructor(what?: string) {
+    super(what===undefined ? "Missing argument" : "Missing argument:" + what, HttpStatus.BAD_REQUEST)
   }
 }
 
