@@ -96,6 +96,16 @@ export default function THREE_App() {
 	return (
 		<div ref={divRef} id="Canvas">
 			<div>
+				<div className="glow-content">
+    				<div className="glow-line-rose"></div>
+    				<div className="glow-line-blue"></div>
+					<div className="glow-line-rose-two"></div>
+    				<div className="glow-line-blue-two"></div>
+					<div className="glow-line-rose-invert-one"></div>
+    				<div className="glow-line-blue-invert-one"></div>
+					<div className="glow-line-rose-invert-two"></div>
+    				<div className="glow-line-blue-invert-two"></div>
+				</div>
 				<div className="video-background">
 					<video autoPlay loop muted playsInline className="filtered-video" id="background-video-scene">
 						<source src={process.env.PUBLIC_URL + './background/neon_bg.mp4'} type="video/mp4" />

@@ -29,15 +29,15 @@
   .glass-container-matchmaking {
     position: fixed;
     left: 30%;
-    top: 20%;
+    top: 30%;
     height: 50%;
-    width: 70%;
+    width: 80%;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     z-index: 1;
-    border: 3px solid rgb(0, 0, 0);
-    box-shadow: 0 0px 60px rgb(4, 4, 4);
+    /* border: 3px solid rgb(0, 0, 0); */
+    box-shadow: 0 0px 20px rgb(255, 253, 253);
     display: flex;
     flex-direction: column;
     justify-content: space-between;

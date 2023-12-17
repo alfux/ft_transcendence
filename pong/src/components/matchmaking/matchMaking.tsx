@@ -15,12 +15,12 @@ type User = {
 }
 const MatchMaking: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
-  const [data, setData] = useState<User | null>(null)
+  const [data, setData] = useState<any | null>(null)
   useEffect(() => {
     const requestProfile = async () => {
       try {//fetch Profile
-        const enable2FAEndpoint = `${config.backend_url}/api/user/me`;
-        const response = await fetch(enable2FAEndpoint, {
+        const url = `${config.backend_url}/api/user/me`;
+        const response = await fetch(url, {
           method: 'GET',
           credentials: 'include',
         });
@@ -45,11 +45,11 @@ const MatchMaking: React.FC = () => {
       <div className='players'>
         <div className='player-one'>
           <div className='player-info-one'>
-            <p>{data?.nickName}</p>
+            <p>Player: {data?.username}</p>
             <p>player rank</p>
             <p>lvl 10</p>
           </div>
-          <img src={data?.avatar}></img>
+          <img src={data?.image} alt="avatar" />
         </div>
         <div className='player-two'>
           <div className='player-info-two'>

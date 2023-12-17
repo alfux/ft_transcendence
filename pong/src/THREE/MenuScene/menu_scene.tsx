@@ -213,7 +213,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 
   let general_scaling = Math.min(1680 * window.innerWidth / window.screen.width, (16 / 9) * 1050 * window.innerHeight / window.screen.height) / 1000;
   const scene = new THREE.Scene();
-  scene.background = video_background;
+  // scene.background = video_background;
   scene.backgroundIntensity = 0.2;
   scene.add(menu_parent, ambient, screen_plane);
   scene.scale.set(general_scaling, general_scaling, general_scaling);

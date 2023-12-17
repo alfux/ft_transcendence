@@ -33,8 +33,6 @@
     height: 3em;
     border-radius: 50%;
     align-items: center;
-    background: rgba(249, 248, 248, 0.2);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.982);
     cursor: pointer;
     z-index: 2;
     animation : button-on linear 1s;
@@ -50,12 +48,16 @@
     height: 3em;
     border-radius: 50%;
     align-items: center;
-    background: rgba(249, 248, 248, 0.2);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.982);
+    justify-content: center;
     cursor: pointer;
     animation : button-off linear 1s;
 }
 
-.minichat-icon{
-    width: 90%;
+
+.chat-icon {
+    font-size: 1.5em;
+    color: rgba(255, 255, 255, 1);
+   background-color: rgba(0, 234, 255, 0.3);
+   box-shadow: 0 0 40px 10px rgba(0, 232, 253, 1);
+   border-radius: 50%;
 }

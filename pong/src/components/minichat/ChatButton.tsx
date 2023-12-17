@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import './ChatButton.css';
 import MiniChat from './MiniChat';
 import { createRoot } from 'react-dom/client';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMessage } from '@fortawesome/free-solid-svg-icons';
 const MiniChatButton: React.FC = () => {
   const [isMiniChatVisible, setMiniChatVisibility] = useState<boolean>(false);
 
@@ -28,7 +29,7 @@ const MiniChatButton: React.FC = () => {
   
   return (
     <div className={isMiniChatVisible?"glass-container-minichat-button-on":"glass-container-minichat-button-off"}>
-      <img src='42.png' className='minichat-icon' onClick={handleToggleMiniChat} alt="MiniChat Button" />
+<FontAwesomeIcon className='chat-icon' onClick={handleToggleMiniChat} icon={faMessage} flip="horizontal" />
     </div>
   );
 };
