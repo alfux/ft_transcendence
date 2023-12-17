@@ -63,7 +63,7 @@ export interface Conversation {
   title: string
   access_level: AccessLevel
   owner?: User
-  users?: User[]
+  users?: ConversationUser[]
   messages?: Message[]
 }
 
@@ -76,7 +76,7 @@ export interface ConversationUser {
   joinedAt: Date
 
   isAdmin: boolean
-  becameAdminAt: Date
+  becameAdminAt: string
 
   messages?: Message[]
 }

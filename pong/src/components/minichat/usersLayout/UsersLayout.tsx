@@ -1,8 +1,29 @@
-import { User } from "../../../THREE/Utils/backend_types";
-import { LoggedStatus } from "../../../THREE/Utils/jwt.interface";
+import { useEffect } from "react";
+import { Conversation, ConversationUser, User } from "../../../THREE/Utils/backend_types";
 import { ChannelOptions, ChatProps } from "../MiniChat";
+import { notificationsSocket } from "../../../sockets";
 
-const UsersLayout: React.FC<ChatProps> = (props) => {
+const UsersLayout: React.FC<ChatProps> = (props: ChatProps) => {
+
+  useEffect(() => {
+    notificationsSocket.on("conv_join", async (data: {
+      user: User,
+      conversation: Conversation
+    }) => {
+      
+      if (props.selectedGroup && props.selectedGroup.id === data.conversation.id) {
+        props.setSelectedChannel(data.conversation)
+      }
+    })
+    notificationsSocket.on("conv_leave", async (data: {
+      user: User,
+      conversation: Conversation
+    }) => {
+      if (props.selectedGroup && props.selectedGroup.id === data.conversation.id) {
+        props.setSelectedChannel(data.conversation)
+      }
+    })
+  })
 
   const onlineUsers = props.allUsers?.map((user: User) => {
     return user.id !== props.me?.id ? (
@@ -26,8 +47,8 @@ const UsersLayout: React.FC<ChatProps> = (props) => {
     )
   });
 
-  const channelUsers = props.selectedGroup?.users?.map((channelInfo: any) => {
-    const user: User = channelInfo.user;
+  const channelUsers = props.selectedGroup?.users?.map((conversationUser: ConversationUser) => {
+    const user = conversationUser.user;
     return (
       <img
       className={user?.isAuthenticated === 0?"chat-user-online":"chat-user-offline"}

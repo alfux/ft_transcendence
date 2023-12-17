@@ -175,13 +175,13 @@ export class ConversationService {
       conv_user = await this.createConversationUser(user, conv_ref)
     }
     conv.users.push(conv_user)
-    return this.conversationRepository.save(conv)
+    return this.conversationRepository.save(conv).then((new_conv) => this.getConversation({id:new_conv.id}, ["users", "users.user", "owner"]))
   }
 
   async removeUserFromConversation(where: FindOptions<Conversation>, user: ConversationUser) {
     const conv = await this.getConversation(where, ['users'])
     conv.users = conv.users.filter(u => u.id != user.id)
-    this.conversationRepository.save(conv)
+    return this.conversationRepository.save(conv).then((new_conv) => this.getConversation({id:new_conv.id}, ["users", "users.user", "owner"]))
   }
 
   async makeUserAdmin(user: ConversationUser) {

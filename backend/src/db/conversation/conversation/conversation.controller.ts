@@ -31,8 +31,8 @@ export class ConversationController {
     responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
   })
   async getMeConversations(@Req() req: Request) {
-    const conv = await this.conversationService.getConversation({ users: { user: { id:req.user.id } } }, ['users', 'owner', 'users.user'])
-    return this.conversationService.getConversation({ id:conv.id }, ['users', 'owner', 'users.user'])
+    const conv = await this.conversationService.getConversation({ users: { user: { id: req.user.id } } }, ['users', 'owner', 'users.user'])
+    return this.conversationService.getConversation({ id: conv.id }, ['users', 'owner', 'users.user'])
   }
 
   @Route({
@@ -41,7 +41,7 @@ export class ConversationController {
     responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
   })
   getOwnConversations(@Req() req: Request) {
-    return this.conversationService.getConversation({ owner: { id:req.user.id } }, ['users', 'owner', 'users.user'])
+    return this.conversationService.getConversation({ owner: { id: req.user.id } }, ['users', 'owner', 'users.user'])
   }
 
   @Route({
@@ -66,10 +66,10 @@ export class ConversationController {
     }
 
     return this.conversationService.createConversation(req.user.id, body.title, body.access_level, body.password)
-    .then((new_conv) => {
-      this.notificationService.emit_everyone("conv_create", { conversation: new_conv })
-      return new_conv
-    })
+      .then((new_conv) => {
+        this.notificationService.emit_everyone("conv_create", { conversation: new_conv })
+        return new_conv
+      })
   }
 
   @Route({
@@ -83,18 +83,18 @@ export class ConversationController {
     return this.conversationService.getConversation({ id: id }, [
       'users',
       'users.user',
-      
+
       'owner',
-      
+
       'messages',
       'messages.sender',
       'messages.sender.user'
     ])
-    .then((v) => {
-      if (v.users.find((x) => x.user.id === req.user.id) === undefined)
-        throw new HttpUnauthorized()
+      .then((v) => {
+        if (v.users.find((x) => x.user.id === req.user.id) === undefined)
+          throw new HttpUnauthorized()
         return v
-    })
+      })
   }
 
   @Route({
@@ -103,7 +103,7 @@ export class ConversationController {
     responses: [{ status: 200, description: 'Conversation deleted successfully' }]
   })
   async deleteConversation(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
-    
+
     const conversation = await this.conversationService.getConversation({ id: id }, ['owner'])
     this.notificationService.emit_everyone(
       "conv_delete",
@@ -123,21 +123,41 @@ export class ConversationController {
     responses: [{ status: 200, description: 'Conversation joined successfully' }]
   })
   async joinConversation(@Req() req: Request, @Body() body: DTO.ConversationJoinParams) {
-    if (body.id === undefined)
-      throw new HttpMissingArg()
     const user = await this.userService.getUser({ id: req.user.id })
-    const conversation = await this.conversationService.getConversation({ id: body.id }, ['users', 'users.user'])
-    console.log("good")
-    this.notificationService.emit(
-      conversation.users.map((u) => u.user),
-      "conv_join",
-      {
-        conversation: conversation,
-        user: user
-      })
 
-    await this.conversationService.addUserToConversation({ id: body.id }, user, body.password)
+    return this.conversationService.addUserToConversation({ id: body.id }, user, body.password).then((conv) => {
+      this.notificationService.emit(
+        conv.users.map((u) => u.user),
+        "conv_join",
+        {
+          conversation: conv,
+          user: user
+        })
+    })
   }
+
+  @Route({
+    method: Post('leave'),
+    description: { summary: 'Leaves a conversation', description: 'Makes the authenticated user leave the conversation' },
+    responses: [{ status: 200, description: 'Conversation left successfully' }]
+  })
+  async leaveConversation(@Req() req: Request, @Body() body: DTO.ConversationLeaveParams) {
+    const conv_user = await this.conversationService.getConversationUser({ user: { id: req.user.id }, conversation: { id:body.id } },
+      ['conversation', 'user', 'conversation.users', 'conversation.users.user', 'conversation.owner'])
+
+    console.log(conv_user.conversation)
+
+    return this.conversationService.removeUserFromConversation({ id: body.id }, conv_user).then((conv) => {
+      this.notificationService.emit(
+        conv_user.conversation.users.map((u) => u.user),
+        "conv_leave",
+        {
+          conversation: conv,
+          user: conv_user.user
+        })
+    })
+  }
+
 
   @Route({
     method: Post('promote'),
@@ -215,26 +235,6 @@ export class ConversationController {
         conversation: conv_user.conversation,
         user: conv_user.user,
         issuer: sender
-      })
-  }
-
-  @Route({
-    method: Post('leave'),
-    description: { summary: 'Leaves a conversation', description: 'Makes the authenticated user leave the conversation' },
-    responses: [{ status: 200, description: 'Conversation left successfully' }]
-  })
-  async leaveConversation(@Req() req: Request, @Body() body: DTO.ConversationLeaveParams) {
-    if (body.id === undefined)
-      throw new HttpMissingArg()
-    const conv_user = await this.conversationService.getConversationUser({ user: { id: req.user.id } }, ['conversation', 'conversation.users', 'conversation.users.user', 'user'])
-    this.conversationService.removeUserFromConversation({ id: body.id }, conv_user)
-
-    this.notificationService.emit(
-      conv_user.conversation.users.map((u) => u.user),
-      "conv_leave",
-      {
-        conversation: conv_user.conversation,
-        user: conv_user.user
       })
   }
 }

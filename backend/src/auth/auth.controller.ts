@@ -62,7 +62,6 @@ export class AuthController {
     description: { summary: "Refresh token", description: "Refresh token" },
     public: true
   })
-  
   @UseGuards(AuthGuard('jwt-refresh'))
   async refreshToken(@Req() req: Request, @Res() response: Response) {
     console.log(req.user)

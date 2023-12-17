@@ -32,7 +32,7 @@ export interface ChatProps {
   friends: User[] | null;
   allUsers: User[] | null;
   selectedUser: User | undefined;
-  selectedGroup: any | undefined;
+  selectedGroup: Conversation | undefined;
   selectedGroupOption: ChannelOptions | null;
   channelMessages: any | null;
   messageText: any;
@@ -40,7 +40,7 @@ export interface ChatProps {
   notificationType : any;
   setNotificationType : (notificationType : any) => void;
   setToogledButton : (toogledButton :string | null) => void;
-  setSelectedChannel: (channel: any | undefined) => void;
+  setSelectedChannel: (channel: Conversation | undefined) => void;
   setSelectedChannelOption: (option: ChannelOptions) => void;
   setSelectedUser: (user: User | undefined) => void;
   setChannels: React.Dispatch<React.SetStateAction<Conversation[] | null>>;
@@ -315,6 +315,9 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
       }
     };
     requestMessages();
+
+
+
   }, [selectedGroup, notificationType]);
 
 
