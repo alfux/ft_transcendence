@@ -174,8 +174,6 @@ export class GameInstance {
   }
 
   delta_time: number = 0
-  reset_speed_time_p1: number = 0;
-  reset_speed_time_p2: number = 0;
 
   notif_ball_pos:(ball:Ball)=>void
   notif_end:(winner:Client, looser:Client)=>void
@@ -199,8 +197,6 @@ export class GameInstance {
     this.notif_end = notif_end
 	this.classic_mode = classic;
 	this.max_bounce = 0;
-	this.reset_speed_time_p1 = 0;
-	this.reset_speed_time_p2 = 0;
 	this.finished = false;
   }
 
@@ -267,20 +263,12 @@ export class GameInstance {
 		let	buffer: number;
 
 		buffer = clamp(this.player1.mouse.y, -7, 7);
-		if (Math.abs(this.player1.racket.position.y - buffer) < 0.1)
-			this.reset_speed_time_p1 += this.delta_time;
-		else
-			this.reset_speed_time_p1 = 0;
+		this.player1.racket.speed = (this.player1.racket.position.y - buffer) / (this.delta_time + 0.000001);
 		this.player1.racket.position.y = buffer;
-		this.player1.racket.speed = (Math.abs(this.player1.mouse.y) < 7) ? this.player1.mouse.sy / 5 : 0;
 
 		buffer = clamp(this.player2.mouse.y, -7, 7);
-		if (Math.abs(this.player2.racket.position.y - buffer) < 0.1)
-			this.reset_speed_time_p2 += this.delta_time;
-		else
-			this.reset_speed_time_p2 = 0;
+		this.player2.racket.speed = (buffer - this.player2.racket.position.y) / (this.delta_time + 0.000001);
 		this.player2.racket.position.y = buffer;
-		this.player2.racket.speed = (Math.abs(this.player2.mouse.y) < 7) ? -this.player2.mouse.sy / 5 : 0;
 	}
 
 	updatePlayerPos() {
@@ -319,14 +307,11 @@ export class GameInstance {
 	pushdir() {
 		let	n = norm(this.ball.speed);
 
-		console.log(this.max_bounce, " --> ");
 		if (this.max_bounce < 4) {
 			this.max_bounce++;
-			console.log(this.max_bounce);
 			return ;
 		}
 		this.max_bounce = 0;
-		console.log(this.max_bounce);
 		this.ball.speed.x += Math.sign(scalaire(this.ball.speed, new Vec3(1, 0, 0)));
 		n /= norm(this.ball.speed);
 		this.ball.speed.set(
@@ -400,14 +385,6 @@ export class GameInstance {
   update() {
 	this.updateBallPos();
 	this.updatePlayerPos();
-	if (this.reset_speed_time_p1 > 0.1) {
-		this.player1.mouse.sx = 0;
-		this.player1.mouse.sy = 0;
-	}
-	if (this.reset_speed_time_p2 > 0.1) {
-		this.player2.mouse.sx = 0;
-		this.player2.mouse.sy = 0;
-	}
     this.delta_time = this.clock.getDelta();
   }
 }

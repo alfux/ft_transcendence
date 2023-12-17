@@ -539,7 +539,7 @@ export function create_menu_scene(
 			corr = 0.4 - 2 * Math.PI;
 		moveMenu(t, 3.2, fct);
 		t = updateT(t);
-	} else if (new_current !== "Play" && new_current != "Chat" && t > 0) {
+	} else if (!option.game && new_current !== "Play" && new_current != "Chat" && t > 0) {
 		if (t < 0.1)
 			corr = 0.2 - 2 * Math.PI;
 		moveMenu(t, 3.2, fct);
