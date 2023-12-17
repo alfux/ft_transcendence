@@ -18,7 +18,6 @@ import usePayload from '../react_hooks/use_auth'
 
 import MiniChatButton from '../components/minichat/ChatButton';
 import { init_modules } from './GameScene/shaders';
-import { chatSocket } from '../sockets/chat';
 
 export const accessToken = Cookies.get('access_token');
 
@@ -34,7 +33,6 @@ export default function THREE_App() {
 
 	//Check if access token has expired remove token and reload page
 	useEffect(() => {
-		console.log("What status are u: ", logged)
 		setLogged(true)
 		user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
 		if (user?.exp && user.exp < Date.now() / 1000) {
@@ -54,9 +52,12 @@ export default function THREE_App() {
 		renderer.autoClear = false;
 
 		const buffer = new THREE.WebGLRenderTarget(25 * 512, (9 / 16) * 25 * 512);
-		const game_scene = create_game_scene(renderer, buffer);
+		const	mousecaster = new THREE.Vector2(0, 0);
+		const	mousespeed = new THREE.Vector2(0, 0);
 
-		const menu_scene = create_menu_scene(renderer, buffer.texture, payload);
+		const menu_scene = create_menu_scene(renderer, buffer.texture, payload, mousecaster, mousespeed, divRef.current);
+
+		const game_scene = create_game_scene(renderer, buffer, mousecaster, mousespeed);
 
 		function mainloop() {
 			requestAnimationFrame(mainloop);
@@ -95,10 +96,19 @@ export default function THREE_App() {
 			return createComponent(MiniChatButton);
 		}
 	}, [loginForm === "Chat"])
-
 	return (
 		<div ref={divRef} id="Canvas">
 			<div>
+				<div className="glow-content">
+    				<div className="glow-line-rose"></div>
+    				<div className="glow-line-blue"></div>
+					<div className="glow-line-rose-two"></div>
+    				<div className="glow-line-blue-two"></div>
+					<div className="glow-line-rose-invert-one"></div>
+    				<div className="glow-line-blue-invert-one"></div>
+					<div className="glow-line-rose-invert-two"></div>
+    				<div className="glow-line-blue-invert-two"></div>
+				</div>
 				<div className="video-background">
 					<video autoPlay loop muted playsInline className="filtered-video" id="background-video-scene">
 						<source src={process.env.PUBLIC_URL + './background/neon_bg.mp4'} type="video/mp4" />

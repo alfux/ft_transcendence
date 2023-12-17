@@ -98,8 +98,6 @@ const UserProfile: React.FC<ChatProps> = (props) => {
       });
     }
   }, [props.selectedGroup]);
-  console.log("selected channel: ", props.selectedGroup);
-  console.log("channelrights: ", channelRights);
 
   async function promoteUser() {
     await Promise.all(
@@ -139,6 +137,22 @@ const UserProfile: React.FC<ChatProps> = (props) => {
         <img className="user-image" src={props.selectedUser.image} />
       )}
       {props.selectedUser && <p>{props.selectedUser.username}</p>}
+      {props.selectedUser && (
+        <div className="status-div">
+          <p>Status</p>
+          <div className={props.selectedUser.isAuthenticated === 0?"status-online":"status-offline"}></div>
+        </div>
+      )}
+      {props.selectedUser && !props.selectedGroup && <button>Profile</button>}
+      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && !props.selectedGroup && (
+        <button>Invite Game</button>
+      )}
+      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && !props.selectedGroup && (
+        <button>Remove Friend</button>
+      )}
+      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && !props.selectedGroup && (
+        <button>Block Friend</button>
+      )}
       {props.selectedGroupOption == ChannelOptions.ONLINE_USERS &&
         props.selectedUser && props.friends?.find((u) => u.id !== props.selectedUser?.id) && (
           <button onClick={sendFriendInvite}>Invite Friend</button>

@@ -46,8 +46,44 @@
     justify-content: space-around;
   }
 
-  50% {
-    top: 40vh;
+  .audio {
+	box-shadow: 0 0 30px rgb(0, 255, 255);
+	border-radius: 25px;
+	position: fixed;
+	bottom: 2%;
+	left: 40%;
+  
+	/* Animation styles */
+	animation: pulse 0.3s infinite alternate, colores 4s infinite;
+  }
+  
+  @keyframes pulse {
+	0% {
+	  transform: scale(1);
+	}
+	100% {
+	  transform: scale(1.1);
+	}
+  }
+  
+  @keyframes colores {
+	0%, 100% {
+	  box-shadow: 0 0 60px rgb(0, 255, 255);
+	}
+	50% {
+	  box-shadow: 0 0 60px rgb(235, 3, 235);
+	}
+  }
+  
+
+  .profile-box-two{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 95%;
+	height: 95%;
+	border-radius: 15px;
+	background: rgba(8, 8, 8, 0.5);
   }
 
   100% {

@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 import './matchMaking.css'
 import React, { useRef, useEffect, useState } from 'react'
 import usePayload from '../../react_hooks/use_auth'
+import ReactAudioPlayer from 'react-audio-player';
 import { User } from '../../THREE/Utils/backend_types';
 import { backend_fetch } from '../backend_fetch';
 
@@ -13,8 +14,8 @@ const MatchMaking: React.FC = () => {
   useEffect(() => {
     const requestProfile = async () => {
       try {//fetch Profile
-        const enable2FAEndpoint = `${config.backend_url}/api/user/me`;
-        const response = await fetch(enable2FAEndpoint, {
+        const url = `${config.backend_url}/api/user/me`;
+        const response = await fetch(url, {
           method: 'GET',
           credentials: 'include',
         });
@@ -41,11 +42,11 @@ const MatchMaking: React.FC = () => {
       <div className='players'>
         <div className='player-one'>
           <div className='player-info-one'>
-            <p>{data?.username}</p>
+            <p>Player: {data?.username}</p>
             <p>player rank</p>
             <p>lvl 10</p>
           </div>
-          <img src={data?.image}></img>
+          <img src={data?.image} alt="avatar" />
         </div>
         <div className='player-two'>
           <div className='player-info-two'>
@@ -60,6 +61,7 @@ const MatchMaking: React.FC = () => {
         <button>Invite</button>
         <button>Find Match</button>
       </div>
+      <ReactAudioPlayer className='audio' src="./game.mp3" controls autoPlay={true}/>
     </div>
   );
 };

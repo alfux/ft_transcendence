@@ -16,7 +16,6 @@ import { createComponent } from "./createComponent";
 import ScoreBar from "../../components/scorebar/ScoreBar";
 import Notifications from "../../components/notifications/Notifications";
 import { notifications } from "../../sockets/notifications";
-import { chatSocket } from "../../sockets/chat";
 
 
 

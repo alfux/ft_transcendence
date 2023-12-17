@@ -17,7 +17,6 @@ const Groups: React.FC<ChatProps> = (props) => {
           props.setSelectedUser(undefined);
           props.setSelectedChannelOption(ChannelOptions.CHANNEL);
           props.setToogledButton("Channel");
-          console.log("group Info: ", group);
         }}
       >
         <p>-{firstTitleLetter}</p>
