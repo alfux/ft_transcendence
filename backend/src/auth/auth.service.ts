@@ -27,7 +27,7 @@ export class AuthService {
     return this.jwtService.signAsync({
       sub: user.id,
       email: user.email,
-    }, { secret: config_jwt.expires_token, expiresIn: config_jwt.expires_refresh })
+    }, { secret: config_jwt.secret_refresh, expiresIn: config_jwt.expires_refresh })
   }
 
   async login(user: Partial<User>): Promise<{ access_token: string, refresh_token: string }> {

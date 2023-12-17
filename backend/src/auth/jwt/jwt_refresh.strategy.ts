@@ -27,14 +27,9 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-ref
     return null
   }
 
-  async validate(request, payload: JwtPayload) {
-    console.log("payload: ", payload, "token:", request.refresh_token)
-    try {
-      if (!request.cookies.refresh_token)
-        throw new UnauthorizedException('No refresh token provided')
+  async validate(payload: JwtPayload) {
+    if (payload)
       return payload
-    } catch (error) {
-      throw new UnauthorizedException('Invalid refresh token')
-    }
+    throw new UnauthorizedException("Bad payload")  
   }
 }
