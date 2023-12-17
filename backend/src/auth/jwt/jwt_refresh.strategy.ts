@@ -14,14 +14,11 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-ref
         JwtRefreshTokenStrategy.extractJwtRefreshCookie
       ]),
       secretOrKey: config_jwt.secret_refresh,
-      // passReqToCallback: true,
     })
   }
 
   private static extractJwtRefreshCookie(request): string | null {
-    console.log("token ? : ", request.cookies)
     if (request.cookies && request.cookies.refresh_token){
-      console.log("yes exist")
       return request.cookies.refresh_token
     }
     return null
