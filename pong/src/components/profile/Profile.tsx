@@ -8,6 +8,7 @@ import AchievementsButton from './buttons/achievements/AchievementsButton';
 import MatchHistory from './buttons/matchhistory/MatchHistoryButton';
 import ReactAudioPlayer from 'react-audio-player';
 import { User, Match } from '../../THREE/Utils/backend_types';
+const accessToken = Cookies.get('accessToken')
 
 const accessToken = Cookies.get('accessToken')
 

@@ -1,6 +1,5 @@
 import { ScheduleModule } from '@nestjs/schedule'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { APP_GUARD } from '@nestjs/core'
 import { Module } from '@nestjs/common'
 
 import { Conversation, ConversationUser, ConversationUserInfos, ConversationModule } from 'src/db/conversation'
