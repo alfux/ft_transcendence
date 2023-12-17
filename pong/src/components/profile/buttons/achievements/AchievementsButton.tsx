@@ -3,10 +3,14 @@ import './AchievementsButton.css'
 
 
 const AchievementsButton: React.FC = () => {
-  
+
   return (
-    <div >
-        <button className='glowing-btn'><span className='glowing-txt'>Achiv<span className='faulty-letter'>emnts</span></span></button>
+    <div style={{width:'90%'}}> {/* hacky patch to make sure enough place for text */}
+      <button className='glowing-btn'>
+        <span className='glowing-txt'>Achiev
+          <span className='faulty-letter'>ements</span>
+        </span>
+      </button>
     </div>
   );
 };

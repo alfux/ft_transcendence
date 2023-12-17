@@ -39,7 +39,14 @@ enum MenuState {
 	Endgame
 };
 
-export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: THREE.Texture, payload: JwtPayload | null) {
+export function create_menu_scene(
+	renderer: THREE.WebGLRenderer,
+	game_texture: THREE.Texture,
+	payload: JwtPayload | null,
+	mousecast: THREE.Vector2,
+	mousespeed: THREE.Vector2,
+	divRef: HTMLDivElement | null
+) {
   const loader = new FontLoader();
   const font_params = { size: 0.4, height: 0.2 };
   const material_params = { color: 0x001616, side: THREE.DoubleSide };
@@ -202,11 +209,14 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   menu_parent.scale.set(scaling, scaling, scaling);
   menu_parent.up.set(0, 1, 0);
   menu_parent.lookAt(0, 0, 20);
-  const plane = new THREE.PlaneGeometry(25, (9 / 16) * 25, 10, 10);
-  const texture = new THREE.MeshLambertMaterial({ map: game_texture });
-  texture.transparent = true;
+  const plane = new THREE.PlaneGeometry(25, (9 / 16) * 25);
+  const texture = new THREE.MeshLambertMaterial({ map: game_texture, transparent: true});
   const screen_plane = new THREE.Mesh(plane, texture);
+  const	mouse_plane = new THREE.PlaneGeometry(500, 500);
+  const	mouse_material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0});
+  const	mouse_mesh = new THREE.Mesh(mouse_plane, mouse_material);
   screen_plane.position.set(0, 0.35, -1);
+  mouse_mesh.position.set(0, 0.35, -1);
 
   const video_element: HTMLVideoElement = document.getElementById("background-video-scene") as HTMLVideoElement;
   const video_background = new THREE.VideoTexture(video_element);
@@ -215,7 +225,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
   const scene = new THREE.Scene();
   // scene.background = video_background;
   scene.backgroundIntensity = 0.2;
-  scene.add(menu_parent, ambient, screen_plane);
+  scene.add(menu_parent, ambient, screen_plane, mouse_mesh);
   scene.scale.set(general_scaling, general_scaling, general_scaling);
 
   const composer = new EffectComposer(renderer);
@@ -242,17 +252,25 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     isLogged = true;
   
   let corr = 0.2 - 2 * Math.PI;
+  let	classic_mode = false;
 
   const	cleanup: Array<() => void> = [];
 
-  window.addEventListener("wheel", handleWheel);
-  window.addEventListener("click", handleClick);
+  divRef?.addEventListener("wheel", handleWheel);
+  divRef?.addEventListener("click", handleClick);
   window.addEventListener("resize", handleResize);
   window.addEventListener("pointermove", handleMove);
 
 	gameSocket.on("start", handleStart);
 	gameSocket.on("finish", handleFinish);
 
+	function	updateT(t: number, max: number = 1)
+	{
+		t += clock.deltaT;
+		if (t >= max)
+			return (max);
+		return (t);
+	}
 	function	handleStart(data: {opponent: User, you: User}) {
 		option.game = true;
 		cleanup.push(createComponent(Score, {user: data.you, you: true}));
@@ -353,7 +371,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 				});
 				if (this.t === 0)
 					menu_parent.position.set(0, 0, 0);
-				this.t += clock.deltaT;
+				this.t = updateT(this.t, 3.5);
 				if (this.t < 1)
 					menu_parent.rotation.set(0, fct(this.t) * Math.PI, 0);
 				else
@@ -364,7 +382,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
 				requestAnimationFrame(() => {
 					this.animate();
 				});
-				this.t += clock.deltaT;
+				this.t = updateT(this.t, 3.5);
 			}
 			else
 			{
@@ -424,7 +442,7 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
           window.location.reload();
           break;
         case MenuButtons.Play:
-          gameSocket.emit("search")
+          gameSocket.emit("search", classic_mode);
           break
       }
       console.log("clicked on ball");
@@ -437,12 +455,19 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     raycaster.setFromCamera(pointer, camera);
 
     const intersect = raycaster.intersectObjects(scene.children);
+	const inter_plane = raycaster.intersectObject(mouse_mesh);
     if (intersect.length > 0 && current === "Logout"
       && (intersect[0].object.name === current
         || intersect[0].object.name === "Sphere"))
       document.body.style.cursor = "pointer";
     else
       document.body.style.cursor = "default";
+	if (option.game) {
+		mousecast.x = 2 * inter_plane[0]?.point.x / (general_scaling * 25);
+		mousecast.y = 2 * inter_plane[0]?.point.y / (general_scaling * 25 * 9 / 16);
+		mousespeed.x = event.movementX;
+		mousespeed.y = event.movementY;
+	}
   }
 
   function getCurrent(rot: number) {
@@ -509,23 +534,23 @@ export function create_menu_scene(renderer: THREE.WebGLRenderer, game_texture: T
     
     option.option = new_current;
 	swapMenu();
-    if (new_current === "Play" && t < 1) {
+    if ((new_current === "Play" || new_current === "Chat") && t < 1) {
 		if (t > 0.9)
 			corr = 0.4 - 2 * Math.PI;
 		moveMenu(t, 3.2, fct);
-		t += clock.deltaT;
-	} else if (new_current !== "Play" && t > 0) {
+		t = updateT(t);
+	} else if (new_current !== "Play" && new_current != "Chat" && t > 0) {
 		if (t < 0.1)
 			corr = 0.2 - 2 * Math.PI;
 		moveMenu(t, 3.2, fct);
-		t -= clock.deltaT;
+		t = -updateT(-t, 0);
 	}
     if (menu_parent.children.length > 1 && (new_current !== current || current === null)) {
       current = new_current;
 	  console.log("current", current, "newcurrent", new_current);
       menu_parent.traverse((obj) => {
         if (obj.name === current) {
-          if (obj.name === "Logout")
+          if (obj.name === "Logout" || obj.name === "YouLoose")
             ((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(0xff41a7);
           else
             ((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(0x41ffff);

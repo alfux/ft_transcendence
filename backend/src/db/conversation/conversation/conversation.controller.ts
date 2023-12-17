@@ -10,54 +10,7 @@ import { HttpBadRequest, HttpMissingArg, HttpUnauthorized } from 'src/exceptions
 
 import { Route } from 'src/route'
 import { AccessLevel } from './conversation_access_level.enum'
-import { unescape } from 'querystring'
-
-class ConversationCreateParams {
-  @ApiProperty({ description: 'Title of the conversation' })
-  title: string
-  @ApiProperty({ description: 'Private or not' })
-  private: boolean
-  @ApiProperty({ description: 'Password of the conversation (empty if no password)' })
-  password?: string
-}
-class ConversationJoinParams {
-  @ApiProperty({ description: 'Id of the conversation' })
-  id: number
-  @ApiProperty({ description: 'Optional password if conversation is protected' })
-  password?:string
-}
-class ConversationLeaveParams {
-  @ApiProperty({ description: 'Id of the conversation' })
-  id: number
-}
-class PromoteParams {
-  @ApiProperty({ description: 'Id of the conversation user to promote' })
-  conversation_user_id: number
-}
-class KickParams {
-  @ApiProperty({ description: 'Id of the conversation user to kick' })
-  conversation_user_id: number
-}
-class MuteParams {
-  @ApiProperty({ description: 'Id of the conversation user to mute' })
-  conversation_user_id: number
-  @ApiProperty({
-    description: 'Duration of the mute',
-    examples: ['2042-12-31T23:42:42', '1d', '2y1d3m', 'forever']
-  })
-  duration: string | 'forever'
-}
-class BanParams {
-
-  @ApiProperty({ description: 'Id of the conversation user to ban' })
-  conversation_user_id: number
-  @ApiProperty({
-    description: 'Duration of the ban',
-    examples: ['2042-12-31T23:42:42', '1d', '2y1d3m', 'forever']
-  })
-  duration: string | 'forever'
-}
-
+import * as DTO from './conversation.dto'
 
 @ApiBearerAuth()
 @ApiTags('conversation')
@@ -105,7 +58,7 @@ export class ConversationController {
     description: { summary: 'Create a conversation', description: 'Create a conversation. Owner will automatically be the creator' },
     responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
   })
-  async createConversation(@Req() req: Request, @Body() body: ConversationCreateParams) {
+  async createConversation(@Req() req: Request, @Body() body: DTO.ConversationCreateParams) {
     if (body.title === undefined)
       throw new HttpMissingArg()
 
@@ -180,7 +133,7 @@ export class ConversationController {
     description: { summary: 'Join a conversation', description: 'Makes the authenticated user join the conversation' },
     responses: [{ status: 200, description: 'Conversation joined successfully' }]
   })
-  async joinConversation(@Req() req: Request, @Body() body: ConversationJoinParams) {
+  async joinConversation(@Req() req: Request, @Body() body: DTO.ConversationJoinParams) {
     if (body.id === undefined)
       throw new HttpMissingArg()
     const user = await this.userService.getUser({ id: req.user.id })
@@ -202,7 +155,7 @@ export class ConversationController {
     description: { summary: 'Promotes a user to admin', description: 'Promotes a user to admin. Only the owner is allowed to perform this action' },
     responses: [{ status: 200, description: 'Conversation joined successfully' }]
   })
-  async promote(@Req() req: Request, @Body() body: PromoteParams) {
+  async promote(@Req() req: Request, @Body() body: DTO.PromoteParams) {
     if (body.conversation_user_id === undefined)
       throw new HttpMissingArg()
     const conv_user = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, ['conversation', 'conversation.owner', 'conversation.users', 'conversation.users.user', 'user'])
@@ -224,7 +177,7 @@ export class ConversationController {
     method: Post('kick'),
     description: { summary: 'Kicks an user from the conversation', description: 'Kicks an user from the conversation. Only the owner or an admin is allowed to perform this action' }
   })
-  async kick(@Req() req: Request, @Body() body: KickParams) {
+  async kick(@Req() req: Request, @Body() body: DTO.KickParams) {
     if (body.conversation_user_id === undefined)
       throw new HttpMissingArg()
     const conv_user = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, ['user', 'conversation', 'conversation.owner', 'conversation.users', 'conversation.users.user'])
@@ -253,7 +206,7 @@ export class ConversationController {
     method: Post('mute'),
     description: { summary: 'Mutes an user in a conversation', description: 'Mutes an user in a conversation. Only the owner or an admin is allowed to perform this action' }
   })
-  async mute(@Req() req: Request, @Body() body: KickParams) {
+  async mute(@Req() req: Request, @Body() body: DTO.KickParams) {
     if (body.conversation_user_id === undefined)
       throw new HttpMissingArg()
     const conv_user = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, ['conversation', 'conversation.owner'])
@@ -281,7 +234,7 @@ export class ConversationController {
     description: { summary: 'Leaves a conversation', description: 'Makes the authenticated user leave the conversation' },
     responses: [{ status: 200, description: 'Conversation left successfully' }]
   })
-  async leaveConversation(@Req() req: Request, @Body() body: ConversationLeaveParams) {
+  async leaveConversation(@Req() req: Request, @Body() body: DTO.ConversationLeaveParams) {
     if (body.id === undefined)
       throw new HttpMissingArg()
     const conv_user = await this.conversationService.getConversationUser({ user: { id: req.user.id } }, ['conversation', 'conversation.users', 'conversation.users.user', 'user'])

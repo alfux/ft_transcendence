@@ -8,36 +8,7 @@ import { Message, MessageService } from 'src/db/conversation'
 import { AuthService } from 'src/auth/'
 
 import { Route } from 'src/route'
-
-class AddUserParams {
-  @ApiProperty({ description: 'id' })
-  id: number
-
-  @ApiProperty({ description: 'username' })
-  username: string
-
-  @ApiProperty({ description: 'image' })
-  image: string
-
-  @ApiProperty({ description: 'email' })
-  email: string
-
-
-}
-
-class LogAsParams {
-  @ApiProperty({ description: 'Username of user' })
-  username: string
-}
-
-class NewMessageParams {
-  @ApiProperty({ description: 'User id' })
-  user_id: number
-  @ApiProperty({ description: 'Message\'s content' })
-  content: string
-  @ApiProperty({ description: 'Conv name' })
-  conversation_name: string
-}
+import * as DTO from './debug.dto'
 
 @ApiTags('debug')
 @Controller('debug')
@@ -55,7 +26,7 @@ export class DebugController {
     method: Post('add_user'),
     description: { summary: 'Add user' }
   })
-  add_user(@Body() body: AddUserParams): Promise<User> {
+  add_user(@Body() body: DTO.AddUserParams): Promise<User> {
     return this.userService.createUser(body)
   }
 
@@ -64,7 +35,7 @@ export class DebugController {
     method: Post('log_as'),
     description: { summary: 'Log as user' }
   })
-  async log_as(@Body() body: LogAsParams) {
+  async log_as(@Body() body: DTO.LogAsParams) {
     const user = await this.userService.getUser({ username: body.username })
     const tokens = await this.authService.login(user)
     console.log('new tokens: ', tokens)
@@ -77,7 +48,7 @@ export class DebugController {
     method: Post('new_message'),
     description: { summary: 'Add message' }
   })
-  async add_message(@Body() body: NewMessageParams) {
+  async add_message(@Body() body: DTO.NewMessageParams) {
     const conv = await this.conversationService.getConversation({ title: body.conversation_name }, ['users', 'users.user'])
 
     console.log(conv.users)

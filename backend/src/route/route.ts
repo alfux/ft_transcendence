@@ -29,6 +29,6 @@ export function Route(params:{
     })
 
     //???
-    UsePipes(ValidationPipe)(target, key, descriptor)
+    UsePipes(new ValidationPipe())(target, key, descriptor)
   }
 }

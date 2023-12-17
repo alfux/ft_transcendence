@@ -52,9 +52,12 @@ export default function THREE_App() {
 		renderer.autoClear = false;
 
 		const buffer = new THREE.WebGLRenderTarget(25 * 512, (9 / 16) * 25 * 512);
-		const game_scene = create_game_scene(renderer, buffer);
+		const	mousecaster = new THREE.Vector2(0, 0);
+		const	mousespeed = new THREE.Vector2(0, 0);
 
-		const menu_scene = create_menu_scene(renderer, buffer.texture, payload);
+		const menu_scene = create_menu_scene(renderer, buffer.texture, payload, mousecaster, mousespeed, divRef.current);
+
+		const game_scene = create_game_scene(renderer, buffer, mousecaster, mousespeed);
 
 		function mainloop() {
 			requestAnimationFrame(mainloop);

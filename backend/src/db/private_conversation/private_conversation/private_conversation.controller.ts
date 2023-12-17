@@ -6,11 +6,7 @@ import { User, UserService } from 'src/db/user'
 import { PrivateConversationService } from '.'
 
 import { Route } from 'src/route'
-
-class NewPrivateConvParams {
-  @ApiProperty({ description: "User id to create a new private conversation with" })
-  user_id: number
-}
+import * as DTO from './private_conversation.dto'
 
 @ApiBearerAuth()
 @ApiTags('private_conversation')
@@ -37,7 +33,7 @@ export class PrivateConversationController {
     method: Post('/'),
     description: { summary: 'Starts a new private conversation', description: 'Starts a new private conversation' }
   })
-  async newPrivateConv(@Req() req: Request, @Body() body: NewPrivateConvParams) {
+  async newPrivateConv(@Req() req: Request, @Body() body: DTO.NewPrivateConvParams) {
     await this.userService.getUser({ id: req.user.id })
     await this.userService.getUser({ id: body.user_id })
     this.conversationService.createPrivateConversation(req.user.id, body.user_id)

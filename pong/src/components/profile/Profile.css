@@ -1,24 +1,49 @@
-:root{
-	--profile-width:40vh;
-	--profile-height:70vh
+:root {
+  --profile-width: 40vh;
+  --profile-height: 70vh
 }
 
 .profile-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: calc(50vh - calc(var(--profile-height)/2));
+  left: 30vh;
+  height: var(--profile-height);
+  width: var(--profile-width);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  gap: 5vh;
+  animation: slideTop 1.5s ease forwards, colorChange 2s infinite;
+}
+
+.profile-box-two {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 95%;
+  height: 95%;
+  border-radius: 15px;
+  background: rgba(8, 8, 8, 0.5);
+}
+
+@keyframes slideTop {
+  0% {
     display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	position:absolute;
-	top: calc(50vh - calc(var(--profile-height)/2));
-	left: 30vh;
-	height: var(--profile-height);
-	width: var(--profile-width);
-	border-radius: 16px;
-	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	border-radius: 20px;
-	gap: 5vh;
-	animation: slideTop 1.5s ease forwards, colorChange 2s infinite;
+    position: absolute;
+    top: 1%;
+    left: 1%;
+    height: 10vh;
+    width: 30vh;
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    justify-content: space-around;
   }
 
   .audio {
@@ -60,75 +85,90 @@
 	border-radius: 15px;
 	background: rgba(8, 8, 8, 0.5);
   }
-  @keyframes slideTop {
-	0% {
-		display: flex;
-		position:absolute;
-		top: 1%;
-		left: 1%;
-		height: 10vh;
-		width: 30vh;
-		border-radius: 16px;
-		box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-		border: 1px solid rgba(255, 255, 255, 0.3);
-		border-radius: 20px;
-		justify-content: space-around;
-	}
-	50%{
-		top: 40vh;
-	}
-	100% {
-		left: 15%;
-		top: calc(50vh - calc(var(--profile-height)/2));
-		background: rgba(249, 248, 248, 0.2);
-	}
+
+  100% {
+    left: 15%;
+    top: calc(50vh - calc(var(--profile-height)/2));
+    background: rgba(249, 248, 248, 0.2);
   }
-.profile-box p{
-	align-items: center;
-	font-size: 100%;
+}
+
+.profile-box p {
+  align-items: center;
+  font-size: 100%;
   color: #fff;
   font-family: 'game', sans-serif;
-  text-shadow: 0 0 10px #fff , 0 0 4px blue, 0 0 8px blue, 0 0 60px blue 
+  text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue
 }
-  @keyframes colorChange {
-	0% {
-	  box-shadow: 0 0 100px #ffffff;
-	  box-shadow: 0 0 200px #0400ff;
-	}
-	50% {
-	  box-shadow: 0 0 10px #ffffff;
-	  box-shadow: 0 0 20px #0400ff;
-	}
-	100% {
-		box-shadow: 0 0 10px #ffffff;
-		box-shadow: 0 0 20px #0400ff;
-	}
-  }
-  .profile-box .main{
-	display: flex;
-	position: relative;
-	height: 100%;
-	width: 100%;
-  }
-  .profile-box .profile-photo{
-	margin-top: 2vh;
-    max-width: 20vh;
-	max-height: 80%;
-    border-radius: 50%;
-	align-self: center;
+
+.profile-box a {
+  align-items: center;
+  font-size: 100%;
+  color: #fff;
+  font-family: 'game', sans-serif;
+  text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue
+}
+
+@keyframes colorChange {
+  0% {
+    box-shadow: 0 0 100px #ffffff;
+    box-shadow: 0 0 200px #0400ff;
   }
 
-  .profile-box .stats{
-	height: 100%;
-	width: 100%;
-	text-align: center;
+  50% {
+    box-shadow: 0 0 10px #ffffff;
+    box-shadow: 0 0 20px #0400ff;
   }
 
-  .profile-box .stats-values{
-	height: 100%;
-	width: 100%;
-	text-align: center;
+  100% {
+    box-shadow: 0 0 10px #ffffff;
+    box-shadow: 0 0 20px #0400ff;
   }
+}
+
+.profile-box .main {
+  display: flex;
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.profile-box .profile-photo {
+  margin-top: 2vh;
+  max-width: 20vh;
+  max-height: 80%;
+  border-radius: 50%;
+  align-self: center;
+}
+
+.profile-box .profile-photo:hover {
+  margin-top: 2vh;
+  max-width: 20vh;
+  max-height: 80%;
+  border-radius: 50%;
+  align-self: center;
+
+  background-color:#000;
+  opacity:0.7;
+}
+
+.profile-box .stats {
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+
+.profile-box .stats-values {
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+
+.profile-box .buttons-container {
+  display: flex;
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
 
 /* _________________________________________________________________ */
-
