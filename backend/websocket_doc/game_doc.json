@@ -1,12 +1,30 @@
 {
   "emits": [
     {
+      "name": "match_found",
+      "desc": "Game found, starting in 'delay' seconds",
+      "data": {
+        "opponent": {
+          "type": "User",
+          "desc": "Your opponent"
+        },
+        "delay": {
+          "type": "number",
+          "desc": "The time until the match starts"
+        }
+      }
+    },
+    {
       "name": "start",
       "desc": "Game found and started",
       "data": {
         "opponent": {
           "type": "User",
           "desc": "Your opponent"
+        },
+        "you": {
+          "type": "User",
+          "desc": "You"
         }
       }
     },
@@ -73,6 +91,14 @@
       "data": {
         "desc": "All keyboard inputs",
         "type": "Keyboard"
+      }
+    },
+    {
+      "name": "pointer",
+      "desc": "Cursor input",
+      "data": {
+        "desc": "Current cursor position",
+        "type": "{x: number, y: number, sx: number, sy: number}"
       }
     }
   ]
