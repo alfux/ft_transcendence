@@ -2,7 +2,7 @@
 import { Client } from "src/socket/";
 
 import { Clock } from "./Clock";
-import { Vec3, distance, norm, scalaire, clamp } from './Math'
+import { Vec3, distance, norm, scalaire, clamp, Mat3} from './Math'
 import { Obstacle } from "./Obstacle";
 import { Ball } from "./Ball";
 
@@ -89,17 +89,19 @@ function impact(ball: Ball, obstacle: Obstacle) {
 function    manageSpin(ball: Ball, obstacle: Obstacle, tmp: Vec3)
 {
 	const	way = new Vec3(
-		Math.sign(obstacle.speed ? obstacle.speed : 1) * obstacle.direction.x,
-		Math.sign(obstacle.speed ? obstacle.speed : 1) * obstacle.direction.y,
-		Math.sign(obstacle.speed ? obstacle.speed : 1) * obstacle.direction.z
+		obstacle.direction.x * obstacle.speed,
+		obstacle.direction.y * obstacle.speed,
+		obstacle.direction.z * obstacle.speed
 	);
-	const	spin = scalaire(ball.speed, way) / norm(ball.speed);
+	const	more_spin = scalaire(ball.speed, way) / Math.abs(obstacle.speed ? obstacle.speed : 1);
+
     tmp.set(
-        tmp.x + Math.abs(obstacle.speed - ball.spin) * Math.sign(-ball.spin ? -ball.spin : 1) * way.x,
-        tmp.y + Math.abs(obstacle.speed - ball.spin) * Math.sign(-ball.spin ? -ball.spin : 1) * way.y,
-        tmp.z + Math.abs(obstacle.speed - ball.spin) * Math.sign(-ball.spin ? -ball.spin : 1) * way.z
+        tmp.x + 0.1 * (obstacle.speed - ball.spin - more_spin) * obstacle.direction.x,
+        tmp.y + 0.1 * (obstacle.speed - ball.spin - more_spin) * obstacle.direction.y,
+        tmp.z + 0.1 * (obstacle.speed - ball.spin - more_spin) * obstacle.direction.z
     );
-    ball.spin = ((1 - spin) * obstacle.speed + ball.spin) / 2;
+    ball.spin = (2 * ball.spin / 3) + (obstacle.speed - ball.spin - more_spin);
+	console.log("ball.spin: ", ball.spin);
 }
 
 function	manageDir(imp: Vec3, obstacle: Obstacle, tmp: Vec3) {
@@ -160,7 +162,6 @@ export class GameInstance {
   clock: Clock = new Clock(false)
   ball: Ball = new Ball(0.5)
   max_bounce: number = 0;
-  finished: boolean;
   obstacles: { [key:string]: Obstacle } & {
     upper_border:Obstacle,
     lower_border:Obstacle,
@@ -174,6 +175,12 @@ export class GameInstance {
   }
 
   delta_time: number = 0
+  speed_uptime: number = 0;
+  last_pos_p1: number = 0;
+  last_pos_p2: number = 0;
+
+  start_timer: number = 0;
+  pace: number = 1;
 
   notif_ball_pos:(ball:Ball)=>void
   notif_end:(winner:Client, looser:Client)=>void
@@ -197,7 +204,11 @@ export class GameInstance {
     this.notif_end = notif_end
 	this.classic_mode = classic;
 	this.max_bounce = 0;
-	this.finished = false;
+  	this.speed_uptime = 0;
+  	this.last_pos_p1 = 0;
+  	this.last_pos_p2 = 0;
+  	this.start_timer = 0;
+  	this.pace = 1;
   }
 
   get_by_user_id(user_id:number) {
@@ -260,15 +271,17 @@ export class GameInstance {
 	}
 
 	mousePos() {
-		let	buffer: number;
-
-		buffer = clamp(this.player1.mouse.y, -7, 7);
-		this.player1.racket.speed = (this.player1.racket.position.y - buffer) / (this.delta_time + 0.000001);
-		this.player1.racket.position.y = buffer;
-
-		buffer = clamp(this.player2.mouse.y, -7, 7);
-		this.player2.racket.speed = (buffer - this.player2.racket.position.y) / (this.delta_time + 0.000001);
-		this.player2.racket.position.y = buffer;
+		this.player1.racket.position.y = clamp(this.player1.mouse.y, -7, 7);
+		this.player2.racket.position.y = clamp(this.player2.mouse.y, -7, 7);
+		
+		this.speed_uptime += this.delta_time;
+		if (this.speed_uptime > 1) {
+			this.player1.racket.speed = (this.last_pos_p1 - this.player1.racket.position.y) / (this.speed_uptime);
+			this.player2.racket.speed = (this.player2.racket.position.y - this.last_pos_p2) / (this.speed_uptime);
+			this.last_pos_p1 = this.player1.racket.position.y;
+			this.last_pos_p2 = this.player2.racket.position.y;
+			this.speed_uptime = 0;
+		}
 	}
 
 	updatePlayerPos() {
@@ -321,19 +334,70 @@ export class GameInstance {
 		);
 	}
 
-  updateBallPos() {
-    this.ball.position.x += this.delta_time * this.ball.speed.x * 2;
-    this.ball.position.y += this.delta_time * this.ball.speed.y * 2;
+	randomDir() {
+		let	n;
 
+		this.ball.speed.set(
+			Math.sign(this.ball.speed.x) * 14,
+			Math.random() * 36 - 18,
+			0
+		);
+		n = norm(this.ball.speed);
+		this.ball.speed.set(
+			this.ball.speed.x / n,
+			this.ball.speed.y / n,
+			this.ball.speed.z / n
+		);
+		if (this.ball.position.z > 0)
+			this.ball.position.set(0, Math.random() * 17 - 8.5, 0);
+		else if (Math.random() > 0.5) {
+			this.ball.speed.set(
+				-this.ball.speed.x,
+				-this.ball.speed.y,
+				-this.ball.speed.z
+			);
+		}
+	}
+
+	resetBall() {
+      this.ball.position = new Vec3(0, -35, 35);
+	  this.ball.spin = 0;
+	  this.start_timer = 0;
+	  this.pace = 1;
+	}
+
+  updateBallPos() {
+	const	rota = new Mat3(
+		new Vec3(Math.cos(this.ball.spin * this.delta_time / 50), Math.sin(this.ball.spin * this.delta_time / 50), 0),
+		new Vec3(-Math.sin(this.ball.spin * this.delta_time / 50), Math.cos(this.ball.spin * this.delta_time / 50), 0),
+		new Vec3(0, 0, 1)
+	);
+	this.ball.speed = rota.xV(this.ball.speed);
+	const	buffer = this.ball.position.y + this.delta_time * this.ball.speed.y * this.pace;
+
+	if (this.start_timer < 20) {
+		this.start_timer += this.delta_time;
+		if (this.start_timer > 20)
+			this.randomDir();
+    	this.notif_ball_pos(this.ball)
+		return ;
+	}
+	if (Math.abs(buffer) < 9)
+    	this.ball.position.y = buffer;
+	else if (buffer < 0)
+		this.ball.position.y = -18 - buffer;
+	else
+		this.ball.position.y = 18 - buffer;
+    this.ball.position.x += this.delta_time * this.ball.speed.x * this.pace;
     if (this.ball.position.x > 16) {
       this.score_p1++;
-      this.updateScore()
-      this.ball.position = Vec3.zero();
+      this.updateScore();
+	  this.resetBall();
     }
     else if (this.ball.position.x < -16) {
       this.score_p2++;
-      this.updateScore()
-      this.ball.position = Vec3.zero();
+      this.updateScore();
+	  this.resetBall();
     }
 
     let imp;
@@ -343,8 +407,11 @@ export class GameInstance {
         if (bounce(this.ball, this.obstacles[key], imp, this.classic_mode)) {
 			if (key === "upper_border" || key === "lower_border")
 				this.pushdir();
-			else
+			else {
+				if (this.pace === 1)
+					this.pace = 3;
 				this.max_bounce = 0;
+			}
 		}
 	  }
     }
@@ -358,16 +425,6 @@ export class GameInstance {
   }
 
   finish(winner:Client, reason:string) {
-	if (this.finished)
-		return ;
-	this.finished = true;
-	this.player1.racket.position.y = 0;
-	this.player1.racket.speed = 0;
-	this.player2.racket.position.y = 0;
-	this.player2.racket.speed = 0;
-	this.max_bounce = 0;
-	this.ball.spin = 0;
-	this.update();
     this.notif_end(winner, this.other_one(winner))
 
     this.player1.client.socket.emit("finish", {

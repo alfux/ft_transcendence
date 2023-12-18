@@ -164,6 +164,3 @@ export function rotx(vec: Vec3, theta: number) {
 export function clamp(v: number, min: number, max: number) {
 	return Math.max(Math.min(v, max), min)
 }
-
-
-
