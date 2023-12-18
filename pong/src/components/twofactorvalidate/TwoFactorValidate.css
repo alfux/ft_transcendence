@@ -1,12 +1,7 @@
 .glass-container-twofactor {
 	position: fixed;
-	right: 0px;
-	top: 35%;
-	height: 30%;
-	max-height: 800px;
-	min-height: 500px;
-	width: 80%;
-	max-width: 500px;
+	height: 44%;
+	width: 20%;
 	background: rgba(255, 255, 255, 0.2);
 	border-radius: 16px;
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
@@ -17,53 +12,44 @@
 	align-items: center;
 	flex-direction: column;
 	justify-content: center;
-	animation: slideInRight 2s ease forwards, colorChangeTwoFactor 2s infinite;
+	animation: slideInRight 2s ease forwards;
   }
 
   @keyframes slideInRight {
 	0% {
-	  left: calc(100% + 600px);
-	  box-shadow: 0 0 1000px #00ff00;
+		left: 18%;
+		top: 28%;
 	}
 	100% {
-	  left: calc(62%);
-	}
-  }
-
-  @keyframes colorChangeTwoFactor {
-	0% {
-	  box-shadow: 0 0 100px #ffffff;
-	  box-shadow: 0 0 200px #72056b;
-	}
-	50% {
-	  box-shadow: 0 0 10px #ffffff;
-	  box-shadow: 0 0 20px #72056b;
-	}
-	100% {
-		box-shadow: 0 0 10px #ffffff;
-		box-shadow: 0 0 20px #72056b;
+		left: 62%;
+		top: 28%;
 	}
   }
 
   /* ______________________________________________________________*/
 
   .twoFactorValidate{
-		font-size: 3em;
-		color: #fff;
-		font-family: 'game', sans-serif;
-		text-shadow: 0 0 10px #fff , 0 0 30px #72056b, 0 0 40px rgb(0, 0, 0), 0 0 60px #72056b
+	position: absolute;
+	top: 8%;
+	font-size: 3vw;
+	color: #fff;
+	font-family: 'game', sans-serif;
+	text-shadow: 0 0 0px, 0 0 0px, 0 0 0px, 0 0 0px;
   }
 
   .glass-container-twofactor p{
+	font-size: 1.33vw;
 	font-family: 'game', sans-serif;
 	color: white;
+	text-shadow: 0 0 0px, 0 0 0px, 0 0 0px, 0 0 0px
   }
 
   .glass-container-twofactor form{
-	--size: 3rem;
-	--space: 1rem;
+	--size: 2vw;
+	--space: 1vw;
 	padding-left: var(--space);
 	position: relative;
+	top: 20%;
 	display: flex;
 	overflow: hidden;
 	border-radius: calc(var(--size) / 4);

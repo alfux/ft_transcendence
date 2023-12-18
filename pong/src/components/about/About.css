@@ -1,0 +1,48 @@
+/* __________________CustomFont__________________ */
+@font-face {
+    font-family: 'game';
+    src: url('../../../public/fonts/game/Games.ttf') format('truetype');
+  }
+  
+  /* __________________GlassContainerSettings__________________ */
+  .glass-container-settings {
+      position: fixed;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    left: 18%;
+    top: 28%;
+      height: 44%;
+      width: 20%;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      gap: 5vh;
+      animation: slideSettings 2s ease forwards;
+    }
+  
+    @keyframes slideSettings {
+      0% {
+        display: flex;
+        position:absolute;
+        top: 1%;
+        left: 1%;
+        height: 10vh;
+        width: 30vh;
+        border-radius: 16px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        justify-content: space-around;
+      }
+      50%{
+        top: 40vh;
+      }
+      100% {
+        left: 18%;
+        top: 28%;
+        background: rgba(249, 248, 248, 0.2);
+      }
+      }
+  
+  

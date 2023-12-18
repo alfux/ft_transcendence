@@ -89,6 +89,13 @@ const handleToggle = async () => {
     <div className="glass-container-settings">
       <div className='settings'>
         <div className="switch-container">
+          <span className="switchLabel">Classic/Spin Mode</span>
+          <label className="switchButton">
+            <input type="checkbox" onChange={handleToggle} defaultChecked={payload?.isTwoFactorAuthEnable?true:false} />
+            <span className="slider"></span>
+          </label>
+        </div>
+		<div className="switch-container">
           <span className="switchLabel">Enable/Disable 2FA</span>
           <label className="switchButton">
             <input type="checkbox" onChange={handleToggle} defaultChecked={payload?.isTwoFactorAuthEnable?true:false} />
@@ -103,14 +110,7 @@ const handleToggle = async () => {
           </label>
         </div>
 		<div className="switch-container">
-          <span className="switchLabel">Test</span>
-          <label className="switchButton">
-            <input type="checkbox" onChange={handleToggle} defaultChecked={payload?.isTwoFactorAuthEnable?true:false} />
-            <span className="slider"></span>
-          </label>
-        </div>
-		<div className="switch-container">
-          <span className="switchLabel">Testsgsdgsdgsdh</span>
+          <span className="switchLabel">????????</span>
           <label className="switchButton">
             <input type="checkbox" onChange={handleToggle} defaultChecked={payload?.isTwoFactorAuthEnable?true:false} />
             <span className="slider"></span>
