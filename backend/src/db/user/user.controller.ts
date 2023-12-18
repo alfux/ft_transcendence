@@ -93,10 +93,8 @@ export class UserController {
     description: { summary: 'Blocks a user', description: 'Blocks a user' },
   })
   async block_user(@Req() req: Request, @Body() body: DTO.BlockFriendBody) {
-    if (body.user_id === undefined)
-      throw new HttpMissingArg()
     if (req.user.id === body.user_id)
-      throw new HttpBadRequest()
+      throw new HttpBadRequest("Can't block yourself")
     this.userService.removeFriend(req.user.id, body.user_id).catch((e) => {})
     return this.userService.blockUser(req.user.id, body.user_id)
   }
@@ -107,7 +105,7 @@ export class UserController {
   })
   async unblock_user(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
     if (req.user.id === id)
-      throw new HttpBadRequest()
+      throw new HttpBadRequest("Can't unblock yourself")
     return this.userService.unblockUser(req.user.id, id)
   }
 

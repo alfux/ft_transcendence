@@ -64,9 +64,7 @@ export class AuthController {
   })
   @UseGuards(AuthGuard('jwt-refresh'))
   async refreshToken(@Req() req: Request, @Res() response: Response) {
-    console.log(req.user)
-
-    const user = await this.userService.getUser({ id: req.user.id })
+    const user = await this.userService.getUser({ id: (req.user as any).sub })
     const newToken = await this.authService.generateAccessToken(user);
     response.cookie('access_token', newToken, cookie_options);
     response.status(200).json(newToken)

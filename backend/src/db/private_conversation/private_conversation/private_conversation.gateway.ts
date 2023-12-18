@@ -41,7 +41,7 @@ export class PrivateConversationGateway implements OnGatewayConnection {
 
     const user = conv.users.find((v) => v.id === client.user.id)
     if (!user)
-      throw new HttpUnauthorized()
+      throw new HttpUnauthorized("You are not in the conversation")
 
     const new_message = new PrivateMessage()
     new_message.content = data.message

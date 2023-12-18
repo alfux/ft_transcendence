@@ -9,6 +9,9 @@ import MatchHistory from './buttons/matchhistory/MatchHistoryButton';
 import ReactAudioPlayer from 'react-audio-player';
 import { User, Match } from '../../THREE/Utils/backend_types';
 
+const accessToken = Cookies.get('accessToken')
+
+
 const Profile: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
 

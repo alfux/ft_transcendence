@@ -68,7 +68,7 @@ export class UserService {
   async removeFriend(user_id: number, friend_id: number) {
 
     if (user_id === friend_id) {
-      throw new HttpBadRequest()
+      throw new HttpBadRequest("Can't remove yourself")
     }
 
     const user = await this.getUser({ id: user_id }, ['friends'])

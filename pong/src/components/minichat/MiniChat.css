@@ -296,6 +296,13 @@
   gap: 10px;
 }
 
+.channel-rights-dev {
+  display: flex;
+  position: relative;
+  align-items: center;
+  gap: 10px;
+}
+
 
 .group-img {
   width: 40px;

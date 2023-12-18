@@ -53,10 +53,10 @@ export class MuteParams {
   
   @ApiProperty({
     description: 'Duration of the mute',
-    examples: ['2042-12-31T23:42:42', '1d', '2y1d3m', 'forever']
+    examples: ['1d', '2y1d3m']
   })
   @IsString()
-  duration: string | 'forever'
+  duration: string
 }
 
 export class BanParams {
@@ -70,5 +70,5 @@ export class BanParams {
     examples: ['2042-12-31T23:42:42', '1d', '2y1d3m', 'forever']
   })
   @IsString()
-  duration: string | 'forever'
+  duration: string
 }
