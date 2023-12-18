@@ -87,7 +87,7 @@ export class UserFriendRequestController {
       throw new HttpUnauthorized()
     }
 
-    await this.userService.acceptFriendRequest(friend_req.id)
+    return await this.userService.acceptFriendRequest(friend_req.id)
   }
 
   @Route({

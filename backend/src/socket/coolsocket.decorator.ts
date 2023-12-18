@@ -36,7 +36,7 @@ export function CoolSocket(target: any, propertyKey: string, descriptor: Propert
       console.error(e)
       return
     }
-    console.log("Bad auth :/")
+    // console.log("Bad auth :/")
   }
   return descriptor
 }

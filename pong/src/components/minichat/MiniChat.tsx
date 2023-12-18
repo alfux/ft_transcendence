@@ -84,7 +84,6 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
   const [conversation, setConversation] = useState<any>(null);
   const [newChannel, setNewChannel] = useState<any | null>(null);
   const displayContainer = useRef<HTMLDivElement>(null);
-  const [messageReceived, setMessageReceived] = useState<any>(null)
   const [isInChannel, setIsInChannel] = useState<boolean>(false);
   const [toogledButton, setToogledButton] = useState<string | null>(null);
   const [notificationType, setNotificationType] = useState<any>(null)
@@ -136,6 +135,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     setNewChannel,
     displayContainer,
   };
+
   useEffect(() => {
 		//message receive
 		chatSocket.on("receive_message", (data: { req: any })=>{
@@ -285,7 +285,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     return () => {
       notificationsSocket.off("friend_new")
     }
-  }, [notificationType]);
+  }, [notificationType, selectedGroupOption]);
 
   /*======================================================================
   ===================Fetch<Get> Messages From His Own Id====================
@@ -307,7 +307,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
           console.log("Messages:", result);
           setChannelMessages(result.messages);
         } else {
-          setChannelMessages(undefined);
+          // setChannelMessages(undefined);
           console.error("Could not get channel messages:", response.status);
         }
       } catch (error) {

@@ -56,8 +56,8 @@ export class TwoFactorAuthenticationController {
     description: { summary: "Enable 2FA", description: "Enable 2FA" }
   })
   async enableTwoFactorAuth(@Req() request, @Body() body: DTO.AuthenticateParams) {
+    console.log("adsas")
     const user = await this.userService.getUser({ id: request.user.id })
-
     const secret = user.twoFactorAuthSecret
     const token = this.twoFactorAuthenticationService.generateToken(secret)
     console.log('token', token, '\n', 'body token ', body.code)

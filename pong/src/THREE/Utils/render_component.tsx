@@ -15,7 +15,7 @@ import MiniChatButton from "../../components/minichat/ChatButton";
 import { createComponent } from "./createComponent";
 import ScoreBar from "../../components/scorebar/ScoreBar";
 import Notifications from "../../components/notifications/Notifications";
-import { notifications } from "../../sockets/notifications";
+import { chatSocket, notifications } from "../../sockets/notifications";
 
 
 
@@ -24,32 +24,12 @@ export function RenderComponents(loginForm: { option: string, game: boolean }) {
   let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
   const [payload, updatePayload, handleUpdate] = usePayload();
   const cleanup: (() => void)[] = [];
-  const [notificationData, setNotificationData] = useState<{ type: string; data: any } | null>(null);
-  const [showNotifications, setShowNotifications] = useState(true);
-  useEffect(() => {
-    const handleFriendRequestRecv = (data: { req: any }) => {
-      setNotificationData({ type: "friend_request_recv", data: data });
-      setShowNotifications(true);
-    };
+  const [notification, setNotification] = useState<string | null> (null);
 
-    const handleFriendNew = (data: { req: any }) => {
-      setNotificationData({ type: "friend_new", data: data });
-      setShowNotifications(true);
-    };
-    const handleFriendRequestDenied = (data: { req: any }) => {
-      setNotificationData({ type: "friend_request_denied", data: data });
-      setShowNotifications(true);
-    };
-    notifications.on("friend_request_recv", handleFriendRequestRecv);
-    notifications.on("friend_new", handleFriendNew);
-    notifications.on("friend_request_denied", handleFriendRequestDenied);
-  }, []);
-
-  useEffect(() => {
-    if (showNotifications) {
+  useEffect(()=>{
       const newFormContainer = document.createElement('div');
       const root = createRoot(newFormContainer);
-      root.render(<Notifications notificationData={notificationData} />);
+      root.render(<Notifications/>);
       document.body.appendChild(newFormContainer);
       return () => {
         setTimeout(() => {
@@ -57,8 +37,8 @@ export function RenderComponents(loginForm: { option: string, game: boolean }) {
           document.body.removeChild(newFormContainer);
         });
       };
-    }
-  }, [showNotifications, notificationData])
+  },[])
+
 
   useEffect(() => {
     const cleanup: (() => void)[] = [];

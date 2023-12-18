@@ -10,8 +10,6 @@ import ReactAudioPlayer from 'react-audio-player';
 import { User, Match } from '../../THREE/Utils/backend_types';
 const accessToken = Cookies.get('accessToken')
 
-const accessToken = Cookies.get('accessToken')
-
 
 const Profile: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
@@ -21,7 +19,6 @@ const Profile: React.FC = () => {
 
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [editUsernameValue, setEditUsernameValue] = useState('')
-
   useEffect(() => {
     const requestProfile = async () => {
       try {//fetch Profile

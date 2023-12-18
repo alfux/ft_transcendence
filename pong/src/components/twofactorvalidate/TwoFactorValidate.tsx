@@ -6,7 +6,7 @@ import usePayload from '../../react_hooks/use_auth'
 const TwoFactorValidate: React.FC = () => {
 
 	const requestNewToken = async () =>{
-		try {//fetch 2fa Status
+		try {
 		  const enable2FAEndpoint = `${config.backend_url}/api/auth/refresh`;
 		  console.log('Before fetch');
 		  const response = await fetch(enable2FAEndpoint, {
@@ -55,8 +55,7 @@ const TwoFactorValidate: React.FC = () => {
         body: JSON.stringify({verificationCode}),
       });
       if (response.ok) {
-        //request new token
-        requestNewToken()
+        // requestNewToken()
 				handleUpdate()
         setDigits('');
 		    alert("2FA Enabled")

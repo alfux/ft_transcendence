@@ -13,13 +13,12 @@ const MatchMaking: React.FC = () => {
 
   useEffect(() => {
     const requestProfile = async () => {
-      try {//fetch Profile
+      try {
         const url = `${config.backend_url}/api/user/me`;
         const response = await fetch(url, {
           method: 'GET',
           credentials: 'include',
         });
-
         if (response.ok) {
           const result = await response.json()
           setData(result)
@@ -31,7 +30,6 @@ const MatchMaking: React.FC = () => {
       }
     };
     requestProfile();
-    //backend_fetch()
   }, [])
 
   return (
@@ -61,7 +59,7 @@ const MatchMaking: React.FC = () => {
         <button>Invite</button>
         <button>Find Match</button>
       </div>
-      <ReactAudioPlayer className='audio' src="./game.mp3" controls autoPlay={true}/>
+      <ReactAudioPlayer className='audio' src="./game.mp3" volume={0.5} controls autoPlay={true}/>
     </div>
   );
 };

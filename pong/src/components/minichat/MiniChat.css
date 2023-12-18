@@ -20,7 +20,7 @@
   height: 100%;
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;
-  animation: chat-on linear 1s;
+  animation: chat-on linear 0.5s;
 }
 
 .chat-options {
@@ -133,7 +133,6 @@
 }
 
 .message-input input{
- background-color: ;
 }
 
 .chat-options::-webkit-scrollbar {
