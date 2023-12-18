@@ -13,8 +13,8 @@ import { Inject, forwardRef } from '@nestjs/common'
 
 import { Player } from "./Game/GameInstance";
 
-class	Keyboard {
-	key: {[key: string]: boolean};
+class Keyboard {
+  key: { [key: string]: boolean };
 };
 
 @WebSocketGateway({ namespace: 'game' })
@@ -51,6 +51,13 @@ export class GameGateway implements OnGatewayConnection {
 
     game_instance.disconnect(player.client)
   }
+  
+  @SubscribeMessage('cancel_search')
+  @CoolSocket
+  async handleCancelSearch(client: Client) {
+    this.waiting = this.waiting.filter((v) => v.user.id !== client.user.id)
+    console.log(this.waiting)
+  }
 
   @SubscribeMessage('search')
   @CoolSocket
@@ -75,9 +82,9 @@ export class GameGateway implements OnGatewayConnection {
       console.log("Starting game with: ", p1.user.username, p2.user.username)
       const gameInstance = new GameInstance(p1, p2, (b: Ball) => {
         const inverted = b.clone()
-       	inverted.position.x *= -1
+        inverted.position.x *= -1
         inverted.spin *= -1
-//		console.log(b.position)
+
         p1.socket.emit("ball_pos", inverted)
         p2.socket.emit("ball_pos", b)
       },
@@ -88,7 +95,7 @@ export class GameGateway implements OnGatewayConnection {
             winner: winner.user
           })
         },
-		classic);
+        classic);
       this.gameInstances.push(gameInstance)
       gameInstance.start()
     }
@@ -103,28 +110,27 @@ export class GameGateway implements OnGatewayConnection {
     if (!game_instance)
       return
 
-	if (game_instance.player1.client.socket.id === client.socket.id)
-		game_instance.player1.keyboard = keyboard;
-	else
-		game_instance.player2.keyboard = keyboard;
+    if (game_instance.player1.client.socket.id === client.socket.id)
+      game_instance.player1.keyboard = keyboard;
+    else
+      game_instance.player2.keyboard = keyboard;
   }
 
   @SubscribeMessage("pointer")
   @CoolSocket
-  async	handlePlayerPointer(client: Client, mouse: {x: number, y: number, sx: number, sy: number}) {
-	  const game_instance = this.gameInstances.find((gi) =>
-	  	gi.player1.client.socket.id === client.socket.id ||
-		gi.player2.client.socket.id === client.socket.id)
-	if (!game_instance)
-		return ;
+  async handlePlayerPointer(client: Client, mouse: { x: number, y: number, sx: number, sy: number }) {
+    const game_instance = this.gameInstances.find((gi) =>
+      gi.player1.client.socket.id === client.socket.id ||
+      gi.player2.client.socket.id === client.socket.id)
+    if (!game_instance)
+      return;
 
-	if (mouse.x && mouse.y)
-	{
-		if (game_instance.player1.client.socket.id === client.socket.id)
-			game_instance.player1.mouse = mouse;
-		else
-			game_instance.player2.mouse = mouse;
-	}
+    if (mouse.x && mouse.y) {
+      if (game_instance.player1.client.socket.id === client.socket.id)
+        game_instance.player1.mouse = mouse;
+      else
+        game_instance.player2.mouse = mouse;
+    }
   }
 
   @Interval(1 / 60)

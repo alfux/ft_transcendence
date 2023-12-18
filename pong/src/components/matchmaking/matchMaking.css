@@ -29,8 +29,8 @@
   .glass-container-matchmaking {
     position: fixed;
     left: 30%;
-    top: 30%;
-    height: 50%;
+    top: 25%;
+    height: 65%;
     width: 80%;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.1);
@@ -96,8 +96,8 @@
         justify-content: space-around;
         border: 3px solid rgb(0, 255, 255);
         box-shadow: 0 0 50px rgb(0, 255, 255);
-    
       }
+
       .player-two:hover{
         background:rgb(0, 255, 255,0.1);
       }

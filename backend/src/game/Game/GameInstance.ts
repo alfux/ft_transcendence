@@ -224,8 +224,16 @@ export class GameInstance {
     return client.socket.id === this.player1.client.socket.id ? this.player2.client : this.player1.client
   }
 
-	start() {
+	async start() {
+    const delay = 5 //seconds
+    
+    this.player1.client.socket.emit("match_found", { opponent: this.player2.client.user, delay: delay })
+    this.player2.client.socket.emit("match_found", { opponent: this.player1.client.user, delay: delay })
+
+    await new Promise( resolve => setTimeout(resolve, delay*1000) );
+
 		this.clock.start()
+
 		this.player1.client.socket.emit("start", {
 			opponent: this.player2.client.user,
 			you: this.player1.client.user
@@ -234,7 +242,10 @@ export class GameInstance {
 			opponent: this.player1.client.user,
 			you: this.player2.client.user
 		});
-	}
+	
+  
+    this.ball.position.set(0, 0, 0)
+  }
 
 	keyboardPos() {
     	let move = 0;
