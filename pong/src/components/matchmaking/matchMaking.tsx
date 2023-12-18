@@ -6,10 +6,18 @@ import usePayload from '../../react_hooks/use_auth'
 import ReactAudioPlayer from 'react-audio-player';
 import { User } from '../../THREE/Utils/backend_types';
 import { backend_fetch } from '../backend_fetch';
+import { MoonLoader } from 'react-spinners';
+import { gameSocket } from '../../sockets';
+import Countdown from 'react-countdown'
+
 
 const MatchMaking: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
   const [data, setData] = useState<User | undefined>()
+
+  const [searching, setSearching] = useState(false)
+  const [opponent, setOpponent] = useState<User | undefined>()
+  const [timer, setTimer] = useState(0)
 
   useEffect(() => {
     const requestProfile = async () => {
@@ -32,36 +40,84 @@ const MatchMaking: React.FC = () => {
     };
     requestProfile();
     //backend_fetch()
+
+    gameSocket.on("match_found", (data: {opponent: User, delay: number}) => {
+      setOpponent(data.opponent)
+      setTimer(data.delay)
+
+      setSearching(false)
+    })
+
+    return (() => {
+      gameSocket.emit("cancel_search")
+    })
+
   }, [])
+
 
   return (
     <div className="glass-container-matchmaking">
+
       <div className='sub-container'>
         <h2>Match Making</h2>
+        {
+          timer === 0 ?
+          undefined
+          : <Countdown
+            date={Date.now() + timer*1000}
+            onComplete={() => setTimer(0)}
+            />
+        }
       </div>
+
+
       <div className='players'>
+
         <div className='player-one'>
           <div className='player-info-one'>
             <p>Player: {data?.username}</p>
-            <p>player rank</p>
-            <p>lvl 10</p>
           </div>
           <img src={data?.image} alt="avatar" />
         </div>
+
         <div className='player-two'>
-          <div className='player-info-two'>
-            <p>player name</p>
-            <p>player rank</p>
-            <p>lvl</p>
-          </div>
-          <img src='42.png'></img>
+          {
+            opponent ?
+              <div className='player-info-two'>
+                <p>{opponent.username}</p>
+              </div>
+              :
+              undefined
+          }
+          {
+            searching ?
+              <MoonLoader color={'#36D7B7'} loading={searching} size={150} />
+              : (
+                opponent ?
+                  <img src={opponent.image} />
+                  :
+                  <img src='42.png'></img>
+              )
+          }
         </div>
+
       </div>
+
+
       <div className='buttons'>
         <button>Invite</button>
-        <button>Find Match</button>
+        {
+          searching ?
+            <button onClick={() => { setSearching(false); gameSocket.emit("cancel_search") }}>
+              Cancel
+            </button>
+            :
+            <button onClick={() => { setSearching(true); gameSocket.emit("search", {classic:true}) }}>
+              Find Match
+            </button>
+        }
       </div>
-      <ReactAudioPlayer className='audio' src="./game.mp3" controls autoPlay={true}/>
+      <ReactAudioPlayer className='audio' src="./game.mp3" controls autoPlay={true} />
     </div>
   );
 };
