@@ -368,8 +368,8 @@ export class GameInstance {
 
   updateBallPos() {
 	const	rota = new Mat3(
-		new Vec3(Math.cos(this.ball.spin * this.delta_time / 50), Math.sin(this.ball.spin * this.delta_time / 50), 0),
-		new Vec3(-Math.sin(this.ball.spin * this.delta_time / 50), Math.cos(this.ball.spin * this.delta_time / 50), 0),
+		new Vec3(Math.cos(this.ball.spin * this.delta_time / 25), Math.sin(this.ball.spin * this.delta_time / 25), 0),
+		new Vec3(-Math.sin(this.ball.spin * this.delta_time / 25), Math.cos(this.ball.spin * this.delta_time / 25), 0),
 		new Vec3(0, 0, 1)
 	);
 	this.ball.speed = rota.xV(this.ball.speed);
@@ -401,6 +401,7 @@ export class GameInstance {
     }
 
     let imp;
+	let	rng;
     for (const key in this.obstacles) {
       imp = impact(this.ball, this.obstacles[key]);
       if (imp !== undefined) {
@@ -412,6 +413,9 @@ export class GameInstance {
 					this.pace = 3;
 				this.max_bounce = 0;
 			}
+			rng = Math.floor(Math.random() * 5);
+			this.player1.client.socket.emit("bounce", rng);
+			this.player2.client.socket.emit("bounce", rng);
 		}
 	  }
     }

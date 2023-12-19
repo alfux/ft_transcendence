@@ -61,7 +61,6 @@ const MatchMaking: React.FC = () => {
         <button>Invite</button>
         <button>Find Match</button>
       </div>
-      <ReactAudioPlayer className='audio' src="./game.mp3" controls autoPlay={true}/>
     </div>
   );
 };

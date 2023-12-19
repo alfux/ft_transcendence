@@ -65,7 +65,10 @@ export default function THREE_App() {
 	}, [user && user.exp < Date.now() / 1000])
 
 	useEffect(() => {
-    init_modules() //Pour les shaders, svp ne pas enlever
+	}, []);
+
+	useEffect(() => {
+    	init_modules() //Pour les shaders, svp ne pas enlever
 
 		const renderer = new THREE.WebGLRenderer({ alpha: true });
 		renderer.setSize(window.innerWidth, window.innerHeight);
@@ -118,8 +121,8 @@ export default function THREE_App() {
 		}
 	}, [loginForm === "Chat"])
 	return (
-		<div ref={divRef} id="Canvas">
-			<div>
+		<div id="main-container">
+			<div ref={divRef} id="Canvas" className="Canvas">
 				<div className="glow-content">
     				<div className="glow-line-rose"></div>
     				<div className="glow-line-blue"></div>
@@ -130,14 +133,8 @@ export default function THREE_App() {
 					<div className="glow-line-rose-invert-two"></div>
     				<div className="glow-line-blue-invert-two"></div>
 				</div>
-				<div className="video-background">
-					<video autoPlay loop muted playsInline className="filtered-video" id="background-video-scene">
-						<source src={process.env.PUBLIC_URL + './background/neon_bg.mp4'} type="video/mp4" />
-						Your browser does not support the video tag.
-					</video>
-					<div className="glass-overlay"></div>
-				</div>
 			</div>
+			<div id="audio" />
 		</div>
 	);
 }

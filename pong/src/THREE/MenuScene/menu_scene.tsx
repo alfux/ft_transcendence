@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
+import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry"
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { config } from '../../config';
@@ -16,6 +17,11 @@ import Score, { User } from "../../components/scorebar/ScoreBar";
 
 import { clock } from "../Utils/clock";
 import { gameSocket } from '../../sockets';
+
+import ReactDOM from "react-dom/client";
+import ReactAudioPlayer from "react-audio-player";
+
+import { audioBank } from "../Audio"
 
 enum MenuButtons {
   Login = "Login",
@@ -45,7 +51,7 @@ export function create_menu_scene(
 	payload: JwtPayload | null,
 	mousecast: THREE.Vector2,
 	mousespeed: THREE.Vector2,
-	divRef: HTMLDivElement | null
+	divRef: HTMLDivElement | null,
 ) {
   const loader = new FontLoader();
   const font_params = { size: 0.4, height: 0.2 };
@@ -191,6 +197,10 @@ export function create_menu_scene(
     console.log(err);
   });
 
+  let isLogged = false;
+  if (payload?.authentication === LoggedStatus.Logged)
+    isLogged = true;
+
   const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(0, 0, 20);
 
@@ -201,16 +211,20 @@ export function create_menu_scene(
   const sphere_mesh = new THREE.Mesh(sphere_geometry, sphere_material);
   sphere_mesh.name = "Sphere";
 
-  const scaling = 1.5;
+  let	scaling = 1.5;
   const menu_parent = new THREE.Group();
-  menu_parent.name = "Menu";
   menu_parent.add(sphere_mesh);
   menu_parent.position.set(0, 0, 1);
-  menu_parent.scale.set(scaling, scaling, scaling);
+  menu_parent.name = "Menu";
   menu_parent.up.set(0, 1, 0);
   menu_parent.lookAt(0, 0, 20);
+  if (!isLogged) {
+	menu_parent.rotation.set(2 * Math.PI / 3, 0, 0);
+	scaling = 2.5;
+  }
+  menu_parent.scale.set(scaling, scaling, scaling);
   const plane = new THREE.PlaneGeometry(25, (9 / 16) * 25);
-  const texture = new THREE.MeshLambertMaterial({ map: game_texture, transparent: true});
+  const texture = new THREE.MeshLambertMaterial({ map: game_texture, transparent: true, opacity: 0});
   const screen_plane = new THREE.Mesh(plane, texture);
   const	mouse_plane = new THREE.PlaneGeometry(500, 500);
   const	mouse_material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0});
@@ -218,13 +232,8 @@ export function create_menu_scene(
   screen_plane.position.set(0, 0.35, -1);
   mouse_mesh.position.set(0, 0.35, -1);
 
-  const video_element: HTMLVideoElement = document.getElementById("background-video-scene") as HTMLVideoElement;
-  const video_background = new THREE.VideoTexture(video_element);
-
   let general_scaling = Math.min(1680 * window.innerWidth / window.screen.width, (16 / 9) * 1050 * window.innerHeight / window.screen.height) / 1000;
   const scene = new THREE.Scene();
-  // scene.background = video_background;
-  scene.backgroundIntensity = 0.2;
   scene.add(menu_parent, ambient, screen_plane, mouse_mesh);
   scene.scale.set(general_scaling, general_scaling, general_scaling);
 
@@ -246,10 +255,6 @@ export function create_menu_scene(
   let current: MenuButtons | null = null;
 
   let menu_state = MenuState.Unlogged;
-  let isLogged = false;
-  console.log(payload)
-  if (payload?.authentication === LoggedStatus.Logged)
-    isLogged = true;
   
   let corr = 0.2 - 2 * Math.PI;
   let	classic_mode = false;
@@ -263,9 +268,81 @@ export function create_menu_scene(
 
 	gameSocket.on("start", handleStart);
 	gameSocket.on("finish", handleFinish);
+	gameSocket.on("bounce", handleBounce);
 
-	function	updateT(t: number, max: number = 1)
-	{
+	function	handleBounce(rng: number) {
+		let	i = 0;
+
+		for (let key in audioBank.bank) {
+			if (i === rng) {
+				audioBank.play(key, 0.1);
+				return ;
+			}
+			i++;
+		}
+	}
+
+	const	fadeIn = {
+		t:			0,
+		duration:	3,
+		start:		2,
+		shape:		(t: number) => {return (Math.min(Math.pow(t, 2), 1));},
+		hide:		new THREE.PlaneGeometry(25, (9 / 16) * 25),
+		black:		new THREE.MeshBasicMaterial({color: 0x000000, transparent: true, opacity: 1}),
+		mesh:		new THREE.Mesh(),
+		glitch:		new GlitchPass(),
+		root:		ReactDOM.createRoot(document.getElementById("audio") as HTMLElement),
+
+		startAnimation() {
+			this.mesh.geometry = this.hide;
+			this.mesh.material = this.black;
+			this.mesh.position.set(0, 0.35, -0.9);
+			scene.add(this.mesh);
+			this.waitForStart();
+		},
+
+		destructor() {
+			this.hide.dispose();
+			this.black.dispose();
+			composer.removePass(this.glitch);
+			this.glitch.dispose();
+			scene.remove(this.mesh);
+		},
+		
+		waitForStart() {
+			if (this.t < this.start) {
+				window.requestAnimationFrame(() => {
+					this.waitForStart();
+				});
+				this.t += clock.deltaT;
+			}
+			else {
+				composer.addPass(this.glitch);
+				this.root.render(
+					<ReactAudioPlayer className='audio' src="./game.mp3" volume={0.5} controls autoPlay={true} muted={false}/>
+				);
+				this.animate();
+			}
+		},
+
+		animate() {
+			if (this.t < this.duration) {
+				window.requestAnimationFrame(() => {
+					this.animate();
+				});
+			}
+			else
+				this.destructor();
+			texture.opacity = this.shape((this.t - this.start) / (this.duration - this.start));
+			this.black.opacity = 1 - texture.opacity;
+			this.t += clock.deltaT;
+		}
+	};
+
+	if (isLogged)
+		fadeIn.startAnimation();
+
+	function	updateT(t: number, max: number = 1) {
 		t += clock.deltaT;
 		if (t >= max)
 			return (max);
@@ -578,9 +655,10 @@ export function create_menu_scene(
     update: update,
     clean: () => {
 
-      window.removeEventListener("wheel", handleWheel);
-      window.removeEventListener("click", handleClick);
+      divRef?.removeEventListener("wheel", handleWheel);
+      divRef?.removeEventListener("click", handleClick);
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("pointermove", handleMove);
 
       scene.traverse((obj: any) => {
         if (obj instanceof THREE.Mesh) {
@@ -591,7 +669,6 @@ export function create_menu_scene(
       render_pass.dispose();
       bloom_pass.dispose();
       composer.dispose();
-      video_background.dispose();
     }
   }
 }
