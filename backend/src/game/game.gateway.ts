@@ -60,7 +60,7 @@ export class GameGateway implements OnGatewayConnection {
 
   @SubscribeMessage('search')
   @CoolSocket
-  async handleSearch(client: Client, classic: boolean) {
+  async handleSearch(client: Client, data: { classic: boolean }) {
     if (this.waiting.find((v) => v.socket.id === client.socket.id)) {
       return
     }
@@ -90,7 +90,7 @@ export class GameGateway implements OnGatewayConnection {
             winner: winner.user
           })
         },
-        classic);
+        data.classic);
       this.gameInstances.push(gameInstance)
       gameInstance.start()
     }

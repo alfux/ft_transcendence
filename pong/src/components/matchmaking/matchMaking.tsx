@@ -15,6 +15,8 @@ const MatchMaking: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
   const [data, setData] = useState<User | undefined>()
 
+  const [checked, setChecked] = React.useState(false);
+
   const [searching, setSearching] = useState(false)
   const [opponent, setOpponent] = useState<User | undefined>()
   const [timer, setTimer] = useState(0)
@@ -110,10 +112,16 @@ const MatchMaking: React.FC = () => {
               Cancel
             </button>
             :
-            <button onClick={() => { setSearching(true); gameSocket.emit("search", classic_mode) }}>
+            <button onClick={() => { setSearching(true); gameSocket.emit("search", checked) }}>
               Find Match
             </button>
         }
+        <div>
+          <label>
+            <input type="checkbox" onChange={() => {setChecked((prev) => !prev)}} checked={checked} />
+            Classic
+          </label>
+        </div>
       </div>
     </div>
   );
