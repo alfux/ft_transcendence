@@ -136,6 +136,13 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     displayContainer,
   };
 
+  useEffect(()=>{
+    chatSocket.on("receive_message",(data) =>{
+      setNotificationType(data)
+      console.log("data received: ",data)
+    })
+  },[])
+
   /*======================================================================
   ===================Find the Own User Object <ME>=====================
   ======================================================================== */
@@ -144,8 +151,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     if (currentUser) {
       setMe(currentUser);
     }
-    setNotificationType(null)
-  }, [allUsers, notificationType]);
+  }, [allUsers],);
 
 
   /*======================================================================
@@ -171,22 +177,6 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     };
     requestConversation();
 
-    notificationsSocket.on("conv_create", (data: { conversation: Conversation }) => {
-      setChannels((prev) => {
-        return (prev === null) ? [data.conversation] : [data.conversation, ...prev]
-      })
-    })
-    notificationsSocket.on("conv_delete", (data: { conversation: Conversation }) => {
-      setChannels((prev) => {
-        return (prev === null) ? prev : prev.filter((c) => c.id !== data.conversation.id)
-      })
-    })
-
-    setNotificationType(null)
-    return () => {
-      notificationsSocket.off("conv_create")
-      notificationsSocket.off("conv_delete")
-    }
   }, [notificationType]);
   /*======================================================================
   ===================Fetch<GET>All Users==================================
@@ -211,17 +201,6 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
       }
     };
     requestAllUsers();
-
-    notificationsSocket.on("user_create", (data: { user: User }) => {
-      setAllUsers((prev) => {
-        return (prev === null) ? [data.user] : [data.user, ...prev]
-      })
-    })
-
-    setNotificationType(null)
-    return () => {
-      notificationsSocket.off("user_create")
-    }
   }, [notificationType]);
 
   /*======================================================================
@@ -247,17 +226,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     };
     requestProfile();
 
-    notificationsSocket.on("friend_new", (user: User) => {
-      setFriends((prev) => {
-        return (prev === null) ? [user] : [user, ...prev]
-      })
-    })
-
-    setNotificationType(null)
-    return () => {
-      notificationsSocket.off("friend_new")
-    }
-  }, [notificationType, selectedGroupOption]);
+  }, [selectedGroupOption,notificationType]);
 
   /*======================================================================
   ===================Fetch<Get> Messages From His Own Id====================
@@ -290,7 +259,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 
 
 
-  }, [selectedGroup]);
+  }, [selectedGroup, notificationType]);
 
 
   useEffect(() => {
@@ -303,8 +272,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
       }
     }
     );
-    setNotificationType(null)
-  }, [selectedGroup, notificationType]);
+  }, [selectedGroup]);
 
   const componentSize: React.CSSProperties = {
     width: width,
