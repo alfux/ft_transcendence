@@ -1,5 +1,5 @@
 import { chatSocket } from "../../../sockets/chat";
-import { ChannelOptions, ChatProps } from "../MiniChat";
+import MiniChat, { ChannelOptions, ChatProps } from "../MiniChat";
 
 const ChatInput: React.FC<ChatProps> = (props) => {
   /*======================================================================
@@ -11,10 +11,11 @@ const ChatInput: React.FC<ChatProps> = (props) => {
         e.preventDefault();
         const message = props.messageText;
         const conversation_id: number = props.selectedGroup!.id;
-          chatSocket.emit("send_message", {
+          props.miniChatSocket.emit("send_message", {
             message: message,
             conversation_id: conversation_id,
           });
+          console.log("status: ",props.miniChatSocket.connected)
           props.setMessageText("");
       }
     };

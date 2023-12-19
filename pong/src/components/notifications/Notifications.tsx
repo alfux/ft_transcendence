@@ -11,6 +11,7 @@ import { config } from "../../config";
 import { User } from "../scorebar/ScoreBar";
 import { Interface } from "readline";
 import { notifications } from "../../sockets/notifications";
+import { chatSocket } from "../../sockets/chat";
 
 const Notifications: React.FC = () => {
   const [friendsRequest, setFriendsRequests] = useState<any | null>(null);
@@ -24,7 +25,10 @@ const Notifications: React.FC = () => {
       notifications.connect();
       console.log("ups .. ok now connected");
     }
-
+    
+    chatSocket.on("receive_message",(data)=>{
+      console.log("RECEIUVE A MNESAGE")
+    })
     notifications.on("friend_new", (data: { req: any } | any) => {
       console.log("Received friend new");
       setDataType("friend_new");
