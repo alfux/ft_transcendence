@@ -3,7 +3,6 @@ import Cookies from 'js-cookie';
 import './matchMaking.css'
 import React, { useRef, useEffect, useState } from 'react'
 import usePayload from '../../react_hooks/use_auth'
-import ReactAudioPlayer from 'react-audio-player';
 import { User } from '../../THREE/Utils/backend_types';
 import { backend_fetch } from '../backend_fetch';
 import { MoonLoader } from 'react-spinners';
@@ -117,7 +116,6 @@ const MatchMaking: React.FC = () => {
             </button>
         }
       </div>
-      <ReactAudioPlayer className='audio' src="./game.mp3" controls autoPlay={true} />
     </div>
   );
 };

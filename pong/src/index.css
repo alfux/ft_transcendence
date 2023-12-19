@@ -389,3 +389,22 @@ body {
     left: 95%;
   }
 }
+
+body {
+	animation:	fadeInCustom 3s ease-in forwards;
+}
+
+@keyframes fadeInCustom {
+	0% {
+		opacity:	0;
+	} 100% {
+		opacity:	1;
+	}
+}
+
+.audio {
+	width:		20vw;
+	position:	absolute;
+	top:		80vh;
+	left:		40vw;
+}

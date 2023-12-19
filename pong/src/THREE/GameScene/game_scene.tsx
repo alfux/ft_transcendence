@@ -102,6 +102,7 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 	}
 
 	function updateBallPos(ball: Ball) {
+		console.log(ball.speed);
 		if (board.ball.gameObject) {
 			ball.gameObject = board.ball.gameObject;
 			board.ball = ball;
