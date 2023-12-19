@@ -1,7 +1,13 @@
 export enum LoggedStatus {
   Logged,
+  InGame,
   Incomplete,
   Unlogged,
+}
+
+export enum GameMode {
+  CLASSIC= "CLASSIC",
+  MAGNUS = "MAGNUS",
 }
 
 export enum AccessLevel {

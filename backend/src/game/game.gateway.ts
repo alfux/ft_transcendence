@@ -1,5 +1,3 @@
-// src/chat/chat.gateway.ts
-
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, SubscribeMessage } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 import { Interval } from '@nestjs/schedule'
@@ -10,20 +8,45 @@ import { GameInstance, Ball } from './Game'
 import { Client, CoolSocket } from 'src/socket/'
 import { MatchService, UserService } from 'src/db/user'
 import { Inject, forwardRef } from '@nestjs/common'
-
-import { Player } from "./Game/GameInstance";
+import { GameMode } from './Game/GameMode'
 
 class Keyboard {
   key: { [key: string]: boolean };
 };
+
+function remove_client(client: Client | Socket, queue: Client[]) {
+  const s = client instanceof Socket ? client : client.socket
+  return queue.filter((v) => v.socket !== s)
+}
+
+function remove_client_all(client: Client | Socket, queues: Record<GameMode, Client[]>) {
+  for (const key in queues) {
+    queues[key] = remove_client(client, queues[key])
+  }
+}
+
+function is_in_queue(client: Client | Socket, queue: Client[]): Client | undefined {
+  const s = client instanceof Socket ? client : client.socket
+  return queue.find((c) => c.socket === s)
+}
+
+function is_in_queue_all(client: Client | Socket, queues: Record<GameMode, Client[]>) {
+  for (const key in queues) {
+    if (is_in_queue(client, queues[key]))
+      return true
+  }
+  return false
+}
+
 
 @WebSocketGateway({ namespace: 'game' })
 export class GameGateway implements OnGatewayConnection {
 
   @WebSocketServer() server: Server
   private connectedClients: Client[] = []
-  private waiting: Client[] = []
   private gameInstances: GameInstance[] = []
+
+  private queues: Record<GameMode, Client[]> = {} as Record<GameMode, any[]>
 
   constructor(
     @Inject(forwardRef(() => AuthService))
@@ -33,14 +56,19 @@ export class GameGateway implements OnGatewayConnection {
 
     private matchService: MatchService
 
-  ) { }
+  ) {
+    Object.keys(GameMode).forEach((key) => {
+      this.queues[key] = [];
+    });
+  }
+
 
   async handleConnection(client: Socket) {
   }
 
   async handleDisconnect(client: Socket): Promise<any> {
     this.connectedClients = this.connectedClients.filter((v) => v.socket !== client)
-    this.waiting = this.waiting.filter((v) => v.socket !== client)
+    remove_client_all(client, this.queues)
 
     const game_instance = this.gameInstances.find((gi) => gi.player1.client.socket.id === client.id || gi.player2.client.socket.id === client.id)
     if (!game_instance)
@@ -51,46 +79,43 @@ export class GameGateway implements OnGatewayConnection {
 
     game_instance.disconnect(player.client)
   }
-  
+
   @SubscribeMessage('cancel_search')
   @CoolSocket
   async handleCancelSearch(client: Client) {
-    this.waiting = this.waiting.filter((v) => v.user.id !== client.user.id)
+    remove_client_all(client, this.queues)
   }
 
   @SubscribeMessage('search')
   @CoolSocket
-  async handleSearch(client: Client, data: { classic: boolean }) {
-    if (this.waiting.find((v) => v.socket.id === client.socket.id)) {
+  async handleSearch(client: Client, data: { mode: GameMode }) {
+    if (is_in_queue_all(client, this.queues)) {
       return
     }
 
-    this.waiting.push(client)
+    this.queues[data.mode].push(client)
+    if (this.queues[data.mode].length >= 2) {
 
-    if (this.waiting.length >= 2) {
+      const p1 = this.queues[data.mode][0]
+      const p2 = this.queues[data.mode][1]
 
-      const p1 = this.waiting[0]
-      const p2 = this.waiting[1]
+      this.queues[data.mode] = remove_client(p1, this.queues[data.mode])
+      this.queues[data.mode] = remove_client(p2, this.queues[data.mode])
 
-      this.waiting = this.waiting.filter((v) => v.socket !== p1.socket && v.socket !== p2.socket)
 
-      console.log("Starting game with: ", p1.user.username, p2.user.username)
-      const gameInstance = new GameInstance(p1, p2, (b: Ball) => {
-        const inverted = b.clone()
-        inverted.position.x *= -1
-        inverted.spin *= -1
+      console.log(`STARTING GAME '${data.mode}': p1:${p1.user.username} p2:${p2.user.username}`)
 
-        p1.socket.emit("ball_pos", inverted)
-        p2.socket.emit("ball_pos", b)
-      },
+      const gameInstance = new GameInstance(p1, p2, data.mode,
         (winner, looser) => {
           this.gameInstances = this.gameInstances.filter((v) => v !== gameInstance)
           this.matchService.createMatch({
             players: [winner.user, looser.user],
             winner: winner.user
           })
-        },
-        data.classic);
+        }
+      );
+
+
       this.gameInstances.push(gameInstance)
       gameInstance.start()
     }

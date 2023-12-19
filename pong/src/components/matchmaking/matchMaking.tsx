@@ -3,11 +3,13 @@ import Cookies from 'js-cookie';
 import './matchMaking.css'
 import React, { useRef, useEffect, useState } from 'react'
 import usePayload from '../../react_hooks/use_auth'
-import { User } from '../../THREE/Utils/backend_types';
+import { GameMode, User } from '../../THREE/Utils/backend_types';
 import { backend_fetch } from '../backend_fetch';
 import { MoonLoader } from 'react-spinners';
 import { gameSocket } from '../../sockets';
+
 import Countdown from 'react-countdown'
+import Select from "react-dropdown-select";
 
 import { classic_mode } from "../../THREE/MenuScene/menu_scene";
 
@@ -15,7 +17,7 @@ const MatchMaking: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
   const [data, setData] = useState<User | undefined>()
 
-  const [checked, setChecked] = React.useState(false);
+  const [mode, setMode] = useState<GameMode>(GameMode.CLASSIC);
 
   const [searching, setSearching] = useState(false)
   const [opponent, setOpponent] = useState<User | undefined>()
@@ -42,7 +44,7 @@ const MatchMaking: React.FC = () => {
     requestProfile();
     //backend_fetch()
 
-    gameSocket.on("match_found", (data: {opponent: User, delay: number}) => {
+    gameSocket.on("match_found", (data: { opponent: User, delay: number }) => {
       setOpponent(data.opponent)
       setTimer(data.delay)
 
@@ -55,6 +57,13 @@ const MatchMaking: React.FC = () => {
 
   }, [])
 
+  const handleSelectModeChange = (values: {}[]) => {
+    console.log('Selected:', values[0]);
+    console.log(values)
+    setMode(values.length > 0 ? (values[0] as any).value : GameMode.CLASSIC);
+
+  };
+
 
   return (
     <div className="glass-container-matchmaking">
@@ -63,10 +72,10 @@ const MatchMaking: React.FC = () => {
         <h2>Match Making</h2>
         {
           timer === 0 ?
-          undefined
-          : <Countdown
-            date={Date.now() + timer*1000}
-            onComplete={() => setTimer(0)}
+            undefined
+            : <Countdown
+              date={Date.now() + timer * 1000}
+              onComplete={() => setTimer(0)}
             />
         }
       </div>
@@ -112,16 +121,16 @@ const MatchMaking: React.FC = () => {
               Cancel
             </button>
             :
-            <button onClick={() => { setSearching(true); gameSocket.emit("search", checked) }}>
+            <button onClick={() => { setSearching(true); gameSocket.emit("search", { mode: mode }) }}>
               Find Match
             </button>
         }
-        <div>
-          <label>
-            <input type="checkbox" onChange={() => {setChecked((prev) => !prev)}} checked={checked} />
-            Classic
-          </label>
-        </div>
+        <Select
+          values={[{ value: mode, label: mode }]}
+          options={Object.values(GameMode).map((option) => ({ value: option, label: option }))}
+          onChange={handleSelectModeChange}
+          placeholder="Select an option"
+        />
       </div>
     </div>
   );
