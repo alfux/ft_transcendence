@@ -9,6 +9,7 @@ import { MoonLoader } from 'react-spinners';
 import { gameSocket } from '../../sockets';
 import Countdown from 'react-countdown'
 
+import { classic_mode } from "../../THREE/MenuScene/menu_scene";
 
 const MatchMaking: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
@@ -110,7 +111,7 @@ const MatchMaking: React.FC = () => {
               Cancel
             </button>
             :
-            <button onClick={() => { setSearching(true); gameSocket.emit("search", {classic:true}) }}>
+            <button onClick={() => { setSearching(true); gameSocket.emit("search", {classic: classic_mode}) }}>
               Find Match
             </button>
         }
