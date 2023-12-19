@@ -6,6 +6,7 @@ import usePayload from '../../react_hooks/use_auth'
 import { config } from '../../config';
 import AchievementsButton from './buttons/achievements/AchievementsButton';
 import MatchHistory from './buttons/matchhistory/MatchHistoryButton';
+import History from "./history/History";
 import ReactAudioPlayer from 'react-audio-player';
 import { User, Match } from '../../THREE/Utils/backend_types';
 
@@ -15,6 +16,7 @@ const Profile: React.FC = () => {
 
   const [data, setData] = useState<User | null>(null)
   const [matches, setMatches] = useState<Match[] | null>(null)
+  const	[display, setDisplay] = useState<boolean>(false);
 
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [editUsernameValue, setEditUsernameValue] = useState('')
@@ -197,7 +199,7 @@ const Profile: React.FC = () => {
           <AchievementsButton />
           {matches ? <MatchHistory matches={matches} /> : <h2>Couldn't get match hist</h2>}
         </div>
-
+		{display ? <History /> : <div />}
       </div>
     </div>
   );

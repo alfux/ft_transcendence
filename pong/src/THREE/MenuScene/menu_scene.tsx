@@ -276,9 +276,9 @@ export function create_menu_scene(
 	function	handleBounce(rng: number) {
 		let	i = 0;
 
-		for (let key in audioBank.bank) {
+		for (let key in audioBank?.bank) {
 			if (i === rng) {
-				audioBank.play(key, 0.1);
+				audioBank?.play(key, 0.1);
 				return ;
 			}
 			i++;
@@ -648,11 +648,10 @@ export function create_menu_scene(
     if (Math.abs(menu_parent.rotation.x - corr) % (Math.PI / 3) > 0.02)
       centerMenu(menu_parent, deltaY, isLogged ? Math.PI / 3 : 2 * Math.PI / 3);
 	if (time > 0.007) {
-		composer.render(clock.deltaT);
+		composer.render();
 		time = 0;
 	} else
 		time += clock.deltaT;
-	console.log(clock.deltaT);
     return (option);
   }
 

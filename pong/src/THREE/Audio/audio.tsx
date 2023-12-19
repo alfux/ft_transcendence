@@ -7,22 +7,33 @@ class	AudioBank {
 	bank:		Bank;
 
 	constructor() {
-		this.context = new AudioContext();
 		this.bank = {};
+		try {
+			this.context = new AudioContext();
+		} catch(e) {
+			console.log(e);
+			window.location.reload();
+			this.context = new AudioContext();
+		}
 	}
 
 	load(id: string, url: string) {
-		let	req = new XMLHttpRequest();
+		try {
+			let	req = new XMLHttpRequest();
 
-		req.open("GET", url, true);
-		req.responseType = "arraybuffer";
-		req.onload = () => {
-			this.context.decodeAudioData(req.response, (buffer) => {
-				this.bank[id] = buffer;
-				console.log("LOADED");
-			}, () => {console.log("ERROR LOADING SOUND", id, url)});
-		};
-		req.send();
+			req.open("GET", url, true);
+			req.responseType = "arraybuffer";
+			req.onload = () => {
+				this.context.decodeAudioData(req.response, (buffer) => {
+					this.bank[id] = buffer;
+					console.log("LOADED");
+				}, () => {console.log("ERROR LOADING SOUND", id, url)});
+			};
+			req.send();
+		} catch(e) {
+			console.log(e);
+			window.location.reload();
+		}
 	}
 
 	play(id: string, volume: number = 0, when: number = 0, offset: number = 0, duration: number | undefined = undefined) {

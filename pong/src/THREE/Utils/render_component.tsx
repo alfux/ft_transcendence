@@ -43,7 +43,7 @@ export function RenderComponents(loginForm: { option: string, game: boolean }) {
     const cleanup: (() => void)[] = [];
     handleUpdate();
     if (loginForm.game)
-      return (() => { });
+      return (() => {});
     if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option !== "Profile" && loginForm.option !== "Play") {
       cleanup.push(createComponent(ProfileBar));
     }
@@ -69,12 +69,12 @@ export function RenderComponents(loginForm: { option: string, game: boolean }) {
     const root = createRoot(newFormContainer);
     root.render(<MiniChat width='90%' height='60%' bottom="15%" right="20%" />);
     document.body.appendChild(newFormContainer);
-    return () => {
+    cleanup.push(() => {
       setTimeout(() => {
         root.unmount();
         document.body.removeChild(newFormContainer);
       });
-    };
+    });
   }
      return ()=>{
       cleanup.forEach(cleanupFunction => cleanupFunction());
