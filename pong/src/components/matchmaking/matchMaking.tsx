@@ -7,6 +7,13 @@ import ReactAudioPlayer from 'react-audio-player';
 import { User } from '../../THREE/Utils/backend_types';
 import { backend_fetch } from '../backend_fetch';
 
+import { classic_mode } from "../../THREE/MenuScene/menu_scene";
+import { gameSocket } from '../../sockets';
+
+function	handleClick() {
+	gameSocket.emit("search", classic_mode);
+}
+
 const MatchMaking: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
   const [data, setData] = useState<User | undefined>()
@@ -59,7 +66,7 @@ const MatchMaking: React.FC = () => {
       </div>
       <div className='buttons'>
         <button>Invite</button>
-        <button>Find Match</button>
+        <button onClick={handleClick} >Find Match</button>
       </div>
     </div>
   );

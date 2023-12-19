@@ -84,13 +84,12 @@ export default function THREE_App() {
 		const game_scene = create_game_scene(renderer, buffer, mousecaster, mousespeed);
 
 		function mainloop() {
-			requestAnimationFrame(mainloop);
-			
-      clock.update();
-			
-      game_scene.update();
+			let	option;
 
-			const option = menu_scene.update()
+			clock.update();
+			requestAnimationFrame(mainloop);
+			game_scene.update();
+			option = menu_scene.update();
 			setLoginForm(option.option);
 			setGameState(option.game);
 		}
