@@ -9,17 +9,56 @@ import React, {
 import "./Notifications.css";
 import { config } from "../../config";
 import { User } from "../scorebar/ScoreBar";
+import { Interface } from "readline";
+import { notifications } from "../../sockets/notifications";
 
-const Notifications: React.FC<{
-  notificationData: { type: string; data: any } | null;
-}> = ({ notificationData }) => {
+const Notifications: React.FC = () => {
   const [friendsRequest, setFriendsRequests] = useState<any | null>(null);
   const [toogleButton, setToogleButton] = useState<string>("show");
-  const [friends, setFriends] = useState<User[] | null>(null);
+  const [dataContent, setDataContent] = useState<any>(null);
+  const [dataType, setDataType] = useState<any>(null);
+
+  useEffect(() => {
+    console.log("Socket connection status:", notifications.connected);
+    if (!notifications.connected) {
+      notifications.connect();
+      console.log("ups .. ok now connected");
+    }
+
+    notifications.on("friend_new", (data: { req: any } | any) => {
+      console.log("Received friend new");
+      setDataType("friend_new");
+      setDataContent(data);
+    });
+
+    notifications.on("friend_request_recv", (data: { req: any }) => {
+      setDataType("friend_request_recv");
+      setDataContent(data);
+      console.log("friend request received");
+    });
+    notifications.on("friend_delete", (data: { req: any }) => {
+      setDataType("friend_delete");
+      setDataContent(data);
+      console.log("friend deleted");
+    });
+    notifications.on("blocked_new", (data: { req: any }) => {
+      console.log("blocked_new");
+    });
+    notifications.on("friend_request_denied", (data: { req: any }) => {
+      setDataType("friend_request_denied");
+      setDataContent(data);
+    });
+    return(()=>{
+      console.log("disconected")
+      notifications.disconnect()
+    })
+  });
+
   /*======================================================================
   ===================Fetch Friends Requests================================
   ======================================================================== */
   useEffect(() => {
+    console.log("Socket connection status:", notifications.connected);
     const fetchRequets = async () => {
       try {
         const enable2FAEndpoint = `${config.backend_url}/api/user/friend_request`;
@@ -39,7 +78,7 @@ const Notifications: React.FC<{
       }
     };
     fetchRequets();
-  }, [notificationData]);
+  }, [dataType, dataContent]);
   /*======================================================================
   ===================Toogle Notification Bar On or Off=====================
   ======================================================================== */
@@ -53,7 +92,6 @@ const Notifications: React.FC<{
   /*======================================================================
   ===================Send Post Request to Accept Friend=====================
   ======================================================================== */
-  useEffect(() => {});
   const getNotificationRequests = friendsRequest?.received?.map((user: any) => {
     async function acceptFriend() {
       const url = `${config.backend_url}/api/user/friend_request/accept`;
@@ -67,6 +105,7 @@ const Notifications: React.FC<{
           body: JSON.stringify({ id: user.id }),
         });
         if (response.ok) {
+          const result = await response.text();
         } else {
           alert("didnt sended accept request");
           console.error(
@@ -98,18 +137,27 @@ const Notifications: React.FC<{
       return null;
     }
   });
+  console.log("user", dataContent?.user?.username, dataType);
   return (
     <div
-      key={1}
       className={`notifications-container-${
         toogleButton == "show" && friendsRequest ? "on" : "off"
       }`}
     >
-      <div key={2} className="notifications-content">
-        <div key={3} className="notification-profile">
-          {getNotificationRequests}
-          {notificationData?.type === "friend_new" && (
-            <p>New Friend Added: {notificationData.data.user?.username} </p>
+      <div className="notifications-content">
+        <div className="notification-profile">
+          {dataType === "friend_request_recv" && getNotificationRequests}
+          {dataType === "friend_new" && (
+            <p>New Friend Added: {dataContent?.user?.username} </p>
+          )}
+          {dataType === "friend_delete" && (
+            <p>No longer friend with: {dataContent?.user?.username} </p>
+          )}
+          {dataType === "friend_request_recv" && (
+            <p>Friend Request Received: {dataContent?.user?.username} </p>
+          )}
+          {dataType === "friend_request_denied" && (
+            <p>Friend Request Denied: {dataContent?.user?.username} </p>
           )}
         </div>
       </div>

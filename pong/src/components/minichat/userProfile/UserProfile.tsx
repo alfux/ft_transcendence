@@ -3,60 +3,45 @@ import { config } from "../../../config";
 import { ChannelOptions, ChatProps } from "../MiniChat";
 import { FriendRequest, PlayRequest } from "../../../THREE/Utils/backend_types";
 import { backend_fetch } from "../../backend_fetch";
-
+import Profile from "../profileDisplay/Profile";
 
 const UserProfile: React.FC<ChatProps> = (props) => {
   const [channelRights, setChannelRights] = useState<string | null>(null);
-
+  const [profileStatus, setProfileStatus] = useState <boolean>(false);
   /*======================================================================
   ===================Fetch<Post> Request To Send Friend Invite To Another User==========
   ======================================================================== */
   async function sendFriendInvite() {
-    /*
-    const verify2FAEndpoint = `${config.backend_url}/api/user/friend_request`;
-    console.log("selectedUser: ", props.selectedUser);
-    try {
-      const response = await fetch(verify2FAEndpoint, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(props.selectedUser),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Response: ", data);
-        console.log(" sended friend request to", props.selectedUser?.username);
-      } else {
-        alert("didnt sended invate");
-        console.error(
-          "Error sending invite Server responded with status:",
-          response.status
-        );
+    backend_fetch(
+      `${config.backend_url}/api/user/friend_request`,
+      { method: "POST" },
+      {
+        user_id: props.selectedUser?.id,
       }
-    } catch (error) {
-      console.error("Error verifying 2FA code:", error);
-    }
-    */
-    backend_fetch(`${config.backend_url}/api/user/friend_request`, { method: 'POST' }, {
-      user_id: props.selectedUser?.id
-    })
+    );
   }
   /*======================================================================
   ===================Fetch<Post> Request To Send Play Invite To Another User==========
   ======================================================================== */
   async function sendPlayInvite() {
-    backend_fetch(`${config.backend_url}/api/user/play_request`, { method: 'POST' }, {
-      user_id: props.selectedUser?.id
-    })
+    backend_fetch(
+      `${config.backend_url}/api/user/play_request`,
+      { method: "POST" },
+      {
+        user_id: props.selectedUser?.id,
+      }
+    );
   }
 
   /*======================================================================
   ===================Fetch<Delete> Request To Remove Friend==========
   ======================================================================== */
   async function sendFriendRemove() {
-    backend_fetch(`${config.backend_url}/api/user/friends/${props.selectedUser!.id}`, { method: 'DELETE' })
+    backend_fetch(
+      `${config.backend_url}/api/user/friends/${props.selectedUser!.id}`,
+      { method: "DELETE" }
+    );
+    props.setNotificationType("friend_removed")
   }
 
   /*======================================================================
@@ -77,6 +62,32 @@ const UserProfile: React.FC<ChatProps> = (props) => {
       });
     }
   }, [props.selectedGroup]);
+
+  async function blockFriend() {
+        const url = `${config.backend_url}/api/user/blocked`;
+        try {
+          const response = await fetch(url, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ user_id: props.selectedUser?.id }),
+          });
+
+          if (response.ok) {
+            console.log("Blocked", props.selectedUser?.username);
+          } else {
+            console.error(
+              "Error Blocking User. Server responded with status:",
+              response.status
+            );
+          }
+        } catch (error) {
+          console.error("Error Blocking:", error);
+        }
+    };
+
 
   async function promoteUser() {
     props.selectedGroup?.users!.map(async (user: any) => {
@@ -105,10 +116,28 @@ const UserProfile: React.FC<ChatProps> = (props) => {
           console.error("Error Promoting:", error);
         }
       }
-    })
+    });
   }
 
+  function isFriend() {
+    let friend = false
+    props.friends?.map((user: any) => {
+      if (user.id === props.selectedUser?.id) {
+        friend = true;
+      }
+    });
+    return friend
+  }
+
+  function toogleProfile(){
+    setProfileStatus(profileStatus?false:true)
+    console.log(profileStatus)
+  }
+
+
   return (
+    <>{profileStatus && setTimeout(()=>{setProfileStatus(false)},10000)}
+    {profileStatus && <Profile {...props.selectedUser} />}
     <div className="user-profile">
       {props.selectedUser && !props.selectedGroup && (
         <img className="user-image" src={props.selectedUser.image} />
@@ -135,26 +164,35 @@ const UserProfile: React.FC<ChatProps> = (props) => {
               </div>
               : undefined
           }
+        {/* <div className="status-div">
+          <p>Status</p>
+          <div
+            className={
+              props.selectedUser.isAuthenticated === 0
+                ? "status-online"
+                : "status-offline"
+            }
+          ></div> */}
         </div>
       )}
 
-      {props.selectedUser && !props.selectedGroup && <button>Profile</button>}
-      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && ( // && !props.selectedGroup
-        <button>Invite Game</button>
-      )}
-      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && ( // && !props.selectedGroup
-        <button onClick={sendFriendRemove}>Remove Friend</button>
-      )}
-      {props.selectedGroupOption == ChannelOptions.FRIENDS && props.selectedUser && ( // && !props.selectedGroup
-        <button>Block Friend</button>
-      )}
+      {props.selectedUser && !props.selectedGroup && <button onClick={toogleProfile}>Profile</button>}
       {props.selectedGroupOption == ChannelOptions.FRIENDS &&
-        props.selectedUser && (
-          <button onClick={sendPlayInvite}>Invite Play</button>
+        props.selectedUser && ( // && !props.selectedGroup
+          <button>Invite Game</button>
+        )}
+      {props.selectedGroupOption == ChannelOptions.FRIENDS &&
+        props.selectedUser && ( // && !props.selectedGroup
+          <button onClick={sendFriendRemove}>Remove Friend</button>
+        )}
+      {props.selectedGroupOption == ChannelOptions.FRIENDS &&
+        props.selectedUser && ( // && !props.selectedGroup
+          <button onClick={blockFriend}>Block Friend</button>
         )}
 
-      {props.selectedGroupOption == ChannelOptions.ONLINE_USERS &&
-        props.selectedUser && props.friends?.find((u) => u.id !== props.selectedUser?.id) && (
+      {props.selectedGroupOption !== ChannelOptions.CHANNEL &&
+        props.selectedUser &&
+        !isFriend() && (
           <button onClick={sendFriendInvite}>Invite Friend</button>
         )}
 
@@ -174,6 +212,8 @@ const UserProfile: React.FC<ChatProps> = (props) => {
           <button>Kick</button>
         )}
     </div>
+    
+    </>
   );
 };
 export default UserProfile;

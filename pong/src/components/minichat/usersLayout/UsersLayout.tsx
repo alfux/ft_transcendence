@@ -28,7 +28,7 @@ const UsersLayout: React.FC<ChatProps> = (props: ChatProps) => {
   const onlineUsers = props.allUsers?.map((user: User) => {
     return user.id !== props.me?.id ? (
       <img
-        key={user.id}
+      key={`onlineUser-${user?.db_id}`}
         src={user.image}
         className={user?.isAuthenticated === 0 ? "chat-user-online" : "chat-user-offline"}
         onClick={() => props.setSelectedUser(user)}
@@ -41,7 +41,7 @@ const UsersLayout: React.FC<ChatProps> = (props: ChatProps) => {
       <img
       className={friend?.isAuthenticated === 0?"chat-user-online":"chat-user-offline"}
         src={friend.image}
-        key={friend.id}
+        key={`onlineUser-${friend?.db_id}`}
         onClick={() => props.setSelectedUser(friend)}
       />
     )

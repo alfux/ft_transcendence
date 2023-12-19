@@ -20,13 +20,12 @@ const MatchMaking: React.FC = () => {
 
   useEffect(() => {
     const requestProfile = async () => {
-      try {//fetch Profile
+      try {
         const url = `${config.backend_url}/api/user/me`;
         const response = await fetch(url, {
           method: 'GET',
           credentials: 'include',
         });
-
         if (response.ok) {
           const result = await response.json()
           setData(result)

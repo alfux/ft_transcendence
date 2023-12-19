@@ -8,7 +8,7 @@ export async function backend_fetch(url: string, init?: RequestInit, body?:any) 
     }
     const rep = await fetch(url, Object.assign({}, default_init, init))
     if (rep.ok) {
-      return rep.json()
+      // return rep.json()
     } else {
       const json = await rep.json()
       console.trace(`Couldn't fetch ${url}: ${rep.status} : ${JSON.stringify(json,null,2)}`)
