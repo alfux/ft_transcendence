@@ -99,7 +99,6 @@ const MatchMaking: React.FC = () => {
               )
           }
         </div>
-
       </div>
 
 
@@ -111,7 +110,7 @@ const MatchMaking: React.FC = () => {
               Cancel
             </button>
             :
-            <button onClick={() => { setSearching(true); gameSocket.emit("search", {classic:true}) }}>
+            <button onClick={() => { setSearching(true); gameSocket.emit("search", true) }}>
               Find Match
             </button>
         }

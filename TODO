@@ -30,7 +30,7 @@ ____________________________________________________________________________
 
 =>Security concerns
 
-📋Any password stored in your database must be hashed ❌
+📋Any password stored in your database must be hashed ✅
 
 📋Your website must be protected against SQL injections. ❌
 
