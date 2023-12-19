@@ -9,6 +9,7 @@ import { MoonLoader } from 'react-spinners';
 import { gameSocket } from '../../sockets';
 import Countdown from 'react-countdown'
 
+import { classic_mode } from "../../THREE/MenuScene/menu_scene";
 
 const MatchMaking: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
@@ -20,13 +21,12 @@ const MatchMaking: React.FC = () => {
 
   useEffect(() => {
     const requestProfile = async () => {
-      try {//fetch Profile
+      try {
         const url = `${config.backend_url}/api/user/me`;
         const response = await fetch(url, {
           method: 'GET',
           credentials: 'include',
         });
-
         if (response.ok) {
           const result = await response.json()
           setData(result)
@@ -110,7 +110,7 @@ const MatchMaking: React.FC = () => {
               Cancel
             </button>
             :
-            <button onClick={() => { setSearching(true); gameSocket.emit("search", true) }}>
+            <button onClick={() => { setSearching(true); gameSocket.emit("search", classic_mode) }}>
               Find Match
             </button>
         }

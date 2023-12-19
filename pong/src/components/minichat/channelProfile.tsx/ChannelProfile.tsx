@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { config } from "../../../config";
 import { ChatProps } from "../MiniChat";
 
 const ChannelProfile: React.FC<ChatProps> = (props) => {
+  const [password, setPassword] = useState("");
   const joinChannel = async () => {
-    console.log("me_id", props.selectedGroup?.id);
+    console.log("group", props.selectedGroup);
     try {
       const response = await fetch(
         `${config.backend_url}/api/conversation/join`,
@@ -13,7 +15,7 @@ const ChannelProfile: React.FC<ChatProps> = (props) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ id: props.selectedGroup?.id }),
+          body: JSON.stringify({ id: props.selectedGroup?.id, password:password }),
         }
       );
       if (response.ok) {
@@ -24,11 +26,12 @@ const ChannelProfile: React.FC<ChatProps> = (props) => {
     } catch (error) {
       console.error("Error Fetching:", error);
     }
+    setPassword("")
   };
-// Need to check if i am the owner if i am the owner i need to pass the rights to second person or another admin
+  // Need to check if i am the owner if i am the owner i need to pass the rights to second person or another admin
   const leaveChannel = async () => {
     try {
-      console.log("lla",props.selectedGroup)
+      console.log("lla", props.selectedGroup);
       const response = await fetch(
         `${config.backend_url}/api/conversation/leave`,
         {
@@ -61,7 +64,16 @@ const ChannelProfile: React.FC<ChatProps> = (props) => {
         <p> {props.selectedGroup?.users![0]?.becameAdminAt}</p>
 
         {!props.isInChannel ? (
-          <button onClick={joinChannel}>Join Channel</button>
+          <form>
+            <input
+              placeholder="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            ></input>
+            &&
+            <button type="button" onClick={joinChannel}>Join Channel</button>
+          </form>
         ) : (
           <button onClick={leaveChannel}>Leave Channel</button>
         )}

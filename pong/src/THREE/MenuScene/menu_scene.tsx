@@ -23,6 +23,10 @@ import ReactAudioPlayer from "react-audio-player";
 
 import { audioBank } from "../Audio"
 
+export var	classic_mode = false;
+
+let	time = 0;
+
 enum MenuButtons {
   Login = "Login",
   Logout = "Logout",
@@ -257,7 +261,6 @@ export function create_menu_scene(
   let menu_state = MenuState.Unlogged;
   
   let corr = 0.2 - 2 * Math.PI;
-  let	classic_mode = false;
 
   const	cleanup: Array<() => void> = [];
 
@@ -518,9 +521,6 @@ export function create_menu_scene(
           document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
           window.location.reload();
           break;
-        case MenuButtons.Play:
-          gameSocket.emit("search", classic_mode);
-          break
       }
       console.log("clicked on ball");
     }
@@ -647,7 +647,12 @@ export function create_menu_scene(
 
     if (Math.abs(menu_parent.rotation.x - corr) % (Math.PI / 3) > 0.02)
       centerMenu(menu_parent, deltaY, isLogged ? Math.PI / 3 : 2 * Math.PI / 3);
-    composer.render();
+	if (time > 0.007) {
+		composer.render(clock.deltaT);
+		time = 0;
+	} else
+		time += clock.deltaT;
+	console.log(clock.deltaT);
     return (option);
   }
 
