@@ -41,7 +41,6 @@ export class NotificationsGateway implements OnGatewayConnection {
     if (!user) {
       return
     }
-    console.log("NOTIFICATIONS => ", user.id, client.id)
     this.notificationService.addClient(client, user)
   }
 

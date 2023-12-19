@@ -56,17 +56,12 @@ export class GameGateway implements OnGatewayConnection {
   @CoolSocket
   async handleCancelSearch(client: Client) {
     this.waiting = this.waiting.filter((v) => v.user.id !== client.user.id)
-    console.log(this.waiting)
   }
 
   @SubscribeMessage('search')
   @CoolSocket
   async handleSearch(client: Client, classic: boolean) {
-
-    console.log(client.user)
-
     if (this.waiting.find((v) => v.socket.id === client.socket.id)) {
-      console.log("Already waiting")
       return
     }
 
@@ -104,6 +99,7 @@ export class GameGateway implements OnGatewayConnection {
   @SubscribeMessage('player_input')
   @CoolSocket
   async handlePlayerInput(client: Client, keyboard: Keyboard) {
+
     const game_instance = this.gameInstances.find((gi) =>
       gi.player1.client.socket.id === client.socket.id ||
       gi.player2.client.socket.id === client.socket.id)

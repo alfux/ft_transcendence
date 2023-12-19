@@ -51,10 +51,8 @@ export class DebugController {
   async add_message(@Body() body: DTO.NewMessageParams) {
     const conv = await this.conversationService.getConversation({ title: body.conversation_name }, ['users', 'users.user'])
 
-    console.log(conv.users)
 
     const conv_user = conv.users.find((conv_user) => (conv_user.user.id === body.user_id))
-    console.log(body.user_id, conv_user.user)
     if (!conv_user)
       throw new HttpException('No user in that conversation', HttpStatus.BAD_REQUEST)
 

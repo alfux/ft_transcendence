@@ -14,6 +14,8 @@ class	Keyboard {
 	}
 };
 
+let test = false
+
 function impact(ball: Ball, obstacle: Obstacle) {
   const d = new Vec3(
     obstacle.direction.y,
@@ -209,6 +211,8 @@ export class GameInstance {
   	this.last_pos_p2 = 0;
   	this.start_timer = 0;
   	this.pace = 1;
+
+    this.delta_time = 0
   }
 
   get_by_user_id(user_id:number) {
@@ -240,6 +244,8 @@ export class GameInstance {
     await new Promise( resolve => setTimeout(resolve, delay*1000) );
 
 		this.clock.start()
+    this.clock.getDelta()
+    this.delta_time = 0
 
 		this.player1.client.socket.emit("start", {
 			opponent: this.player2.client.user,
@@ -265,9 +271,9 @@ export class GameInstance {
 			speed += 5;
 		move = speed * this.delta_time;
 		this.player2.racket.position.y = clamp(
-			this.player2.racket.position.y + move, -7, 7
-		);
-		this.player2.racket.speed = speed / 5; // Tune down probably
+      this.player2.racket.position.y + move, -7, 7
+      );
+      this.player2.racket.speed = speed / 5; // Tune down probably
 
 		speed = 0;
 		if (this.player1.keyboard.key?.ArrowDown)
@@ -435,7 +441,6 @@ export class GameInstance {
   }
 
   disconnect(client:Client) {
-    console.log("Player disconnected !")
     this.finish(this.other_one(client), "disconnect")
   }
 
@@ -455,8 +460,11 @@ export class GameInstance {
   }
 
   update() {
-	this.updateBallPos();
-	this.updatePlayerPos();
-    this.delta_time = this.clock.getDelta();
+	  this.updateBallPos();
+	  this.updatePlayerPos();
+
+    const new_dtime = this.clock.getDelta()
+    if (!isNaN(new_dtime))
+      this.delta_time = new_dtime;
   }
 }
