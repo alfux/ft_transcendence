@@ -22,20 +22,19 @@ const Notifications: React.FC = () => {
     console.log("Socket connection status:", notifications.connected);
     if (!notifications.connected) {
       notifications.connect();
+      console.log("ups .. ok now connected");
     }
-    const handleConnectionError = (error:any) => {
-      console.error("Socket connection error:", error);
-    };
-    notifications.on("connect_error", handleConnectionError);
+
+    notifications.on("friend_new", (data: { req: any } | any) => {
+      console.log("Received friend new");
+      setDataType("friend_new");
+      setDataContent(data);
+    });
+
     notifications.on("friend_request_recv", (data: { req: any }) => {
       setDataType("friend_request_recv");
       setDataContent(data);
       console.log("friend request received");
-    });
-    notifications.on("friend_new", (data: { req: any }) => {
-      setDataType("friend_new");
-      setDataContent(data);
-      console.log("new Friend");
     });
     notifications.on("friend_delete", (data: { req: any }) => {
       setDataType("friend_delete");
@@ -53,7 +52,7 @@ const Notifications: React.FC = () => {
       console.log("disconected")
       notifications.disconnect()
     })
-  }, []);
+  });
 
   /*======================================================================
   ===================Fetch Friends Requests================================
@@ -79,7 +78,7 @@ const Notifications: React.FC = () => {
       }
     };
     fetchRequets();
-  }, [dataType === "friend_request_recv"]);
+  }, [dataType, dataContent]);
   /*======================================================================
   ===================Toogle Notification Bar On or Off=====================
   ======================================================================== */
@@ -107,7 +106,6 @@ const Notifications: React.FC = () => {
         });
         if (response.ok) {
           const result = await response.text();
-          setDataType("friend_new")
         } else {
           alert("didnt sended accept request");
           console.error(
@@ -142,13 +140,12 @@ const Notifications: React.FC = () => {
   console.log("user", dataContent?.user?.username, dataType);
   return (
     <div
-      key={1}
       className={`notifications-container-${
         toogleButton == "show" && friendsRequest ? "on" : "off"
       }`}
     >
-      <div key={2} className="notifications-content">
-        <div key={3} className="notification-profile">
+      <div className="notifications-content">
+        <div className="notification-profile">
           {dataType === "friend_request_recv" && getNotificationRequests}
           {dataType === "friend_new" && (
             <p>New Friend Added: {dataContent?.user?.username} </p>

@@ -24,8 +24,7 @@ export function RenderComponents(loginForm: { option: string, game: boolean }) {
   let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
   const [payload, updatePayload, handleUpdate] = usePayload();
   const cleanup: (() => void)[] = [];
-  const [notification, setNotification] = useState<string | null> (null);
-
+  
   useEffect(()=>{
       const newFormContainer = document.createElement('div');
       const root = createRoot(newFormContainer);

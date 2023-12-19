@@ -3,8 +3,7 @@ import { config } from "../../../config";
 import { ChannelOptions, ChatProps } from "../MiniChat";
 import { FriendRequest, PlayRequest } from "../../../THREE/Utils/backend_types";
 import { backend_fetch } from "../../backend_fetch";
-import { User } from "../../scorebar/ScoreBar";
-import Profile from "../../profile/Profile";
+import Profile from "../profileDisplay/Profile";
 
 const UserProfile: React.FC<ChatProps> = (props) => {
   const [channelRights, setChannelRights] = useState<string | null>(null);
@@ -138,7 +137,7 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 
   return (
     <>{profileStatus && setTimeout(()=>{setProfileStatus(false)},10000)}
-    {profileStatus && <Profile/>}
+    {profileStatus && <Profile {...props.selectedUser} />}
     <div className="user-profile">
       {props.selectedUser && !props.selectedGroup && (
         <img className="user-image" src={props.selectedUser.image} />
