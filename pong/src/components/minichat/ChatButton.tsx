@@ -12,8 +12,8 @@ const MiniChatButton: React.FC = () => {
   const handleToggleMiniChat = () => {
     setMiniChatVisibility((prevVisibility) => !prevVisibility);
   };
-  useEffect(()=>{
-    if(isMiniChatVisible){
+  useEffect(() => {
+    if (isMiniChatVisible) {
       const newFormContainer = document.createElement('div');
       const root = createRoot(newFormContainer);
       root.render(<MiniChat width='30%' height='65%' bottom='5%' right='-1px' />);
@@ -25,11 +25,11 @@ const MiniChatButton: React.FC = () => {
         });
       };
     }
-  },[isMiniChatVisible])
-  
+  }, [isMiniChatVisible])
+
   return (
-    <div className={isMiniChatVisible?"glass-container-minichat-button-on":"glass-container-minichat-button-off"}>
-<FontAwesomeIcon className='chat-icon' onClick={handleToggleMiniChat} icon={faMessage} flip="horizontal" />
+    <div className={isMiniChatVisible ? "glass-container-minichat-button-on" : "glass-container-minichat-button-off"}>
+      <FontAwesomeIcon className='chat-icon' onClick={handleToggleMiniChat} icon={faMessage} flip="horizontal" />
     </div>
   );
 };

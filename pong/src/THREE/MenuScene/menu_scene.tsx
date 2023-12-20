@@ -23,9 +23,9 @@ import ReactAudioPlayer from "react-audio-player";
 
 import { audioBank } from "../Audio"
 
-export var	classic_mode = false;
+export var classic_mode = false;
 
-let	time = 0;
+let time = 0;
 
 enum MenuButtons {
   Login = "Login",
@@ -37,31 +37,31 @@ enum MenuButtons {
   Chat = "Chat",
   Create = "Create",
   YouWin = "YouWin",
-  YouLoose= "YouLoose",
+  YouLoose = "YouLoose",
   Null = "null",
 };
 
 enum MenuState {
-	Unlogged,
-	Logged,
-	Winner,
-	Looser,
-	Endgame
+  Unlogged,
+  Logged,
+  Winner,
+  Looser,
+  Endgame
 };
 
 export function create_menu_scene(
-	renderer: THREE.WebGLRenderer,
-	game_texture: THREE.Texture,
-	payload: JwtPayload | null,
-	mousecast: THREE.Vector2,
-	mousespeed: THREE.Vector2,
-	divRef: HTMLDivElement | null,
+  renderer: THREE.WebGLRenderer,
+  game_texture: THREE.Texture,
+  payload: JwtPayload | null,
+  mousecast: THREE.Vector2,
+  mousespeed: THREE.Vector2,
+  divRef: HTMLDivElement | null,
 ) {
   const loader = new FontLoader();
   const font_params = { size: 0.4, height: 0.2 };
   const material_params = { color: 0x001616, side: THREE.DoubleSide };
   const theta = Math.PI / 6;
-  let option: {option: string, game: boolean} = {option: "Login", game: false};
+  let option: { option: string, game: boolean } = { option: "Login", game: false };
   loader.load("fonts/Games_Regular.json", (font) => {
     const neon_login = new THREE.MeshBasicMaterial(material_params);
     const tlogin = new TextGeometry("Sign in", { ...font_params, font: font });
@@ -165,7 +165,7 @@ export function create_menu_scene(
     chat.name = "Chat";
     chat.layers.set(1);
 
-	const neon_youwin = new THREE.MeshBasicMaterial(material_params);
+    const neon_youwin = new THREE.MeshBasicMaterial(material_params);
     const tyouwin = new TextGeometry("You win !", { ...font_params, font: font });
     const lyouwin = new THREE.DirectionalLight(0xffbbbb, 0);
     lyouwin.position.set(0, Math.cos(-3 * theta), Math.sin(-3 * theta));
@@ -178,7 +178,7 @@ export function create_menu_scene(
     youwin.name = "YouWin";
     youwin.layers.set(1);
 
-	const neon_youloose = new THREE.MeshBasicMaterial(material_params);
+    const neon_youloose = new THREE.MeshBasicMaterial(material_params);
     const tyouloose = new TextGeometry("You loose !", { ...font_params, font: font });
     const lyouloose = new THREE.DirectionalLight(0xffbbbb, 0);
     lyouloose.position.set(0, Math.cos(-3 * theta), Math.sin(-3 * theta));
@@ -192,9 +192,9 @@ export function create_menu_scene(
     youloose.layers.set(1);
 
     menu_parent.add(
-		login, play, settings, create, about, profile, chat, logout, youwin, youloose,
-		llogin, lplay, lsettings, lcreate, labout, lprofile, lchat, llogout, lyouwin, lyouloose
-	);
+      login, play, settings, create, about, profile, chat, logout, youwin, youloose,
+      llogin, lplay, lsettings, lcreate, labout, lprofile, lchat, llogout, lyouwin, lyouloose
+    );
   }, (prog) => {
     console.log((prog.loaded) + " bytes loaded");
   }, (err) => {
@@ -215,7 +215,7 @@ export function create_menu_scene(
   const sphere_mesh = new THREE.Mesh(sphere_geometry, sphere_material);
   sphere_mesh.name = "Sphere";
 
-  let	scaling = 1.5;
+  let scaling = 1.5;
   const menu_parent = new THREE.Group();
   menu_parent.add(sphere_mesh);
   menu_parent.position.set(0, 0, 1);
@@ -223,16 +223,16 @@ export function create_menu_scene(
   menu_parent.up.set(0, 1, 0);
   menu_parent.lookAt(0, 0, 20);
   if (!isLogged) {
-	menu_parent.rotation.set(2 * Math.PI / 3, 0, 0);
-	scaling = 2.5;
+    menu_parent.rotation.set(2 * Math.PI / 3, 0, 0);
+    scaling = 2.5;
   }
   menu_parent.scale.set(scaling, scaling, scaling);
   const plane = new THREE.PlaneGeometry(25, (9 / 16) * 25);
-  const texture = new THREE.MeshLambertMaterial({ map: game_texture, transparent: true, opacity: 0});
+  const texture = new THREE.MeshLambertMaterial({ map: game_texture, transparent: true, opacity: 0 });
   const screen_plane = new THREE.Mesh(plane, texture);
-  const	mouse_plane = new THREE.PlaneGeometry(500, 500);
-  const	mouse_material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0});
-  const	mouse_mesh = new THREE.Mesh(mouse_plane, mouse_material);
+  const mouse_plane = new THREE.PlaneGeometry(500, 500);
+  const mouse_material = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 });
+  const mouse_mesh = new THREE.Mesh(mouse_plane, mouse_material);
   screen_plane.position.set(0, 0.35, -1);
   mouse_mesh.position.set(0, 0.35, -1);
 
@@ -259,233 +259,229 @@ export function create_menu_scene(
   let current: MenuButtons | null = null;
 
   let menu_state = MenuState.Unlogged;
-  
+
   let corr = 0.2 - 2 * Math.PI;
 
-  const	cleanup: Array<() => void> = [];
+  const cleanup: Array<() => void> = [];
 
   divRef?.addEventListener("wheel", handleWheel);
   divRef?.addEventListener("click", handleClick);
   window.addEventListener("resize", handleResize);
   window.addEventListener("pointermove", handleMove);
 
-	gameSocket.on("start", handleStart);
-	gameSocket.on("finish", handleFinish);
-	gameSocket.on("bounce", handleBounce);
+  gameSocket.on("start", handleStart);
+  gameSocket.on("finish", handleFinish);
+  gameSocket.on("bounce", handleBounce);
 
-	function	handleBounce(rng: number) {
-		let	i = 0;
+  function handleBounce(rng: number) {
+    let i = 0;
 
-		for (let key in audioBank?.bank) {
-			if (i === rng) {
-				audioBank?.play(key, 0.1);
-				return ;
-			}
-			i++;
-		}
-	}
+    for (let key in audioBank?.bank) {
+      if (i === rng) {
+        audioBank?.play(key, 0.1);
+        return;
+      }
+      i++;
+    }
+  }
 
-	const	fadeIn = {
-		t:			0,
-		duration:	3,
-		start:		2,
-		shape:		(t: number) => {return (Math.min(Math.pow(t, 2), 1));},
-		hide:		new THREE.PlaneGeometry(25, (9 / 16) * 25),
-		black:		new THREE.MeshBasicMaterial({color: 0x000000, transparent: true, opacity: 1}),
-		mesh:		new THREE.Mesh(),
-		glitch:		new GlitchPass(),
-		root:		ReactDOM.createRoot(document.getElementById("audio") as HTMLElement),
+  const fadeIn = {
+    t: 0,
+    duration: 3,
+    start: 2,
+    shape: (t: number) => { return (Math.min(Math.pow(t, 2), 1)); },
+    hide: new THREE.PlaneGeometry(25, (9 / 16) * 25),
+    black: new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 1 }),
+    mesh: new THREE.Mesh(),
+    glitch: new GlitchPass(),
+    root: ReactDOM.createRoot(document.getElementById("audio") as HTMLElement),
 
-		startAnimation() {
-			this.mesh.geometry = this.hide;
-			this.mesh.material = this.black;
-			this.mesh.position.set(0, 0.35, -0.9);
-			scene.add(this.mesh);
-			this.waitForStart();
-		},
+    startAnimation() {
+      this.mesh.geometry = this.hide;
+      this.mesh.material = this.black;
+      this.mesh.position.set(0, 0.35, -0.9);
+      scene.add(this.mesh);
+      this.waitForStart();
+    },
 
-		destructor() {
-			this.hide.dispose();
-			this.black.dispose();
-			composer.removePass(this.glitch);
-			this.glitch.dispose();
-			scene.remove(this.mesh);
-		},
-		
-		waitForStart() {
-			if (this.t < this.start) {
-				window.requestAnimationFrame(() => {
-					this.waitForStart();
-				});
-				this.t += clock.deltaT;
-			}
-			else {
-				composer.addPass(this.glitch);
-				this.root.render(
-					<ReactAudioPlayer className='audio' src="./game.mp3" volume={0.5} controls autoPlay={true} muted={false}/>
-				);
-				this.animate();
-			}
-		},
+    destructor() {
+      this.hide.dispose();
+      this.black.dispose();
+      composer.removePass(this.glitch);
+      this.glitch.dispose();
+      scene.remove(this.mesh);
+    },
 
-		animate() {
-			if (this.t < this.duration) {
-				window.requestAnimationFrame(() => {
-					this.animate();
-				});
-			}
-			else
-				this.destructor();
-			texture.opacity = this.shape((this.t - this.start) / (this.duration - this.start));
-			this.black.opacity = 1 - texture.opacity;
-			this.t += clock.deltaT;
-		}
-	};
+    waitForStart() {
+      if (this.t < this.start) {
+        window.requestAnimationFrame(() => {
+          this.waitForStart();
+        });
+        this.t += clock.deltaT;
+      }
+      else {
+        composer.addPass(this.glitch);
+        this.root.render(
+          <ReactAudioPlayer className='audio' src="./game.mp3" volume={0.5} controls autoPlay={true} muted={false} />
+        );
+        this.animate();
+      }
+    },
 
-	if (isLogged)
-		fadeIn.startAnimation();
+    animate() {
+      if (this.t < this.duration) {
+        window.requestAnimationFrame(() => {
+          this.animate();
+        });
+      }
+      else
+        this.destructor();
+      texture.opacity = this.shape((this.t - this.start) / (this.duration - this.start));
+      this.black.opacity = 1 - texture.opacity;
+      this.t += clock.deltaT;
+    }
+  };
 
-	function	updateT(t: number, max: number = 1) {
-		t += clock.deltaT;
-		if (t >= max)
-			return (max);
-		return (t);
-	}
-	function	handleStart(data: {opponent: User, you: User}) {
-		option.game = true;
-		cleanup.push(createComponent(Score, {user: data.you, you: true}));
-		cleanup.push(createComponent(Score, {user: data.opponent, you: false}));
-	}
+  if (isLogged)
+    fadeIn.startAnimation();
 
-	//	{winner:  'you' | 'opponent' , reason:  'won' | 'disconnect'}
-	function	handleFinish(data: {winner: string, reason: string}) {
-		option.game = false;
-		unsetAll();
-		if (data.winner === "you")
-		{
-			menu_parent.getObjectByName("YouWin")?.layers.set(0);
-			menu_parent.getObjectByName("lYouWin")?.layers.set(0);
-			menu_state = MenuState.Winner;
-			endgame.animate();
-		}
-		else
-		{
-			menu_parent.getObjectByName("YouLoose")?.layers.set(0);
-			menu_parent.getObjectByName("lYouLoose")?.layers.set(0);
-			menu_state = MenuState.Looser;
-			endgame.animate();
-		}
-		cleanup.forEach( (elem) => {
-			elem();
-		});
+  function updateT(t: number, max: number = 1) {
+    t += clock.deltaT;
+    if (t >= max)
+      return (max);
+    return (t);
+  }
+  function handleStart(data: { opponent: User, you: User }) {
+    option.game = true;
+    cleanup.push(createComponent(Score, { user: data.you, you: true }));
+    cleanup.push(createComponent(Score, { user: data.opponent, you: false }));
+  }
+
+  //	{winner:  'you' | 'opponent' , reason:  'won' | 'disconnect'}
+  function handleFinish(data: { winner: string, reason: string }) {
+    option.game = false;
+    unsetAll();
+    if (data.winner === "you") {
+      menu_parent.getObjectByName("YouWin")?.layers.set(0);
+      menu_parent.getObjectByName("lYouWin")?.layers.set(0);
+      menu_state = MenuState.Winner;
+      endgame.animate();
+    }
+    else {
+      menu_parent.getObjectByName("YouLoose")?.layers.set(0);
+      menu_parent.getObjectByName("lYouLoose")?.layers.set(0);
+      menu_state = MenuState.Looser;
+      endgame.animate();
+    }
+    cleanup.forEach((elem) => {
+      elem();
+    });
     cleanup.length = 0;
-	} 
+  }
 
-	function	setLoggedMenu() {
-		menu_parent.getObjectByName("Create")?.layers.set(1);
-		menu_parent.getObjectByName("lCreate")?.layers.set(1);
-		menu_parent.getObjectByName("Login")?.layers.set(1);
-		menu_parent.getObjectByName("lLogin")?.layers.set(1);
-		menu_parent.getObjectByName("Logout")?.layers.set(0);
-		menu_parent.getObjectByName("lLogout")?.layers.set(0);
-		menu_parent.getObjectByName("Profile")?.layers.set(0);
-		menu_parent.getObjectByName("lProfile")?.layers.set(0);
-		menu_parent.getObjectByName("About")?.layers.set(0);
-		menu_parent.getObjectByName("lAbout")?.layers.set(0);
-		menu_parent.getObjectByName("Settings")?.layers.set(0);
-		menu_parent.getObjectByName("lSettings")?.layers.set(0);
-		menu_parent.getObjectByName("Chat")?.layers.set(0);
-		menu_parent.getObjectByName("lChat")?.layers.set(0);
-		menu_parent.getObjectByName("Play")?.layers.set(0);
-		menu_parent.getObjectByName("lPlay")?.layers.set(0);
-		menu_parent.getObjectByName("YouWin")?.layers.set(1);
-		menu_parent.getObjectByName("lYouWin")?.layers.set(1);
-		menu_parent.getObjectByName("YouLoose")?.layers.set(1);
-		menu_parent.getObjectByName("lYouLoose")?.layers.set(1);
-		menu_state = MenuState.Logged;
-		console.log("Set logged menu");
-	}
+  function setLoggedMenu() {
+    menu_parent.getObjectByName("Create")?.layers.set(1);
+    menu_parent.getObjectByName("lCreate")?.layers.set(1);
+    menu_parent.getObjectByName("Login")?.layers.set(1);
+    menu_parent.getObjectByName("lLogin")?.layers.set(1);
+    menu_parent.getObjectByName("Logout")?.layers.set(0);
+    menu_parent.getObjectByName("lLogout")?.layers.set(0);
+    menu_parent.getObjectByName("Profile")?.layers.set(0);
+    menu_parent.getObjectByName("lProfile")?.layers.set(0);
+    menu_parent.getObjectByName("About")?.layers.set(0);
+    menu_parent.getObjectByName("lAbout")?.layers.set(0);
+    menu_parent.getObjectByName("Settings")?.layers.set(0);
+    menu_parent.getObjectByName("lSettings")?.layers.set(0);
+    menu_parent.getObjectByName("Chat")?.layers.set(0);
+    menu_parent.getObjectByName("lChat")?.layers.set(0);
+    menu_parent.getObjectByName("Play")?.layers.set(0);
+    menu_parent.getObjectByName("lPlay")?.layers.set(0);
+    menu_parent.getObjectByName("YouWin")?.layers.set(1);
+    menu_parent.getObjectByName("lYouWin")?.layers.set(1);
+    menu_parent.getObjectByName("YouLoose")?.layers.set(1);
+    menu_parent.getObjectByName("lYouLoose")?.layers.set(1);
+    menu_state = MenuState.Logged;
+    console.log("Set logged menu");
+  }
 
-	function	setUnloggedMenu() {
-		menu_parent.getObjectByName("Create")?.layers.set(0);
-		menu_parent.getObjectByName("lCreate")?.layers.set(0);
-		menu_parent.getObjectByName("Login")?.layers.set(0);
-		menu_parent.getObjectByName("lLogin")?.layers.set(0);
-		menu_parent.getObjectByName("Logout")?.layers.set(1);
-		menu_parent.getObjectByName("lLogout")?.layers.set(1);
-		menu_parent.getObjectByName("Profile")?.layers.set(1);
-		menu_parent.getObjectByName("lProfile")?.layers.set(1);
-		menu_parent.getObjectByName("About")?.layers.set(0);
-		menu_parent.getObjectByName("lAbout")?.layers.set(0);
-		menu_parent.getObjectByName("Settings")?.layers.set(1);
-		menu_parent.getObjectByName("lSettings")?.layers.set(1);
-		menu_parent.getObjectByName("Chat")?.layers.set(1);
-		menu_parent.getObjectByName("lChat")?.layers.set(1);
-		menu_parent.getObjectByName("Play")?.layers.set(1);
-		menu_parent.getObjectByName("lPlay")?.layers.set(1);
-		menu_parent.getObjectByName("YouWin")?.layers.set(1);
-		menu_parent.getObjectByName("lYouWin")?.layers.set(1);
-		menu_parent.getObjectByName("YouLoose")?.layers.set(1);
-		menu_parent.getObjectByName("lYouLoose")?.layers.set(1);
-		menu_state = MenuState.Unlogged;
-		console.log("Set Unlogged menu");
-	}
+  function setUnloggedMenu() {
+    menu_parent.getObjectByName("Create")?.layers.set(0);
+    menu_parent.getObjectByName("lCreate")?.layers.set(0);
+    menu_parent.getObjectByName("Login")?.layers.set(0);
+    menu_parent.getObjectByName("lLogin")?.layers.set(0);
+    menu_parent.getObjectByName("Logout")?.layers.set(1);
+    menu_parent.getObjectByName("lLogout")?.layers.set(1);
+    menu_parent.getObjectByName("Profile")?.layers.set(1);
+    menu_parent.getObjectByName("lProfile")?.layers.set(1);
+    menu_parent.getObjectByName("About")?.layers.set(0);
+    menu_parent.getObjectByName("lAbout")?.layers.set(0);
+    menu_parent.getObjectByName("Settings")?.layers.set(1);
+    menu_parent.getObjectByName("lSettings")?.layers.set(1);
+    menu_parent.getObjectByName("Chat")?.layers.set(1);
+    menu_parent.getObjectByName("lChat")?.layers.set(1);
+    menu_parent.getObjectByName("Play")?.layers.set(1);
+    menu_parent.getObjectByName("lPlay")?.layers.set(1);
+    menu_parent.getObjectByName("YouWin")?.layers.set(1);
+    menu_parent.getObjectByName("lYouWin")?.layers.set(1);
+    menu_parent.getObjectByName("YouLoose")?.layers.set(1);
+    menu_parent.getObjectByName("lYouLoose")?.layers.set(1);
+    menu_state = MenuState.Unlogged;
+    console.log("Set Unlogged menu");
+  }
 
-	function	unsetAll() {
-		menu_parent.traverse((obj) => {
-			if (obj.name !== "Sphere")
-				obj.layers.set(1);
-		});
-	}
+  function unsetAll() {
+    menu_parent.traverse((obj) => {
+      if (obj.name !== "Sphere")
+        obj.layers.set(1);
+    });
+  }
 
-	class	EndgameAnimation {
-		t:		number;
+  class EndgameAnimation {
+    t: number;
 
-		constructor() {
-			this.t = 0;
-		}
+    constructor() {
+      this.t = 0;
+    }
 
-		animate() {
-			if (this.t < 1) {
-				requestAnimationFrame(() => {
-					this.animate();
-				});
-				if (this.t === 0)
-					menu_parent.position.set(0, 0, 0);
-				this.t = updateT(this.t, 3.5);
-				if (this.t < 1)
-					menu_parent.rotation.set(0, fct(this.t) * Math.PI, 0);
-				else
-					menu_parent.rotation.set(0, Math.PI, 0);
-			}
-			else if (this.t < 3.5)
-			{
-				requestAnimationFrame(() => {
-					this.animate();
-				});
-				this.t = updateT(this.t, 3.5);
-			}
-			else
-			{
-				this.t = 0;
-				requestAnimationFrame(() => {
-					menu_parent.rotation.set(3 * theta, 0, 0);
-					menu_state = MenuState.Endgame;
-				});
-			}
-		}
-	};
+    animate() {
+      if (this.t < 1) {
+        requestAnimationFrame(() => {
+          this.animate();
+        });
+        if (this.t === 0)
+          menu_parent.position.set(0, 0, 0);
+        this.t = updateT(this.t, 3.5);
+        if (this.t < 1)
+          menu_parent.rotation.set(0, fct(this.t) * Math.PI, 0);
+        else
+          menu_parent.rotation.set(0, Math.PI, 0);
+      }
+      else if (this.t < 3.5) {
+        requestAnimationFrame(() => {
+          this.animate();
+        });
+        this.t = updateT(this.t, 3.5);
+      }
+      else {
+        this.t = 0;
+        requestAnimationFrame(() => {
+          menu_parent.rotation.set(3 * theta, 0, 0);
+          menu_state = MenuState.Endgame;
+        });
+      }
+    }
+  };
 
-	const	endgame = new EndgameAnimation();
+  const endgame = new EndgameAnimation();
 
-	function swapMenu() {
-		if (menu_state === MenuState.Winner || menu_state === MenuState.Looser)
-			return ;
-		if (isLogged && menu_state !== MenuState.Logged && menu_parent.children.length > 1)
-			setLoggedMenu();
-		else if (!isLogged && menu_state !== MenuState.Unlogged && menu_parent.children.length > 1)
-			setUnloggedMenu();
-	}
+  function swapMenu() {
+    if (menu_state === MenuState.Winner || menu_state === MenuState.Looser)
+      return;
+    if (isLogged && menu_state !== MenuState.Logged && menu_parent.children.length > 1)
+      setLoggedMenu();
+    else if (!isLogged && menu_state !== MenuState.Unlogged && menu_parent.children.length > 1)
+      setUnloggedMenu();
+  }
 
   function handleResize(evenet: Event) {
     general_scaling = Math.min(1680 * window.innerWidth / window.screen.width, (16 / 9) * 1050 * window.innerHeight / window.screen.height) / 1000;
@@ -533,26 +529,26 @@ export function create_menu_scene(
     raycaster.setFromCamera(pointer, camera);
 
     const intersect = raycaster.intersectObjects(scene.children);
-	const inter_plane = raycaster.intersectObject(mouse_mesh);
+    const inter_plane = raycaster.intersectObject(mouse_mesh);
     if (intersect.length > 0 && current === "Logout"
       && (intersect[0].object.name === current
         || intersect[0].object.name === "Sphere"))
       document.body.style.cursor = "pointer";
     else
       document.body.style.cursor = "default";
-	if (option.game) {
-		mousecast.x = 2 * inter_plane[0]?.point.x / (general_scaling * 25);
-		mousecast.y = 2 * inter_plane[0]?.point.y / (general_scaling * 25 * 9 / 16);
-		mousespeed.x = event.movementX;
-		mousespeed.y = event.movementY;
-	}
+    if (option.game) {
+      mousecast.x = 2 * inter_plane[0]?.point.x / (general_scaling * 25);
+      mousecast.y = 2 * inter_plane[0]?.point.y / (general_scaling * 25 * 9 / 16);
+      mousespeed.x = event.movementX;
+      mousespeed.y = event.movementY;
+    }
   }
 
   function getCurrent(rot: number) {
-	if (menu_state === MenuState.Winner)
-		return (MenuButtons.YouWin);
-	if (menu_state === MenuState.Looser)
-		return (MenuButtons.YouLoose);
+    if (menu_state === MenuState.Winner)
+      return (MenuButtons.YouWin);
+    if (menu_state === MenuState.Looser)
+      return (MenuButtons.YouLoose);
     if (isLogged) {
       if ((rot - corr) % (2 * Math.PI) <= theta)
         return (MenuButtons.Logout);
@@ -591,44 +587,44 @@ export function create_menu_scene(
     group.rotation.x = rot;
   }
 
-	let		t = 0;
-	const	gamma = 1.2;
-	const	_a = 2 - 4 * gamma;
-	const	_b = (_a - 1) / (2 * _a);
-	const	_c = -_a * Math.pow(_b, 2);
-	const	fct = (t: number) => {
-		return ( _a * Math.pow(t - _b, 2) + _c);
-	};
+  let t = 0;
+  const gamma = 1.2;
+  const _a = 2 - 4 * gamma;
+  const _b = (_a - 1) / (2 * _a);
+  const _c = -_a * Math.pow(_b, 2);
+  const fct = (t: number) => {
+    return (_a * Math.pow(t - _b, 2) + _c);
+  };
 
-	const	moveMenu = (t: number, height: number = 3.4, style: (t: number) => number = (t: number) => {return (t);}) => {
-		menu_parent.position.y = height * style(t);
-		menu_parent.scale.x = scaling - (scaling - 1) * style(t);
-		menu_parent.scale.y = scaling - (scaling - 1) * style(t);
-		menu_parent.scale.z = scaling - (scaling - 1) * style(t);
-	};
+  const moveMenu = (t: number, height: number = 3.4, style: (t: number) => number = (t: number) => { return (t); }) => {
+    menu_parent.position.y = height * style(t);
+    menu_parent.scale.x = scaling - (scaling - 1) * style(t);
+    menu_parent.scale.y = scaling - (scaling - 1) * style(t);
+    menu_parent.scale.z = scaling - (scaling - 1) * style(t);
+  };
 
   function update() {
     const new_current = getCurrent(menu_parent.rotation.x);
-    
+
     option.option = new_current;
-	swapMenu();
+    swapMenu();
     if ((new_current === "Play" || new_current === "Chat") && t < 1) {
-		if (t > 0.9)
-			corr = 0.4 - 2 * Math.PI;
-		moveMenu(t, 3.2, fct);
-		t = updateT(t);
-	} else if (!option.game && new_current !== "Play" && new_current != "Chat" && t > 0) {
-		if (t < 0.1)
-			corr = 0.2 - 2 * Math.PI;
-		moveMenu(t, 3.2, fct);
-		t = -updateT(-t, 0);
-	}
+      if (t > 0.9)
+        corr = 0.4 - 2 * Math.PI;
+      moveMenu(t, 3.2, fct);
+      t = updateT(t);
+    } else if (!option.game && new_current !== "Play" && new_current != "Chat" && t > 0) {
+      if (t < 0.1)
+        corr = 0.2 - 2 * Math.PI;
+      moveMenu(t, 3.2, fct);
+      t = -updateT(-t, 0);
+    }
     if (menu_parent.children.length > 1 && (new_current !== current || current === null)) {
       current = new_current;
-	  console.log("current", current, "newcurrent", new_current);
+      console.log("current", current, "newcurrent", new_current);
       menu_parent.traverse((obj) => {
         if (obj.name === current) {
-          if (obj.name === "Logout" || obj.name === "YouLoose")
+          if (obj.name === "Logout" || obj.name === "YouLoose")
             ((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(0xff41a7);
           else
             ((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(0x41ffff);
@@ -648,11 +644,11 @@ export function create_menu_scene(
 
     if (Math.abs(menu_parent.rotation.x - corr) % (Math.PI / 3) > 0.02)
       centerMenu(menu_parent, deltaY, isLogged ? Math.PI / 3 : 2 * Math.PI / 3);
-	if (time > 0.007) {
-		composer.render();
-		time = 0;
-	} else
-		time += clock.deltaT;
+    if (time > 0.007) {
+      composer.render();
+      time = 0;
+    } else
+      time += clock.deltaT;
     return (option);
   }
 

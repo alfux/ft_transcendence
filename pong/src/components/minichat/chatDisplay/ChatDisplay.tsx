@@ -31,7 +31,7 @@ const ChatDisplay: React.FC<ChatProps> = (props) => {
     <div ref={props.displayContainer} className="message-output">
       <div className="message-output-box">
         {props.selectedGroupOption === ChannelOptions.CHANNEL &&
-           displayChannelMessages}
+          displayChannelMessages}
       </div>
     </div>
   );

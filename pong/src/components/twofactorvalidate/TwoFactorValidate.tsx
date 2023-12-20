@@ -5,26 +5,26 @@ import React, { useEffect, useState } from 'react';
 import usePayload from '../../react_hooks/use_auth'
 const TwoFactorValidate: React.FC = () => {
 
-	const requestNewToken = async () =>{
-		try {
-		  const enable2FAEndpoint = `${config.backend_url}/api/auth/refresh`;
-		  console.log('Before fetch');
-		  const response = await fetch(enable2FAEndpoint, {
-			  method: 'GET',
-			  credentials: 'include',
-		  });
-		  console.log('After fetching', response);
+  const requestNewToken = async () => {
+    try {
+      const enable2FAEndpoint = `${config.backend_url}/api/auth/refresh`;
+      console.log('Before fetch');
+      const response = await fetch(enable2FAEndpoint, {
+        method: 'GET',
+        credentials: 'include',
+      });
+      console.log('After fetching', response);
 
-		  if (response.ok) {
-			const test = await response.json()
-			console.log("leviosa: ", test)
-		  } else {
-			  console.error('Could not get new AccessToken:', response.status);
-		  }
-	  } catch (error) {
-		  console.error('Error fetching new refresh Token:', error);
-	  }
-};
+      if (response.ok) {
+        const test = await response.json()
+        console.log("leviosa: ", test)
+      } else {
+        console.error('Could not get new AccessToken:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching new refresh Token:', error);
+    }
+  };
 
   const [digits, setDigits] = useState<string>('');
   const [payload, updatePayload, handleUpdate] = usePayload();
@@ -52,24 +52,24 @@ const TwoFactorValidate: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({verificationCode}),
+        body: JSON.stringify({ verificationCode }),
       });
       if (response.ok) {
         // requestNewToken()
-				handleUpdate()
+        handleUpdate()
         setDigits('');
-		    alert("2FA Enabled")
+        alert("2FA Enabled")
       } else {
-		alert("Wrong code")
+        alert("Wrong code")
         console.error('Error verifying 2FA code. Server responded with status:', response.status);
       }
     } catch (error) {
       console.error('Error verifying 2FA code:', error);
     }
-    try{
+    try {
       //await requestNewToken()
       handleUpdate()
-    }catch(error){
+    } catch (error) {
       console.log(error)
     }
   };

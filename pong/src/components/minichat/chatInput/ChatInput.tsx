@@ -11,11 +11,11 @@ const ChatInput: React.FC<ChatProps> = (props) => {
         e.preventDefault();
         const message = props.messageText;
         const conversation_id: number = props.selectedGroup!.id;
-          chatSocket.emit("send_message", {
-            message: message,
-            conversation_id: conversation_id,
-          });
-          props.setMessageText("");
+        chatSocket.emit("send_message", {
+          message: message,
+          conversation_id: conversation_id,
+        });
+        props.setMessageText("");
       }
     };
 

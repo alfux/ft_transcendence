@@ -17,16 +17,16 @@ export type User = {
   username: string;
 }
 
-interface	UserData {
-	user: User,
-	you: boolean
+interface UserData {
+  user: User,
+  you: boolean
 }
 
-const ScoreBar: React.FC<{user?: UserData}> = ({user}) => {
+const ScoreBar: React.FC<{ user?: UserData }> = ({ user }) => {
   const [data, setData] = useState<User | undefined>(user?.user);
-  const	[score, setScore] = useState<number>(0);
+  const [score, setScore] = useState<number>(0);
   gameSocket.on("score", (s) => {
-	  setScore(user?.you ? s.you : s.opponent);
+    setScore(user?.you ? s.you : s.opponent);
   });
 
   return (

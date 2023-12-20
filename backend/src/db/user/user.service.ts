@@ -15,7 +15,7 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    
+
     private friendRequestService: FriendRequestService,
 
     private playRequestService: PlayRequestService,
@@ -75,7 +75,7 @@ export class UserService {
     const friend = await this.getUser({ id: friend_id }, ['friends'])
 
     if (user.friends.find((u) => u.id === friend_id) === undefined &&
-      friend.friends.find((u) => u.id === user_id) === undefined )
+      friend.friends.find((u) => u.id === user_id) === undefined)
       throw new HttpNotFound("Friend")
 
     user.friends = user.friends.filter((v) => v.id !== friend_id)
@@ -144,7 +144,7 @@ export class UserService {
 
   async denyPlayRequest(id: number) {
     const request = await this.playRequestService.getPlayRequest({ id: id }, ['sender', 'receiver'])
-    
+
     this.playRequestService.removePlayRequest(request)
     this.notificationService.emit([request.sender, request.receiver], "friend_request_denied", { req: request })
   }

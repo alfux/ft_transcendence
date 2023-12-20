@@ -7,18 +7,18 @@ import Profile from "../profileDisplay/Profile";
 
 const UserProfile: React.FC<ChatProps> = (props) => {
   const [channelRights, setChannelRights] = useState<string | null>(null);
-  const [profileStatus, setProfileStatus] = useState <boolean>(false);
+  const [profileStatus, setProfileStatus] = useState<boolean>(false);
 
-  const [errorInvite,setErrorInvite ] = useState<boolean>(false);
-  const [errorBlock,setErrorBlock ] = useState<boolean>(false);
-  const [errorUnblock,setErrorUnblock ] = useState<boolean>(false);
+  const [errorInvite, setErrorInvite] = useState<boolean>(false);
+  const [errorBlock, setErrorBlock] = useState<boolean>(false);
+  const [errorUnblock, setErrorUnblock] = useState<boolean>(false);
   /*======================================================================
   ===================Check if User friend is blocked and return boolean==========
   ======================================================================== */
-  function isUserBlocked(friend:any){
+  function isUserBlocked(friend: any) {
     let result = false;
-    props.usersBlocked?.map((user:any)=>{
-      if (user.db_id == friend.db_id){
+    props.usersBlocked?.map((user: any) => {
+      if (user.db_id == friend.db_id) {
         result = true
       }
     })
@@ -28,7 +28,7 @@ const UserProfile: React.FC<ChatProps> = (props) => {
   /*======================================================================
   ===================Unblock User==========
   ======================================================================== */
-  async function unblockUser(){
+  async function unblockUser() {
     const url = `${config.backend_url}/api/user/blocked/` + props.selectedUser?.id;
     try {
       const response = await fetch(url, {
@@ -62,29 +62,29 @@ const UserProfile: React.FC<ChatProps> = (props) => {
   ======================================================================== */
   async function sendFriendInvite() {
     const url = `${config.backend_url}/api/user/friend_request`;
-        try {
-          const response = await fetch(url, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ user_id: props.selectedUser?.id }),
-          });
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: props.selectedUser?.id }),
+      });
 
-          if (response.ok) {
-            props.setNotificationType("gsagsagsa")
-            setErrorInvite(false)
-            console.log("Blocked", props.selectedUser?.username);
-          } else {
-              setErrorInvite(true)
-              setTimeout(()=>{setErrorInvite(false)},500)
-              console.log(response.status)
-          }
-        } catch (error) {
-          setErrorInvite(true)
-          console.error("Error Blocking:", error);
-        }
+      if (response.ok) {
+        props.setNotificationType("gsagsagsa")
+        setErrorInvite(false)
+        console.log("Blocked", props.selectedUser?.username);
+      } else {
+        setErrorInvite(true)
+        setTimeout(() => { setErrorInvite(false) }, 500)
+        console.log(response.status)
+      }
+    } catch (error) {
+      setErrorInvite(true)
+      console.error("Error Blocking:", error);
+    }
   }
   /*======================================================================
   ===================Fetch<Post> Request To Send Play Invite To Another User==========
@@ -129,29 +129,29 @@ const UserProfile: React.FC<ChatProps> = (props) => {
   }, [props.selectedGroup]);
 
   async function blockFriend() {
-        const url = `${config.backend_url}/api/user/blocked`;
-        try {
-          const response = await fetch(url, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ user_id: props.selectedUser?.id }),
-          });
+    const url = `${config.backend_url}/api/user/blocked`;
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: props.selectedUser?.id }),
+      });
 
-          if (response.ok) {
-            setErrorBlock(false)
-            console.log("Blocked", props.selectedUser?.username);
-          } else {
-              setErrorBlock(true)
-              console.log(response.status)
-          }
-        } catch (error) {
-          setErrorBlock(true)
-          console.error("Error Blocking:", error);
-        }
-    };
+      if (response.ok) {
+        setErrorBlock(false)
+        console.log("Blocked", props.selectedUser?.username);
+      } else {
+        setErrorBlock(true)
+        console.log(response.status)
+      }
+    } catch (error) {
+      setErrorBlock(true)
+      console.error("Error Blocking:", error);
+    }
+  };
 
 
   async function promoteUser() {
@@ -194,79 +194,79 @@ const UserProfile: React.FC<ChatProps> = (props) => {
     return friend
   }
 
-  function toogleProfile(){
-    setProfileStatus(profileStatus?false:true)
+  function toogleProfile() {
+    setProfileStatus(profileStatus ? false : true)
     console.log(profileStatus)
   }
 
   return (
-    <>{profileStatus && setTimeout(()=>{setProfileStatus(false)},10000)}
-    {profileStatus && <Profile {...props.selectedUser} />}
-    <div className="user-profile">
-      {props.selectedUser && !props.selectedGroup && (
-        <img className="user-image" src={props.selectedUser.image} />
-      )}
-      {props.selectedUser && <p>{props.selectedUser.username}</p>}
-      {props.selectedUser && (
-        <div>
-          <div className="status-div">
-            <p>Status</p>
-            <div className={props.selectedUser.isAuthenticated === 0 ? "status-online" : "status-offline"}></div>
+    <>{profileStatus && setTimeout(() => { setProfileStatus(false) }, 10000)}
+      {profileStatus && <Profile {...props.selectedUser} />}
+      <div className="user-profile">
+        {props.selectedUser && !props.selectedGroup && (
+          <img className="user-image" src={props.selectedUser.image} />
+        )}
+        {props.selectedUser && <p>{props.selectedUser.username}</p>}
+        {props.selectedUser && (
+          <div>
+            <div className="status-div">
+              <p>Status</p>
+              <div className={props.selectedUser.isAuthenticated === 0 ? "status-online" : "status-offline"}></div>
+            </div>
+
+            {
+              props.selectedGroupOption === ChannelOptions.CHANNEL && props.selectedGroup ?
+                <div>
+                  <div className="channel-rights-dev">
+                    <p>Admin</p>
+                    <div className={props.selectedGroup.users!.find((u) => u.user!.id === props.selectedUser!.id)?.isAdmin || props.selectedGroup.owner!.id === props.selectedUser!.id ? "status-online" : "status-offline"}></div>
+                  </div>
+                  <div className="channel-rights-dev">
+                    <p>Owner</p>
+                    <div className={props.selectedGroup.owner!.id === props.selectedUser!.id ? "status-online" : "status-offline"}></div>
+                  </div>
+                </div>
+                : undefined
+            }
           </div>
+        )}
+        {props.selectedUser && !props.selectedGroup && <button className={"button-ok"} onClick={toogleProfile}>Profile</button>}
+        {props.selectedGroupOption == ChannelOptions.FRIENDS &&
+          props.selectedUser && isFriend() && ( // && !props.selectedGroup
+            <button className="button-ok">Invite Game</button>
+          )}
+        {props.selectedGroupOption == ChannelOptions.FRIENDS &&
+          props.selectedUser && isFriend() && ( // && !props.selectedGroup
+            <button className="button-ok" onClick={sendFriendRemove}>Remove Friend</button>
+          )}
+        {props.selectedGroupOption == ChannelOptions.FRIENDS &&
+          props.selectedUser && isFriend() && ( // && !props.selectedGroup
+            <button className={errorBlock ? "errorBlock" : "button-ok"} onClick={blockFriend}>Block Friend</button>
+          )}
 
-          {
-            props.selectedGroupOption === ChannelOptions.CHANNEL && props.selectedGroup ?
-              <div>
-                <div className="channel-rights-dev">
-                  <p>Admin</p>
-                  <div className={props.selectedGroup.users!.find((u) => u.user!.id === props.selectedUser!.id)?.isAdmin || props.selectedGroup.owner!.id === props.selectedUser!.id ? "status-online" : "status-offline"}></div>
-                </div>
-                <div className="channel-rights-dev">
-                  <p>Owner</p>
-                  <div className={props.selectedGroup.owner!.id === props.selectedUser!.id ? "status-online" : "status-offline"}></div>
-                </div>
-              </div>
-              : undefined
-          }
-        </div>
-      )}
-      {props.selectedUser && !props.selectedGroup && <button className={"button-ok"} onClick={toogleProfile}>Profile</button>}
-      {props.selectedGroupOption == ChannelOptions.FRIENDS &&
-        props.selectedUser && isFriend() && ( // && !props.selectedGroup
-          <button className="button-ok">Invite Game</button>
-        )}
-      {props.selectedGroupOption == ChannelOptions.FRIENDS &&
-        props.selectedUser && isFriend() && ( // && !props.selectedGroup
-          <button className="button-ok" onClick={sendFriendRemove}>Remove Friend</button>
-        )}
-      {props.selectedGroupOption == ChannelOptions.FRIENDS &&
-        props.selectedUser &&  isFriend() &&  ( // && !props.selectedGroup
-          <button className={errorBlock?"errorBlock":"button-ok"} onClick={blockFriend}>Block Friend</button>
-        )}
+        {props.selectedGroupOption !== ChannelOptions.CHANNEL &&
+          props.selectedUser &&
+          !isFriend() && (
+            (!isUserBlocked(props.selectedUser)) ? <button className={errorInvite ? "errorInvite" : "button-ok"} onClick={sendFriendInvite}>Invite Friend</button> : <button className={errorUnblock ? 'errorUnblock' : "button-ok"} onClick={unblockUser}>Unblock</button>
+          )}
 
-      {props.selectedGroupOption !== ChannelOptions.CHANNEL &&
-        props.selectedUser &&
-        !isFriend() && (
-          (!isUserBlocked(props.selectedUser))?<button className={errorInvite?"errorInvite":"button-ok"} onClick={sendFriendInvite}>Invite Friend</button>:<button className={errorUnblock?'errorUnblock':"button-ok"} onClick={unblockUser}>Unblock</button>
-        )}
+        {channelRights == "Owner" &&
+          props.selectedUser?.db_id !== props.me?.db_id &&
+          props.selectedGroupOption == ChannelOptions.CHANNEL && (
+            <button className={"button-ok"} onClick={promoteUser}>Promote</button>
+          )}
+        {channelRights &&
+          props.selectedUser?.db_id !== props.me?.db_id &&
+          props.selectedGroupOption == ChannelOptions.CHANNEL && (
+            <button className={"button-ok"} >Mute</button>
+          )}
+        {channelRights &&
+          props.selectedUser?.db_id !== props.me?.db_id &&
+          props.selectedGroupOption == ChannelOptions.CHANNEL && (
+            <button className={"button-ok"} >Kick</button>
+          )}
+      </div>
 
-      {channelRights == "Owner" &&
-        props.selectedUser?.db_id !== props.me?.db_id &&
-        props.selectedGroupOption == ChannelOptions.CHANNEL && (
-          <button className={"button-ok"} onClick={promoteUser}>Promote</button>
-        )}
-      {channelRights &&
-        props.selectedUser?.db_id !== props.me?.db_id &&
-        props.selectedGroupOption == ChannelOptions.CHANNEL && (
-          <button className={"button-ok"} >Mute</button>
-        )}
-      {channelRights &&
-        props.selectedUser?.db_id !== props.me?.db_id &&
-        props.selectedGroupOption == ChannelOptions.CHANNEL && (
-          <button className={"button-ok"} >Kick</button>
-        )}
-    </div>
-    
     </>
   )
 };

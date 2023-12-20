@@ -15,7 +15,7 @@ const ChannelProfile: React.FC<ChatProps> = (props) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ id: props.selectedGroup?.id, password:password }),
+          body: JSON.stringify({ id: props.selectedGroup?.id, password: password }),
         }
       );
       if (response.ok) {

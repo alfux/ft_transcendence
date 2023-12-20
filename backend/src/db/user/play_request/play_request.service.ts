@@ -41,7 +41,7 @@ export class PlayRequestService {
     this.playRequestRepository.remove(request)
   }
 
-  async sendPlayRequest(from:User, to:User) {
+  async sendPlayRequest(from: User, to: User) {
     if (from.id === to.id)
       throw new HttpBadRequest("You can't send request to yourself")
     if (to.blocked.find((v) => v.id === from.id))
@@ -51,10 +51,10 @@ export class PlayRequestService {
       sender: from,
       receiver: to
     })
-    .then((x) => {
-      this.notificationService.emit([to], "friend_request_recv", { req: x });
-      return x
-    })
+      .then((x) => {
+        this.notificationService.emit([to], "friend_request_recv", { req: x });
+        return x
+      })
   }
 
 }

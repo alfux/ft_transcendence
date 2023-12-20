@@ -28,8 +28,8 @@ export class AuthController {
   ) { }
 
   @Route({
-    public:true,
-    method:Get('login'),
+    public: true,
+    method: Get('login'),
     description: { summary: "Login", description: "Login" }
   })
   @UseGuards(AuthGuard('42'))
@@ -47,7 +47,7 @@ export class AuthController {
   }
 
   @Route({
-    method:Get('logout'),
+    method: Get('logout'),
     description: { summary: "Logout", description: "Logout" }
   })
   @UseGuards(AuthGuard('42'))
@@ -58,7 +58,7 @@ export class AuthController {
   }
 
   @Route({
-    method:Get('refresh'),
+    method: Get('refresh'),
     description: { summary: "Refresh token", description: "Refresh token" },
     public: true
   })

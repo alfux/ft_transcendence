@@ -5,11 +5,11 @@ import { AuthGuard } from '@nestjs/passport'
 
 import { Public } from 'src/auth/jwt'
 
-export function Route(params:{
-  public?:boolean,
-  method:Function,
-  description:Partial<OperationObject>,
-  responses?:ApiResponseOptions[]
+export function Route(params: {
+  public?: boolean,
+  method: Function,
+  description: Partial<OperationObject>,
+  responses?: ApiResponseOptions[]
 }): MethodDecorator {
   return function (target: any, key: string | symbol, descriptor: PropertyDescriptor) {
     //Public or not
@@ -21,9 +21,9 @@ export function Route(params:{
 
     //Get, Post, Delete...
     params.method(target, key, descriptor)
-    
+
     //Swagger doc
-    ApiOperation(params.description)(target, key, descriptor)    
+    ApiOperation(params.description)(target, key, descriptor)
     params.responses?.forEach((resp) => {
       ApiResponse(resp)(target, key, descriptor)
     })

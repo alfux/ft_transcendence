@@ -27,7 +27,7 @@ export class DebugController {
     description: { summary: 'Add user' }
   })
   add_user(@Body() body: DTO.AddUserParams): Promise<User> {
-    return this.userService.createUser(Object.assign({}, body, {isAuthenticated: LoggedStatus.Logged}))
+    return this.userService.createUser(Object.assign({}, body, { isAuthenticated: LoggedStatus.Logged }))
   }
 
   @Route({

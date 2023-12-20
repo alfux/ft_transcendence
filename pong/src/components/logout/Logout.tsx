@@ -6,9 +6,9 @@ const Logout: React.FC = () => {
   const [payload, updatePayload, handleUpdate] = usePayload();
   return (
     <div className='circle'>
-        <div className="glass-container-logout">
-            <div className="fortytwologo"></div>
-        </div>
+      <div className="glass-container-logout">
+        <div className="fortytwologo"></div>
+      </div>
     </div>
   );
 };

@@ -42,14 +42,14 @@ export class UserController {
     description: { summary: 'Update user infos', description: 'Update user infos' }
   })
   async update_user_infos(@Req() req: Request, @Body() body: DTO.UpdateUserInfosBody) {
-    const user = await this.userService.getUser({id: req.user.id})
+    const user = await this.userService.getUser({ id: req.user.id })
 
     user.username = body.username
     user.image = body.image
     user.email = body.email
 
     await this.userService.updateUser(user)
-    return this.userService.getUser({id: user.id})
+    return this.userService.getUser({ id: user.id })
   }
 
 
@@ -95,7 +95,7 @@ export class UserController {
   async block_user(@Req() req: Request, @Body() body: DTO.BlockFriendBody) {
     if (req.user.id === body.user_id)
       throw new HttpBadRequest("Can't block yourself")
-    this.userService.removeFriend(req.user.id, body.user_id).catch((e) => {})
+    this.userService.removeFriend(req.user.id, body.user_id).catch((e) => { })
     return this.userService.blockUser(req.user.id, body.user_id)
   }
 
@@ -115,8 +115,8 @@ export class UserController {
     description: { summary: 'Get the match history', description: 'Get the match history' }
   })
   async get_matches(@Req() req: Request) {
-    const matches = await this.matchService.getMatches({players: {id:req.user.id}}, ['players'])
-    return this.matchService.getMatches(matches.map((v) => {return {id:v.id}}), ['players', 'winner'])
+    const matches = await this.matchService.getMatches({ players: { id: req.user.id } }, ['players'])
+    return this.matchService.getMatches(matches.map((v) => { return { id: v.id } }), ['players', 'winner'])
   }
 
 }

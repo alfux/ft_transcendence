@@ -22,7 +22,7 @@ export class MatchService {
     return match
   }
 
-  async getMatches(where: FindMultipleOptions<Match>|FindOptionsWhere<Match>[] = {}, relations = [] as string[]): Promise<Match[]> {
+  async getMatches(where: FindMultipleOptions<Match> | FindOptionsWhere<Match>[] = {}, relations = [] as string[]): Promise<Match[]> {
     const match = await this.matchRepository.find({ where: where, relations: relations, })
     if (!match)
       throw new HttpNotFound("Match")

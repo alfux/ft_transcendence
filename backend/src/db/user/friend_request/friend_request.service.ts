@@ -41,7 +41,7 @@ export class FriendRequestService {
     this.friendRequestRepository.remove(request)
   }
 
-  async sendFriendRequest(from:User, to:User) {
+  async sendFriendRequest(from: User, to: User) {
     if (from.id === to.id)
       throw new HttpBadRequest("Can't send request to yourself")
     if (to.blocked.find((v) => v.id === from.id))
@@ -53,10 +53,10 @@ export class FriendRequestService {
       sender: from,
       receiver: to
     })
-    .then((x) => {
-      this.notificationService.emit([to], "friend_request_recv", { req: x });
-      return x
-    })
+      .then((x) => {
+        this.notificationService.emit([to], "friend_request_recv", { req: x });
+        return x
+      })
   }
 
 }

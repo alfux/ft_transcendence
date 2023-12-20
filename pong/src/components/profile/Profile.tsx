@@ -16,7 +16,7 @@ const Profile: React.FC = () => {
 
   const [data, setData] = useState<User | null>(null)
   const [matches, setMatches] = useState<Match[] | null>(null)
-  const	[display, setDisplay] = useState<boolean>(false);
+  const [display, setDisplay] = useState<boolean>(false);
 
   const [isEditingUsername, setIsEditingUsername] = useState(false)
   const [editUsernameValue, setEditUsernameValue] = useState('')
@@ -119,7 +119,7 @@ const Profile: React.FC = () => {
               username: editUsernameValue
             }),
           });
-  
+
           if (response.ok) {
             console.log('Updated username successfully.');
             const result = await response.json()
@@ -176,7 +176,7 @@ const Profile: React.FC = () => {
                   onKeyDown={handleKeyDown}
                   placeholder={data.username}
                 /> :
-                <p  onClick={
+                <p onClick={
                   (e: any) => {
                     setIsEditingUsername(true);
                     setEditUsernameValue(data.username)
@@ -188,18 +188,18 @@ const Profile: React.FC = () => {
           </div>
         </div>
         <div className='buttons-container'>
-          <div> 
+          <div>
             <AchievementsButton />
             {matches && data ? <p>Won : {matches.filter((m) => m.winner?.id === data.id).length}</p> : <h2>no infos</h2>}
-            {matches && data ? <p>Lost : {matches.filter((m) => m.winner?.id !== data.id).length}</p> : <h2>no infos</h2>} 
+            {matches && data ? <p>Lost : {matches.filter((m) => m.winner?.id !== data.id).length}</p> : <h2>no infos</h2>}
           </div>
-         <div>
-           {matches ? <MatchHistory matches={matches} /> : <h2>Couldn't get match hist</h2>}
-           {display ? <History /> : <div />}
-         </div>
-          
+          <div>
+            {matches ? <MatchHistory matches={matches} /> : <h2>Couldn't get match hist</h2>}
+            {display ? <History /> : <div />}
+          </div>
+
         </div>
-	
+
       </div>
     </div>
   );

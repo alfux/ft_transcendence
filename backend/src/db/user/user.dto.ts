@@ -12,7 +12,7 @@ export class UpdateUserInfosBody {
   @IsString()
   @IsOptional()
   image: string
-  
+
   @ApiProperty({ description: 'Email of the user' })
   @IsString()
   @IsOptional()

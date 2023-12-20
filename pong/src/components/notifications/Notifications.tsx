@@ -18,7 +18,7 @@ import usePayload from "../../react_hooks/use_auth";
 const Notifications: React.FC = () => {
   const [friendsRequest, setFriendsRequests] = useState<any | null>(null);
   const [toogleButton, setToogleButton] = useState<string>("hide");
-  const [dataContent, setDataContent] = useState<any>({username:"Our website",message:"WElcome for being online"});
+  const [dataContent, setDataContent] = useState<any>({ username: "Our website", message: "WElcome for being online" });
   const [dataType, setDataType] = useState<any>("receive_message");
   const [payload, updatePayload, handleUpdate] = usePayload();
   const [accept, setAccept] = useState<boolean>(false);
@@ -31,13 +31,13 @@ const Notifications: React.FC = () => {
       notifications.connect();
       console.log("ups .. ok now connected");
     }
-    
-    chatSocket.on("receive_message",(data)=>{
+
+    chatSocket.on("receive_message", (data) => {
       setDataContent(data)
       setDataType("receive_message")
       console.log("RECEIUVE A MNESAGE")
     })
-    gameSocket.on("receive_message",(data)=>{
+    gameSocket.on("receive_message", (data) => {
       setDataContent(data)
       setDataType("receive_message")
     })
@@ -68,11 +68,11 @@ const Notifications: React.FC = () => {
   });
 
 
-    if (toogleButton === "show"){
-      setTimeout(()=>{
-        setToogleButton('hide');
-      },4000)
-    }
+  if (toogleButton === "show") {
+    setTimeout(() => {
+      setToogleButton('hide');
+    }, 4000)
+  }
 
 
   /*======================================================================
@@ -165,16 +165,15 @@ const Notifications: React.FC = () => {
   console.log("dataContent", dataContent, dataType);
   return (
     <div
-      className={`notifications-container-${
-        toogleButton == "show" && friendsRequest ? "on" : "off"
-      }`}
+      className={`notifications-container-${toogleButton == "show" && friendsRequest ? "on" : "off"
+        }`}
     >
       <div className="notifications-content">
         <div className="notification-profile">
-        {dataType === "blocked_delete" && (
+          {dataType === "blocked_delete" && (
             <p>{dataContent?.user?.username} has Unblocked your</p>
           )}
-          {dataType === "receive_message" && dataContent?.username !== payload?.username &&<p>🗨️ {dataContent.username} has sended: {dataContent.message}</p>}
+          {dataType === "receive_message" && dataContent?.username !== payload?.username && <p>🗨️ {dataContent.username} has sended: {dataContent.message}</p>}
           {dataType === "friend_new" && (
             <p>New Friend Added: {dataContent?.user?.username} </p>
           )}

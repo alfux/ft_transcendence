@@ -31,11 +31,11 @@ import { config_db } from 'src/config'
       entities: [
         User,
         Message,
-      
+
         Conversation,
         ConversationUser,
         ConversationUserInfos,
-      
+
         PrivateConversation,
         PrivateMessage,
 
@@ -55,4 +55,4 @@ import { config_db } from 'src/config'
     PrivateConversationModule
   ],
 })
-export class AppModule {}
+export class AppModule { }

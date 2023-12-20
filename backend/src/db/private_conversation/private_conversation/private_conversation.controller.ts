@@ -36,7 +36,7 @@ export class PrivateConversationController {
     method: Get('/:id'),
     description: { summary: 'Get users\'s private conversations with someone else', description: 'Get users\'s private conversations with someone else' },
   })
-  async getConversationByUserId(@Req() req: Request, @Param('id', ParseIntPipe) user_id:number) {
+  async getConversationByUserId(@Req() req: Request, @Param('id', ParseIntPipe) user_id: number) {
     return this.privateConvService.getPrivateConversation({
       users: [{
         id: user_id

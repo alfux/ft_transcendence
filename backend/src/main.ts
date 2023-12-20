@@ -36,14 +36,14 @@ async function bootstrap() {
   console.log(`graph TD\n\t${mermaidEdges.join('\n\t')}`)
 
   const config = new DocumentBuilder()
-  .setTitle('Ft_transcendence_backend')
-  .setDescription('Backend for ft_transcendence')
-  .setVersion('1.0')
-  .addBearerAuth()
-  .addServer(`http://localhost:${config_hosts.back_port}/api`)
-  .build()
+    .setTitle('Ft_transcendence_backend')
+    .setDescription('Backend for ft_transcendence')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .addServer(`http://localhost:${config_hosts.back_port}/api`)
+    .build()
 
-  
+
   const document = SwaggerModule.createDocument(app, config, {})
   SwaggerModule.setup('api/docs', app, document)
 

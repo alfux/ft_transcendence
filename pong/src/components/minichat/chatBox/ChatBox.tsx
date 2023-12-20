@@ -4,14 +4,14 @@ import ChatDisplay from "../chatDisplay/ChatDisplay"
 import ChatInput from "../chatInput/ChatInput"
 
 const ChatBox: React.FC<ChatProps> = (props) => {
-    useEffect(()=>{
-        props.setNotificationType(null)
-    },[props.notificationType])
-    return(
-        <div className="chat-box">
-            {props.isInChannel && <ChatDisplay {...props}/>}
-            {props.isInChannel && <ChatInput {...props}/>}
-        </div>
-    )
+  useEffect(() => {
+    props.setNotificationType(null)
+  }, [props.notificationType])
+  return (
+    <div className="chat-box">
+      {props.isInChannel && <ChatDisplay {...props} />}
+      {props.isInChannel && <ChatInput {...props} />}
+    </div>
+  )
 }
 export default ChatBox

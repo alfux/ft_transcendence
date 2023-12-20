@@ -76,7 +76,7 @@ export class TwoFactorAuthenticationController {
     }
 
     user.twoFactorAuth = true
-    return this.userService.updateUser({ db_id:user.db_id, id:user.id, twoFactorAuth:true })
+    return this.userService.updateUser({ db_id: user.db_id, id: user.id, twoFactorAuth: true })
   }
 
   @Route({
@@ -97,9 +97,9 @@ export class TwoFactorAuthenticationController {
   async disableTwoFactorAuth(@Req() request: Request) {
     const user = await this.userService.getUser({ id: request.user.id })
     return this.userService.updateUser({
-      db_id:user.db_id,
-      id:user.id,
-      twoFactorAuth:false
+      db_id: user.db_id,
+      id: user.id,
+      twoFactorAuth: false
     })
   }
 

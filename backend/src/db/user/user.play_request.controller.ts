@@ -71,7 +71,7 @@ export class UserPlayRequestController {
         else { //No already existing request found, sending one
           const from = await this.userService.getUser({ id: req.user.id }, ['friends'])
           const to = await this.userService.getUser({ id: body.user_id }, ['blocked', 'friends'])
-      
+
           return this.playRequestService.sendPlayRequest(from, to)
         }
       })

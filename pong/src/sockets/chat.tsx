@@ -68,7 +68,7 @@ let accessToken = Cookies.get("access_token");
 
 export const chatSocket = coolSocket(`${config.backend_url}/chat`, accessToken);
 chatSocket.on("connect", () => {
-  console.log("Chat Socket Connected To BackEnd",chatSocket.connected);
+  console.log("Chat Socket Connected To BackEnd", chatSocket.connected);
   chatSocket.emit("auth", accessToken);
 });
 

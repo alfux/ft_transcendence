@@ -19,10 +19,10 @@ export class Conversation {
     enum: AccessLevel,
     default: AccessLevel.PUBLIC,
   })
-  access_level:AccessLevel
+  access_level: AccessLevel
 
-  @Column({nullable: true, select: false})
-  password?:string
+  @Column({ nullable: true, select: false })
+  password?: string
 
   @ManyToOne(() => User)
   @JoinColumn()

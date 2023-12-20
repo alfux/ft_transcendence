@@ -18,7 +18,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-ref
   }
 
   private static extractJwtRefreshCookie(request): string | null {
-    if (request.cookies && request.cookies.refresh_token){
+    if (request.cookies && request.cookies.refresh_token) {
       return request.cookies.refresh_token
     }
     return null
@@ -27,6 +27,6 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-ref
   async validate(payload: JwtPayload) {
     if (payload)
       return payload
-    throw new UnauthorizedException("Bad payload")  
+    throw new UnauthorizedException("Bad payload")
   }
 }

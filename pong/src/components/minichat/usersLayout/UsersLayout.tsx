@@ -10,7 +10,7 @@ const UsersLayout: React.FC<ChatProps> = (props: ChatProps) => {
       user: User,
       conversation: Conversation
     }) => {
-      
+
       if (props.selectedGroup && props.selectedGroup.id === data.conversation.id) {
         props.setSelectedChannel(data.conversation)
       }
@@ -28,7 +28,7 @@ const UsersLayout: React.FC<ChatProps> = (props: ChatProps) => {
   const onlineUsers = props.allUsers?.map((user: User) => {
     return user.id !== props.me?.id ? (
       <img
-      key={`onlineUser-${user?.db_id}`}
+        key={`onlineUser-${user?.db_id}`}
         src={user.image}
         className={user?.isAuthenticated === 0 ? "chat-user-online" : "chat-user-offline"}
         onClick={() => props.setSelectedUser(user)}
@@ -39,7 +39,7 @@ const UsersLayout: React.FC<ChatProps> = (props: ChatProps) => {
   const myFriends = props.friends?.map((friend: User) => {
     return (
       <img
-      className={friend?.isAuthenticated === 0?"chat-user-online":"chat-user-offline"}
+        className={friend?.isAuthenticated === 0 ? "chat-user-online" : "chat-user-offline"}
         src={friend.image}
         key={`onlineUser-${friend?.db_id}`}
         onClick={() => props.setSelectedUser(friend)}
@@ -51,10 +51,10 @@ const UsersLayout: React.FC<ChatProps> = (props: ChatProps) => {
     const user = conversationUser.user;
     return (
       <img
-      className={user?.isAuthenticated === 0?"chat-user-online":"chat-user-offline"}
+        className={user?.isAuthenticated === 0 ? "chat-user-online" : "chat-user-offline"}
         src={user?.image}
         key={user?.id}
-        onClick={() => {props.setSelectedUser(user);props.setToogledButton("User")}}
+        onClick={() => { props.setSelectedUser(user); props.setToogledButton("User") }}
       />
     );
   });

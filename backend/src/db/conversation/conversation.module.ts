@@ -19,26 +19,26 @@ import { AuthModule } from 'src/auth'
       Conversation,
       ConversationUser,
       ConversationUserInfos,
-    
+
       Message
     ]),
     forwardRef(() => UserModule),
     AuthModule,
     NotificationsModule,
   ],
-  
+
   providers: [
     ConversationService,
     ConversationGateway,
     MessageService
   ],
-  
+
   controllers: [ConversationController],
-  
+
   exports: [
     TypeOrmModule,
     ConversationService,
     MessageService
   ],
 })
-export class ConversationModule {}
+export class ConversationModule { }

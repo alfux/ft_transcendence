@@ -476,7 +476,7 @@ export class GameInstance {
     const inverted = this.ball.clone()
     inverted.position.x *= -1
     inverted.spin *= -1
-  
+
     this.player1.client.socket.emit("ball_pos", inverted)
     this.player2.client.socket.emit("ball_pos", this.ball)
   }

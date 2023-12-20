@@ -1,5 +1,5 @@
 export enum AccessLevel {
-    PUBLIC = 'public',
-    PRIVATE = 'private',
-    PROTECTED = 'protected',
-  }
+  PUBLIC = 'public',
+  PRIVATE = 'private',
+  PROTECTED = 'protected',
+}

@@ -6,29 +6,29 @@ import usePayload from '../../react_hooks/use_auth'
 const TwoFactorAuthenticate: React.FC = () => {
   const [digits, setDigits] = useState<string>('');
   const [payload, updatePayload, handleUpdate] = usePayload();
-	const requestNewToken = async () =>{
-		try {//fetch 2fa Status
-		  const enable2FAEndpoint = `${config.backend_url}/api/auth/refresh`;
-		  console.log('Before fetch');
-		  const response = await fetch(enable2FAEndpoint, {
-			  method: 'GET',
-			  credentials: 'include',
+  const requestNewToken = async () => {
+    try {//fetch 2fa Status
+      const enable2FAEndpoint = `${config.backend_url}/api/auth/refresh`;
+      console.log('Before fetch');
+      const response = await fetch(enable2FAEndpoint, {
+        method: 'GET',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
-		  });
-		  console.log('After fetch', response);
+      });
+      console.log('After fetch', response);
 
-		  if (response.ok) {
-      handleUpdate()
-			console.log('new payload: ', payload)
-		  } else {
-			  console.error('Could not get the status of 2fa:', response.status);
-		  }
-	  } catch (error) {
-		  console.error('Error enabling 2FA:', error);
-	  }
-};
+      if (response.ok) {
+        handleUpdate()
+        console.log('new payload: ', payload)
+      } else {
+        console.error('Could not get the status of 2fa:', response.status);
+      }
+    } catch (error) {
+      console.error('Error enabling 2FA:', error);
+    }
+  };
 
 
   const handleInput = (currentInput: string, nextInput: string) => {
@@ -55,7 +55,7 @@ const TwoFactorAuthenticate: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({code:verificationCode}),
+        body: JSON.stringify({ code: verificationCode }),
       });
       if (response.ok) {
         alert("Logged")
@@ -63,7 +63,7 @@ const TwoFactorAuthenticate: React.FC = () => {
         handleUpdate()
         window.location.reload();
       } else {
-		alert("Wrong code")
+        alert("Wrong code")
         console.error('Error verifying 2FA code. Server responded with status:', response.status);
       }
     } catch (error) {

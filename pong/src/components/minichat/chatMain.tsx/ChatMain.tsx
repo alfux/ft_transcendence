@@ -11,8 +11,8 @@ const ChatMain: React.FC<ChatProps> = (props) => {
 
   return (
     <div className="chat-main">
-      <UsersLayout {...props}/>
-      <ChatBox {...props}/>
+      <UsersLayout {...props} />
+      <ChatBox {...props} />
     </div>
   );
 };
