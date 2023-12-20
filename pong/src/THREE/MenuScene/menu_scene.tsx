@@ -394,7 +394,7 @@ export function create_menu_scene(
     	menu_parent.getObjectByName("About")?.position.set(-0.85, Math.cos(7 * theta), Math.sin(7 * theta));
 		menu_parent.getObjectByName("About")?.rotation.set(7 * theta - Math.PI / 2, 0, 0);
 		menu_parent.getObjectByName("lAbout")?.layers.set(0);
-    	menu_parent.getObjectByName("lAbout")?.position.set(-0.85, Math.cos(7 * theta), Math.sin(7 * theta));
+    	menu_parent.getObjectByName("lAbout")?.position.set(0, Math.cos(7 * theta), Math.sin(7 * theta));
 		menu_parent.getObjectByName("Settings")?.layers.set(0);
 		menu_parent.getObjectByName("lSettings")?.layers.set(0);
 		menu_parent.getObjectByName("Chat")?.layers.set(0);
