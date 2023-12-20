@@ -22,6 +22,8 @@
   animation: chat-on linear 0.5s;
 }
 
+
+
 .chat-options {
   display: flex;
   flex-direction: column;
@@ -98,7 +100,7 @@
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
   border-top-right-radius: 15px;
-  background: rgba(249, 248, 248, 0.2);
+  background: rgba(255, 255, 255, 0.406);
   border-bottom: 1px solid #41ffff;
   border-right: 1px solid #41ffff;
   box-shadow: 3px 3px 10px #41ffff;
@@ -108,11 +110,11 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 90%;
+  width: 98%;
   height: 80%;
   border-top-right-radius: 15px;
   border-top-left-radius: 15px;
-  background: rgba(8, 8, 8, 0.5);
+  background: rgba(8, 8, 8, 0.693);
   box-shadow: 0 0 10px rgb(5, 0, 5);
   color: white;
   font-family: "game", sans-serif;
@@ -124,7 +126,7 @@
 }
 .message-input {
   display: flex;
-  width: 90%;
+  width: 98%;
   height: 15%;
   align-items: center;
   justify-content: center;
@@ -253,7 +255,7 @@
  }
 
 
-.user-profile button {
+.user-profile .button-ok {
   margin-top: 1%;
   width: 80%;
   border-radius: 10px;
@@ -263,6 +265,16 @@
   box-shadow: 0 0 30px rgba(236, 3, 197, 0.942);
   cursor: pointer;
   
+}
+.errorInvite, .errorBlock, .errorUnblock{
+  margin-top: 1%;
+  width: 80%;
+  border-radius: 10px;
+  font-family: "game", sans-serif;
+  color: white;
+  background-color: rgb(239, 9, 9);
+  box-shadow: 0 0 30px rgba(236, 3, 197, 0.942);
+  cursor: pointer;
 }
 .user-profile button:hover{
   box-shadow: 0 0 30px rgb(3, 227, 235);

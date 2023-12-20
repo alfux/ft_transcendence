@@ -16,6 +16,7 @@ import usePayload from "../../react_hooks/use_auth";
 import { JwtPayload } from "../../THREE/Utils";
 import { chatSocket } from "../../sockets/chat";
 import { gameSocket, notificationsSocket } from "../../sockets";
+import { notifications } from "../../sockets/notifications";
 
 export enum ChannelOptions {
   CREATE_CHANNEL = "create channel",
@@ -36,12 +37,12 @@ export interface ChatProps {
   selectedGroupOption: ChannelOptions | null;
   channelMessages: any | null;
   messageText: any;
-  toogledButton : string | null;
-  notificationType : any;
+  toogledButton: string | null;
+  notificationType: any;
   usersBlocked: any;
-  setUsersBlocked : (usersBlocked:any) => void
-  setNotificationType : (notificationType : any) => void;
-  setToogledButton : (toogledButton :string | null) => void;
+  setUsersBlocked: (usersBlocked: any) => void;
+  setNotificationType: (notificationType: any) => void;
+  setToogledButton: (toogledButton: string | null) => void;
   setSelectedChannel: (channel: Conversation | undefined) => void;
   setSelectedChannelOption: (option: ChannelOptions) => void;
   setSelectedUser: (user: User | undefined) => void;
@@ -88,7 +89,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
   const displayContainer = useRef<HTMLDivElement>(null);
   const [isInChannel, setIsInChannel] = useState<boolean>(false);
   const [toogledButton, setToogledButton] = useState<string | null>(null);
-  const [notificationType, setNotificationType] = useState<any>(null)
+  const [notificationType, setNotificationType] = useState<any>(null);
   const [usersBlocked, setUsersBlocked] = useState<any>(null);
   /*======================================================================
   ===================Functions to Pass To Children To Set State===============
@@ -144,28 +145,23 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
   ===================Find the Own User Object <ME>=====================
   ======================================================================== */
   useEffect(() => {
+    chatSocket.on("receive_message", (data) => {
+      setNotificationType(data);
+    });
+    gameSocket.on("receive_message", (data) => {
+      setNotificationType(data);
+    });
+  }, []);
+  useEffect(() => {
     const currentUser = allUsers?.find((user) => user.id === payload?.id);
     if (currentUser) {
       setMe(currentUser);
     }
   }, [allUsers, notificationType]);
 
-
   /*======================================================================
   ===================Fetch<GET> All Channels========================
   ======================================================================== */
-  useEffect(()=>{
-    chatSocket.on("receive_message",(data)=>{
-      setNotificationType(data);
-    })
-    gameSocket.on("receive_message",(data)=>{
-      setNotificationType(data);
-    })
-    return(()=>{
-      chatSocket.off("receive_message")
-      chatSocket.disconnect()
-    })
-  },[])
 
   useEffect(() => {
     const requestConversation = async () => {
@@ -187,21 +183,41 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     };
     requestConversation();
 
-    notificationsSocket.on("conv_create", (data: { conversation: Conversation }) => {
-      setChannels((prev) => {
-        return (prev === null) ? [data.conversation] : [data.conversation, ...prev]
-      })
-    })
-    notificationsSocket.on("conv_delete", (data: { conversation: Conversation }) => {
-      setChannels((prev) => {
-        return (prev === null) ? prev : prev.filter((c) => c.id !== data.conversation.id)
-      })
-    })
-
-    return () => {
-      notificationsSocket.off("conv_create")
-      notificationsSocket.off("conv_delete")
-    }
+    notificationsSocket.on(
+      "conv_create",
+      (data: { conversation: Conversation }) => {
+        setChannels((prev) => {
+          return prev === null
+            ? [data.conversation]
+            : [data.conversation, ...prev];
+        });
+      }
+    );
+    notificationsSocket.on(
+      "conv_delete",
+      (data: { conversation: Conversation }) => {
+        setChannels((prev) => {
+          return prev === null
+            ? prev
+            : prev.filter((c) => c.id !== data.conversation.id);
+        });
+      }
+    );
+    notifications.on("friend_request_accepted", (data) => {
+      setNotificationType(data);
+    });
+    notifications.on("friend_new", (data) => {
+      setNotificationType(data);
+    });
+    notifications.on("friend_delete", (data) => {
+      setNotificationType(data);
+    });
+    notifications.on("blocked_new", (data) => {
+      setNotificationType(data);
+    });
+    notifications.on("blocked_delete", (data) => {
+      setNotificationType(data);
+    });
   }, [notificationType]);
 
   /*======================================================================
@@ -230,12 +246,12 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 
     notificationsSocket.on("user_create", (data: { user: User }) => {
       setAllUsers((prev) => {
-        return (prev === null) ? [data.user] : [data.user, ...prev]
-      })
-    })
+        return prev === null ? [data.user] : [data.user, ...prev];
+      });
+    });
     return () => {
-      notificationsSocket.off("user_create")
-    }
+      notificationsSocket.off("user_create");
+    };
   }, [notificationType]);
 
   /*======================================================================
@@ -264,12 +280,9 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 
     notificationsSocket.on("user_create", (data: { user: User }) => {
       setAllUsers((prev) => {
-        return (prev === null) ? [data.user] : [data.user, ...prev]
-      })
-    })
-    return () => {
-      notificationsSocket.off("user_create")
-    }
+        return prev === null ? [data.user] : [data.user, ...prev];
+      });
+    });
   }, [notificationType]);
 
   /*======================================================================
@@ -297,12 +310,12 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 
     notificationsSocket.on("friend_new", (user: User) => {
       setFriends((prev) => {
-        return (prev === null) ? [user] : [user, ...prev]
-      })
-    })
+        return prev === null ? [user] : [user, ...prev];
+      });
+    });
     return () => {
-      notificationsSocket.off("friend_new")
-    }
+      notificationsSocket.off("friend_new");
+    };
   }, [notificationType, selectedGroupOption]);
 
   /*======================================================================
@@ -335,28 +348,26 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     requestMessages();
   }, [selectedGroup, notificationType]);
 
-
   useEffect(() => {
-    setIsInChannel(false)
+    setIsInChannel(false);
     selectedGroup?.users.map((channelUser: any) => {
-      console.log(me?.id, channelUser.user.id)
+      console.log(me?.id, channelUser.user.id);
       if (me?.id === channelUser.user.id) {
         console.log("I am in the channel");
         setIsInChannel(true);
       }
-    }
-    );
+    });
   }, [selectedGroup, notificationType]);
 
   const componentSize: React.CSSProperties = {
     width: width,
     height: height,
-    position: 'fixed',
+    position: "fixed",
     bottom: bottom,
     right: right,
-    display: 'flex',
-    justifyContent: 'end',
-    alignItems: 'center',
+    display: "flex",
+    justifyContent: "end",
+    alignItems: "center",
   };
 
   return (
@@ -366,7 +377,8 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
         {selectedGroupOption === ChannelOptions.CREATE_CHANNEL && (
           <ChannelForm {...groupsProps} />
         )}
-        {selectedGroupOption === ChannelOptions.CHANNEL && toogledButton === "Channel" && <ChannelProfile {...groupsProps} />}
+        {selectedGroupOption === ChannelOptions.CHANNEL &&
+          toogledButton === "Channel" && <ChannelProfile {...groupsProps} />}
         <Groups {...groupsProps} />
         <ChatMain {...groupsProps} />
       </div>

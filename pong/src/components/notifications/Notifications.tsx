@@ -65,10 +65,6 @@ const Notifications: React.FC = () => {
       setDataType("friend_request_denied");
       setDataContent(data);
     });
-    return(()=>{
-      console.log("disconected")
-      notifications.disconnect()
-    })
   });
 
 
