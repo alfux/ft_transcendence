@@ -23,7 +23,6 @@
   font-size: 100%;
   color: #fff;
   font-family: 'game', sans-serif;
-  text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue
 }
 
 @keyframes colorChangeProfileBar {
