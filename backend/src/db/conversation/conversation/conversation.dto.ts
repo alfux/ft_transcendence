@@ -17,6 +17,22 @@ export class ConversationCreateParams {
   password?: string
 }
 
+export class ConversationUpdateParams {
+  @ApiProperty({ description: 'Title of the conversation' })
+  @IsOptional()
+  @IsString()
+  title?: string
+  
+  @ApiProperty({ description: 'Access level. PROTECTED will require a password', enum:AccessLevel, examples: Object.keys(AccessLevel)})
+  @IsEnum(AccessLevel)
+  access_level: AccessLevel
+  
+  @ApiProperty({ description: 'Password of the conversation (empty if no password)' })
+  @IsOptional()
+  @IsString()
+  password?: string
+}
+
 export class ConversationJoinParams {
   @ApiProperty({ description: 'Id of the conversation' })
   @IsNumber()
