@@ -49,6 +49,9 @@ enum MenuState {
 	Endgame
 };
 
+
+export let	isLogged: boolean = false;
+
 export function create_menu_scene(
 	renderer: THREE.WebGLRenderer,
 	game_texture: THREE.Texture,
@@ -59,7 +62,7 @@ export function create_menu_scene(
 ) {
   const loader = new FontLoader();
   const font_params = { size: 0.4, height: 0.2 };
-  const material_params = { color: 0x001616, side: THREE.DoubleSide };
+  const material_params = { color: 0x001010, side: THREE.DoubleSide };
   const theta = Math.PI / 6;
   let option: {option: string, game: boolean} = {option: "Login", game: false};
   loader.load("fonts/Games_Regular.json", (font) => {
@@ -113,29 +116,29 @@ export function create_menu_scene(
     settings.name = "Settings";
     settings.layers.set(1);
 
-    const neon_create = new THREE.MeshBasicMaterial(material_params);
-    const tcreate = new TextGeometry("Sign up", { ...font_params, font: font });
-    const lcreate = new THREE.DirectionalLight(0xffbbbb, 0);
-    lcreate.position.set(0, Math.cos(-theta), Math.sin(-theta));
-    lcreate.target = sphere_mesh;
-    lcreate.name = "lCreate";
-    lcreate.layers.set(0);
-    const create = new THREE.Mesh(tcreate, neon_create);
-    create.position.set(-1, Math.cos(-theta), Math.sin(-theta));
-    create.rotation.set(-theta - Math.PI / 2, 0, 0);
-    create.name = "Create";
-    create.layers.set(0);
+    //const neon_create = new THREE.MeshBasicMaterial(material_params);
+    //const tcreate = new TextGeometry("Sign up", { ...font_params, font: font });
+    //const lcreate = new THREE.DirectionalLight(0xffbbbb, 0);
+    //lcreate.position.set(0, Math.cos(-theta), Math.sin(-theta));
+    //lcreate.target = sphere_mesh;
+    //lcreate.name = "lCreate";
+    //lcreate.layers.set(0);
+    //const create = new THREE.Mesh(tcreate, neon_create);
+    //create.position.set(-1, Math.cos(-theta), Math.sin(-theta));
+    //create.rotation.set(-theta - Math.PI / 2, 0, 0);
+    //create.name = "Create";
+    //create.layers.set(0);
 
     const neon_about = new THREE.MeshBasicMaterial(material_params);
     const tabout = new TextGeometry("About", { ...font_params, font: font });
     const labout = new THREE.DirectionalLight(0xffbbbb, 0);
-    labout.position.set(0, Math.cos(7 * theta), Math.sin(7 * theta));
+    labout.position.set(0, 0, -1);
     labout.target = sphere_mesh;
     labout.name = "lAbout";
     labout.layers.set(0);
     const about = new THREE.Mesh(tabout, neon_about);
-    about.position.set(-0.85, Math.cos(7 * theta), Math.sin(7 * theta));
-    about.rotation.set(7 * theta - Math.PI / 2, 0, 0);
+    about.position.set(-0.85, 0, -1);
+    about.rotation.set(Math.PI, 0, 0);
     about.name = "About";
     about.layers.set(0);
 
@@ -192,8 +195,8 @@ export function create_menu_scene(
     youloose.layers.set(1);
 
     menu_parent.add(
-		login, play, settings, create, about, profile, chat, logout, youwin, youloose,
-		llogin, lplay, lsettings, lcreate, labout, lprofile, lchat, llogout, lyouwin, lyouloose
+		login, play, settings, about, profile, chat, logout, youwin, youloose,
+		llogin, lplay, lsettings, labout, lprofile, lchat, llogout, lyouwin, lyouloose
 	);
   }, (prog) => {
     console.log((prog.loaded) + " bytes loaded");
@@ -201,7 +204,6 @@ export function create_menu_scene(
     console.log(err);
   });
 
-  let isLogged = false;
   if (payload?.authentication === LoggedStatus.Logged)
     isLogged = true;
 
@@ -222,10 +224,8 @@ export function create_menu_scene(
   menu_parent.name = "Menu";
   menu_parent.up.set(0, 1, 0);
   menu_parent.lookAt(0, 0, 20);
-  if (!isLogged) {
-	menu_parent.rotation.set(2 * Math.PI / 3, 0, 0);
+  if (!isLogged)
 	scaling = 2.5;
-  }
   menu_parent.scale.set(scaling, scaling, scaling);
   const plane = new THREE.PlaneGeometry(25, (9 / 16) * 25);
   const texture = new THREE.MeshLambertMaterial({ map: game_texture, transparent: true, opacity: 0});
@@ -378,6 +378,7 @@ export function create_menu_scene(
 		cleanup.forEach( (elem) => {
 			elem();
 		});
+		cleanup.splice(0, cleanup.length);
 	} 
 
 	function	setLoggedMenu() {
@@ -390,7 +391,10 @@ export function create_menu_scene(
 		menu_parent.getObjectByName("Profile")?.layers.set(0);
 		menu_parent.getObjectByName("lProfile")?.layers.set(0);
 		menu_parent.getObjectByName("About")?.layers.set(0);
+    	menu_parent.getObjectByName("About")?.position.set(-0.85, Math.cos(7 * theta), Math.sin(7 * theta));
+		menu_parent.getObjectByName("About")?.rotation.set(7 * theta - Math.PI / 2, 0, 0);
 		menu_parent.getObjectByName("lAbout")?.layers.set(0);
+    	menu_parent.getObjectByName("lAbout")?.position.set(-0.85, Math.cos(7 * theta), Math.sin(7 * theta));
 		menu_parent.getObjectByName("Settings")?.layers.set(0);
 		menu_parent.getObjectByName("lSettings")?.layers.set(0);
 		menu_parent.getObjectByName("Chat")?.layers.set(0);
@@ -415,6 +419,8 @@ export function create_menu_scene(
 		menu_parent.getObjectByName("Profile")?.layers.set(1);
 		menu_parent.getObjectByName("lProfile")?.layers.set(1);
 		menu_parent.getObjectByName("About")?.layers.set(0);
+		menu_parent.getObjectByName("About")?.position.set(-0.85, 0, -1);
+		menu_parent.getObjectByName("About")?.rotation.set(Math.PI, 0, 0);
 		menu_parent.getObjectByName("lAbout")?.layers.set(0);
 		menu_parent.getObjectByName("Settings")?.layers.set(1);
 		menu_parent.getObjectByName("lSettings")?.layers.set(1);
@@ -567,11 +573,9 @@ export function create_menu_scene(
         return (MenuButtons.Chat);
       return (MenuButtons.Logout);
     }
-    if ((rot - corr) % (2 * Math.PI) <= 2 * theta)
+    if ((rot - corr) % (2 * Math.PI) <= Math.PI / 2)
       return (MenuButtons.Login);
-    if ((rot - corr) % (2 * Math.PI) <= 6 * theta)
-      return (MenuButtons.Create);
-    if ((rot - corr) % (2 * Math.PI) <= 10 * theta)
+    if ((rot - corr) % (2 * Math.PI) <= 3 * Math.PI / 2)
       return (MenuButtons.About);
     return (MenuButtons.Login);
   }
@@ -591,6 +595,7 @@ export function create_menu_scene(
   }
 
 	let		t = 0;
+	let		tilt_play: boolean;
 	const	gamma = 1.2;
 	const	_a = 2 - 4 * gamma;
 	const	_b = (_a - 1) / (2 * _a);
@@ -599,8 +604,10 @@ export function create_menu_scene(
 		return ( _a * Math.pow(t - _b, 2) + _c);
 	};
 
-	const	moveMenu = (t: number, height: number = 3.4, style: (t: number) => number = (t: number) => {return (t);}) => {
-		menu_parent.position.y = height * style(t);
+	const	moveMenu = (t: number, x: number, y: number, phi: number, style: (t: number) => number = (t: number) => {return (t);}) => {
+		menu_parent.position.x = x * style(t);
+		menu_parent.position.y = y * style(t);
+		menu_parent.rotation.z = t * phi;
 		menu_parent.scale.x = scaling - (scaling - 1) * style(t);
 		menu_parent.scale.y = scaling - (scaling - 1) * style(t);
 		menu_parent.scale.z = scaling - (scaling - 1) * style(t);
@@ -611,15 +618,22 @@ export function create_menu_scene(
     
     option.option = new_current;
 	swapMenu();
-    if ((new_current === "Play" || new_current === "Chat") && t < 1) {
+    if (new_current === "Play" && t < 1) {
+		tilt_play = true;
 		if (t > 0.9)
 			corr = 0.4 - 2 * Math.PI;
-		moveMenu(t, 3.2, fct);
+		moveMenu(t, 7, 3.2, Math.PI / 6, fct);
+		t = updateT(t);
+    } else if (new_current === "Chat" && t < 1) {
+		tilt_play = false;
+		if (t > 0.9)
+			corr = 0.4 - 2 * Math.PI;
+		moveMenu(t, 7, 3.2, -Math.PI/6, fct);
 		t = updateT(t);
 	} else if (!option.game && new_current !== "Play" && new_current != "Chat" && t > 0) {
 		if (t < 0.1)
 			corr = 0.2 - 2 * Math.PI;
-		moveMenu(t, 3.2, fct);
+		moveMenu(t, 7, 3.2, (tilt_play) ? Math.PI / 6 : -Math.PI / 6, fct);
 		t = -updateT(-t, 0);
 	}
     if (menu_parent.children.length > 1 && (new_current !== current || current === null)) {
@@ -637,7 +651,7 @@ export function create_menu_scene(
           (obj as THREE.Light).intensity = 10;
         }
         else if (obj instanceof THREE.Mesh && obj.name !== "Sphere")
-          ((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(0x001616);
+          ((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(0x001010);
         else if (obj instanceof THREE.DirectionalLight) {
           (obj as THREE.Light).color = new THREE.Color(0x41ffff);
           (obj as THREE.Light).intensity = 1;
@@ -646,7 +660,7 @@ export function create_menu_scene(
     }
 
     if (Math.abs(menu_parent.rotation.x - corr) % (Math.PI / 3) > 0.02)
-      centerMenu(menu_parent, deltaY, isLogged ? Math.PI / 3 : 2 * Math.PI / 3);
+      centerMenu(menu_parent, deltaY, isLogged ? Math.PI / 3 : Math.PI);
 	if (time > 0.007) {
 		composer.render();
 		time = 0;

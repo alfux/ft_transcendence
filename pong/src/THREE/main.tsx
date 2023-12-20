@@ -75,7 +75,7 @@ export default function THREE_App() {
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.autoClear = false;
 
-		const buffer = new THREE.WebGLRenderTarget(25 * 512, (9 / 16) * 25 * 512);
+		const 	buffer = new THREE.WebGLRenderTarget(25 * 512, (9 / 16) * 25 * 512);
 		const	mousecaster = new THREE.Vector2(0, 0);
 		const	mousespeed = new THREE.Vector2(0, 0);
 
