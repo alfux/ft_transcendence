@@ -13,58 +13,91 @@ import { Interface } from "readline";
 import usePayload from "../../react_hooks/use_auth";
 import { notificationsSocket, chatSocket, gameSocket } from "../../sockets";
 import { FetchError, backend_fetch } from "../backend_fetch";
-import { FriendRequest } from "../../THREE/Utils/backend_types";
+import { ChatEvents, FriendRequest, Message, NotificationEvent } from "../../THREE/Utils/backend_types";
 
 const Notifications: React.FC = () => {
 	const [friendsRequest, setFriendsRequests] = useState<any | null>(null);
 	const [toogleButton, setToogleButton] = useState<string>("hide");
 	const [dataContent, setDataContent] = useState<any>({ username: "Our website", message: "WElcome for being online" });
-	const [dataType, setDataType] = useState<any>("receive_message");
+	const [dataType, setDataType] = useState<any>(undefined);
 	const [payload, updatePayload, handleUpdate] = usePayload();
 
 
-
 	useEffect(() => {
-		console.log("Socket connection status:", notificationsSocket.connected);
+
+		/*
+		Je suis 99% sur que ca ca sert a rien, parce que au moment du useEffect la socket ne sera jamais connecté, pas besoin
+		de lui demander a chaque fois de se connecter une nouvelle fois
+		Ca peut prendre du temps a se connecter, et de toute maniere tout les messages
+		sont stockés et envoyé une fois connecté.
+
 		if (!notificationsSocket.connected) {
 			notificationsSocket.connect();
 			console.log("ups .. ok now connected");
 		}
+		*/
 
-		chatSocket.on("receive_message", (data) => {
+		/*
+		Ici on est obligé de creer une fonction pour chaque event, parce que quand on fait
+		socket.off, on doit passer la meme fonction pour etre sur que socket.off enleve le bon listener
+		(Si on fait pas socket.off on recoit 15000 events)
+		*/
+
+		function socket_event_receive_message(data: {conversation_id: number, message: Message}) {
 			setDataContent(data)
-			setDataType("receive_message")
-			console.log("RECEIUVE A MNESAGE")
-		})
-		gameSocket.on("receive_message", (data) => {
-			setDataContent(data)
-			setDataType("receive_message")
-		})
-		notificationsSocket.on("friend_new", (data: { req: any } | any) => {
+			setDataType(ChatEvents.RECEIVE_MESSAGE)
+			console.log("Received a message")
+		}
+		chatSocket.on(ChatEvents.RECEIVE_MESSAGE, socket_event_receive_message)
+
+		
+		function socket_event_friend_new(data: { req: FriendRequest }) {
 			console.log("Received friend new");
-			setDataType("friend_new");
+			setDataType(NotificationEvent.FRIEND_NEW);
 			setDataContent(data);
-		});
+		}
+		notificationsSocket.on(NotificationEvent.FRIEND_NEW, socket_event_friend_new);
+		
 
-		notificationsSocket.on("friend_request_recv", (data: { req: any }) => {
-			setDataType("friend_request_recv");
+		function socket_event_friend_request_recv(data: { req: FriendRequest }) {
+			console.log("Received friend request");
+			setDataType(NotificationEvent.FRIEND_REQUEST_RECV);
 			setDataContent(data);
-			console.log("friend request received");
-		});
-		notificationsSocket.on("friend_delete", (data: { req: any }) => {
-			setDataType("friend_delete");
-			setDataContent(data);
-			console.log("friend deleted");
-		});
-		notificationsSocket.on("blocked_new", (data: { req: any }) => {
-			console.log("blocked_new");
-		});
-		notificationsSocket.on("friend_request_denied", (data: { req: any }) => {
-			setDataType("friend_request_denied");
-			setDataContent(data);
-		});
+		}
+		notificationsSocket.on(NotificationEvent.FRIEND_REQUEST_RECV, socket_event_friend_request_recv);
 
-	});
+
+		function socket_event_friend_delete(data: { req: any }) {
+			console.log("Friend deleted");
+			setDataType(NotificationEvent.FRIEND_DELETE);
+			setDataContent(data);
+		};
+		notificationsSocket.on(NotificationEvent.FRIEND_DELETE, socket_event_friend_delete)
+
+
+		function socket_event_blocked_new(data: { req: any }) {
+			console.log(NotificationEvent.BLOCKED_NEW);
+		}
+		notificationsSocket.on(NotificationEvent.BLOCKED_NEW, socket_event_blocked_new);
+		
+		
+		function socket_event_friend_request_denied(data: { req: any }) {
+			setDataType(NotificationEvent.FRIEND_REQUEST_DENIED);
+			setDataContent(data);
+		};
+		notificationsSocket.on(NotificationEvent.FRIEND_REQUEST_DENIED, socket_event_friend_request_denied)
+
+		return (() => {
+			chatSocket.off(ChatEvents.RECEIVE_MESSAGE, socket_event_receive_message)
+		
+			notificationsSocket.off(NotificationEvent.FRIEND_NEW, socket_event_friend_new)
+			notificationsSocket.off(NotificationEvent.FRIEND_REQUEST_RECV, socket_event_friend_request_recv)
+			notificationsSocket.off(NotificationEvent.FRIEND_DELETE, socket_event_friend_delete)
+			notificationsSocket.off(NotificationEvent.BLOCKED_NEW, socket_event_blocked_new)
+			notificationsSocket.off(NotificationEvent.FRIEND_REQUEST_DENIED, socket_event_friend_request_denied)
+		})
+
+	}, []);
 
 
 	if (toogleButton === "show") {
@@ -82,7 +115,6 @@ const Notifications: React.FC = () => {
 			method: 'GET'
 		})
 			.then((json) => {
-				console.log(json)
 				setFriendsRequests(json)
 			})
 			.catch((e) => { if (e instanceof FetchError) { } else throw e })
@@ -109,12 +141,9 @@ const Notifications: React.FC = () => {
 			}, {
 				id: request.id
 			})
-				.then((v) => {
-					if (v === undefined) {
-						alert("Couldn't accept friend request :(")
-					}
-				})
-				.catch((e) => { if (e instanceof FetchError) { } else throw e })
+				.catch((e) => { if (e instanceof FetchError) {
+					alert("Couldn't accept friend request :(")
+				} else throw e })
 		}
 
 		if (request?.sender) {
@@ -145,17 +174,18 @@ const Notifications: React.FC = () => {
 		>
 			<div className="notifications-content">
 				<div className="notification-profile">
-					{dataType === "receive_message" && dataContent?.username !== payload?.username && <p>🗨️ {dataContent.username} has sended: {dataContent.message}</p>}
-					{dataType === "friend_new" && (
+					{/* petit changement: les message recu par l'event 'receive_message' sont maintenant du type: {conversation_id: number, message: Message} */}
+					{dataType === ChatEvents.RECEIVE_MESSAGE && dataContent?.username !== payload?.username && <p>🗨️ {dataContent.message.sender.username} sent: {dataContent.message.content}</p>}
+					{dataType === NotificationEvent.FRIEND_NEW && (
 						<p>New Friend Added: {dataContent?.user?.username} </p>
 					)}
-					{dataType === "friend_delete" && (
+					{dataType === NotificationEvent.FRIEND_DELETE && (
 						<p>No longer friend with: {dataContent?.user?.username} </p>
 					)}
-					{dataType === "friend_request_recv" && (
+					{dataType === NotificationEvent.FRIEND_REQUEST_RECV && (
 						<p>Friend Request Received: {dataContent?.user?.username} </p>
 					)}
-					{dataType === "friend_request_denied" && (
+					{dataType === NotificationEvent.FRIEND_REQUEST_DENIED && (
 						<p>Friend Request Denied: {dataContent?.user?.username} </p>
 					)}
 					{getNotificationRequests}

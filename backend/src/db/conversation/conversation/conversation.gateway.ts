@@ -69,7 +69,6 @@ export class ConversationGateway implements OnGatewayConnection {
 				return
 			}
 
-			console.log(`SEND MESSAGE => ${client.user.username} => ${new_message.content} in ${new_message.conversation.title}`)
 			client.socket.emit('receive_message',
 				{
 					conversation_id: data.conversation_id,

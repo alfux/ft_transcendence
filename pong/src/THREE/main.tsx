@@ -19,6 +19,7 @@ import usePayload from '../react_hooks/use_auth'
 import MiniChatButton from '../components/minichat/ChatButton';
 import { init_modules } from './GameScene/shaders';
 import { config } from '../config';
+import { FetchError, backend_fetch } from '../components/backend_fetch';
 
 export let accessToken = Cookies.get('access_token');
 
@@ -30,35 +31,27 @@ export default function THREE_App() {
 
   let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
   const [payload, updatePayload, handleUpdate] = usePayload();
-  const requestNewToken = async () => {
-    try {
-      const url = `${config.backend_url}/api/auth/refresh`;
-      console.log('Before fetch');
-      const response = await fetch(url, {
-        method: 'GET',
-        credentials: 'include',
-      });
-      if (response.ok) {
-        const test = await response.json()
-        accessToken = Cookies.get('access_token');
-        user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
-        console.log("REFRESHED");
-        // alert(console.log("AccessTokenRefreshed"))
-      } else {
-        // alert(console.log("AccessToken Didnt not refreshed"))
-        document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
-        window.location.reload();
-        console.error('Could not get new AccessToken:', response.status);
-      }
-    } catch (error) {
-      document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
-      window.location.reload();
-      console.error('Error fetching new refresh Token:', error);
-    }
-  };
 
-  useEffect(() => {
-  }, []);
+  const requestNewToken = async () => {
+		return backend_fetch(`${config.backend_url}/api/auth/refresh`, {
+			method: 'GET'
+		})
+		.then(() => {
+			accessToken = Cookies.get('access_token');
+      user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
+		})
+		.catch((e) => {
+			if (e instanceof FetchError) {
+				document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
+        window.location.reload();
+				console.error('Could not get new AccessToken:', e.what());
+
+				return undefined
+			} else {
+				throw e
+			}
+		})
+  };
 
   useEffect(() => {
     init_modules() //Pour les shaders, svp ne pas enlever
@@ -87,7 +80,6 @@ export default function THREE_App() {
       setGameState(option.game);
       //______________
       if (user?.exp && user.exp < Date.now() / 1000) {
-        console.log("REFRESHED");
         requestNewToken();
       }
     }

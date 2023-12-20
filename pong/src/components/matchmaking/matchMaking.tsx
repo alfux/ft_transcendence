@@ -4,7 +4,7 @@ import './matchMaking.css'
 import React, { useRef, useEffect, useState } from 'react'
 import usePayload from '../../react_hooks/use_auth'
 import { GameMode, User } from '../../THREE/Utils/backend_types';
-import { backend_fetch } from '../backend_fetch';
+import { FetchError, backend_fetch } from '../backend_fetch';
 import { MoonLoader } from 'react-spinners';
 import { gameSocket } from '../../sockets';
 
@@ -24,25 +24,10 @@ const MatchMaking: React.FC = () => {
 	const [timer, setTimer] = useState(0)
 
 	useEffect(() => {
-		const requestProfile = async () => {
-			try {
-				const url = `${config.backend_url}/api/user/me`;
-				const response = await fetch(url, {
-					method: 'GET',
-					credentials: 'include',
-				});
-				if (response.ok) {
-					const result = await response.json()
-					setData(result)
-				} else {
-					console.error('Could not get profile:', response.status);
-				}
-			} catch (error) {
-				console.error('Error fetching profile Token:', error);
-			}
-		};
-		requestProfile();
-		//backend_fetch()
+		backend_fetch(`${config.backend_url}/api/user/me`, {
+			method: 'GET'
+		})
+		.catch((e) => { if (e instanceof FetchError) {} else throw e })
 
 		gameSocket.on("match_found", (data: { opponent: User, delay: number }) => {
 			setOpponent(data.opponent)

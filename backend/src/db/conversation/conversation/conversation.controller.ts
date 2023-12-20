@@ -102,10 +102,20 @@ export class ConversationController {
 		responses: [{ status: 200, description: 'Conversation\'s content retrieved successfully' }]
 	})
 	async getConversation(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+		const user = await this.userService.getUser({ id: req.user.id }, ['blocked'])
+
 		return this.conversationService.getConversation({ id: id }, [...CONVERSATION_DEFAULT, ...CONVERSATION_MESSAGES_DEFAULT])
 			.then((v) => {
 				if (v.users.find((x) => x.user.id === req.user.id) === undefined)
 					throw new HttpUnauthorized('You are not in the conversation')
+
+				v.messages = v.messages.filter((m) => {
+					if (user.blocked.find((bl) => bl.id === m.sender.id)) {
+						return false
+					} else
+						return true
+				})
+
 				return v
 			})
 	}

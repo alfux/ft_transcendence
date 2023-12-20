@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { config } from "../../../config";
 import { ChannelOptions, ChatProps } from "../MiniChat";
-import { FriendRequest, PlayRequest } from "../../../THREE/Utils/backend_types";
 import { FetchError, backend_fetch } from "../../backend_fetch";
 import Profile from "../profileDisplay/Profile";
 
@@ -16,32 +15,32 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 			method: "POST"
 		}, {
 			user_id: props.selectedUser?.id,
-		}
-		)
+		})
 			.catch((e) => { if (e instanceof FetchError) { } else throw e })
 	}
 	/*======================================================================
 	===================Fetch<Post> Request To Send Play Invite To Another User==========
 	======================================================================== */
 	async function sendPlayInvite() {
-		backend_fetch(
-			`${config.backend_url}/api/user/play_request`,
-			{ method: "POST" },
-			{
-				user_id: props.selectedUser?.id,
-			}
-		);
+		backend_fetch(`${config.backend_url}/api/user/play_request`, {
+			method: "POST"
+		}, {
+			user_id: props.selectedUser?.id,
+		})
+			.catch((e) => { if (e instanceof FetchError) { } else throw e })
 	}
 
 	/*======================================================================
 	===================Fetch<Delete> Request To Remove Friend==========
 	======================================================================== */
 	async function sendFriendRemove() {
-		backend_fetch(
-			`${config.backend_url}/api/user/friends/${props.selectedUser!.id}`,
-			{ method: "DELETE" }
-		);
-		props.setNotificationType("friend_removed")
+		backend_fetch(`${config.backend_url}/api/user/friends/${props.selectedUser!.id}`, {
+			method: "DELETE"
+		})
+			.catch((e) => { if (e instanceof FetchError) { } else throw e })
+
+		//Non: la backend enverra l'event quand ca sera bon
+		//props.setNotificationType("friend_removed")
 	}
 
 	/*======================================================================
@@ -63,57 +62,24 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 	}, [props.selectedGroup]);
 
 	async function blockFriend() {
-		const url = `${config.backend_url}/api/user/blocked`;
-		try {
-			const response = await fetch(url, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ user_id: props.selectedUser?.id }),
-			});
-
-			if (response.ok) {
-				console.log("Blocked", props.selectedUser?.username);
-			} else {
-				console.error(
-					"Error Blocking User. Server responded with status:",
-					response.status
-				);
-			}
-		} catch (error) {
-			console.error("Error Blocking:", error);
-		}
+		backend_fetch(`${config.backend_url}/api/user/blocked`, {
+			method: 'POST'
+		}, {
+			user_id: props.selectedUser!.id
+		})
+			.catch((e) => { if (e instanceof FetchError) { } else throw e })
 	};
 
 
 	async function promoteUser() {
 		props.selectedGroup?.users!.map(async (user: any) => {
 			if (user.user.db_id === props.selectedUser?.db_id) {
-				const url = `${config.backend_url}/api/conversation/promote`;
-				try {
-					const response = await fetch(url, {
-						method: "POST",
-						credentials: "include",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({ conversation_user_id: user.id }),
-					});
-
-					if (response.ok) {
-						console.log("Promoted", user.user.username);
-					} else {
-						alert("Could not Promote");
-						console.error(
-							"Error Promoting User. Server responded with status:",
-							response.status
-						);
-					}
-				} catch (error) {
-					console.error("Error Promoting:", error);
-				}
+				backend_fetch(`${config.backend_url}/api/conversation/promote`, {
+					method: 'POST'
+				}, {
+					conversation_user_id: user.id
+				})
+					.catch((e) => { if (e instanceof FetchError) { } else throw e })
 			}
 		});
 	}
@@ -135,7 +101,8 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 
 
 	return (
-		<>{profileStatus && setTimeout(() => { setProfileStatus(false) }, 10000)}
+		<>
+			{profileStatus && setTimeout(() => { setProfileStatus(false) }, 10000)}
 			{profileStatus && <Profile {...props.selectedUser} />}
 			<div className="user-profile">
 				{props.selectedUser && !props.selectedGroup && (

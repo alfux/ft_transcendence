@@ -157,12 +157,8 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 		chatSocket.on("receive_message", (data) => {
 			setNotificationType(data);
 		})
-		gameSocket.on("receive_message", (data) => {
-			setNotificationType(data);
-		})
 		return (() => {
 			chatSocket.off("receive_message")
-			chatSocket.disconnect()
 		})
 	}, [])
 
@@ -241,9 +237,6 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 			user: User,
 			conversation: Conversation
 		}) {
-
-			console.log("LEAVE / JOIN")
-
 			channels?.forEach((v, i) => {
 				if (v.id === data.conversation.id) {
 					channels![i] = data.conversation
@@ -255,11 +248,11 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 			}
 		}
 
-		chatSocket.on("conv_join", socket_msg)
-		chatSocket.on("conv_leave", socket_msg)
+		notificationsSocket.on("conv_join", socket_msg)
+		notificationsSocket.on("conv_leave", socket_msg)
 		return (() => {
-			chatSocket.off("conv_join", socket_msg)
-			chatSocket.off("conv_leave", socket_msg)
+			notificationsSocket.off("conv_join", socket_msg)
+			notificationsSocket.off("conv_leave", socket_msg)
 		})
 	}, [selectedGroup])
 

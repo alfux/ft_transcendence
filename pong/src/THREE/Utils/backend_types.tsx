@@ -10,6 +10,40 @@ export enum GameMode {
 	MAGNUS = "MAGNUS",
 }
 
+export enum ChatEvents {
+	RECEIVE_MESSAGE = "receive_message"
+}
+
+export enum PrivateChatEvents {
+	RECEIVE_MESSAGE = "receive_message"
+}
+
+export enum NotificationEvent {
+	USER_CREATE = "user_create",
+	
+	CONV_CREATE = "conv_create",
+	CONV_DELETE = "conv_delete",
+	CONV_JOIN = "conv_join",
+	CONV_LEAVE = "conv_leave",
+	CONV_PROMOTE = "conv_promote",
+	CONV_KICK = "conv_kick",
+	CONV_MUTE = "conv_mute",
+
+	FRIEND_REQUEST_RECV = "friend_request_recv",
+	FRIEND_REQUEST_ACCEPTED = "friend_request_accepted",
+	FRIEND_REQUEST_DENIED = "friend_request_denied",
+
+	PLAY_REQUEST_RECV = "play_request_recv",
+	PLAY_REQUEST_ACCEPTED = "play_request_accepted",
+	PLAY_REQUEST_DENIED = "play_request_denied",
+
+	FRIEND_NEW = "friend_new",
+	FRIEND_DELETE = "friend_delete",
+
+	BLOCKED_NEW = "blocked_new",
+	BLOCKED_DELETE = "blocked_delete",
+}
+
 export enum AccessLevel {
 	PUBLIC = 'public',
 	PRIVATE = 'private',

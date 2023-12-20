@@ -2,12 +2,6 @@ Pour voir tout les //TODO dans les fichiers:
 find ./backend/src ./pong/src -name '*.ts' -or -name '*.tsx' | tr '\n' ' ' | xargs grep "TODO"
 
 
-Join channel ne se met pas a jour
-chat :(
-
-
-
-
 
 
 
