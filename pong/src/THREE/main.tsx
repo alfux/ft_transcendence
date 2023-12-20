@@ -20,7 +20,7 @@ import MiniChatButton from '../components/minichat/ChatButton';
 import { init_modules } from './GameScene/shaders';
 import { config } from '../config';
 
-export const accessToken = Cookies.get('access_token');
+export let accessToken = Cookies.get('access_token');
 
 export default function THREE_App() {
 	const divRef = useRef<HTMLDivElement>(null);
@@ -30,7 +30,6 @@ export default function THREE_App() {
 
 	let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
 	const [payload, updatePayload, handleUpdate] = usePayload();
-	const [logged, setLogged] = useState(false)
 	const requestNewToken = async () =>{
 		try {
 		  const url = `${config.backend_url}/api/auth/refresh`;
@@ -41,10 +40,14 @@ export default function THREE_App() {
 		  });
 		  if (response.ok) {
 			const test = await response.json()
-			console.log("AccessTokenRefreshed: ", test)
+			accessToken = Cookies.get('access_token');
+			user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
+			console.log("REFRESHED");
 			// alert(console.log("AccessTokenRefreshed"))
 		  } else {
 			// alert(console.log("AccessToken Didnt not refreshed"))
+			document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
+			window.location.reload();
 			console.error('Could not get new AccessToken:', response.status);
 		  }
 	  } catch (error) {
@@ -53,16 +56,6 @@ export default function THREE_App() {
 		  console.error('Error fetching new refresh Token:', error);
 	  }
 };
-	//Check if access token has expired remove token and reload page
-	useEffect(() => {
-		setLogged(true)
-		user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
-		if (user?.exp && user.exp < Date.now() / 1000) {
-			// alert("Token expired");
-			requestNewToken();
-
-		}
-	}, [user && user.exp < Date.now() / 1000])
 
 	useEffect(() => {
 	}, []);
@@ -86,20 +79,25 @@ export default function THREE_App() {
 		function mainloop() {
 			requestAnimationFrame(mainloop);
 			
-      clock.update();
+      		clock.update();
 			
-      game_scene.update();
+      		game_scene.update();
 
 			const option = menu_scene.update()
 			setLoginForm(option.option);
 			setGameState(option.game);
+			//______________
+			if (user?.exp && user.exp < Date.now() / 1000){
+				console.log("REFRESHED");
+				requestNewToken();
+			}
 		}
 
 		if (divRef.current)
 			divRef.current.appendChild(renderer.domElement);
 		
     mainloop();
-    
+		
 		return (() => {
 			menu_scene.clean()
 			game_scene.clean()
