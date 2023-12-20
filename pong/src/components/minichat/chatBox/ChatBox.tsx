@@ -5,11 +5,11 @@ import ChatInput from "../chatInput/ChatInput"
 
 const ChatBox: React.FC<ChatProps> = (props) => {
 
-    return(
-        <div className="chat-box">
-            {props.isInChannel && <ChatDisplay {...props}/>}
-            {props.isInChannel && <ChatInput {...props}/>}
-        </div>
-    )
+	return (
+		<div className="chat-box">
+			{props.isInChannel && <ChatDisplay {...props} />}
+			{props.isInChannel && <ChatInput {...props} />}
+		</div>
+	)
 }
 export default ChatBox

@@ -11,37 +11,37 @@ import { config_jwt } from 'src/config'
 import { CoolSocket } from 'src/socket'
 
 
-@WebSocketGateway({namespace:'notifications'})
+@WebSocketGateway({ namespace: 'notifications' })
 export class NotificationsGateway implements OnGatewayConnection {
 
-  @WebSocketServer() server: Server
+	@WebSocketServer() server: Server
 
-  constructor (
-      private notificationService: NotificationsService,
-      @Inject(forwardRef(() => AuthService))
-      private authService: AuthService,
-      @Inject(forwardRef(() => UserService))
-      private userService: UserService
-    ) {}
+	constructor(
+		private notificationService: NotificationsService,
+		@Inject(forwardRef(() => AuthService))
+		private authService: AuthService,
+		@Inject(forwardRef(() => UserService))
+		private userService: UserService
+	) { }
 
-  async handleConnection(client: Socket) {
-  }
+	async handleConnection(client: Socket) {
+	}
 
-  async handleDisconnect(client: Socket): Promise<any> {
-    this.notificationService.removeClient(client)
-  }
+	async handleDisconnect(client: Socket): Promise<any> {
+		this.notificationService.removeClient(client)
+	}
 
-  @SubscribeMessage("auth")
-  async auth(client: Socket, data: {token:any, data: { 0: string }}) {
-    const jwt_payload = await this.authService.verifyJWT(data.data[0], config_jwt.secret_token)
-    if (!jwt_payload) {
-      return
-    }
-    const user = await this.userService.getUser({id:jwt_payload.id})
-    if (!user) {
-      return
-    }
-    this.notificationService.addClient(client, user)
-  }
+	@SubscribeMessage("auth")
+	async auth(client: Socket, data: { token: any, data: { 0: string } }) {
+		const jwt_payload = await this.authService.verifyJWT(data.data[0], config_jwt.secret_token)
+		if (!jwt_payload) {
+			return
+		}
+		const user = await this.userService.getUser({ id: jwt_payload.id })
+		if (!user) {
+			return
+		}
+		this.notificationService.addClient(client, user)
+	}
 
 }

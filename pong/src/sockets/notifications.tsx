@@ -7,5 +7,5 @@ import { coolSocket } from "../THREE/Utils";
 let accessToken = Cookies.get('access_token');
 export const notificationsSocket = coolSocket(`${config.backend_url}/notifications`, accessToken)
 notificationsSocket.on("connect", () => {
-  notificationsSocket.emit("auth", accessToken)
+	notificationsSocket.emit("auth", accessToken)
 })

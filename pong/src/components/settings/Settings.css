@@ -1,7 +1,7 @@
 /* __________________CustomFont__________________ */
 @font-face {
-  font-family: 'game';
-  src: url('../../../public/fonts/game/Games.ttf') format('truetype');
+	font-family: 'game';
+	src: url('../../../public/fonts/game/Games.ttf') format('truetype');
 }
 
 /* __________________GlassContainerSettings__________________ */
@@ -21,102 +21,104 @@
 	flex-direction: column;
 	justify-content: center;
 	animation: slideIn 2s ease forwards, colorChange 2s infinite;
-  resize: both;
-  overflow: auto;
-  cursor: move;
-  }
+	resize: both;
+	overflow: auto;
+	cursor: move;
+}
 
 
 /* __________________Settings__________________ */
-.glass-container-settings .settings{
-  position: absolute;
-  display: flex;
-  flex-direction: column;
+.glass-container-settings .settings {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
 
-  height: 100%;
-  width: 100%;
-  align-items: center;
+	height: 100%;
+	width: 100%;
+	align-items: center;
 
 }
 
-.glass-container-settings .QRCode{
-  position: absolute;
- width: 10vh;
- height: 10vh;
- left: 50%;
-  bottom: 10%;
-  transform: translateX(-50%);
+.glass-container-settings .QRCode {
+	position: absolute;
+	width: 10vh;
+	height: 10vh;
+	left: 50%;
+	bottom: 10%;
+	transform: translateX(-50%);
 }
 
-.glass-container-settings .switch{
-  position: relative;
-  display: inline;
-  height: 40px;
-  width: 90px;;
-  margin-top: 0 10px;
+.glass-container-settings .switch {
+	position: relative;
+	display: inline;
+	height: 40px;
+	width: 90px;
+	;
+	margin-top: 0 10px;
 }
 
 .glass-container-settings .switch-container {
-  display: flex;
-  align-items: center;
+	display: flex;
+	align-items: center;
 }
 
-.glass-container-settings h2{
-  font-size: 3vw;
-  color: #fff;
-  text-align:center;
-  font-family: 'game', sans-serif;
-  text-shadow: 0 0 10px #fff , 0 0 30px blue, 0 0 40px rgb(0, 0, 0), 0 0 60px blue 
+.glass-container-settings h2 {
+	font-size: 3vw;
+	color: #fff;
+	text-align: center;
+	font-family: 'game', sans-serif;
+	text-shadow: 0 0 10px #fff, 0 0 30px blue, 0 0 40px rgb(0, 0, 0), 0 0 60px blue
 }
 
-.glass-container-settings .switch-label{
-  font-size: 1.2vw;
-  font-family: 'game', sans-serif;
-  color: white;
-  margin-right: 1vw;
+.glass-container-settings .switch-label {
+	font-size: 1.2vw;
+	font-family: 'game', sans-serif;
+	color: white;
+	margin-right: 1vw;
 }
 
-.glass-container-settings .slider{
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 3vw;
-  height: 3vh;
-  background-color: rgb(137, 9, 15);
-  transition: .4s;
-  border-radius: 50px;
+.glass-container-settings .slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 3vw;
+	height: 3vh;
+	background-color: rgb(137, 9, 15);
+	transition: .4s;
+	border-radius: 50px;
 
 }
 
 .glass-container-settings .switch input {
-  display: none;
+	display: none;
 }
 
-.glass-container-settings .slider:before{
-  position: absolute;
-  content: "";
-  height: 80%;
-  width: 50%;
-  left: 0.2vh;
-  bottom: 0.2vw;
-  background-color:white;
-  align-self: center;
-  transition: 0.4s;
-  border-radius: 50%;
-  box-shadow: 0 0 10px red;
-  box-shadow: 0 0 25px red;
-  box-shadow: 0 0 50px red;
-}
-.glass-container-settings input:checked + .slider{
-  background-color: rgb(10, 110, 15);
-  box-shadow: 0 0 10px green;
-  box-shadow: 0 0 25px green;
-  box-shadow: 0 0 50px green;
+.glass-container-settings .slider:before {
+	position: absolute;
+	content: "";
+	height: 80%;
+	width: 50%;
+	left: 0.2vh;
+	bottom: 0.2vw;
+	background-color: white;
+	align-self: center;
+	transition: 0.4s;
+	border-radius: 50%;
+	box-shadow: 0 0 10px red;
+	box-shadow: 0 0 25px red;
+	box-shadow: 0 0 50px red;
 }
 
-.glass-container-settings input:checked + .slider::before{
-  transform: translateX(30px);
+.glass-container-settings input:checked+.slider {
+	background-color: rgb(10, 110, 15);
+	box-shadow: 0 0 10px green;
+	box-shadow: 0 0 25px green;
+	box-shadow: 0 0 50px green;
+}
+
+.glass-container-settings input:checked+.slider::before {
+	transform: translateX(30px);
 }

@@ -3,17 +3,17 @@ import { Module } from '@nestjs/common'
 import { FortyTwoStrategy } from './42api.strategy'
 
 @Module({
-  imports: [],
+	imports: [],
 
-  controllers: [
-  ],
+	controllers: [
+	],
 
-  providers: [
-    FortyTwoStrategy,
-  ],
+	providers: [
+		FortyTwoStrategy,
+	],
 
-  exports: [
-    FortyTwoStrategy
-  ],
+	exports: [
+		FortyTwoStrategy
+	],
 })
 export class FortyTwoModule { }

@@ -1,114 +1,114 @@
 export enum LoggedStatus {
-  Logged,
-  InGame,
-  Incomplete,
-  Unlogged,
+	Logged,
+	InGame,
+	Incomplete,
+	Unlogged,
 }
 
 export enum GameMode {
-  CLASSIC= "CLASSIC",
-  MAGNUS = "MAGNUS",
+	CLASSIC = "CLASSIC",
+	MAGNUS = "MAGNUS",
 }
 
 export enum AccessLevel {
-  PUBLIC = 'public',
-  PRIVATE = 'private',
-  PROTECTED = 'protected',
+	PUBLIC = 'public',
+	PRIVATE = 'private',
+	PROTECTED = 'protected',
 }
 
 export interface User {
-  db_id: number
-  id: number
-  username: string
-  image: string
-  email: string
+	db_id: number
+	id: number
+	username: string
+	image: string
+	email: string
 
-  isAuthenticated: LoggedStatus
+	isAuthenticated: LoggedStatus
 
-  twoFactorAuth?: boolean
-  twoFactorAuthSecret?: string
+	twoFactorAuth?: boolean
+	twoFactorAuthSecret?: string
 
-  conversations?: ConversationUser[]
-  privateConversations?: PrivateConversation[]
+	conversations?: ConversationUser[]
+	privateConversations?: PrivateConversation[]
 
-  blocked?: User[]
-  friends?: User[]
+	blocked?: User[]
+	friends?: User[]
 
-  friends_requests_recv?: FriendRequest[]
-  friends_requests_sent?: FriendRequest[]
+	friends_requests_recv?: FriendRequest[]
+	friends_requests_sent?: FriendRequest[]
 
 
-  play_requests_recv?: PlayRequest[]
-  play_requests_sent?: PlayRequest[]
+	play_requests_recv?: PlayRequest[]
+	play_requests_sent?: PlayRequest[]
 }
 
 export interface FriendRequest {
-  id: number
+	id: number
 
-  sender: User
-  receiver: User
+	sender: User
+	receiver: User
 }
 
 export interface PlayRequest {
-  id: number
-  sender: User
-  receiver: User
+	id: number
+	sender: User
+	receiver: User
 }
 
 export interface Message {
-  id: number
+	id: number
 
-  sender: ConversationUser
-  conversation?: Conversation
+	sender: ConversationUser
+	conversation?: Conversation
 
-  content: string
+	content: string
 }
 
 export interface Conversation {
-  id: number
-  title: string
-  access_level: AccessLevel
-  owner: User
-  users: ConversationUser[]
-  messages?: Message[]
+	id: number
+	title: string
+	access_level: AccessLevel
+	owner: User
+	users: ConversationUser[]
+	messages?: Message[]
 }
 
 export interface ConversationUser {
-  id: number
+	id: number
 
-  user: User
-  conversation: Conversation
+	user: User
+	conversation: Conversation
 
-  joinedAt: Date
+	joinedAt: Date
 
-  isAdmin: boolean
-  becameAdminAt: string
+	isAdmin: boolean
+	becameAdminAt: string
 
-  messages?: Message[]
+	messages?: Message[]
 }
 
 
 export interface PrivateMessage {
-  id: number
+	id: number
 
-  sender: User
-  conversation: PrivateConversation
+	sender: User
+	conversation: PrivateConversation
 
-  content: string
+	content: string
 }
 
 
 export interface PrivateConversation {
-  id: number
-  users?: User[]
-  messages?: PrivateMessage[]
+	id: number
+	users?: User[]
+	messages?: PrivateMessage[]
 }
 
 export interface Match {
-  id: number
+	id: number
 
-  date: Date
+	date: Date
 
-  players: User[]
-  winner: User
+	players: User[]
+	winner: User
 }

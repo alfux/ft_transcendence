@@ -11,30 +11,30 @@ import { FortyTwoModule } from './42api'
 import { TwoFactorAuthenticationModule } from './2fa'
 
 @Module({
-  imports: [
-    NestJwtModule.register({}),
-    PassportModule.register({ defaultStrategy: '42' }),
-    forwardRef(() => UserModule),
+	imports: [
+		NestJwtModule.register({}),
+		PassportModule.register({ defaultStrategy: '42' }),
+		forwardRef(() => UserModule),
 
-    TwoFactorAuthenticationModule,
-    FortyTwoModule,
-    JwtModule,
-  ],
+		TwoFactorAuthenticationModule,
+		FortyTwoModule,
+		JwtModule,
+	],
 
-  controllers: [
-    AuthController,
-  ],
+	controllers: [
+		AuthController,
+	],
 
-  providers: [
-    AuthService
-  ],
+	providers: [
+		AuthService
+	],
 
-  exports: [
-    TwoFactorAuthenticationModule,
-    FortyTwoModule,
-    JwtModule,
+	exports: [
+		TwoFactorAuthenticationModule,
+		FortyTwoModule,
+		JwtModule,
 
-    AuthService
-  ],
+		AuthService
+	],
 })
 export class AuthModule { }

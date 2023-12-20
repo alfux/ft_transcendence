@@ -19,7 +19,6 @@
       }
     }
   ],
-
   "receives": [
     {
       "name": "send_message",

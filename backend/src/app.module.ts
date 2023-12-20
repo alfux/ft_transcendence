@@ -19,40 +19,40 @@ import { GameModule } from 'src/game/game.module'
 import { config_db } from 'src/config'
 
 @Module({
-  imports: [
-    ScheduleModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: config_db.host,
-      port: +config_db.port,
-      username: config_db.user,
-      password: config_db.password,
-      database: config_db.database,
-      entities: [
-        User,
-        Message,
-      
-        Conversation,
-        ConversationUser,
-        ConversationUserInfos,
-      
-        PrivateConversation,
-        PrivateMessage,
+	imports: [
+		ScheduleModule.forRoot(),
+		TypeOrmModule.forRoot({
+			type: 'postgres',
+			host: config_db.host,
+			port: +config_db.port,
+			username: config_db.user,
+			password: config_db.password,
+			database: config_db.database,
+			entities: [
+				User,
+				Message,
 
-        FriendRequest,
-        PlayRequest,
+				Conversation,
+				ConversationUser,
+				ConversationUserInfos,
 
-        Match
-      ],
-      synchronize: true,
-    }),
-    UserModule,
-    ConversationModule,
-    AuthModule,
-    DebugModule,
-    GameModule,
-    NotificationsModule,
-    PrivateConversationModule
-  ],
+				PrivateConversation,
+				PrivateMessage,
+
+				FriendRequest,
+				PlayRequest,
+
+				Match
+			],
+			synchronize: true,
+		}),
+		UserModule,
+		ConversationModule,
+		AuthModule,
+		DebugModule,
+		GameModule,
+		NotificationsModule,
+		PrivateConversationModule
+	],
 })
-export class AppModule {}
+export class AppModule { }

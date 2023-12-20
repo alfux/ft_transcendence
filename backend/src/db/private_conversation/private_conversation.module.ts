@@ -13,26 +13,26 @@ import { NotificationsModule } from 'src/notifications/'
 import { AuthModule } from 'src/auth'
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([PrivateConversation, PrivateMessage]),
-    forwardRef(() => UserModule),
-    NotificationsModule,
+	imports: [
+		TypeOrmModule.forFeature([PrivateConversation, PrivateMessage]),
+		forwardRef(() => UserModule),
+		NotificationsModule,
 
-    forwardRef(() => UserModule),
-    forwardRef(() => AuthModule)
-  ],
+		forwardRef(() => UserModule),
+		forwardRef(() => AuthModule)
+	],
 
-  providers: [
-    PrivateConversationService,
-    PrivateMessageService
-  ],
+	providers: [
+		PrivateConversationService,
+		PrivateMessageService
+	],
 
-  controllers: [
-    PrivateConversationController],
+	controllers: [
+		PrivateConversationController],
 
-  exports: [
-    TypeOrmModule,
-    PrivateConversationService
-  ],
+	exports: [
+		TypeOrmModule,
+		PrivateConversationService
+	],
 })
 export class PrivateConversationModule { }

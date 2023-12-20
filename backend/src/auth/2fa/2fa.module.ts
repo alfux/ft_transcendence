@@ -5,20 +5,20 @@ import { TwoFactorAuthenticationService } from './2fa.service'
 import { UserModule } from 'src/db/user'
 
 @Module({
-  imports: [
-    forwardRef(() => UserModule)
-  ],
+	imports: [
+		forwardRef(() => UserModule)
+	],
 
-  controllers: [
-    TwoFactorAuthenticationController
-  ],
+	controllers: [
+		TwoFactorAuthenticationController
+	],
 
-  providers: [
-    TwoFactorAuthenticationService,
-  ],
+	providers: [
+		TwoFactorAuthenticationService,
+	],
 
-  exports: [
-    TwoFactorAuthenticationService
-  ],
+	exports: [
+		TwoFactorAuthenticationService
+	],
 })
 export class TwoFactorAuthenticationModule { }

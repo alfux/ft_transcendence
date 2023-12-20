@@ -10,34 +10,34 @@ import { FindOptions, FindMultipleOptions } from 'src/db/types'
 
 @Injectable()
 export class PrivateConversationService {
-  constructor(
-    @InjectRepository(PrivateConversation)
-    private conversationRepository: Repository<PrivateConversation>,
+	constructor(
+		@InjectRepository(PrivateConversation)
+		private conversationRepository: Repository<PrivateConversation>,
 
-    @Inject(forwardRef(() => UserService))
-    private userService: UserService,
-  ) { }
+		@Inject(forwardRef(() => UserService))
+		private userService: UserService,
+	) { }
 
-  async getPrivateConversation(where: FindOptions<PrivateConversation>, relations = [] as string[]) {
-    const connection = await this.conversationRepository.findOne({ where, relations, })
-    if (!connection)
-      throw new HttpNotFound("Private Conversation")
-    return connection
-  }
+	async getPrivateConversation(where: FindOptions<PrivateConversation>, relations = [] as string[]) {
+		const connection = await this.conversationRepository.findOne({ where, relations, })
+		if (!connection)
+			throw new HttpNotFound("Private Conversation")
+		return connection
+	}
 
-  async getPrivateConversations(where: FindMultipleOptions<PrivateConversation>, relations = [] as string[]) {
-    const connection = await this.conversationRepository.find({ where, relations, })
-    if (!connection)
-      throw new HttpNotFound("Private Conversation")
-    return connection
-  }
+	async getPrivateConversations(where: FindMultipleOptions<PrivateConversation>, relations = [] as string[]) {
+		const connection = await this.conversationRepository.find({ where, relations, })
+		if (!connection)
+			throw new HttpNotFound("Private Conversation")
+		return connection
+	}
 
-  async createPrivateConversation(user1_id: number, user2_id: number) {
-    const users = await Promise.all([this.userService.getUser({ id: user1_id }), this.userService.getUser({ id: user2_id })])
-    console.log(users)
-    return this.conversationRepository.save({
-      users: users,
-      messages: []
-    })
-  }
+	async createPrivateConversation(user1_id: number, user2_id: number) {
+		const users = await Promise.all([this.userService.getUser({ id: user1_id }), this.userService.getUser({ id: user2_id })])
+		console.log(users)
+		return this.conversationRepository.save({
+			users: users,
+			messages: []
+		})
+	}
 }

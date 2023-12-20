@@ -68,5 +68,5 @@ import { useRef } from "react";
 let accessToken = Cookies.get("access_token");
 export const chatSocket = coolSocket(`${config.backend_url}/chat`, accessToken)
 chatSocket.on("connect", () => {
-  chatSocket.emit("auth")
+	chatSocket.emit("auth")
 })
