@@ -1,16 +1,4 @@
-@keyframes colorChange {
-    0% {
-      box-shadow: 0 0 50px #00ff00; 
-    }
-    50% {
-      box-shadow: 0 0 50px #ff0000; 
-    }
-    100% {
-      box-shadow: 0 0 50px #001eff; 
-    }
-  }
-  
-  .glass-container-logout {
+.glass-container-logout {
       display: flex;
       flex-direction: column;
     position: absolute;
