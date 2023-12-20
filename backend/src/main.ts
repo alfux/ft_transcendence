@@ -41,6 +41,7 @@ async function bootstrap() {
   .setVersion('1.0')
   .addBearerAuth()
   .addServer(`http://localhost:${config_hosts.back_port}/api`)
+  .addServer(`http://${config_hosts.back_url}:${config_hosts.back_port}/api`)
   .build()
 
   
