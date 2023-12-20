@@ -11,12 +11,18 @@ import { config } from "../../config";
 import { User } from "../scorebar/ScoreBar";
 import { Interface } from "readline";
 import { notifications } from "../../sockets/notifications";
+import { chatSocket } from "../../sockets/chat";
+import { gameSocket } from "../../sockets";
+import usePayload from "../../react_hooks/use_auth";
 
 const Notifications: React.FC = () => {
   const [friendsRequest, setFriendsRequests] = useState<any | null>(null);
-  const [toogleButton, setToogleButton] = useState<string>("show");
-  const [dataContent, setDataContent] = useState<any>(null);
-  const [dataType, setDataType] = useState<any>(null);
+  const [toogleButton, setToogleButton] = useState<string>("hide");
+  const [dataContent, setDataContent] = useState<any>({username:"Our website",message:"WElcome for being online"});
+  const [dataType, setDataType] = useState<any>("receive_message");
+  const [payload, updatePayload, handleUpdate] = usePayload();
+
+
 
   useEffect(() => {
     console.log("Socket connection status:", notifications.connected);
@@ -24,7 +30,16 @@ const Notifications: React.FC = () => {
       notifications.connect();
       console.log("ups .. ok now connected");
     }
-
+    
+    chatSocket.on("receive_message",(data)=>{
+      setDataContent(data)
+      setDataType("receive_message")
+      console.log("RECEIUVE A MNESAGE")
+    })
+    gameSocket.on("receive_message",(data)=>{
+      setDataContent(data)
+      setDataType("receive_message")
+    })
     notifications.on("friend_new", (data: { req: any } | any) => {
       console.log("Received friend new");
       setDataType("friend_new");
@@ -54,6 +69,14 @@ const Notifications: React.FC = () => {
     })
   });
 
+
+    if (toogleButton === "show"){
+      setTimeout(()=>{
+        setToogleButton('hide');
+      },4000)
+    }
+
+
   /*======================================================================
   ===================Fetch Friends Requests================================
   ======================================================================== */
@@ -78,6 +101,7 @@ const Notifications: React.FC = () => {
       }
     };
     fetchRequets();
+    setToogleButton("show")
   }, [dataType, dataContent]);
   /*======================================================================
   ===================Toogle Notification Bar On or Off=====================
@@ -137,7 +161,7 @@ const Notifications: React.FC = () => {
       return null;
     }
   });
-  console.log("user", dataContent?.user?.username, dataType);
+  console.log("dataContent", dataContent, dataType);
   return (
     <div
       className={`notifications-container-${
@@ -146,7 +170,7 @@ const Notifications: React.FC = () => {
     >
       <div className="notifications-content">
         <div className="notification-profile">
-          {dataType === "friend_request_recv" && getNotificationRequests}
+          {dataType === "receive_message" && dataContent?.username !== payload?.username &&<p>🗨️ {dataContent.username} has sended: {dataContent.message}</p>}
           {dataType === "friend_new" && (
             <p>New Friend Added: {dataContent?.user?.username} </p>
           )}
@@ -159,6 +183,7 @@ const Notifications: React.FC = () => {
           {dataType === "friend_request_denied" && (
             <p>Friend Request Denied: {dataContent?.user?.username} </p>
           )}
+          {getNotificationRequests}
         </div>
       </div>
       <div key={4} className="notification-popup">

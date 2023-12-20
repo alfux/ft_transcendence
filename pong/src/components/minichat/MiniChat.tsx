@@ -15,7 +15,7 @@ import ChannelForm from "./channelForm/ChannelForm";
 import usePayload from "../../react_hooks/use_auth";
 import { JwtPayload } from "../../THREE/Utils";
 import { chatSocket } from "../../sockets/chat";
-import { notificationsSocket } from "../../sockets";
+import { gameSocket, notificationsSocket } from "../../sockets";
 
 export enum ChannelOptions {
   CREATE_CHANNEL = "create channel",
@@ -136,13 +136,6 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     displayContainer,
   };
 
-  useEffect(()=>{
-    chatSocket.on("receive_message",(data) =>{
-      setNotificationType(data)
-      console.log("data received: ",data)
-    })
-  },[])
-
   /*======================================================================
   ===================Find the Own User Object <ME>=====================
   ======================================================================== */
@@ -151,12 +144,25 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     if (currentUser) {
       setMe(currentUser);
     }
-  }, [allUsers],);
+  }, [allUsers, notificationType]);
 
 
   /*======================================================================
   ===================Fetch<GET> All Channels========================
   ======================================================================== */
+  useEffect(()=>{
+    chatSocket.on("receive_message",(data)=>{
+      setNotificationType(data);
+    })
+    gameSocket.on("receive_message",(data)=>{
+      setNotificationType(data);
+    })
+    return(()=>{
+      chatSocket.off("receive_message")
+      chatSocket.disconnect()
+    })
+  },[])
+
   useEffect(() => {
     const requestConversation = async () => {
       try {
@@ -177,6 +183,21 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     };
     requestConversation();
 
+    notificationsSocket.on("conv_create", (data: { conversation: Conversation }) => {
+      setChannels((prev) => {
+        return (prev === null) ? [data.conversation] : [data.conversation, ...prev]
+      })
+    })
+    notificationsSocket.on("conv_delete", (data: { conversation: Conversation }) => {
+      setChannels((prev) => {
+        return (prev === null) ? prev : prev.filter((c) => c.id !== data.conversation.id)
+      })
+    })
+
+    return () => {
+      notificationsSocket.off("conv_create")
+      notificationsSocket.off("conv_delete")
+    }
   }, [notificationType]);
   /*======================================================================
   ===================Fetch<GET>All Users==================================
@@ -201,6 +222,15 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
       }
     };
     requestAllUsers();
+
+    notificationsSocket.on("user_create", (data: { user: User }) => {
+      setAllUsers((prev) => {
+        return (prev === null) ? [data.user] : [data.user, ...prev]
+      })
+    })
+    return () => {
+      notificationsSocket.off("user_create")
+    }
   }, [notificationType]);
 
   /*======================================================================
@@ -226,7 +256,15 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     };
     requestProfile();
 
-  }, [selectedGroupOption,notificationType]);
+    notificationsSocket.on("friend_new", (user: User) => {
+      setFriends((prev) => {
+        return (prev === null) ? [user] : [user, ...prev]
+      })
+    })
+    return () => {
+      notificationsSocket.off("friend_new")
+    }
+  }, [notificationType, selectedGroupOption]);
 
   /*======================================================================
   ===================Fetch<Get> Messages From His Own Id====================
@@ -256,9 +294,6 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
       }
     };
     requestMessages();
-
-
-
   }, [selectedGroup, notificationType]);
 
 
@@ -272,7 +307,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
       }
     }
     );
-  }, [selectedGroup]);
+  }, [selectedGroup, notificationType]);
 
   const componentSize: React.CSSProperties = {
     width: width,

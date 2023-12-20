@@ -45,26 +45,7 @@
     justify-content: space-around;
   }
 }
-  .audio {
-	box-shadow: 0 0 30px rgb(0, 255, 255);
-	border-radius: 25px;
-	position: fixed;
-	bottom: 2%;
-	left: 40%;
-  z-index: 1;
-  
-	/* Animation styles */
-	animation: pulse 0.3s infinite alternate, colores 4s infinite;
-  }
-  
-  @keyframes pulse {
-	0% {
-	  transform: scale(1);
-	}
-	100% {
-	  transform: scale(1.1);
-	}
-  }
+
   
   @keyframes colores {
 	0%, 100% {

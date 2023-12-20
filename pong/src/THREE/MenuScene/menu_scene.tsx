@@ -378,6 +378,7 @@ export function create_menu_scene(
 		cleanup.forEach( (elem) => {
 			elem();
 		});
+    cleanup.length = 0;
 	} 
 
 	function	setLoggedMenu() {

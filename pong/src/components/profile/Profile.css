@@ -1,6 +1,6 @@
 :root {
   --profile-width: 40vh;
-  --profile-height: 70vh
+  --profile-height: 70vh;
 }
 
 .profile-box {
@@ -9,7 +9,7 @@
   justify-content: center;
   align-items: center;
   position: fixed;
-  top: calc(50vh - calc(var(--profile-height)/2));
+  top: calc(50vh - calc(var(--profile-height) / 2));
   left: 30vh;
   height: var(--profile-height);
   width: var(--profile-width);
@@ -45,62 +45,51 @@
     justify-content: space-around;
   }
 }
-  .audio {
-	box-shadow: 0 0 30px rgb(0, 255, 255);
-	border-radius: 25px;
-	position: fixed;
-	bottom: 2%;
-	left: 40%;
-  z-index: 1;
-  
-	/* Animation styles */
-	animation: pulse 0.3s infinite alternate, colores 4s infinite;
-  }
-  
-  @keyframes pulse {
-	0% {
-	  transform: scale(1);
-	}
-	100% {
-	  transform: scale(1.1);
-	}
-  }
-  
-  @keyframes colores {
-	0%, 100% {
-	  box-shadow: 0 0 60px rgb(0, 255, 255);
-	}
-	50% {
-	  box-shadow: 0 0 60px rgb(235, 3, 235);
-	}
-  }
-  
 
-  .profile-box-two{
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	width: 95%;
-	height: 95%;
-	border-radius: 15px;
-	background: rgba(8, 8, 8, 0.5);
-  }
 
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes colores {
+  0%,
+  100% {
+    box-shadow: 0 0 60px rgb(0, 255, 255);
+  }
+  50% {
+    box-shadow: 0 0 60px rgb(235, 3, 235);
+  }
+}
+
+.profile-box-two {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 95%;
+  height: 95%;
+  border-radius: 15px;
+  background: rgba(8, 8, 8, 0.5);
+}
 
 .profile-box p {
   align-items: center;
   font-size: 100%;
   color: #fff;
-  font-family: 'game', sans-serif;
-  text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue
+  font-family: "game", sans-serif;
+  text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue;
 }
 
 .profile-box a {
   align-items: center;
   font-size: 100%;
   color: #fff;
-  font-family: 'game', sans-serif;
-  text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue
+  font-family: "game", sans-serif;
+  text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue;
 }
 
 @keyframes colorChange {
@@ -142,8 +131,8 @@
   border-radius: 50%;
   align-self: center;
 
-  background-color:#000;
-  opacity:0.7;
+  background-color: #000;
+  opacity: 0.7;
 }
 
 .profile-box .stats {

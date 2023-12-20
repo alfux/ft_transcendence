@@ -23,7 +23,7 @@
     width: 15%;
     border-radius: 15px;
     /* background-color: white; */
-    /* animation: off 2s ease forwards; */
+    animation: off 2s ease forwards;
 }
 
 @keyframes on{
@@ -42,7 +42,7 @@
         left: 20%;
     }
     100%{
-        top: -12%;
+        top: -13%;
         left: 20%;
     }
 }
