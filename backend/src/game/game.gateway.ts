@@ -80,14 +80,18 @@ export class GameGateway implements OnGatewayConnection {
     game_instance.disconnect(player.client)
   }
 
+  @SubscribeMessage('auth')
+  @CoolSocket()
+  async handleAuth() {}
+
   @SubscribeMessage('cancel_search')
-  @CoolSocket
+  @CoolSocket()
   async handleCancelSearch(client: Client) {
     remove_client_all(client, this.queues)
   }
 
   @SubscribeMessage('search')
-  @CoolSocket
+  @CoolSocket()
   async handleSearch(client: Client, data: { mode: GameMode }) {
     if (is_in_queue_all(client, this.queues)) {
       return
@@ -122,7 +126,7 @@ export class GameGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage('player_input')
-  @CoolSocket
+  @CoolSocket()
   async handlePlayerInput(client: Client, keyboard: Keyboard) {
 
     const game_instance = this.gameInstances.find((gi) =>
@@ -138,7 +142,7 @@ export class GameGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage("pointer")
-  @CoolSocket
+  @CoolSocket()
   async handlePlayerPointer(client: Client, mouse: { x: number, y: number, sx: number, sy: number }) {
     const game_instance = this.gameInstances.find((gi) =>
       gi.player1.client.socket.id === client.socket.id ||

@@ -91,6 +91,10 @@ export class UserService {
     const user = await this.getUser({ id: user_id }, ['blocked'])
     const blocked_user = await this.getUser({ id: blocked_user_id })
 
+    if (user.blocked.find((u) => u.id === blocked_user.id)) {
+      throw new HttpBadRequest("User is blocked already")
+    }
+
     user.blocked.push(blocked_user)
     this.usersRepository.save(user)
 

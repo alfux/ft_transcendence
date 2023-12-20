@@ -15,9 +15,6 @@ import MiniChatButton from "../../components/minichat/ChatButton";
 import { createComponent } from "./createComponent";
 import ScoreBar from "../../components/scorebar/ScoreBar";
 import Notifications from "../../components/notifications/Notifications";
-import { chatSocket, notifications } from "../../sockets/notifications";
-
-
 
 export function RenderComponents(loginForm: { option: string, game: boolean }) {
   let accessToken = Cookies.get('access_token');

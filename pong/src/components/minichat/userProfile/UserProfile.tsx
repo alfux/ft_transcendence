@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { config } from "../../../config";
 import { ChannelOptions, ChatProps } from "../MiniChat";
 import { FriendRequest, PlayRequest } from "../../../THREE/Utils/backend_types";
-import { backend_fetch } from "../../backend_fetch";
+import { FetchError, backend_fetch } from "../../backend_fetch";
 import Profile from "../profileDisplay/Profile";
 
 const UserProfile: React.FC<ChatProps> = (props) => {
@@ -12,13 +12,13 @@ const UserProfile: React.FC<ChatProps> = (props) => {
   ===================Fetch<Post> Request To Send Friend Invite To Another User==========
   ======================================================================== */
   async function sendFriendInvite() {
-    backend_fetch(
-      `${config.backend_url}/api/user/friend_request`,
-      { method: "POST" },
-      {
+    backend_fetch(`${config.backend_url}/api/user/friend_request`, {
+        method: "POST"
+      }, {
         user_id: props.selectedUser?.id,
       }
-    );
+    )
+    .catch((e) => { if (e instanceof FetchError) {} else throw e })
   }
   /*======================================================================
   ===================Fetch<Post> Request To Send Play Invite To Another User==========
@@ -54,7 +54,6 @@ const UserProfile: React.FC<ChatProps> = (props) => {
       props.selectedGroup?.users!.map((users: any) => {
         if (users.user.db_id == props.me?.db_id) {
           const myRights = users;
-          console.log("I AM IN", myRights);
           if (myRights.isAdmin) {
             setChannelRights("Admin");
           }

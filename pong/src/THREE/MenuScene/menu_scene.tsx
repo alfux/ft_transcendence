@@ -52,7 +52,7 @@ enum MenuState {
 export function create_menu_scene(
 	renderer: THREE.WebGLRenderer,
 	game_texture: THREE.Texture,
-	payload: JwtPayload | null,
+	payload: JwtPayload | undefined,
 	mousecast: THREE.Vector2,
 	mousespeed: THREE.Vector2,
 	divRef: HTMLDivElement | null,
@@ -264,7 +264,7 @@ export function create_menu_scene(
 
   const	cleanup: Array<() => void> = [];
 
-  divRef?.addEventListener("wheel", handleWheel);
+  divRef?.addEventListener("wheel", handleWheel, { passive:true });
   divRef?.addEventListener("click", handleClick);
   window.addEventListener("resize", handleResize);
   window.addEventListener("pointermove", handleMove);
@@ -624,7 +624,7 @@ export function create_menu_scene(
 	}
     if (menu_parent.children.length > 1 && (new_current !== current || current === null)) {
       current = new_current;
-	  console.log("current", current, "newcurrent", new_current);
+
       menu_parent.traverse((obj) => {
         if (obj.name === current) {
           if (obj.name === "Logout" || obj.name === "YouLoose")
@@ -652,7 +652,6 @@ export function create_menu_scene(
 		time = 0;
 	} else
 		time += clock.deltaT;
-	console.log(clock.deltaT);
     return (option);
   }
 
