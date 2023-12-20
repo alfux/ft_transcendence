@@ -25,7 +25,7 @@ const ChatDisplay: React.FC<ChatProps> = (props) => {
         props.displayContainer.current.scrollHeight
       );
     }
-  }, [props.channelMessages,props.miniChatSocket]);
+  }, [props.channelMessages]);
 
   return (
     <div ref={props.displayContainer} className="message-output">
