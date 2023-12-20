@@ -21,6 +21,7 @@ const Notifications: React.FC = () => {
   const [dataContent, setDataContent] = useState<any>({username:"Our website",message:"WElcome for being online"});
   const [dataType, setDataType] = useState<any>("receive_message");
   const [payload, updatePayload, handleUpdate] = usePayload();
+  const [accept, setAccept] = useState<boolean>(false);
 
 
 
@@ -57,7 +58,8 @@ const Notifications: React.FC = () => {
       console.log("friend deleted");
     });
     notifications.on("blocked_new", (data: { req: any }) => {
-      console.log("blocked_new");
+      setDataType("blocked_new");
+      setDataContent(data);
     });
     notifications.on("friend_request_denied", (data: { req: any }) => {
       setDataType("friend_request_denied");
@@ -102,7 +104,8 @@ const Notifications: React.FC = () => {
     };
     fetchRequets();
     setToogleButton("show")
-  }, [dataType, dataContent]);
+    setAccept(false)
+  }, [dataType, dataContent, accept]);
   /*======================================================================
   ===================Toogle Notification Bar On or Off=====================
   ======================================================================== */
@@ -130,6 +133,8 @@ const Notifications: React.FC = () => {
         });
         if (response.ok) {
           const result = await response.text();
+          setAccept(true)
+          setFriendsRequests(null)
         } else {
           alert("didnt sended accept request");
           console.error(
@@ -170,6 +175,9 @@ const Notifications: React.FC = () => {
     >
       <div className="notifications-content">
         <div className="notification-profile">
+        {dataType === "blocked_delete" && (
+            <p>{dataContent?.user?.username} has Unblocked your</p>
+          )}
           {dataType === "receive_message" && dataContent?.username !== payload?.username &&<p>🗨️ {dataContent.username} has sended: {dataContent.message}</p>}
           {dataType === "friend_new" && (
             <p>New Friend Added: {dataContent?.user?.username} </p>
@@ -182,6 +190,9 @@ const Notifications: React.FC = () => {
           )}
           {dataType === "friend_request_denied" && (
             <p>Friend Request Denied: {dataContent?.user?.username} </p>
+          )}
+          {dataType === "blocked_new" && (
+            <p>{dataContent?.user?.username} has Blocked you.</p>
           )}
           {getNotificationRequests}
         </div>

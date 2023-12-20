@@ -8,6 +8,51 @@ import Profile from "../profileDisplay/Profile";
 const UserProfile: React.FC<ChatProps> = (props) => {
   const [channelRights, setChannelRights] = useState<string | null>(null);
   const [profileStatus, setProfileStatus] = useState <boolean>(false);
+  const [errorMessage,setErrorMessage ] = useState<string>('');
+  /*======================================================================
+  ===================Check if User friend is blocked and return boolean==========
+  ======================================================================== */
+  function isUserBlocked(friend:any){
+    let result = false;
+    props.usersBlocked?.map((user:any)=>{
+      if (user.db_id == friend.db_id){
+        result = true
+      }
+    })
+    return result
+  }
+
+  /*======================================================================
+  ===================Unblock User==========
+  ======================================================================== */
+  async function unblockUser(){
+    const url = `${config.backend_url}/api/user/blocked/` + props.selectedUser?.id;
+    try {
+      const response = await fetch(url, {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: props.selectedUser?.id }),
+      });
+
+      if (response.ok) {
+        props.setUsersBlocked(null)
+        console.log("Unblocked", props.selectedUser?.username);
+      } else {
+        console.error(
+          "Error Blocking User. Server responded with status:",
+          response.status
+        );
+        setErrorMessage("User already blocked")
+      }
+    } catch (error) {
+      console.error("Error Blocking:", error);
+    }
+  }
+
+
   /*======================================================================
   ===================Fetch<Post> Request To Send Friend Invite To Another User==========
   ======================================================================== */
@@ -193,7 +238,7 @@ const UserProfile: React.FC<ChatProps> = (props) => {
       {props.selectedGroupOption !== ChannelOptions.CHANNEL &&
         props.selectedUser &&
         !isFriend() && (
-          <button onClick={sendFriendInvite}>Invite Friend</button>
+          (!isUserBlocked(props.selectedUser))?<button onClick={sendFriendInvite}>Invite Friend</button>:<button onClick={unblockUser}>Unblock</button>
         )}
 
       {channelRights == "Owner" &&

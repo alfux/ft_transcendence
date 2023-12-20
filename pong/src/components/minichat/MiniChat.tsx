@@ -38,6 +38,8 @@ export interface ChatProps {
   messageText: any;
   toogledButton : string | null;
   notificationType : any;
+  usersBlocked: any;
+  setUsersBlocked : (usersBlocked:any) => void
   setNotificationType : (notificationType : any) => void;
   setToogledButton : (toogledButton :string | null) => void;
   setSelectedChannel: (channel: Conversation | undefined) => void;
@@ -87,6 +89,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
   const [isInChannel, setIsInChannel] = useState<boolean>(false);
   const [toogledButton, setToogledButton] = useState<string | null>(null);
   const [notificationType, setNotificationType] = useState<any>(null)
+  const [usersBlocked, setUsersBlocked] = useState<any>(null);
   /*======================================================================
   ===================Functions to Pass To Children To Set State===============
   ======================================================================== */
@@ -117,6 +120,8 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     messageText,
     toogledButton,
     notificationType,
+    usersBlocked,
+    setUsersBlocked,
     setNotificationType,
     setToogledButton,
     setSelectedChannel: handleSelectGroup,
@@ -135,7 +140,6 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
     setNewChannel,
     displayContainer,
   };
-
   /*======================================================================
   ===================Find the Own User Object <ME>=====================
   ======================================================================== */
@@ -199,6 +203,41 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
       notificationsSocket.off("conv_delete")
     }
   }, [notificationType]);
+
+  /*======================================================================
+  ===================Fetch<GET>Users Blocked==================================
+  ======================================================================== */
+
+  useEffect(() => {
+    const requestAllBlockedUsers = async () => {
+      try {
+        const enable2FAEndpoint = `${config.backend_url}/api/user/blocked`;
+        const response = await fetch(enable2FAEndpoint, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (response.ok) {
+          const result = await response.json();
+          setUsersBlocked(result);
+        } else {
+          console.error("Could not get profile:", response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching profile Token:", error);
+      }
+    };
+    requestAllBlockedUsers();
+
+    notificationsSocket.on("user_create", (data: { user: User }) => {
+      setAllUsers((prev) => {
+        return (prev === null) ? [data.user] : [data.user, ...prev]
+      })
+    })
+    return () => {
+      notificationsSocket.off("user_create")
+    }
+  }, [notificationType]);
+
   /*======================================================================
   ===================Fetch<GET>All Users==================================
   ======================================================================== */
