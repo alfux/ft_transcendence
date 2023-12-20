@@ -34,8 +34,12 @@ export class PrivateConversationGateway implements OnGatewayConnection {
   async handleDisconnect(client: Socket): Promise<any> {
   }
 
+  @SubscribeMessage('auth')
+  @CoolSocket()
+  async handleAuth() {}
+
   @SubscribeMessage('send_message')
-  @CoolSocket
+  @CoolSocket()
   async handleMessage(client: Client, data: { message: string, conversation_id: number }): Promise<void> {
     const conv = await this.conversationService.getPrivateConversation({ id: data.conversation_id }, ['users', 'users.user'])
 

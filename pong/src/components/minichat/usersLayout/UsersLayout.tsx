@@ -5,26 +5,6 @@ import { notificationsSocket } from "../../../sockets";
 
 const UsersLayout: React.FC<ChatProps> = (props: ChatProps) => {
 
-  useEffect(() => {
-    notificationsSocket.on("conv_join", async (data: {
-      user: User,
-      conversation: Conversation
-    }) => {
-      
-      if (props.selectedGroup && props.selectedGroup.id === data.conversation.id) {
-        props.setSelectedChannel(data.conversation)
-      }
-    })
-    notificationsSocket.on("conv_leave", async (data: {
-      user: User,
-      conversation: Conversation
-    }) => {
-      if (props.selectedGroup && props.selectedGroup.id === data.conversation.id) {
-        props.setSelectedChannel(data.conversation)
-      }
-    })
-  })
-
   const onlineUsers = props.allUsers?.map((user: User) => {
     return user.id !== props.me?.id ? (
       <img

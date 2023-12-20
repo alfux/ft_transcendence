@@ -13,9 +13,9 @@ const Groups: React.FC<ChatProps> = (props) => {
         className="group-icons"
         key={index}
         onClick={() => {
-          props.setSelectedChannel(group);
+          props.setSelectedGroup(group);
           props.setSelectedUser(undefined);
-          props.setSelectedChannelOption(ChannelOptions.CHANNEL);
+          props.setSelectedGroupOption(ChannelOptions.CHANNEL);
           props.setToogledButton("Channel");
         }}
       >
@@ -32,7 +32,7 @@ const Groups: React.FC<ChatProps> = (props) => {
           className="group-img"
           onClick={() => {
             props.setSelectedUser(undefined);
-            props.setSelectedChannelOption(ChannelOptions.CREATE_CHANNEL);
+            props.setSelectedGroupOption(ChannelOptions.CREATE_CHANNEL);
           }}
         />
       }
@@ -42,7 +42,7 @@ const Groups: React.FC<ChatProps> = (props) => {
           className="group-img"
           onClick={() => {
             props.setSelectedUser(undefined);
-            props.setSelectedChannelOption(ChannelOptions.ONLINE_USERS);
+            props.setSelectedGroupOption(ChannelOptions.ONLINE_USERS);
           }}
         />
       }
@@ -52,7 +52,7 @@ const Groups: React.FC<ChatProps> = (props) => {
           className="group-img"
           onClick={() => {
             props.setSelectedUser(undefined);
-            props.setSelectedChannelOption(ChannelOptions.FRIENDS);
+            props.setSelectedGroupOption(ChannelOptions.FRIENDS);
           }}
         />
       }

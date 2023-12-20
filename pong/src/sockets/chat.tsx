@@ -64,17 +64,9 @@ import { useRef } from "react";
 //   findChannelIn();
 //   console.log("NOP DIDNT GET IT", channels, me);
 // }
+
 let accessToken = Cookies.get("access_token");
-
-export const chatSocket = coolSocket(`${config.backend_url}/chat`, accessToken);
+export const chatSocket = coolSocket(`${config.backend_url}/chat`, accessToken)
 chatSocket.on("connect", () => {
-  console.log("Chat Socket Connected To BackEnd",chatSocket.connected);
-  chatSocket.emit("auth", accessToken);
-});
-
-chatSocket.emit("auth", accessToken);
-// chatSocket.emit("send_message",{
-//                   message: "",
-//                   conversation_id: "",
-//                 });
-// handleMessages();
+  chatSocket.emit("auth")
+})

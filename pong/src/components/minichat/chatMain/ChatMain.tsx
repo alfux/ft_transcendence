@@ -1,8 +1,5 @@
 
-import { notifications } from "../../../sockets/notifications";
-import { User } from "../../scorebar/ScoreBar";
 import { ChatProps } from "../MiniChat";
-import ChannelProfile from "../channelProfile.tsx/ChannelProfile";
 import ChatBox from "../chatBox/ChatBox";
 import UsersLayout from "../usersLayout/UsersLayout";
 

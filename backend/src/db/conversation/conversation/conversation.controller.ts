@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Delete, Req, Param, HttpException, Inject, forwardRef, ParseIntPipe } from '@nestjs/common'
+import { Body, Controller, Get, Post, Delete, Req, Param, HttpException, Inject, forwardRef, ParseIntPipe, Patch } from '@nestjs/common'
 
 import { ApiBearerAuth, ApiTags, ApiProperty } from '@nestjs/swagger'
 
@@ -72,6 +72,31 @@ export class ConversationController {
   }
 
   @Route({
+    method: Patch(':id'),
+    description: { summary: 'Updates a conversation', description: 'Update a conversation. Updatable fields are' },
+    responses: [{ status: 200, description: 'Conversation created successfully' }]
+  })
+  async updateConversation(@Req() req: Request, @Param(':id', ParseIntPipe) id: number, @Body() body: DTO.ConversationUpdateParams) {
+    const conversation = await this.conversationService.getConversation({ id: id }, [...CONVERSATION_DEFAULT])
+    if (conversation.owner.id !== req.user.id) {
+      throw new HttpUnauthorized("You are not the owner")
+    }
+
+    if (body.access_level)
+      return this.conversationService.updateConversation(Object.assign({
+        id: id,
+        access_level: body.access_level
+      }, body.title !== undefined ? {
+        title: body.title,
+      } : {},))
+
+        .then((new_conv) => {
+          this.notificationService.emit_everyone("conv_create", { conversation: new_conv })
+          return new_conv
+        })
+  }
+
+  @Route({
     method: Get(':id'),
     description: { summary: 'Get conversation content', description: 'Returns the conversation\'s messages' },
     responses: [{ status: 200, description: 'Conversation\'s content retrieved successfully' }]
@@ -126,6 +151,11 @@ export class ConversationController {
     const conv_user = conversation.users.find((u) => u.user.id === req.user.id)
     if (conv_user === undefined) {
       throw new HttpBadRequest('Cannot leave: not in conversation')
+    }
+
+    if (conversation.owner.id === req.user.id && conversation.users.length === 1) {
+      return this.conversationService.deleteConversation({ id: conversation.id })
+        .then(() => this.notificationService.emit_everyone("conv_delete", { conversation: conversation }))
     }
 
     return this.conversationService.removeUserFromConversation({ id: body.id }, conv_user)

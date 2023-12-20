@@ -17,7 +17,6 @@ import ScoreBar from "../../components/scorebar/ScoreBar";
 import Notifications from "../../components/notifications/Notifications";
 
 
-
 export function RenderComponents(loginForm: { option: string, game: boolean }) {
   let accessToken = Cookies.get('access_token');
   let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;

@@ -168,8 +168,16 @@ export class ConversationService {
     return this.addUserToConversation({ id: new_conv.id }, user, src_password)
   }
 
+  async updateConversation(conv: Partial<Conversation> & { id: number }): Promise<Conversation> {
+
+    if (conv.id === undefined)
+      throw new HttpNotFound("Conversation")
+    await this.getConversation({ id: conv.id })
+    return this.conversationRepository.save({ id: conv.id, ...conv })
+  }
+
   async deleteConversation(where: FindOptions<Conversation>) {
-    this.getConversation(where, ['users', 'messages'])
+    return this.getConversation(where, ['users', 'messages'])
       .then((conversation) => {
         return Promise.all([
           this.messageService.remove(conversation.messages),
@@ -205,8 +213,38 @@ export class ConversationService {
   }
 
   async removeUserFromConversation(where: FindOptions<Conversation>, user: ConversationUser) {
-    const conv = await this.getConversation(where, ['users'])
+    const conv = await this.getConversation(where, [...CONVERSATION_DEFAULT])
     conv.users = conv.users.filter(u => u.id != user.id)
+
+    if (conv.owner.id === user.id) {
+
+      let current_date = new Date(8640000000000000)
+      let next_owner: ConversationUser = undefined
+      
+      conv.users.forEach((u) => {
+        if (u.isAdmin && u.becameAdminAt < current_date) {
+          current_date = u.becameAdminAt
+          next_owner = u
+        }
+      })
+
+      current_date = new Date(8640000000000000)
+      if (next_owner === undefined) {
+        conv.users.forEach((u) => {
+          if (u.joinedAt < current_date) {
+            current_date = u.joinedAt
+            next_owner = u
+          }
+        })
+      }
+
+      if (next_owner === undefined) {
+        console.error("No next owner ???????")
+      } else {
+        conv.owner = next_owner.user
+      }
+
+    }
 
     return this.conversationRepository.save(conv).then((new_conv) => this.getConversation({ id: new_conv.id }, [...CONVERSATION_DEFAULT]))
   }

@@ -26,7 +26,7 @@ class	AudioBank {
 			req.onload = () => {
 				this.context.decodeAudioData(req.response, (buffer) => {
 					this.bank[id] = buffer;
-					console.log("LOADED");
+					console.log("SOUND LOADED");
 				}, () => {console.log("ERROR LOADING SOUND", id, url)});
 			};
 			req.send();

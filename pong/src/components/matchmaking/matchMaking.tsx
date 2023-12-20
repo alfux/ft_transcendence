@@ -129,7 +129,6 @@ const MatchMaking: React.FC = () => {
           values={[{ value: mode, label: mode }]}
           options={Object.values(GameMode).map((option) => ({ value: option, label: option }))}
           onChange={handleSelectModeChange}
-          placeholder="Select an option"
         />
       </div>
     </div>

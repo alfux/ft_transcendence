@@ -6,14 +6,14 @@ import { JwtPayload } from '../THREE/Utils/jwt.interface';
 
 type UpdateFunction = () => void;
 
-const usePayload = (): [JwtPayload | null, Dispatch<SetStateAction<JwtPayload | null>>, UpdateFunction] => {
+const usePayload = (): [JwtPayload | undefined, Dispatch<SetStateAction<JwtPayload | undefined>>, UpdateFunction] => {
   const initialToken = Cookies.get('access_token');
-  const initialPayload = initialToken ? jwtDecode<JwtPayload>(initialToken) : null;
-  const [payload, setPayload] = useState<JwtPayload | null>(initialPayload);
+  const initialPayload = initialToken ? jwtDecode<JwtPayload>(initialToken) : undefined;
+  const [payload, setPayload] = useState<JwtPayload | undefined>(initialPayload);
 
   const handleUpdate: UpdateFunction = () => {
     const newToken = Cookies.get('access_token');
-    const newPayload = newToken ? jwtDecode<JwtPayload>(newToken) : null;
+    const newPayload = newToken ? jwtDecode<JwtPayload>(newToken) : undefined;
     setPayload(newPayload);
   };
 

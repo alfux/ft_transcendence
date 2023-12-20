@@ -9,6 +9,7 @@ import { Message, MessageService } from 'src/db/conversation/message'
 import { HttpUnauthorized } from 'src/exceptions'
 import { AuthService } from 'src/auth'
 import { Inject, forwardRef } from '@nestjs/common'
+import { CONVERSATION_DEFAULT } from './conversation.service'
 
 @WebSocketGateway({ namespace: 'chat' })
 export class ConversationGateway implements OnGatewayConnection {
@@ -25,16 +26,24 @@ export class ConversationGateway implements OnGatewayConnection {
 
   @WebSocketServer() server: Server
 
+  connectedClients: Socket[] = []
+
   async handleConnection(client: Socket) {
+    this.connectedClients.push(client)
   }
 
   async handleDisconnect(client: Socket): Promise<any> {
+    this.connectedClients = this.connectedClients.filter((c) => c.id !== client.id)
   }
 
+  @SubscribeMessage('auth')
+  @CoolSocket()
+  async handleAuth() {}
+
   @SubscribeMessage('send_message')
-  @CoolSocket
+  @CoolSocket()
   async handleMessage(client: Client, data: { message: string, conversation_id: number }): Promise<void> {
-    const conv = await this.conversationService.getConversation({ id: data.conversation_id }, ['users', 'users.user'])
+    const conv = await this.conversationService.getConversation({ id: data.conversation_id }, [...CONVERSATION_DEFAULT])
     const user = conv.users.find((v) => v.user.id === client.user.id)
 
     const mutedUntil = new Date(user.mutedUntil)
@@ -48,16 +57,24 @@ export class ConversationGateway implements OnGatewayConnection {
     new_message.sender = user
     await this.messageService.createMessage(new_message)
 
-    getCoolClients().forEach((value) => {
-      if (conv.users.find((v) => v.user.id === value.user.id)) {
-        console.log(value.user.username)
-        value.socket.emit('receive_message',
-          {
-            username: client.user.username,
-            conversation_id: data.conversation_id,
-            message: data.message
-          })
+
+    this.connectedClients.forEach((unauth) => {
+
+      const client = getCoolClients().find((v) => v.socket.id === unauth.id)
+      if (!client) {
+        return
       }
+
+      if (conv.users.find((v) => v.user.id === client.user.id) === undefined) {
+        return
+      }
+
+      console.log(`SEND MESSAGE => ${client.user.username} => ${new_message.content} in ${new_message.conversation.title}`)
+      client.socket.emit('receive_message',
+      {
+        conversation_id: data.conversation_id,
+        message: new_message
+      })
     })
   }
 }

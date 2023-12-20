@@ -31,7 +31,6 @@ function App() {
   //MERDE POUR FIX LES COOKIES
   useEffect(() => {
     const tokens = get_tokens()
-    console.log(tokens)
     if (!tokens.access_token || !tokens.refresh_token)
       return
     Cookies.set("access_token", tokens.access_token)
