@@ -127,7 +127,7 @@ export class ConversationController {
 						return true
 				})
 
-				v.messages.sort((a, b) => { return a.createdAt.getTime() - b.createdAt.getTime() })
+				v.messages.sort((a, b) => { return b.createdAt.getTime() - a.createdAt.getTime() })
 
 				return v
 			})
