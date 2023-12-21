@@ -14,6 +14,7 @@ import { PlayRequestModule } from './play_request/play_request.module'
 import { MatchModule } from './match/match.module'
 import { UserFriendRequestController } from './user.friend_request.controller'
 import { UserPlayRequestController } from './user.play_request.controller'
+import { GameModule } from 'src/game/game.module'
 
 @Module({
 	imports: [
@@ -22,6 +23,7 @@ import { UserPlayRequestController } from './user.play_request.controller'
 		forwardRef(() => AuthModule),
 		forwardRef(() => ConversationModule),
 		forwardRef(() => NotificationsModule),
+		forwardRef(() => GameModule),
 
 		MatchModule,
 		FriendRequestModule,

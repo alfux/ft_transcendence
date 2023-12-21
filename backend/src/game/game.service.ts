@@ -1,40 +1,179 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable, forwardRef } from '@nestjs/common'
 import { Socket } from 'socket.io'
+import { Client, CoolSocket } from 'src/socket/'
+import { LoggedStatus, MatchService, User, UserService } from 'src/db/user'
+import { GameMode } from './Game/GameMode'
+import { GameInstance } from './Game'
+import { Interval } from '@nestjs/schedule'
 
-import { User } from 'src/db/user'
+class Keyboard {
+	key: { [key: string]: boolean };
+};
+
+function remove_client(client: Client | Socket, queue: Client[]) {
+	const s = client instanceof Socket ? client : client.socket
+	return queue.filter((v) => v.socket !== s)
+}
+
+function remove_client_all(client: Client | Socket, queues: Record<GameMode, Client[]>) {
+	for (const key in queues) {
+		queues[key] = remove_client(client, queues[key])
+	}
+}
+
+function is_in_queue(client: Client | Socket, queue: Client[]): Client | undefined {
+	const s = client instanceof Socket ? client : client.socket
+	return queue.find((c) => c.socket === s)
+}
+
+function is_in_queue_all(client: Client | Socket, queues: Record<GameMode, Client[]>) {
+	for (const key in queues) {
+		if (is_in_queue(client, queues[key]))
+			return true
+	}
+	return false
+}
+
 
 @Injectable()
 export class GameService {
 
-	private connectedClients: Map<Socket, User> = new Map()
+	private connectedClients: Client[] = []
+	private gameInstances: GameInstance[] = []
+	private queues: Record<GameMode, Client[]> = {} as Record<GameMode, any[]>
 
-	constructor() { }
+	constructor(
+		@Inject(forwardRef(() => UserService))
+		private userService: UserService, //NE PAS ENELEVER
 
-	addClient(socket: Socket, user: User) {
-		this.connectedClients.set(socket, user)
+		private matchService: MatchService,
+	) {
+		Object.keys(GameMode).forEach((key) => {
+			this.queues[key] = [];
+		});
 	}
 
-	removeClient(client: Socket) {
-		this.connectedClients.delete(client)
+
+	handleDisconnect(client: Socket) {
+		this.connectedClients = this.connectedClients.filter((v) => v.socket !== client)
+		remove_client_all(client, this.queues)
+
+		const game_instance = this.gameInstances.find((gi) => gi.player1.client.socket.id === client.id || gi.player2.client.socket.id === client.id)
+		if (!game_instance)
+			return
+		const player = game_instance.get_by_socket_id(client.id)
+		if (!player)
+			return
+
+		game_instance.disconnect(player.client)
 	}
 
-	get(client: Socket) {
-		return this.connectedClients.get(client)
+	handleCancelSearch(client: Client) {
+		remove_client_all(client, this.queues)
 	}
 
-	emit_everyone(event: string, data: any) {
-		console.log("Emit for everyone: ", event)
+	handleSearch(client: Client, data: { mode: GameMode }) {
+		if (is_in_queue_all(client, this.queues)) {
+			return
+		}
 
-		this.connectedClients.forEach((user, socket) => {
-			socket.emit(event, data)
+		this.queues[data.mode].push(client)
+		if (this.queues[data.mode].length >= 2) {
+
+			const p1 = this.queues[data.mode][0]
+			const p2 = this.queues[data.mode][1]
+
+			this.queues[data.mode] = remove_client(p1, this.queues[data.mode])
+			this.queues[data.mode] = remove_client(p2, this.queues[data.mode])
+
+
+			console.log(`STARTING GAME '${data.mode}': p1:${p1.user.username} p2:${p2.user.username}`)
+
+			const gameInstance = new GameInstance(p1, p2, data.mode,
+				async (winner, looser) => {
+					this.gameInstances = this.gameInstances.filter((v) => v !== gameInstance)
+					this.matchService.createMatch({
+						players: [winner.user, looser.user],
+						winner: winner.user
+					})
+
+					this.userService.updateUserStatus(p1.user, LoggedStatus.Logged)
+					this.userService.updateUserStatus(p2.user, LoggedStatus.Logged)
+				}
+			);
+
+			this.userService.updateUserStatus(p1.user, LoggedStatus.InGame)
+			this.userService.updateUserStatus(p2.user, LoggedStatus.InGame)
+
+			this.gameInstances.push(gameInstance)
+			gameInstance.start()
+		}
+	}
+
+	handlePlayerInput(client: Client, keyboard: Keyboard) {
+
+		const game_instance = this.gameInstances.find((gi) =>
+			gi.player1.client.socket.id === client.socket.id ||
+			gi.player2.client.socket.id === client.socket.id)
+		if (!game_instance || !game_instance.running)
+			return
+
+		if (game_instance.player1.client.socket.id === client.socket.id)
+			game_instance.player1.keyboard = keyboard;
+		else
+			game_instance.player2.keyboard = keyboard;
+	}
+
+
+	handlePlayerPointer(client: Client, mouse: { x: number, y: number, sx: number, sy: number }) {
+		const game_instance = this.gameInstances.find((gi) =>
+			gi.player1.client.socket.id === client.socket.id ||
+			gi.player2.client.socket.id === client.socket.id)
+		if (!game_instance || !game_instance.running)
+			return;
+
+		if (mouse.x && mouse.y) {
+			if (game_instance.player1.client.socket.id === client.socket.id)
+				game_instance.player1.mouse = mouse;
+			else
+				game_instance.player2.mouse = mouse;
+		}
+	}
+
+
+	startGameWith(user1: User, user2: User) {
+		const p1 = this.connectedClients.find((v) => v.user.id === user1.id)
+		const p2 = this.connectedClients.find((v) => v.user.id === user2.id)
+		if (p1 === undefined || p2 === undefined)
+			return
+
+		const gameInstance = new GameInstance(p1, p2, GameMode.MAGNUS,
+			async (winner, looser) => {
+				this.gameInstances = this.gameInstances.filter((v) => v !== gameInstance)
+				this.matchService.createMatch({
+					players: [winner.user, looser.user],
+					winner: winner.user
+				})
+
+				this.userService.updateUserStatus(p1.user, LoggedStatus.Logged)
+				this.userService.updateUserStatus(p2.user, LoggedStatus.Logged)
+			}
+		);
+
+		this.userService.updateUserStatus(p1.user, LoggedStatus.InGame)
+		this.userService.updateUserStatus(p2.user, LoggedStatus.InGame)
+
+		this.gameInstances.push(gameInstance)
+		gameInstance.start()
+	}
+
+
+	@Interval(1 / 60)
+	loop() {
+		this.gameInstances.forEach((gi) => {
+			if (gi.running)
+				gi.update()
 		})
 	}
 
-	emit(users: User[], event: string, data: any) {
-		for (const [key, value] of this.connectedClients.entries()) {
-			if (users.map((v) => v.id).includes(value.id)) {
-				key.emit(event, data)
-			}
-		}
-	}
 }
