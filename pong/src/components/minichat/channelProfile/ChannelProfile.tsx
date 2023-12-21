@@ -6,6 +6,7 @@ import { FetchError, backend_fetch } from "../../backend_fetch";
 
 const ChannelProfile: React.FC<ChatProps> = (props) => {
 	const [password, setPassword] = useState("");
+	const [updatePassword, setUpdatePassword] = useState("");
 
 	const joinChannel = async () => {
 		backend_fetch(`${config.backend_url}/api/conversation/join`, {
@@ -28,18 +29,65 @@ const ChannelProfile: React.FC<ChatProps> = (props) => {
 			.catch((e) => { if (e instanceof FetchError) { } else throw e })
 	};
 
-	const addPassword = () => {
+	const addPassword = (id?: number) => {
+		if (id) {
+			backend_fetch(`${config.backend_url}/api/conversation/${id}`, {
+				method: 'PATCH'
+			}, {
 
+				password: updatePassword
+			})
+				.catch((e) => { if (e instanceof FetchError) { } else throw e })
+		}
 	}
 
-	const changePassword = () => {
-
+	const changePassword = (id?: number) => {
+		if (id) {
+			backend_fetch(`${config.backend_url}/api/conversation/${id}`, {
+				method: 'PATCH'
+			}, {
+				password: updatePassword
+			})
+				.catch((e) => { if (e instanceof FetchError) { } else throw e })
+		}
 	}
 
-	const removePassword = () => {
-
+	const removePassword = (id?: number) => {
+		if (id) {
+			backend_fetch(`${config.backend_url}/api/conversation/${id}`, {
+				method: 'PATCH'
+			}, {
+				access_level: AccessLevel.PUBLIC,
+				password: password
+			})
+				.catch((e) => { if (e instanceof FetchError) { } else throw e })
+		}
 	}
 
+	const deleteChannel = (id?: number) => {
+		if (id) {
+			backend_fetch(`${config.backend_url}/api/conversation/${id}`, {
+				method: 'DELETE'
+			})
+				.then(() => props.setSelectedChannel(undefined))
+				.catch((e) => { if (e instanceof FetchError) { } else throw e })
+		}
+	}
+
+
+	const updatePasswordForm = (f: (id?: number) => void, text: string) => {
+		return (
+			<form>
+				<input
+					placeholder="Password"
+					type="password"
+					value={updatePassword}
+					onChange={(e) => setUpdatePassword(e.target.value)}
+				/>
+				<button type="button" onClick={() => f(props.selectedGroup?.id)}>{text}</button>
+			</form>
+		)
+	}
 
 	return (
 		<div className="channel-profile">
@@ -59,23 +107,24 @@ const ChannelProfile: React.FC<ChatProps> = (props) => {
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 						></input>
-						&&
 						<button type="button" onClick={joinChannel}>Join Channel</button>
 					</form>
 				) : (
 					props.selectedGroup?.owner.id === props.me?.id ? (
 						<>
 							<button onClick={leaveChannel}>Leave Channel</button>
-							{
-								props.selectedGroup?.access_level === AccessLevel.PROTECTED ? (
-									<>
-										<button onClick={changePassword}>Change password</button>
-										<button onClick={removePassword}>Remove password</button>
-									</>
-								) : (
-									<button onClick={addPassword}>Add password</button>
-								)
+							{props.selectedGroup?.access_level === AccessLevel.PROTECTED ? (
+								<>
+									{updatePasswordForm(changePassword, 'Change password')}
+									<button onClick={() => removePassword(props.selectedGroup?.id)}>Remove password</button>
+								</>
+							) : (
+								<>
+									{updatePasswordForm(addPassword, 'Add password')}
+								</>
+							)
 							}
+							<button onClick={() => deleteChannel(props.selectedGroup?.id)}>Delete channel</button>
 						</>
 					) : (
 						<button onClick={leaveChannel}>Leave Channel</button>

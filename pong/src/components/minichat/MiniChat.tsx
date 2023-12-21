@@ -50,7 +50,7 @@ export interface ChatProps {
 	setFriends: React.Dispatch<React.SetStateAction<User[] | null>>;
 	setAllUsers: React.Dispatch<React.SetStateAction<User[] | null>>;
 	setSelectedGroup: React.Dispatch<React.SetStateAction<any | undefined>>;
-	setSelectedGroupOption: React.Dispatch< React.SetStateAction<ChannelOptions | null> >;
+	setSelectedGroupOption: React.Dispatch<React.SetStateAction<ChannelOptions | null>>;
 	setMe: React.Dispatch<React.SetStateAction<User | undefined>>;
 	setFriendsRequests: React.Dispatch<React.SetStateAction<User | undefined>>;
 	setChannelMessages: React.Dispatch<React.SetStateAction<any | null>>;
@@ -181,41 +181,58 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 		};
 		requestConversation();
 
-		notificationsSocket.on(
-			"conv_create",
-			(data: { conversation: Conversation }) => {
-				setChannels((prev) => {
-					return prev === null
-						? [data.conversation]
-						: [data.conversation, ...prev];
-				});
-			}
-		);
-		notificationsSocket.on(
-			"conv_delete",
-			(data: { conversation: Conversation }) => {
-				setChannels((prev) => {
-					return prev === null
-						? prev
-						: prev.filter((c) => c.id !== data.conversation.id);
-				});
-			}
-		);
-		notificationsSocket.on("friend_request_accepted", (data) => {
-			setNotificationType(data);
-		});
-		notificationsSocket.on("friend_new", (data) => {
-			setNotificationType(data);
-		});
-		notificationsSocket.on("friend_delete", (data) => {
-			setNotificationType(data);
-		});
-		notificationsSocket.on("blocked_new", (data) => {
-			setNotificationType(data);
-		});
-		notificationsSocket.on("blocked_delete", (data) => {
-			setNotificationType(data);
-		});
+
+
+
+
+		/*
+		Je sais que c'est degueulasse mais pour éviter de recevoir les memes events plein de fois
+		faut faire les socket.off, et pour ca faut creer une fonction pour chaque socket.on.
+		(Pour que le socket.off retire le bon handler)
+		*/
+		function s_conv_create(data: { conversation: Conversation }) {
+			setChannels((prev) => {
+				return prev === null
+					? [data.conversation]
+					: [data.conversation, ...prev];
+			});
+		}
+		notificationsSocket.on("conv_create", s_conv_create);
+
+		function s_conv_delete(data: { conversation: Conversation }) {
+			setChannels((prev) => {
+				return prev === null
+					? prev
+					: prev.filter((c) => c.id !== data.conversation.id);
+			});
+		}
+		notificationsSocket.on("conv_delete", s_conv_delete);
+
+		function s_friend_request_accepted(data:any) { setNotificationType(data); }
+		notificationsSocket.on("friend_request_accepted", s_friend_request_accepted);
+		
+		function s_friend_new(data:any) { setNotificationType(data); }
+		notificationsSocket.on("friend_new", s_friend_new);
+
+		function s_friend_delete(data:any) { setNotificationType(data); }
+		notificationsSocket.on("friend_delete", s_friend_delete);
+
+		function s_blocked_new(data:any) { setNotificationType(data); }
+		notificationsSocket.on("blocked_new", s_blocked_new);
+
+		function s_blocked_delete(data:any) { setNotificationType(data); }
+		notificationsSocket.on("blocked_delete", s_blocked_delete);
+
+		return (() => {
+			notificationsSocket.off("conv_create", s_conv_create);
+			notificationsSocket.off("conv_delete", s_conv_delete);
+			notificationsSocket.off("friend_request_accepted", s_friend_request_accepted);
+			notificationsSocket.off("friend_new", s_friend_new);
+			notificationsSocket.off("friend_delete", s_friend_delete);
+			notificationsSocket.off("blocked_new", s_blocked_new);
+			notificationsSocket.off("blocked_delete", s_blocked_delete);
+		})
+
 	}, [notificationType]);
 
 	/*======================================================================
@@ -242,13 +259,15 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 		};
 		requestAllBlockedUsers();
 
-		notificationsSocket.on("user_create", (data: { user: User }) => {
+		function s_user_create(data: { user: User }) {
 			setAllUsers((prev) => {
 				return prev === null ? [data.user] : [data.user, ...prev];
 			});
-		});
+		}
+		notificationsSocket.on("user_create", s_user_create);
+
 		return () => {
-			notificationsSocket.off("user_create");
+			notificationsSocket.off("user_create", s_user_create);
 		};
 	}, [notificationType]);
 
@@ -276,11 +295,16 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 		};
 		requestAllUsers();
 
-		notificationsSocket.on("user_create", (data: { user: User }) => {
+		function s_user_create(data: { user: User }) {
 			setAllUsers((prev) => {
 				return prev === null ? [data.user] : [data.user, ...prev];
 			});
-		});
+		}
+		notificationsSocket.on("user_create", s_user_create);
+
+		return (() => {
+			notificationsSocket.off("user_create", s_user_create);
+		})
 	}, [notificationType]);
 
 	/*======================================================================
@@ -306,13 +330,15 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 		};
 		requestProfile();
 
-		notificationsSocket.on("friend_new", (user: User) => {
+		function s_friend_new(user: User) {
 			setFriends((prev) => {
 				return prev === null ? [user] : [user, ...prev];
 			});
-		});
+		}
+		notificationsSocket.on("friend_new", s_friend_new);
+	
 		return () => {
-			notificationsSocket.off("friend_new");
+			notificationsSocket.off("friend_new", s_friend_new);
 		};
 	}, [notificationType, selectedGroupOption]);
 

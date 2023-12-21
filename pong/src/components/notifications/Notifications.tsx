@@ -30,39 +30,45 @@ const Notifications: React.FC = () => {
 			console.log("ups .. ok now connected");
 		}
 
-		chatSocket.on("receive_message", (data) => {
+		function s_receive_message(data: any) {
 			setDataContent(data)
 			setDataType("receive_message")
-			console.log("AAAAAAAAAAAAAAAA", data)
-		})
-		gameSocket.on("receive_message", (data) => {
-			setDataContent(data)
-			setDataType("receive_message")
-		})
-		notificationsSocket.on("friend_new", (data: { req: any } | any) => {
-			console.log("Received friend new");
+		}
+		chatSocket.on("receive_message", s_receive_message)
+
+		function s_friend_new(data: any) {
 			setDataType("friend_new");
 			setDataContent(data);
-		});
+		}
+		notificationsSocket.on("friend_new", s_friend_new);
 
-		notificationsSocket.on("friend_request_recv", (data: { req: any }) => {
+		function s_friend_request_recv(data: any) {
 			setDataType("friend_request_recv");
 			setDataContent(data);
 			console.log("friend request received");
-		});
-		notificationsSocket.on("friend_delete", (data: { req: any }) => {
+		}
+		notificationsSocket.on("friend_request_recv", s_friend_request_recv);
+
+		function s_friend_delete(data: any) {
 			setDataType("friend_delete");
 			setDataContent(data);
 			console.log("friend deleted");
-		});
-		notificationsSocket.on("blocked_new", (data: { req: any }) => {
-			setDataType("blocked_new");
-			setDataContent(data);
-		});
-		notificationsSocket.on("friend_request_denied", (data: { req: any }) => {
+		}
+		notificationsSocket.on("blocked_new", s_friend_delete);
+
+		function s_friend_request_denied(data: any) {
 			setDataType("friend_request_denied");
 			setDataContent(data);
-		});
+		}
+		notificationsSocket.on("friend_request_denied", s_friend_request_denied);
+
+		return (() => {
+			chatSocket.off("receive_message", s_receive_message)
+			notificationsSocket.off("friend_new", s_friend_new);
+			notificationsSocket.off("friend_request_recv", s_friend_request_recv);
+			notificationsSocket.off("blocked_new", s_friend_delete);
+			notificationsSocket.off("friend_request_denied", s_friend_request_denied);
+		})
 	});
 
 

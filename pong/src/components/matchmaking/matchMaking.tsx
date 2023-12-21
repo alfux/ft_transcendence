@@ -29,15 +29,17 @@ const MatchMaking: React.FC = () => {
 		})
 		.catch((e) => { if (e instanceof FetchError) {} else throw e })
 
-		gameSocket.on("match_found", (data: { opponent: User, delay: number }) => {
+		function s_match_found(data: { opponent: User, delay: number }) {
 			setOpponent(data.opponent)
 			setTimer(data.delay)
-
+	
 			setSearching(false)
-		})
+		}
+		gameSocket.on("match_found", s_match_found)
 
 		return (() => {
 			gameSocket.emit("cancel_search")
+			gameSocket.off("match_found", s_match_found)
 		})
 
 	}, [])

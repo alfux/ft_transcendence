@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm'
 
 import { Conversation, ConversationUser } from 'src/db/conversation'
 
@@ -17,4 +17,7 @@ export class Message {
 
 	@Column()
 	content: string
+
+	@CreateDateColumn()
+	createdAt: Date
 }

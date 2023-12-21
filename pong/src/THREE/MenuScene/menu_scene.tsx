@@ -687,6 +687,10 @@ export function create_menu_scene(
     update: update,
     clean: () => {
 
+			gameSocket.off("start", handleStart);
+			gameSocket.off("finish", handleFinish);
+			gameSocket.off("bounce", handleBounce);
+
       divRef?.removeEventListener("wheel", handleWheel);
       divRef?.removeEventListener("click", handleClick);
       window.removeEventListener("resize", handleResize);

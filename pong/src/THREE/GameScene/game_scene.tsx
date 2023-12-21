@@ -132,6 +132,10 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
   return {
     update: update,
     clean: () => {
+
+			gameSocket.off("player_pos", updateRackets);
+			gameSocket.off("ball_pos", updateBallPos);
+
       scene.traverse((obj: any) => {
         if (obj instanceof THREE.Mesh) {
           obj.geometry.dispose();

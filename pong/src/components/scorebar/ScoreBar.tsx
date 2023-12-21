@@ -25,9 +25,18 @@ interface UserData {
 const ScoreBar: React.FC<{ user?: UserData }> = ({ user }) => {
 	const [data, setData] = useState<User | undefined>(user?.user);
 	const [score, setScore] = useState<number>(0);
-	gameSocket.on("score", (s) => {
-		setScore(user?.you ? s.you : s.opponent);
-	});
+
+	useEffect(() => {
+
+		function s_score(s: any) {
+			setScore(user?.you ? s.you : s.opponent);
+		}
+		gameSocket.on("score", s_score);
+
+		return (() => {
+			gameSocket.off("score", s_score);
+		})
+	}, [])
 
 	return (
 		<div id="score-component" className={(user?.you) ? "score-bar" : "ennemy-bar"}>
