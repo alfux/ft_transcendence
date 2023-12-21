@@ -31,7 +31,14 @@ export async function backend_fetch(
 		body: body === undefined ? undefined : JSON.stringify(body)
 	}
 
-	const rep = await fetch(url, Object.assign({}, default_init, init))
+	let rep
+	try {
+		rep = await fetch(url, Object.assign({}, default_init, init))
+	} catch {
+		if (log)
+			console.trace(`Couldn't fetch ${url}: couldn't connect to host :(`)
+		throw new FetchError(url, 0, "Couldn't connect to host :(")
+	}
 
 	if (rep.ok) {
 		return rep.json().catch((e) => { if (e instanceof SyntaxError) { return undefined } else throw e })

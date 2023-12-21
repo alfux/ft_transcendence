@@ -82,21 +82,32 @@ export class ConversationController {
 			throw new HttpUnauthorized("You are not the owner")
 		}
 
-		if (body.access_level)
-		return this.conversationService.updateConversation(Object.assign({
-	id: id,
-	access_level: body.access_level
-}, body.title !== undefined ? {
-				title: body.title,
-			} : {},))
 
-			.then((new_conv) => {
-				this.notificationService.emit_everyone("conv_create", { conversation: new_conv })
-				return new_conv
-			})
+		if (body.access_level) {
+			if (body.access_level === AccessLevel.PROTECTED) {
+				if (body.password === undefined || body.password === '')
+					throw new HttpBadRequest("Missing password")
+
+				conversation.access_level = body.access_level
+				conversation.password = await this.conversationService.hashPassword(body.password)
+			} else {
+				conversation.access_level = body.access_level
+			}
 		}
 
-		@Route({
+		if (body.title) {
+			conversation.title = body.title
+		}
+
+		if (body.access_level)
+			return this.conversationService.updateConversation(conversation)
+				.then((new_conv) => {
+					this.notificationService.emit_everyone("conv_create", { conversation: new_conv })
+					return new_conv
+				})
+	}
+
+	@Route({
 		method: Get(':id'),
 		description: { summary: 'Get conversation content', description: 'Returns the conversation\'s messages' },
 		responses: [{ status: 200, description: 'Conversation\'s content retrieved successfully' }]
@@ -116,7 +127,7 @@ export class ConversationController {
 						return true
 				})
 
-				v.messages.sort((a, b) => { return b.createdAt.getTime() - a.createdAt.getTime() })
+				v.messages.sort((a, b) => { return a.createdAt.getTime() - b.createdAt.getTime() })
 
 				return v
 			})

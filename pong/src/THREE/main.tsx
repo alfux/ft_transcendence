@@ -29,6 +29,8 @@ export default function THREE_App() {
 	const [loginForm, setLoginForm] = useState('')
 	const [gameState, setGameState] = useState(false);
 
+	const [isBroken, setIsBroken] = useState(false)
+
 	let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
 	const [payload, updatePayload, handleUpdate] = usePayload();
 
@@ -36,10 +38,6 @@ export default function THREE_App() {
 		return backend_fetch(`${config.backend_url}/api/auth/refresh`, {
 			method: 'GET'
 		})
-			.then(() => {
-				accessToken = Cookies.get('access_token');
-				user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
-			})
 			.catch((e) => {
 				if (e instanceof FetchError) {
 					document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
@@ -51,12 +49,22 @@ export default function THREE_App() {
 					throw e
 				}
 			})
+			.then(() => {
+				accessToken = Cookies.get('access_token');
+				user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
+			})
 	};
 
 	useEffect(() => {
 		init_modules() //Pour les shaders, svp ne pas enlever
 
-		const renderer = new THREE.WebGLRenderer({ alpha: true });
+		let renderer: THREE.WebGLRenderer;
+		try {
+			renderer = new THREE.WebGLRenderer({ alpha: true });
+		} catch {
+			setIsBroken(true)
+			return
+		}
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.autoClear = false;
@@ -85,7 +93,7 @@ export default function THREE_App() {
 		}
 
 		if (divRef.current)
-			divRef.current.appendChild(renderer.domElement);
+			divRef.current!.appendChild(renderer.domElement);
 
 		mainloop();
 
@@ -109,6 +117,12 @@ export default function THREE_App() {
 			return createComponent(MiniChatButton);
 		}
 	}, [loginForm === "Chat"])
+
+
+	if (isBroken) {
+		return <p style={{textAlign: 'center', fontFamily: 'monospace'}}>{'Good job ! You broke everything ! >:( Now please fix this by closing this tab and reopening a new one'}</p>
+	}
+
 	return (
 		<div id="main-container">
 			<div ref={divRef} id="Canvas" className="Canvas">

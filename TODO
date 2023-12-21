@@ -10,18 +10,6 @@ Invitation a jouer
 Rejoindre un chat avec mdp ne s'affiche pas automatiquement
 (on doit close le chat puis l'ouvrir a nouveau)
 
-Friends:
-	Les amis ne disparaissent pas in real time (notification non pris en compte)
-		-> UPDATE: apparamment si, mais une fois ca me l'a pas fait donc a voir
-
-	+ ERREUR REACT quand on clique sur 'remove friend'
-
-Chat:
-	Les messages s'affichent dans l'ordre:
-	  -> Trié par user
-		-> Trié par date -> le plus recent en haut
-		Pas bon :(
-
 Matchmaking:
 	Le profil ne s'affiche pas
 
@@ -31,11 +19,6 @@ Minichat:
 
 Settings:
 	Les parametres apparemment rajouté par Duart/Carlos ne sont pas la :(
-
-Boutons go back/go forward:
-	Probleme (???)
-
-
 
 
 ________________________________________________________________________

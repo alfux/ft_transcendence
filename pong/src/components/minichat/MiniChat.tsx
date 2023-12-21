@@ -295,16 +295,6 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 		};
 		requestAllUsers();
 
-		function s_user_create(data: { user: User }) {
-			setAllUsers((prev) => {
-				return prev === null ? [data.user] : [data.user, ...prev];
-			});
-		}
-		notificationsSocket.on("user_create", s_user_create);
-
-		return (() => {
-			notificationsSocket.off("user_create", s_user_create);
-		})
 	}, [notificationType]);
 
 	/*======================================================================

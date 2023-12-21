@@ -27,7 +27,9 @@ const MatchMaking: React.FC = () => {
 		backend_fetch(`${config.backend_url}/api/user/me`, {
 			method: 'GET'
 		})
-		.catch((e) => { if (e instanceof FetchError) {} else throw e })
+		.catch((e) => {
+			if (e instanceof FetchError) {} else throw e
+		})
 
 		function s_match_found(data: { opponent: User, delay: number }) {
 			setOpponent(data.opponent)
@@ -104,11 +106,22 @@ const MatchMaking: React.FC = () => {
 				<button>Invite</button>
 				{
 					searching ?
-						<button onClick={() => { setSearching(false); gameSocket.emit("cancel_search") }}>
+						<button onClick={() => {
+							if (gameSocket.connected === false)
+								return
+
+							setSearching(false);
+							gameSocket.emit("cancel_search") }}>
 							Cancel
 						</button>
 						:
-						<button onClick={() => { setSearching(true); gameSocket.emit("search", { mode: mode }) }}>
+						<button onClick={() => {
+							if (gameSocket.connected === false)
+								return
+
+							setSearching(true);
+							gameSocket.emit("search", { mode: mode })
+							}}>
 							Find Match
 						</button>
 				}

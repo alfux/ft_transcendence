@@ -56,6 +56,16 @@ export class ConversationService {
 		private messageService: MessageService
 	) { }
 
+
+	async hashPassword(pass: string) {
+		const saltOrRounds = 10;
+		return bcrypt.hash(pass, saltOrRounds);
+	}
+
+	async checkPassword(pass: string, conv: Conversation) {
+		return bcrypt.compare(pass, conv.password);
+	}
+
 	async getConversationUser(where: FindOptions<ConversationUser>, relations = [] as string[]) {
 		const connection = await this.convUserRepository.findOne({ where: where, relations: relations })
 		if (!connection)
@@ -151,8 +161,7 @@ export class ConversationService {
 
 		const src_password = password
 		if (access_level === AccessLevel.PROTECTED) {
-			const saltOrRounds = 10;
-			password = await bcrypt.hash(password, saltOrRounds);
+			password = await this.hashPassword(password)
 		}
 
 		const user = await this.userService.getUser({ id: user_id })
@@ -194,7 +203,7 @@ export class ConversationService {
 			if (!password) {
 				throw new HttpMissingArg("Password is needed for a conversation with an access level of PROTECTED")
 			}
-			const hash = await bcrypt.compare(password, conv_password.password);
+			const hash = await this.checkPassword(password, conv_password)
 			if (!hash) {
 				throw new HttpUnauthorized("Wrong password")
 			}

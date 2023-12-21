@@ -22,10 +22,11 @@ export class ConversationUpdateParams {
 	@IsOptional()
 	@IsString()
 	title?: string
-
+	
 	@ApiProperty({ description: 'Access level. PROTECTED will require a password', enum: AccessLevel, examples: Object.keys(AccessLevel) })
+	@IsOptional()
 	@IsEnum(AccessLevel)
-	access_level: AccessLevel
+	access_level?: AccessLevel
 
 	@ApiProperty({ description: 'Password of the conversation (empty if no password)' })
 	@IsOptional()
