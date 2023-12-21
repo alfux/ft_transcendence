@@ -51,10 +51,8 @@ const MatchMaking: React.FC = () => {
 		setMode(values.length > 0 ? (values[0] as any).value : GameMode.CLASSIC);
 	};
 console.log(data)
-
 	return (
 		<div className="glass-container-matchmaking">
-
 			<div className='sub-container'>
 				<h2>Match Making</h2>
 				{
@@ -66,17 +64,13 @@ console.log(data)
 						/>
 				}
 			</div>
-
-
 			<div className='players'>
-
 				<div className='player-one'>
 					<div className='player-info-one'>
 						<p>Player: {data?.username}</p>
 					</div>
 					<img src={data?.image} alt="avatar" />
 				</div>
-
 				<div className='player-two'>
 					{
 						opponent ?
@@ -98,10 +92,17 @@ console.log(data)
 					}
 				</div>
 			</div>
-
-
 			<div className='buttons'>
 				<button>Invite</button>
+				<Select
+					className="mode-button"
+					values={[{ value: mode, label: mode }]}
+					options={Object.values(GameMode).map((option) => ({ value: option, label: option }))}
+					onChange={handleSelectModeChange}
+					searchable={false}
+					keepSelectedInList={false}
+					backspaceDelete={false}
+				/>
 				{
 					searching ?
 						<button onClick={() => {
@@ -123,11 +124,6 @@ console.log(data)
 							Find Match
 						</button>
 				}
-				<Select
-					values={[{ value: mode, label: mode }]}
-					options={Object.values(GameMode).map((option) => ({ value: option, label: option }))}
-					onChange={handleSelectModeChange}
-				/>
 			</div>
 		</div>
 	);
