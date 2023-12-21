@@ -59,7 +59,7 @@ export function RenderComponents(loginForm: { option: string, game: boolean }) {
     if (loginForm.option === "Login" && !accessToken) {
       cleanup.push(createComponent(Login));
     }
-    if (loginForm.option === "About" && accessToken && payload?.authentication === LoggedStatus.Incomplete) {
+    if (loginForm.option === "About") {
       cleanup.push(createComponent(About));
     }
     if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option === "Play") {

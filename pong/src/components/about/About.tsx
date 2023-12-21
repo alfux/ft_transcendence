@@ -1,20 +1,64 @@
-import './About.css';
-import { config } from '../../config';
+import './About.css'
 import Cookies from 'js-cookie';
-import React, { useState, useEffect, useRef} from 'react';
-import jwt, { jwtDecode } from 'jwt-decode';
-import {JwtPayload} from '../../THREE/Utils/jwt.interface';
-import TwoFactorValidate from '../twofactorvalidate/TwoFactorValidate';
+import React, { useEffect, useState } from 'react'
+import userEvent from '@testing-library/user-event';
 import usePayload from '../../react_hooks/use_auth'
+import { config } from '../../config';
+import ReactAudioPlayer from 'react-audio-player';
+import { User, Match } from '../../THREE/Utils/backend_types';
+
+
 const About: React.FC = () => {
-  const inputRefs = useRef<Array<HTMLInputElement | null>>(Array(6).fill(null));
-  const accessToken = Cookies.get('access_token');
-  const user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
-  const [QRCode,setQRCodeUrl] = useState("")
-  const [toogleStatus, setToggle] = useState<Boolean>(user?.isTwoFactorAuthEnable?true:false)
-//   const [isTwoFactorEnabled, setTwoFactorEnabled] =  useState<any>(user?user?.isTwoFactorAuthEnable:false)
   const [payload, updatePayload, handleUpdate] = usePayload();
-  
+
+  const [data, setData] = useState<User | null>(null)
+  const [matches, setMatches] = useState<Match[] | null>(null)
+  const	[display, setDisplay] = useState<boolean>(false);
+
+  const [isEditingUsername, setIsEditingUsername] = useState(false)
+  const [editUsernameValue, setEditUsernameValue] = useState('')
+  useEffect(() => {
+    const requestProfile = async () => {
+      try {//fetch Profile
+        const response = await fetch(`${config.backend_url}/api/user/me`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const result = await response.json()
+          setData(result)
+        } else {
+          console.error('Could not get profile:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching profile Token:', error);
+      }
+    };
+
+    const requestMatchHist = async () => {
+      try {//fetch Matches
+        const response = await fetch(`${config.backend_url}/api/user/matches`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const result = await response.json()
+          console.log(result)
+          setMatches(result)
+        } else {
+          console.error('Could not get matches:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching profile Token:', error);
+      }
+    };
+
+    requestProfile();
+    requestMatchHist();
+  }, [])
+
   function changePfP(event: any) {
     if (!data)
       return
@@ -52,9 +96,58 @@ const About: React.FC = () => {
       const base64String = res.split(',')[1]
       sendFile(base64String)
     };
-    
+
+    reader.readAsDataURL(file);
+
+  }
+
+  function handleKeyDown(e: any) {
+    if (e.key === 'Enter') {
+      setIsEditingUsername(false)
+      const sendUsername = async () => {
+        try {
+          const response = await fetch(`${config.backend_url}/api/user/me`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              username: editUsernameValue
+            }),
+          });
+  
+          if (response.ok) {
+            console.log('Updated username successfully.');
+            const result = await response.json()
+            setData(result)
+          } else {
+            console.error('Failed to update username.');
+          }
+        } catch (error) {
+          console.error('Error uploading username:', error);
+        }
+      }
+      sendUsername()
+    }
+  }
+
+  function changeNick(e: any) {
+    if (!data)
+      return
+
+    //No sql injec
+    if (!(/^[a-zA-Z0-9]*$/.test(e.target.value))) {
+      return
+    }
+
+    setEditUsernameValue(e.target.value)
+  }
+
   return (
     <div className="profile-box">
+      <div className='profile-box-two'>
+
         {data != null ? (
           <div>
             <input
@@ -68,9 +161,32 @@ const About: React.FC = () => {
             </label>
           </div>
         ) : <h2>nop</h2>}
+
+        <div className='main'>
+          <div className='stats-values'>
+            {data ? (
+              isEditingUsername ?
+                <input
+                  type="text"
+                  value={editUsernameValue}
+                  onChange={changeNick}
+                  onKeyDown={handleKeyDown}
+                  placeholder={data.username}
+                /> :
+                <p  onClick={
+                  (e: any) => {
+                    setIsEditingUsername(true);
+                    setEditUsernameValue(data.username)
+                  }}>nickName :  {data.username}</p>
+            ) :
+              <h2>no infos</h2>
+            }
+            <p>Email : {data?.email}</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
-  
 };
 
 export default About;
