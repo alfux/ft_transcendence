@@ -40,6 +40,8 @@ export interface ChatProps {
 	toogledButton: string | null;
 	notificationType: any;
 	usersBlocked: any;
+	friendMessages:Conversation | undefined;
+	setFriendMessages:(friendMessages:Conversation | undefined) => void;
 	setUsersBlocked: (usersBlocked: any) => void;
 	setNotificationType: (notificationType: any) => void;
 	setToogledButton: (toogledButton: string | null) => void;
@@ -89,6 +91,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 	const [toogledButton, setToogledButton] = useState<string | null>(null);
 	const [notificationType, setNotificationType] = useState<any>(null);
 	const [usersBlocked, setUsersBlocked] = useState<any>(null);
+	const [friendMessages,setFriendMessages] = useState<Conversation | undefined>(undefined)
 	/*======================================================================
 	===================Functions to Pass To Children To Set State===============
 	======================================================================== */
@@ -120,6 +123,8 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 		toogledButton,
 		notificationType,
 		usersBlocked,
+		friendMessages,
+		setFriendMessages,
 		setUsersBlocked,
 		setNotificationType,
 		setToogledButton,

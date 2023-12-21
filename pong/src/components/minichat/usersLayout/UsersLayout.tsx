@@ -2,9 +2,36 @@ import { useEffect } from "react";
 import { Conversation, ConversationUser, User } from "../../../THREE/Utils/backend_types";
 import { ChannelOptions, ChatProps } from "../MiniChat";
 import { notificationsSocket } from "../../../sockets";
+import { config } from "../../../config";
 
 const UsersLayout: React.FC<ChatProps> = (props: ChatProps) => {
 
+
+	// ____________________Request Friend Messages_______________________
+	useEffect(()=>{
+		const getFriendMessages = async ()=> {
+			try {
+				const conversation_url = `${config.backend_url}/api/conversation/pconversation`;
+				const response = await fetch(conversation_url, {
+					method: "GET",
+					credentials: "include",
+				});
+				if (response.ok) {
+					const result = await response.json();
+					props.setFriendMessages(result.messages)
+					console.log("gotfriend messages")
+				} else {
+					console.error("Could not get Conversation:", response.status);
+				}
+			} catch (error) {
+				console.error("Error fetching Conversation:", error);
+			}
+		}
+		getFriendMessages();
+	},[props.selectedUser])
+		
+
+	// _______________________________________________________________
 	const onlineUsers = props.allUsers?.map((user: User) => {
 		return user.id !== props.me?.id ? (
 			<img

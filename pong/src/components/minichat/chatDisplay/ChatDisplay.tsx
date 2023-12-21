@@ -27,6 +27,22 @@ const ChatDisplay: React.FC<ChatProps> = (props) => {
 		return messages
 	}
 
+	const displayFriendMessages = () =>{
+
+		if (props.friendMessages === undefined){
+			return undefined
+		}
+
+		const messages = props.friendMessages?.messages?.map((message: Message) => {
+			return (
+				<div key={message?.id}>
+					<p key={message?.content}>
+						{message?.sender?.user?.username} : {message?.content}
+					</p>
+				</div>
+			);
+		});
+	}
 
 	useEffect(() => {
 		if (props.displayContainer.current) {
@@ -42,6 +58,8 @@ const ChatDisplay: React.FC<ChatProps> = (props) => {
 			<div className="message-output-box">
 				{props.selectedGroupOption === ChannelOptions.CHANNEL &&
 					displayChannelMessages()}
+				{props.selectedGroupOption === ChannelOptions.FRIENDS &&
+					displayFriendMessages}
 			</div>
 		</div>
 	);
