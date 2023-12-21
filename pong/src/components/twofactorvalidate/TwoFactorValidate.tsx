@@ -49,7 +49,7 @@ const TwoFactorValidate: React.FC = () => {
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ verificationCode }),
+				body: JSON.stringify({ code:verificationCode }),
 			});
 			if (response.ok) {
 				// requestNewToken()
@@ -64,7 +64,6 @@ const TwoFactorValidate: React.FC = () => {
 			console.error('Error verifying 2FA code:', error);
 		}
 		try {
-			//await requestNewToken()
 			handleUpdate()
 		} catch (error) {
 			console.log(error)

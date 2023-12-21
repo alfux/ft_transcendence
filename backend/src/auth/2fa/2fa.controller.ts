@@ -25,7 +25,9 @@ export class TwoFactorAuthenticationController {
 	})
 	async authenticateTwoFactor(@Req() request, @Body() body: DTO.AuthenticateParams) {
 		const user = await this.userService.getUser({ id: request.user.id })
-		const secret = user.twoFactorAuthSecret
+
+		const user_2fa_infos = await this.userService.getUserAuthSecret(request.user.id)
+		const secret = user_2fa_infos.twoFactorAuthSecret
 
 		//this can be used to send to email
 		const token = this.twoFactorAuthenticationService.generateToken(secret)
@@ -56,10 +58,10 @@ export class TwoFactorAuthenticationController {
 	})
 	async enableTwoFactorAuth(@Req() request, @Body() body: DTO.AuthenticateParams) {
 		const user = await this.userService.getUser({ id: request.user.id })
-		const secret = user.twoFactorAuthSecret
+		const user_2fa_infos = await this.userService.getUserAuthSecret(request.user.id)
+		const secret = user_2fa_infos.twoFactorAuthSecret
 		const token = this.twoFactorAuthenticationService.generateToken(secret)
 		console.log('token', token, '\n', 'body token ', body.code)
-
 		try {
 			const isCodeValid = this.twoFactorAuthenticationService.verifyTwoFactorAuthCode(
 				secret,
