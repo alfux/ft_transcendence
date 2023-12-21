@@ -41,7 +41,7 @@ export async function backend_fetch(
 	}
 
 	if (rep.ok) {
-		return rep.json().catch((e) => { if (e instanceof SyntaxError) { return undefined } else throw e })
+		return rep.json().catch((e) => undefined)
 	} else {
 
 		try {
