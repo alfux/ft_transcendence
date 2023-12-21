@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { JwtPayload, LoggedStatus } from '../Utils/jwt.interface';
 import usePayload from '../../react_hooks/use_auth'
 import Login from '../../components/login/Login'
+import About from '../../components/about/About'
 import Settings from '../../components/settings/Settings'
 import ProfileBar from '../../components/profilebar/ProfileBar';
 import Profile from '../../components/profile/Profile';
@@ -57,7 +58,8 @@ export function RenderComponents(loginForm: { option: string, game: boolean }) {
 		if (loginForm.option === "Login" && !accessToken) {
 			cleanup.push(createComponent(Login));
 		}
-		if (loginForm.option === "About" && accessToken && payload?.authentication === LoggedStatus.Logged) {
+		if (loginForm.option === "About") {
+			cleanup.push(createComponent(About));
 		}
 		if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm.option === "Play") {
 			cleanup.push(createComponent(MatchMaking));
