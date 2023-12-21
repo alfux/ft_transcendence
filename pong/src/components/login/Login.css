@@ -25,14 +25,31 @@
 
 @keyframes slideInOnStart {
 	0% {
-		top: 200%;
-		box-shadow: 0 0 1000px #00fffb;
+		box-shadow: 0 0 100px #ffffff;
+		/* Start with a green glow */
+		box-shadow: 0 0 200px #ff41a7;
+		/* Start with a green glow */
 	}
 
-	83% {
-		top: 200%;
-		box-shadow: 0 0 1000px #00fffb;
+	50% {
+		box-shadow: 0 0 10px #ffffff;
+		/* Transition to a red glow */
+		box-shadow: 0 0 20px #ff41a7;
+		/* Start with a green glow */
 	}
+
+	100% {
+		box-shadow: 0 0 10px #ffffff;
+		/* Transition to a red glow */
+		box-shadow: 0 0 20px #ff41a7;
+		/* Start with a green glow */
+	}
+}
+
+83% {
+	top: 200%;
+	box-shadow: 0 0 1000px #00fffb;
+}
 }
 
 @keyframes slideInOnAfter {

@@ -61,6 +61,55 @@
 }
 
 /* @keyframes animate {
+.glass-container-logout {
+      display: flex;
+      flex-direction: column;
+    position: absolute;
+    justify-content: center;
+    z-index: 1;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 30%;
+    width: 15%;
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border: 20px solid rgba(11, 7, 7, 0.3);
+    border-radius: 50%;
+    animation: colorChange 2s infinite;
+  }
+
+  .circle {
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 400px;
+    border: 10px solid transparent;
+    border-bottom: 10px solid rgb(21, 171, 191);
+    box-shadow: 0 0px 50px rgb(137, 163, 10), 0 0px 100px rgb(137, 163, 10), 0 0px 120px rgb(137, 163, 10);
+    border-top: 10px solid rgb(21, 171, 191);
+    border-radius: 50%;
+    animation: animate 4s linear infinite;
+  }
+
+  .circle:after {
+    content: '';
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    bottom: 40px;
+    right: 40px;
+    box-shadow: 0 0px 50px rgb(132, 10, 163), 0 0px 100px rgb(132, 10, 163), 0 0px 120px rgb(132, 10, 163);
+    border: 10px solid transparent;
+    border-bottom: 10px solid rgb(131, 22, 182);
+    border-top: 10px solid rgb(131, 22, 182);
+    border-radius: 50%;
+    animation: animate 8s linear infinite;
+  }
+
+  /* @keyframes animate {
     0% {
       transform: rotate(0deg);
     }

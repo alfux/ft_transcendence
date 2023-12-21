@@ -634,7 +634,6 @@ export function create_menu_scene(
 		}
 		if (menu_parent.children.length > 1 && (new_current !== current || current === null)) {
 			current = new_current;
-
 			menu_parent.traverse((obj) => {
 				if (obj.name === current) {
 					if (obj.name === "Logout" || obj.name === "YouLoose")

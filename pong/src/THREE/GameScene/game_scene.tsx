@@ -31,58 +31,58 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
       rr: group.getObjectByName("RRacket")
     });
 
-    const spin_geometry = new THREE.IcosahedronGeometry(1, 30)
-    const spin_mat = new CustomLightingShader({
-      vertexShader: spin_vertex,
-      fragmentShader: spin_fragment,
-      uniforms: {
-        time: { value: 0 },
-        spin: { value: board.ball.spin },
-        spin_height: { value: 1 },
-        noise_freq: { value: 3 },
-        spin_color: { value: new THREE.Vector3(1, 1, 1) },
-        max_alpha: { value: 0.8 }
-      },
-      transparent: true,
-      side: THREE.DoubleSide
-      //wireframe: true
-    })
+		const spin_geometry = new THREE.IcosahedronGeometry(1, 30)
+		const spin_mat = new CustomLightingShader({
+			vertexShader: spin_vertex,
+			fragmentShader: spin_fragment,
+			uniforms: {
+				time: { value: 0 },
+				spin: { value: board.ball.spin },
+				spin_height: { value: 1 },
+				noise_freq: { value: 3 },
+				spin_color: { value: new THREE.Vector3(1, 1, 1) },
+				max_alpha: { value: 0.8 }
+			},
+			transparent: true,
+			side: THREE.DoubleSide
+			//wireframe: true
+		})
 
-    const spin = new THREE.Mesh(spin_geometry, spin_mat)
-    spin.position.set(0, 0, 0)
-    spin.scale.set(0.9, 0.9, 0.9)
-    spin.name = "spin_effect"
-    board.ball.gameObject?.add(spin)
+		const spin = new THREE.Mesh(spin_geometry, spin_mat)
+		spin.position.set(0, 0, 0)
+		spin.scale.set(0.9, 0.9, 0.9)
+		spin.name = "spin_effect"
+		board.ball.gameObject?.add(spin)
 
   });
   board.ball.speed.set(20, 0, 0);
 
-  const mouse_plane = new THREE.PlaneGeometry(500, 500);
-  const mouse_material = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 });
-  const mouse_mesh = new THREE.Mesh(mouse_plane, mouse_material);
-  const scene = new THREE.Scene();
-  scene.add(game_parent, ambient, mouse_mesh);
+	const mouse_plane = new THREE.PlaneGeometry(500, 500);
+	const mouse_material = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 });
+	const mouse_mesh = new THREE.Mesh(mouse_plane, mouse_material);
+	const scene = new THREE.Scene();
+	scene.add(game_parent, ambient, mouse_mesh);
 
-  const raycaster = new THREE.Raycaster();
+	const raycaster = new THREE.Raycaster();
 
   window.addEventListener("pointermove", handlePointer);
 
   gameSocket.on("player_pos", updateRackets);
   gameSocket.on("ball_pos", updateBallPos);
 
-  function handlePointer(event: PointerEvent) {
-    raycaster.setFromCamera(mousecast, camera);
-    const intersect = raycaster.intersectObject(mouse_mesh);
-    gameSocket.emit("pointer", {
-      x: intersect[0]?.point.x,
-      y: intersect[0]?.point.y,
-      sx: mousespeed.x,
-      sy: mousespeed.y
-    });
-    if (event.buttons === 1) {
-      const cpos = new Vec3(camera.position.x, camera.position.y, camera.position.z);
-      const tmp = rotx(cpos, -event.movementY / 1000);
-      const npos = rotz(tmp, -event.movementX / 1000);
+	function handlePointer(event: PointerEvent) {
+		raycaster.setFromCamera(mousecast, camera);
+		const intersect = raycaster.intersectObject(mouse_mesh);
+		gameSocket.emit("pointer", {
+			x: intersect[0]?.point.x,
+			y: intersect[0]?.point.y,
+			sx: mousespeed.x,
+			sy: mousespeed.y
+		});
+		if (event.buttons === 1) {
+			const cpos = new Vec3(camera.position.x, camera.position.y, camera.position.z);
+			const tmp = rotx(cpos, -event.movementY / 1000);
+			const npos = rotz(tmp, -event.movementX / 1000);
 
       camera.position.set(npos.x, npos.y, npos.z);
       camera.lookAt(0, 0, 0);
@@ -101,17 +101,17 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
       board.left_racket.gameObject.position.y = board.left_racket.position.y;
   }
 
-  function updateBallPos(ball: Ball) {
-    console.log(ball.speed);
-    if (board.ball.gameObject) {
-      ball.gameObject = board.ball.gameObject;
-      board.ball = ball;
-      board.ball.gameObject?.position.set(board.ball.position.x, board.ball.position.y, board.ball.position.z);
+	function updateBallPos(ball: Ball) {
+		console.log(ball.speed);
+		if (board.ball.gameObject) {
+			ball.gameObject = board.ball.gameObject;
+			board.ball = ball;
+			board.ball.gameObject?.position.set(board.ball.position.x, board.ball.position.y, board.ball.position.z);
 
-      const spin_effect = board.ball.gameObject?.getObjectByName("spin_effect") as THREE.Mesh<THREE.IcosahedronGeometry, CustomLightingShader>
-      spin_effect.material.uniforms.spin.value = board.ball.spin
-    }
-  }
+			const spin_effect = board.ball.gameObject?.getObjectByName("spin_effect") as THREE.Mesh<THREE.IcosahedronGeometry, CustomLightingShader>
+			spin_effect.material.uniforms.spin.value = board.ball.spin
+		}
+	}
 
 
   function update() {
@@ -119,9 +119,9 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
       gameSocket.emit("player_input", keyboard);
     }
 
-    const spin_effect = board.ball.gameObject?.getObjectByName("spin_effect") as THREE.Mesh<THREE.IcosahedronGeometry, CustomLightingShader>
-    if (spin_effect)
-      spin_effect.material.uniforms.time.value = clock.clock.getElapsedTime()
+		const spin_effect = board.ball.gameObject?.getObjectByName("spin_effect") as THREE.Mesh<THREE.IcosahedronGeometry, CustomLightingShader>
+		if (spin_effect)
+			spin_effect.material.uniforms.time.value = clock.clock.getElapsedTime()
 
     renderer.setRenderTarget(target);
     renderer.clear();

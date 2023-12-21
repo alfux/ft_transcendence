@@ -27,7 +27,7 @@ mat3 rotY(float a) {
 void main()
 {
   lighting_vert_inf vert_inf = lighting_vert();
-  
+
   vWorldPos = vec4(rotY(time * spin * 7.0) * position, 1.0);
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }
@@ -57,7 +57,7 @@ void main()
 
   //up = +z
   float a = mix(0.0, n, -vWorldPos.z + spin_height) * mix(0.0, n, vWorldPos.z + spin_height); //worldpos.z = range [-0.5;0.5] (je crois)
-  
+
   float spin_a = smoothstep(0.25, 1.0, abs(spin));
   a = mix(0.0, a, spin_a);
 

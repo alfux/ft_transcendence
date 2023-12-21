@@ -83,20 +83,20 @@ export class ConversationController {
 		}
 
 		if (body.access_level)
-			return this.conversationService.updateConversation(Object.assign({
-				id: id,
-				access_level: body.access_level
-			}, body.title !== undefined ? {
+		return this.conversationService.updateConversation(Object.assign({
+	id: id,
+	access_level: body.access_level
+}, body.title !== undefined ? {
 				title: body.title,
 			} : {},))
 
-				.then((new_conv) => {
-					this.notificationService.emit_everyone("conv_create", { conversation: new_conv })
-					return new_conv
-				})
-	}
+			.then((new_conv) => {
+				this.notificationService.emit_everyone("conv_create", { conversation: new_conv })
+				return new_conv
+			})
+		}
 
-	@Route({
+		@Route({
 		method: Get(':id'),
 		description: { summary: 'Get conversation content', description: 'Returns the conversation\'s messages' },
 		responses: [{ status: 200, description: 'Conversation\'s content retrieved successfully' }]

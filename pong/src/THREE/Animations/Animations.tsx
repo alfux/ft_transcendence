@@ -9,16 +9,16 @@ const defaultEasePeriod = 0
 const interpolantTreshold = 0.99999
 
 export class Animation<T> {
-  from: T
-  to: T
-  duration: number
-  interpolate: (from: T, to: T, t: number) => T
-  getter?: () => T
-  setter: (new_value: T) => void
-  ease: EaseFunction
-  onStart?: () => void
-  onFinish?: () => void
-  onUpdate?: (t: number) => void
+	from: T
+	to: T
+	duration: number
+	interpolate: (from: T, to: T, t: number) => T
+	getter?: () => T
+	setter: (new_value: T) => void
+	ease: EaseFunction
+	onStart?: () => void
+	onFinish?: () => void
+	onUpdate?: (t: number) => void
 
   current: T
 

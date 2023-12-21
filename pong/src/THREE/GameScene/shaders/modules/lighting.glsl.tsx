@@ -318,5 +318,5 @@ export class CustomLightingShader extends PackedPhongMaterial {
       parameters.uniforms,
     ]);
 
-  }
+	}
 }

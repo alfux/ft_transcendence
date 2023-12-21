@@ -48,6 +48,7 @@ const Profile: React.FC = () => {
 
 				if (response.ok) {
 					const result = await response.json()
+					console.log(result)
 					setMatches(result)
 				} else {
 					console.error('Could not get matches:', response.status);
@@ -165,12 +166,6 @@ const Profile: React.FC = () => {
 				) : <h2>nop</h2>}
 
 				<div className='main'>
-					<div className='stats'>
-						<p>Nickname</p>
-						<p>Won</p>
-						<p>Lost</p>
-					</div>
-
 					<div className='stats-values'>
 						{data ? (
 							isEditingUsername ?
@@ -181,24 +176,30 @@ const Profile: React.FC = () => {
 									onKeyDown={handleKeyDown}
 									placeholder={data.username}
 								/> :
-								<a onClick={
+								<p onClick={
 									(e: any) => {
 										setIsEditingUsername(true);
 										setEditUsernameValue(data.username)
-									}}>{data.username}</a>
+									}}>nickName :  {data.username}</p>
 						) :
 							<h2>no infos</h2>
 						}
-						{matches && data ? <p>{matches.filter((m) => m.winner?.id === data.id).length}</p> : <h2>no infos</h2>}
-						{matches && data ? <p>{matches.filter((m) => m.winner?.id !== data.id).length}</p> : <h2>no infos</h2>}
+						<p>Email : {data?.email}</p>
 					</div>
 				</div>
-
 				<div className='buttons-container'>
-					<AchievementsButton />
-					{matches ? <MatchHistory matches={matches} /> : <h2>Couldn't get match hist</h2>}
+					<div>
+						<AchievementsButton />
+						{matches && data ? <p>Won : {matches.filter((m) => m.winner?.id === data.id).length}</p> : <h2>no infos</h2>}
+						{matches && data ? <p>Lost : {matches.filter((m) => m.winner?.id !== data.id).length}</p> : <h2>no infos</h2>}
+					</div>
+					<div>
+						{matches ? <MatchHistory matches={matches} /> : <h2>Couldn't get match hist</h2>}
+						{display ? <History /> : <div />}
+					</div>
+
 				</div>
-				{display ? <History /> : <div />}
+
 			</div>
 		</div>
 	);

@@ -20,7 +20,7 @@ export enum PrivateChatEvents {
 
 export enum NotificationEvent {
 	USER_CREATE = "user_create",
-	
+
 	CONV_CREATE = "conv_create",
 	CONV_DELETE = "conv_delete",
 	CONV_JOIN = "conv_join",

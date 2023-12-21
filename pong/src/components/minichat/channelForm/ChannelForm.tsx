@@ -17,11 +17,33 @@ const ChannelForm: React.FC<ChatProps> = (props) => {
 			password: password,
 			access_level: isPrivate ? AccessLevel.PRIVATE : AccessLevel.PUBLIC,
 		};
-
+/*
 		await backend_fetch(`${config.backend_url}/api/conversation`, {
 			method: 'POST'
 		}, channelForm.password === "" ? { title: channelForm.title, access_level: channelForm.access_level } : channelForm)
+			.then((conv) => props.setNewChannel(conv))
 			.catch((e) => { if (e instanceof FetchError) { } else throw e })
+	};
+*/
+		console.log(channelForm)
+		try {
+			const response = await fetch(`${config.backend_url}/api/conversation`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(channelForm.password === "" ? { title: channelForm.title, access_level: channelForm.access_level } : channelForm),
+			});
+			if (response.ok) {
+				props.setNewChannel(channelName);
+				console.log("FETCHED POST");
+			} else {
+				console.log("NOT FETCH");
+			}
+		} catch (error) {
+			console.error("Error Fetching:", error);
+		}
 	};
 
 	return (

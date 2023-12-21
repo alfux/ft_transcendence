@@ -9,6 +9,7 @@
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 	border: 1px solid rgba(255, 255, 255, 0.3);
 	border-radius: 20px;
+	background-color: rgba(13, 78, 82, 0.439);
 	justify-content: space-around;
 	animation: colorChangeProfileBar 1s infinite;
 }
@@ -20,7 +21,7 @@
 
 .profile-bar p {
 	align-items: center;
-	font-size: 100%;
+	font-size: 1em;
 	color: #fff;
 	font-family: 'game', sans-serif;
 	text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue
@@ -43,17 +44,23 @@
 	}
 }
 
-.profile-photo {
+.profile-bar .profile-photo {
 	max-width: 30%;
 	max-height: 80%;
 	border-radius: 50%;
 	align-self: center;
 }
 
-.stats {
+.profile-bar .stats {
 	height: 100%;
 	width: 30%;
 	align-items: center;
 }
 
-.stats-values {}
+.profile-bar .stats-values p {
+	align-items: center;
+	font-size: 1em;
+	color: #fff;
+	font-family: 'game', sans-serif;
+	text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue
+}
