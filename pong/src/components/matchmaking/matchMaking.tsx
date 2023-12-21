@@ -27,6 +27,7 @@ const MatchMaking: React.FC = () => {
 		backend_fetch(`${config.backend_url}/api/user/me`, {
 			method: 'GET'
 		})
+		.then((me)=>{setData(me)})
 		.catch((e) => {
 			if (e instanceof FetchError) {} else throw e
 		})
@@ -34,7 +35,7 @@ const MatchMaking: React.FC = () => {
 		function s_match_found(data: { opponent: User, delay: number }) {
 			setOpponent(data.opponent)
 			setTimer(data.delay)
-	
+
 			setSearching(false)
 		}
 		gameSocket.on("match_found", s_match_found)
@@ -49,7 +50,7 @@ const MatchMaking: React.FC = () => {
 	const handleSelectModeChange = (values: {}[]) => {
 		setMode(values.length > 0 ? (values[0] as any).value : GameMode.CLASSIC);
 	};
-
+console.log(data)
 
 	return (
 		<div className="glass-container-matchmaking">
