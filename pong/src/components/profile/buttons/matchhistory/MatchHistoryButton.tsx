@@ -12,7 +12,7 @@ function MatchHistory(props: {
 		const playerTwo = match.players[1];
 		const winner = match.winner.username;
 		return(
-			<div className='match' key={match.players[0].username}>
+			<div className='match' key={match.id}>
 				<p>{playerOne?.username} VS {playerTwo.username}</p>
 				<p>Winner [{winner}]</p>
 			</div>

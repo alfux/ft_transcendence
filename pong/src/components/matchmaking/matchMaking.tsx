@@ -11,8 +11,6 @@ import { gameSocket } from '../../sockets';
 import Countdown from 'react-countdown'
 import Select from "react-dropdown-select";
 
-import { classic_mode } from "../../THREE/MenuScene/menu_scene";
-
 const MatchMaking: React.FC = () => {
 	const [payload, updatePayload, handleUpdate] = usePayload();
 	const [data, setData] = useState<User | undefined>()
@@ -50,7 +48,6 @@ const MatchMaking: React.FC = () => {
 	const handleSelectModeChange = (values: {}[]) => {
 		setMode(values.length > 0 ? (values[0] as any).value : GameMode.CLASSIC);
 	};
-console.log(data)
 
 	return (
 		<div className="glass-container-matchmaking">

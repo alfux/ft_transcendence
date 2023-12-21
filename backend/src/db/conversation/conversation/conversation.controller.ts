@@ -76,7 +76,7 @@ export class ConversationController {
 		description: { summary: 'Updates a conversation', description: 'Update a conversation. Updatable fields are' },
 		responses: [{ status: 200, description: 'Conversation created successfully' }]
 	})
-	async updateConversation(@Req() req: Request, @Param(':id', ParseIntPipe) id: number, @Body() body: DTO.ConversationUpdateParams) {
+	async updateConversation(@Req() req: Request, @Param('id', ParseIntPipe) id: number, @Body() body: DTO.ConversationUpdateParams) {
 		const conversation = await this.conversationService.getConversation({ id: id }, [...CONVERSATION_DEFAULT])
 		if (conversation.owner.id !== req.user.id) {
 			throw new HttpUnauthorized("You are not the owner")
@@ -102,7 +102,7 @@ export class ConversationController {
 		if (body.access_level)
 			return this.conversationService.updateConversation(conversation)
 				.then((new_conv) => {
-					this.notificationService.emit_everyone("conv_create", { conversation: new_conv })
+					this.notificationService.emit_everyone("conv_update", { conversation: new_conv })
 					return new_conv
 				})
 	}

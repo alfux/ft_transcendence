@@ -13,6 +13,7 @@ import { HttpBadRequest, HttpMissingArg, HttpNotFound, HttpUnauthorized } from '
 import { FindOptions, FindMultipleOptions, SelectOptions } from 'src/db/types'
 
 import ms from 'ms'
+import { NotificationsService } from 'src/notifications';
 
 export const CONVERSATION_USER_DEFAULT = ['conversation', 'user']
 
@@ -53,7 +54,10 @@ export class ConversationService {
 		@Inject(forwardRef(() => UserService))
 		private userService: UserService,
 
-		private messageService: MessageService
+		private messageService: MessageService,
+
+		@Inject(forwardRef(() => NotificationsService))
+		private notificationService: NotificationsService
 	) { }
 
 
@@ -164,6 +168,8 @@ export class ConversationService {
 			password = await this.hashPassword(password)
 		}
 
+		console.log(access_level)
+
 		const user = await this.userService.getUser({ id: user_id })
 		const new_conv_template = this.conversationRepository.create(Object.assign({}, {
 			title: title,
@@ -173,6 +179,9 @@ export class ConversationService {
 			messages: []
 		}, access_level === AccessLevel.PROTECTED ? { password: password } : {}))
 		const new_conv = await this.conversationRepository.save(new_conv_template)
+
+		console.log(new_conv)
+
 		return this.addUserToConversation({ id: new_conv.id }, user, src_password)
 	}
 
@@ -226,6 +235,8 @@ export class ConversationService {
 
 		if (conv.owner.id === user.id) {
 
+			console.log("TRYING TO FIND NEW OWNER")
+
 			let current_date = new Date(8640000000000000)
 			let next_owner: ConversationUser = undefined
 
@@ -238,6 +249,7 @@ export class ConversationService {
 
 			current_date = new Date(8640000000000000)
 			if (next_owner === undefined) {
+				console.log("NEW OWNER NOT FOUND, KEEP SEARCHING")
 				conv.users.forEach((u) => {
 					if (u.joinedAt < current_date) {
 						current_date = u.joinedAt
@@ -246,8 +258,12 @@ export class ConversationService {
 				})
 			}
 
+			console.log("NEW OWNER: ", next_owner)
+
 			if (next_owner === undefined) {
-				console.error("No next owner ???????")
+				console.log("NO NEW OWNER ")
+				return this.deleteConversation({ id: conv.id })
+					.then(() => this.notificationService.emit_everyone("conv_delete", { conversation: conv }))
 			} else {
 				conv.owner = next_owner.user
 			}

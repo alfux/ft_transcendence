@@ -17,6 +17,10 @@ const ChannelForm: React.FC<ChatProps> = (props) => {
 			password: password,
 			access_level: isPrivate ? AccessLevel.PRIVATE : AccessLevel.PUBLIC,
 		};
+
+		if (channelForm.password !== '')
+			channelForm.access_level = AccessLevel.PROTECTED
+
 /*
 		await backend_fetch(`${config.backend_url}/api/conversation`, {
 			method: 'POST'

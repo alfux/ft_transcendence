@@ -73,7 +73,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 	const [selectedGroupOption, setSelectedGroupOption] =
 		useState<ChannelOptions | null>(null);
 	const [selectedUser, setSelectedUser] = useState<User | undefined>(undefined);
-	const [selectedGroup, setSelectedGroup] = useState<any | undefined>(
+	const [selectedGroup, setSelectedGroup] = useState<Conversation | undefined>(
 		undefined
 	);
 	const [me, setMe] = useState<User | undefined>(undefined);
@@ -208,6 +208,45 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 		}
 		notificationsSocket.on("conv_delete", s_conv_delete);
 
+		function s_conv_update(data: { conversation: Conversation }) {
+			if (channels === null) 
+				return
+			
+			const old_conv = channels.find((c) => c.id === data.conversation.id)
+			if (old_conv === undefined) {
+				setChannels((prev) =>  [...prev!, data.conversation])
+			} else {
+				const new_channels = channels.filter((c) => c.id !== old_conv.id)
+				new_channels.push(data.conversation)
+				setChannels(new_channels)
+			}
+		}
+		notificationsSocket.on("conv_update", s_conv_update);
+
+		function s_conv_join(data: { conversation: Conversation, user: User }) {
+			if (!selectedGroup) {
+				return
+			}
+			console.log(selectedGroup)
+			if (selectedGroup.id === data.conversation.id) {
+				setSelectedGroup(conversation)
+			}
+		}
+		notificationsSocket.on("conv_join", s_conv_join);
+
+		function s_conv_leave(data: { conversation: Conversation, user: User }) {
+			if (!selectedGroup) {
+				return
+			}
+			console.log(selectedGroup)
+			if (selectedGroup.id === data.conversation.id) {
+				setSelectedGroup(conversation)
+			}
+		}
+		notificationsSocket.on("conv_leave", s_conv_leave);
+
+
+
 		function s_friend_request_accepted(data:any) { setNotificationType(data); }
 		notificationsSocket.on("friend_request_accepted", s_friend_request_accepted);
 		
@@ -225,7 +264,11 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 
 		return (() => {
 			notificationsSocket.off("conv_create", s_conv_create);
+			notificationsSocket.off("conv_update", s_conv_update);
 			notificationsSocket.off("conv_delete", s_conv_delete);
+			notificationsSocket.off("conv_join", s_conv_join);
+			notificationsSocket.off("conv_leave", s_conv_leave);
+
 			notificationsSocket.off("friend_request_accepted", s_friend_request_accepted);
 			notificationsSocket.off("friend_new", s_friend_new);
 			notificationsSocket.off("friend_delete", s_friend_delete);
