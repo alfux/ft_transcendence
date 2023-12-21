@@ -39,45 +39,26 @@ const Profile: React.FC<any> = (props) => {
 
 	return (
 		<div className="profile-box">
-			<div className="profile-box-two">
-				{data != null ? (
-					<div>
-						<img className="profile-photo" src={data.image} />
-					</div>
-				) : (
-					<h2>nop</h2>
-				)}
-
-				<div className="main">
-					<div className="stats">
-						<p>Nickname</p>
-						<p>Won</p>
-						<p>Lost</p>
-					</div>
-
-					<div className="stats-values">
-						{data ? <a>{data.username}</a> : <h2>no infos</h2>}
-						{matches && data ? (
-							<p>{matches.filter((m) => m.winner?.id === data.id).length}</p>
-						) : (
-							<h2>no infos</h2>
-						)}
-						{matches && data ? (
-							<p>{matches.filter((m) => m.winner?.id !== data.id).length}</p>
-						) : (
-							<h2>no infos</h2>
-						)}
+			<div className='profile-box-two'>
+				<div className='main'>
+					<div className='stats-values'>
+						<img className="profile-photo" src={data?.image} />
+						<p>nickName : {data?.username}</p>
+						<p>Email : {data?.email}</p>
 					</div>
 				</div>
+				<div className='buttons-container'>
+					<div className='achevments'>
+						<AchievementsButton />
+						{matches && data ? <p>Won : {matches.filter((m) => m.winner?.id === data.id).length}</p> : <h2>no infos</h2>}
+						{matches && data ? <p>Lost : {matches.filter((m) => m.winner?.id !== data.id).length}</p> : <h2>no infos</h2>}
+					</div>
+					<div className='matchHistory'>
+						{matches && <MatchHistory matches={matches} />}
+					</div>
 
-				<div className="buttons-container">
-					<AchievementsButton />
-					{matches ? (
-						<MatchHistory matches={matches} />
-					) : (
-						<h2>Couldn't get match hist</h2>
-					)}
 				</div>
+
 			</div>
 		</div>
 	);

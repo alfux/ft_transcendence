@@ -147,6 +147,7 @@
 }
 
 .profile-box .buttons-container {
+  position: relative;
   display: flex;
   height: 100%;
   width: 100%;
@@ -166,13 +167,12 @@
 .matchHistory{
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 300px;
   width: 50%;
   align-items: center;
-  overflow-y:scroll;
-  overflow-x:hidden;
+  overflow-y: scroll;
+	scrollbar-color: transparent transparent;
 }
-
 .matchHistory::-webkit-scrollbar {
 	width: 0.5em;
 }
