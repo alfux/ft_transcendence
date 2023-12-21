@@ -256,11 +256,13 @@ export function create_menu_scene(
 
   let deltaY = 0;
 
-  let current: MenuButtons | null = null;
+  let current: {current: MenuButtons, section: number} = {current: MenuButtons.Null, section: 0};
 
   let menu_state = MenuState.Unlogged;
   
   let corr = 0.2 - 2 * Math.PI;
+
+  let pop_trigger = true;
 
   const	cleanup: Array<() => void> = [];
 
@@ -268,10 +270,16 @@ export function create_menu_scene(
   divRef?.addEventListener("click", handleClick);
   window.addEventListener("resize", handleResize);
   window.addEventListener("pointermove", handleMove);
+  window.addEventListener("popstate", handleBackward, {capture: true, passive: true});
 
 	gameSocket.on("start", handleStart);
 	gameSocket.on("finish", handleFinish);
 	gameSocket.on("bounce", handleBounce);
+
+	function	handleBackward(event: PopStateEvent) {
+		menu_parent.rotation.x = event.state ? event.state.section : 0;
+		pop_trigger = true;
+	}
 
 	function	handleBounce(rng: number) {
 		let	i = 0;
@@ -518,10 +526,10 @@ export function create_menu_scene(
   function handleClick(event: MouseEvent) {
     const intersect = raycaster.intersectObjects(scene.children);
 
-    if (intersect.length > 0 && (intersect[0].object.name === current
+    if (intersect.length > 0 && (intersect[0].object.name === current.current
       || intersect[0].object.name === "Sphere")) {
-      console.log(current)
-      switch (current) {
+      console.log(current.current)
+      switch (current.current) {
         case MenuButtons.Logout:
           window.location.href = `${config.backend_url}/auth/login`;
           document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
@@ -539,8 +547,8 @@ export function create_menu_scene(
 
     const intersect = raycaster.intersectObjects(scene.children);
 	const inter_plane = raycaster.intersectObject(mouse_mesh);
-    if (intersect.length > 0 && current === "Logout"
-      && (intersect[0].object.name === current
+    if (intersect.length > 0 && current.current === "Logout"
+      && (intersect[0].object.name === current.current
         || intersect[0].object.name === "Sphere"))
       document.body.style.cursor = "pointer";
     else
@@ -555,29 +563,29 @@ export function create_menu_scene(
 
   function getCurrent(rot: number) {
 	if (menu_state === MenuState.Winner)
-		return (MenuButtons.YouWin);
+		return ({current: MenuButtons.YouWin, section: 2 * theta});
 	if (menu_state === MenuState.Looser)
-		return (MenuButtons.YouLoose);
+		return ({current: MenuButtons.YouLoose, section: 2 * theta});
     if (isLogged) {
       if ((rot - corr) % (2 * Math.PI) <= theta)
-        return (MenuButtons.Logout);
+        return ({current: MenuButtons.Logout, section: 0});
       if ((rot - corr) % (2 * Math.PI) <= 3 * theta)
-        return (MenuButtons.Play);
+        return ({current: MenuButtons.Play, section: 2 * theta});
       if ((rot - corr) % (2 * Math.PI) <= 5 * theta)
-        return (MenuButtons.Settings);
+        return ({current: MenuButtons.Settings, section: 4 * theta});
       if ((rot - corr) % (2 * Math.PI) <= 7 * theta)
-        return (MenuButtons.Profile);
+        return ({current: MenuButtons.Profile, section: 6* theta});
       if ((rot - corr) % (2 * Math.PI) <= 9 * theta)
-        return (MenuButtons.About);
+        return ({current: MenuButtons.About, section: 8 * theta});
       if ((rot - corr) % (2 * Math.PI) <= 11 * theta)
-        return (MenuButtons.Chat);
-      return (MenuButtons.Logout);
+        return ({current: MenuButtons.Chat, section: 10 * theta});
+      return ({current: MenuButtons.Logout, section: 0});
     }
     if ((rot - corr) % (2 * Math.PI) <= Math.PI / 2)
-      return (MenuButtons.Login);
+      return ({current: MenuButtons.Login, section: 0});
     if ((rot - corr) % (2 * Math.PI) <= 3 * Math.PI / 2)
-      return (MenuButtons.About);
-    return (MenuButtons.Login);
+      return ({current: MenuButtons.About, section: (2 * Math.PI / 2)});
+    return ({current: MenuButtons.Login, section: 0});
   }
 
   function centerMenu(group: THREE.Group, deltaY: number, phi: number) {
@@ -616,37 +624,42 @@ export function create_menu_scene(
   function update() {
     const new_current = getCurrent(menu_parent.rotation.x);
     
-    option.option = new_current;
+    option.option = new_current.current;
 	swapMenu();
-    if (new_current === "Play" && t < 1) {
+    if (new_current.current === "Play" && t < 1) {
 		tilt_play = true;
 		if (t > 0.9)
 			corr = 0.4 - 2 * Math.PI;
 		moveMenu(t, 7, 3.2, Math.PI / 6, fct);
 		t = updateT(t);
-    } else if (new_current === "Chat" && t < 1) {
+    } else if (new_current.current === "Chat" && t < 1) {
 		tilt_play = false;
 		if (t > 0.9)
 			corr = 0.4 - 2 * Math.PI;
 		moveMenu(t, 7, 3.2, -Math.PI/6, fct);
 		t = updateT(t);
-	} else if (!option.game && new_current !== "Play" && new_current != "Chat" && t > 0) {
+	} else if (!option.game && new_current.current !== "Play" && new_current.current != "Chat" && t > 0) {
 		if (t < 0.1)
 			corr = 0.2 - 2 * Math.PI;
 		moveMenu(t, 7, 3.2, (tilt_play) ? Math.PI / 6 : -Math.PI / 6, fct);
 		t = -updateT(-t, 0);
 	}
-    if (menu_parent.children.length > 1 && (new_current !== current || current === null)) {
+    if (menu_parent.children.length > 1 && (new_current.current !== current.current || current.current === null)) {
+		if (!pop_trigger) {
+	  		window.history.replaceState(current, "");
+	  		window.history.pushState(current, "");
+		}
+		else
+			pop_trigger = false;
       current = new_current;
-
       menu_parent.traverse((obj) => {
-        if (obj.name === current) {
+        if (obj.name === current.current) {
           if (obj.name === "Logout" || obj.name === "YouLoose")
             ((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(0xff41a7);
           else
             ((obj as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(0x41ffff);
         }
-        else if (obj.name === "l" + current) {
+        else if (obj.name === "l" + current.current) {
           (obj as THREE.Light).color = new THREE.Color(0xffbbbb);
           (obj as THREE.Light).intensity = 10;
         }
