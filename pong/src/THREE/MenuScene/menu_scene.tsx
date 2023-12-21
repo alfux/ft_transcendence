@@ -364,8 +364,10 @@ export function create_menu_scene(
 
 	function	handleStart(data: {opponent: User, you: User}) {
 		option.game = true;
-		menu_parent.rotation.x = 2 * theta;
+		t = 0;
+		menu_parent.rotation.set(0, 0, 0);
 		menu_parent.position.set(0, 0, 0);
+		menu_parent.rotation.x = 2 * theta;
 		cleanup.push(createComponent(Score, {user: data.you, you: true}));
 		cleanup.push(createComponent(Score, {user: data.opponent, you: false}));
 	}
@@ -630,6 +632,7 @@ export function create_menu_scene(
     const new_current = getCurrent(menu_parent.rotation.x);
     
     option.option = new_current.current;
+	console.log(new_current.current);
 	swapMenu();
     if (new_current.current === "Play" && t < 1) {
 		tilt_play = true;
@@ -643,7 +646,7 @@ export function create_menu_scene(
 			corr = 0.4 - 2 * Math.PI;
 		moveMenu(t, 7, 3.2, -Math.PI/6, fct);
 		t = updateT(t);
-	} else if (!option.game && new_current.current !== "Play" && new_current.current != "Chat" && t > 0) {
+	} else if (new_current.current !== "Play" && new_current.current != "Chat" && t > 0) {
 		if (t < 0.1)
 			corr = 0.2 - 2 * Math.PI;
 		moveMenu(t, 7, 3.2, (new_current.current === "YouWin" || new_current.current === "YouLoose") ? 0 : ((tilt_play) ? Math.PI / 6 : -Math.PI / 6), fct);
