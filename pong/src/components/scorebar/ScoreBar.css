@@ -2,8 +2,6 @@
 .ennemy-bar {
 	display: flex;
 	position: absolute;
-	top: 1%;
-	left: 1%;
 	height: 10%;
 	width: 15%;
 	border-radius: 16px;
@@ -16,13 +14,13 @@
 .score-bar {
 	animation:
 		slideInYou 1.5s ease forwards,
-		colorChangeScore 1s infinite;
+		colorChangeScore 5s infinite;
 }
 
 @keyframes	slideInYou {
 	0% {
 		top: 1%;
-		left: 1%;
+		left: -25%;
 	}
 
 	20% {
@@ -30,7 +28,7 @@
 	}
 
 	40% {
-		top: 30%;
+		top: 65%;
 		left: 70%;
 	}
 
@@ -39,19 +37,19 @@
 	}
 
 	80% {
-		top: 20%;
+		top: 90%;
 	}
 
 	100% {
-		top: 15%;
-		left: 70%;
+		top: 85%;
+		left: 65%;
 	}
 }
 
 .ennemy-bar {
 	animation:
 		slideInEnnemy 1.5s ease forwards,
-		colorChangeScoreEnnemy 1s infinite;
+		colorChangeScoreEnnemy 5s infinite;
 }
 
 @keyframes	slideInEnnemy {
@@ -65,7 +63,7 @@
 	}
 
 	40% {
-		top: 30%;
+		top: 65%;
 		left: 14%;
 	}
 
@@ -74,28 +72,30 @@
 	}
 
 	80% {
-		top: 20%;
+		top: 90%;
 	}
 
 	100% {
-		top: 15%;
-		left: 14%;
+		top: 85%;
+		left: 20%;
 	}
 }
 
 .score-bar,
+.ennemy-bar,
 p {
 	align-items: center;
 	font-size: 100%;
 	color: #fff;
 	font-family: 'game', sans-serif;
-	text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue
+	text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue;
+	font-size: min(1vw, 1.7vh);
 }
 
 @keyframes colorChangeScore {
 	0% {
-		box-shadow: 0 0 100px #ffffff;
-		box-shadow: 0 0 200px #41ffff;
+		box-shadow: 0 0 25px #ffffff;
+		box-shadow: 0 0 50px #41ffff;
 	}
 
 	50% {
@@ -104,15 +104,15 @@ p {
 	}
 
 	100% {
-		box-shadow: 0 0 10px #ffffff;
-		box-shadow: 0 0 20px #41ffff;
+		box-shadow: 0 0 25px #ffffff;
+		box-shadow: 0 0 50px #41ffff;
 	}
 }
 
 @keyframes colorChangeScoreEnnemy {
 	0% {
-		box-shadow: 0 0 100px #ffffff;
-		box-shadow: 0 0 200px #ff41ff;
+		box-shadow: 0 0 25px #ffffff;
+		box-shadow: 0 0 50px #ff41ff;
 	}
 
 	50% {
@@ -121,8 +121,8 @@ p {
 	}
 
 	100% {
-		box-shadow: 0 0 10px #ffffff;
-		box-shadow: 0 0 20px #ff41ff;
+		box-shadow: 0 0 25px #ffffff;
+		box-shadow: 0 0 50px #ff41ff;
 	}
 }
 
@@ -138,5 +138,3 @@ p {
 	width: 30%;
 	align-items: center;
 }
-
-.stats-values {}

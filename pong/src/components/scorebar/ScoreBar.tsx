@@ -45,14 +45,8 @@ const ScoreBar: React.FC<{ user?: UserData }> = ({ user }) => {
 			) : <h2>nop</h2>}
 			{data != null ? (
 				<div className='stats'>
-					<p>Player</p>
-					<p>Score</p>
-				</div>
-			) : <h2>nop</h2>}
-			{data != null ? (
-				<div className='stats-values'>
-					<p>{data.username}</p>
-					<p>{score}</p>
+					<p>Player {data.username}</p>
+					<p>Score {score}</p>
 				</div>
 			) : <h2>nop</h2>}
 		</div>
