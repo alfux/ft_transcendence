@@ -19,7 +19,7 @@ const Notifications: React.FC = () => {
 	const [friendsRequest, setFriendsRequests] = useState<any | null>(null);
 	const [toogleButton, setToogleButton] = useState<string>("hide");
 	const [dataContent, setDataContent] = useState<any>({ username: "Our website", message: "WElcome for being online" });
-	const [dataType, setDataType] = useState<any>("receive_message");
+	const [dataType, setDataType] = useState<any>();
 	const [payload, updatePayload, handleUpdate] = usePayload();
 	const [accept, setAccept] = useState<boolean>(false);
 
@@ -33,7 +33,7 @@ const Notifications: React.FC = () => {
 		chatSocket.on("receive_message", (data) => {
 			setDataContent(data)
 			setDataType("receive_message")
-			console.log("RECEIUVE A MNESAGE")
+			console.log("AAAAAAAAAAAAAAAA", data)
 		})
 		gameSocket.on("receive_message", (data) => {
 			setDataContent(data)
@@ -171,7 +171,7 @@ const Notifications: React.FC = () => {
 					{dataType === "blocked_delete" && (
 						<p>{dataContent?.user?.username} has Unblocked your</p>
 					)}
-					{dataType === "receive_message" && dataContent?.username !== payload?.username && <p>🗨️ {dataContent.username} has sended: {dataContent.message}</p>}
+					{dataType === "receive_message" && dataContent?.username !== payload?.username && <p>🗨️ {dataContent.message.sender.user.username} has sent: {dataContent.message.content}</p>}
 					{dataType === "friend_new" && (
 						<p>New Friend Added: {dataContent?.user?.username} </p>
 					)}
