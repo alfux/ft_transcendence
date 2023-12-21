@@ -8,12 +8,12 @@ function MatchHistory(props: {
 }) {
 	console.log("match",props.matches)
 	const matchhistory = props.matches.map((match)=>{
-		const playerOne = match.players[0];
-		const playerTwo = match.players[1];
-		const winner = match.winner.username;
+		const playerOne = match?.players[0];
+		const playerTwo = match?.players[1];
+		const winner = match?.winner?.username;
 		return(
-			<div className='match' key={match.id}>
-				<p>{playerOne?.username} VS {playerTwo.username}</p>
+			<div className='match' key={match?.id}>
+				<p>{playerOne?.username} VS {playerTwo?.username}</p>
 				<p>Winner [{winner}]</p>
 			</div>
 		)
