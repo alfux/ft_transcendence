@@ -86,7 +86,7 @@
 	color: #fff;
 	text-align: center;
 	font-family: 'game', sans-serif;
-	text-shadow: 0 0 10px #fff, 0 0 30px blue, 0 0 40px rgb(0, 0, 0), 0 0 60px blue
+	text-shadow: 0 0 10px #ff41ff;
 }
 
 .glass-container-settings .switch-label {
