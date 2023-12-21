@@ -37,6 +37,18 @@ export class UserService {
 		return user
 	}
 
+
+	async getUserAuthSecret(id: number) {
+		console.log(id)
+		const user = await this.usersRepository.findOne({where: {id:id}, select: [
+			'twoFactorAuthSecret',
+			'twoFactorAuth',
+			'username',
+			'id'
+		] })
+		return user;
+	}
+
 	async updateUser(user: Partial<User> & { id: number }): Promise<User> {
 
 		if (user.id === undefined)

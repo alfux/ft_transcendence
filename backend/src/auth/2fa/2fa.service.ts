@@ -18,9 +18,11 @@ export class TwoFactorAuthenticationService {
 		const user = await this.userService.getUser({ email: userEmail })
 		const secret = speakeasy.generateSecret()
 		const otpUrl = authenticator.keyuri(user.email, '42FA', secret.base32)
-
+		console.log("secrete base",secret.base32)
+		
 		user.twoFactorAuthSecret = secret.base32
-		await this.userService.updateOrCreateUser(user)
+		
+		console.log("update user:",await this.userService.updateUser(user))
 
 		return {
 			secret: secret.base32,
@@ -33,6 +35,7 @@ export class TwoFactorAuthenticationService {
 	}
 
 	generateToken(secret: string) {
+		console.log("TJE SECRE IS", secret)
 		return speakeasy.totp({
 			secret,
 			encoding: 'base32',
