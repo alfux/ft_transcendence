@@ -96,6 +96,7 @@ export interface Message {
 	conversation?: Conversation
 
 	content: string
+	createdAt: Date
 }
 
 export interface Conversation {

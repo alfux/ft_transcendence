@@ -13,6 +13,7 @@ const ChatDisplay: React.FC<ChatProps> = (props) => {
 		if (props.channelMessages === undefined)
 			return undefined
 
+		props.channelMessages?.sort((a: Message, b: Message) => (new Date(a.createdAt).getTime()) - (new Date(b.createdAt).getTime()))
 		const messages = props.channelMessages?.map((message: Message) => {
 			return (
 				<div key={message?.id}>
