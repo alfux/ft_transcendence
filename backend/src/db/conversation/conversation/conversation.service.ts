@@ -155,7 +155,6 @@ export class ConversationService {
 			password = await bcrypt.hash(password, saltOrRounds);
 		}
 
-		//TODO: hash le password
 		const user = await this.userService.getUser({ id: user_id })
 		const new_conv_template = this.conversationRepository.create(Object.assign({}, {
 			title: title,

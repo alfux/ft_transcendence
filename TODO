@@ -1,15 +1,12 @@
 Pour voir tout les //TODO dans les fichiers:
 find ./backend/src ./pong/src -name '*.ts' -or -name '*.tsx' | tr '\n' ' ' | xargs grep "TODO"
 
-
-
-
-
-
-
 ________________________________________________________________________
 
 Subject:
+❌ : 8
+✅ : 24
+
 ________________________________________________________________________
 =>Overview
 
@@ -22,7 +19,7 @@ the latest stable version of every library or framework used in your project. �
 
 📋You must use a PostgreSQL database. That’s it, no other database. ✅
 
-📋Your website must be a single-page application. The user should be able to use the ❌
+📋Your website must be a single-page application. The user should be able to use the ✅
 Back and Forward buttons of the browser.
 
 📋Your website must be compatible with the latest stable up-to-date version of ✅
@@ -93,14 +90,14 @@ limited time) other users, but not the channel owners. ❌
 📋The user should be able to invite other users to play a Pong game through the chat
 interface. ❌
 
-📋The user should be able to access other players profiles through the chat interface. ❌
+📋The user should be able to access other players profiles through the chat interface. ✅
 
 _______________________________________________________________________________________
 
 => Game
 
 📋Therefore, users should be able to play a live Pong game versus another player
-directly on the website. ✅ 
+directly on the website. ✅
 
 📋There must be a matchmaking system: the user can join a queue until they get
 automatically matched with someone else. ✅
@@ -110,6 +107,6 @@ but in any case, it must be faithful to the original Pong (1972). ✅
 
 📋You must offer some customization options (for example, power-ups or different
 maps). However, the user should be able to select a default version of the game
-without any extra features if they want to ❌
+without any extra features if they want to ✅
 
 📋The game must be responsive! ✅
