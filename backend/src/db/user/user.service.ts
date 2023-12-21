@@ -53,8 +53,9 @@ export class UserService {
 
 		if (user.id === undefined)
 			throw new HttpNotFound("User")
-		await this.getUser({ id: user.id })
-		return this.usersRepository.save({ id: user.id, ...user })
+		const curr_user = await this.getUser({ id: user.id })
+		console.log("userUodated:",user)
+		return this.usersRepository.save({ id: user.id, ...Object.assign(curr_user, user) })
 	}
 
 	async updateUserStatus(user: Partial<User> & { id: number }, status: LoggedStatus) {

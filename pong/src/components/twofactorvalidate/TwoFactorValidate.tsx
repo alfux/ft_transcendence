@@ -52,7 +52,7 @@ const TwoFactorValidate: React.FC = () => {
 				body: JSON.stringify({ code:verificationCode }),
 			});
 			if (response.ok) {
-				// requestNewToken()
+				await requestNewToken()
 				handleUpdate()
 				setDigits('');
 				alert("2FA Enabled")

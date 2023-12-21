@@ -64,7 +64,7 @@ const Settings: React.FC = () => {
 							method: 'POST',
 							credentials: 'include',
 						});
-						//setTwoFactorEnabled(await twoFactorStatus())
+						// setTwoFactorEnabled(await twoFactorStatus())
 						if (response.ok) {
 							await requestNewToken()
 							handleUpdate()

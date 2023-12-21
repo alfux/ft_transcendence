@@ -68,8 +68,8 @@ export class AuthController {
 		
 		const user_2fa_data = await this.userService.getUserAuthSecret(user.id)
 
-		user.isAuthenticated = user_2fa_data.twoFactorAuth ? LoggedStatus.Incomplete : LoggedStatus.Logged
 		user.twoFactorAuth = user_2fa_data.twoFactorAuth
+
 		const newToken = await this.authService.generateAccessToken(user);
 
 		response.cookie('access_token', newToken, cookie_options);

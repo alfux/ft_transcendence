@@ -47,7 +47,8 @@ export class TwoFactorAuthenticationController {
 			// Re-throw the error to maintain the original behavior (returning a 401 response)
 			throw new UnauthorizedException('Wrong authentication codee')
 		}
-		await this.userService.updateOrCreateUser({ id: request.user.id, isAuthenticated: LoggedStatus.Logged })
+		const result = await this.userService.updateUser({ id: request.user.id, isAuthenticated: LoggedStatus.Logged })
+		console.log(result)
 		return "authenticated"
 	}
 

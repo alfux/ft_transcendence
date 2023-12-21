@@ -3,6 +3,7 @@ import { config } from '../../config';
 import Cookies from 'js-cookie';
 import React, { useEffect, useState } from 'react';
 import usePayload from '../../react_hooks/use_auth'
+import { accessToken } from '../../THREE/main';
 const TwoFactorAuthenticate: React.FC = () => {
 	const [digits, setDigits] = useState<string>('');
 	const [payload, updatePayload, handleUpdate] = usePayload();
@@ -19,6 +20,8 @@ const TwoFactorAuthenticate: React.FC = () => {
 
 			if (response.ok) {
 				handleUpdate()
+				const result = response.json()
+				console.log("new token",result)
 			} else {
 				console.error('Could not get the status of 2fa:', response.status);
 			}
@@ -56,14 +59,18 @@ const TwoFactorAuthenticate: React.FC = () => {
 			});
 			if (response.ok) {
 				alert("Logged")
+				console.log("old access_token",accessToken)
 				await requestNewToken();
+				console.log(accessToken)
 				handleUpdate()
 				window.location.reload();
 			} else {
 				alert("Wrong code")
+				window.location.reload();
 				console.error('Error verifying 2FA code. Server responded with status:', response.status);
 			}
 		} catch (error) {
+			window.location.reload();
 			console.error('Error verifying 2FA code:', error);
 		}
 	};
