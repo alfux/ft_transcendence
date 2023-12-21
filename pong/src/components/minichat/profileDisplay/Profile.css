@@ -1,4 +1,4 @@
-:root {
+/* :root {
 	--profile-width: 40vh;
 	--profile-height: 70vh;
 }
@@ -17,7 +17,6 @@
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 	background: #7a6177ee;
 
-	/* border: 1px solid #ff41a7; */
 	border-radius: 20px;
 	gap: 5vh;
 	animation: slideTop 1.5s ease forwards;
@@ -168,6 +167,4 @@
 	width: 50%;
 	height: 50%;
 	align-items: center;
-}
-
-/* _________________________________________________________________ */
+} */
