@@ -17,16 +17,13 @@ const Settings: React.FC = () => {
 	const requestNewToken = async () => {
 		try {//fetch 2fa Status
 			const enable2FAEndpoint = `${config.backend_url}/api/auth/refresh`;
-			console.log('Before fetch');
 			const response = await fetch(enable2FAEndpoint, {
 				method: 'GET',
 				credentials: 'include',
 			});
-			console.log('After fetching', response);
 
 			if (response.ok) {
 				const test = await response.json()
-				console.log("This is the new refresh token: ", test)
 			} else {
 				console.error('Could not get new AccessToken:', response.status);
 			}
@@ -39,7 +36,6 @@ const Settings: React.FC = () => {
 	const handleToggle = async () => {
 		setToggle((toogleStatus) => { return (!toogleStatus); });
 		await requestNewToken()
-		//console.log("status of backend",await twoFactorStatus())
 		if (!toogleStatus) {//toogle on
 			try {//fetch QRcode
 				const enable2FAEndpoint = `${config.backend_url}/api/2fa/generate`;
@@ -60,7 +56,6 @@ const Settings: React.FC = () => {
 			}
 		}
 		else {//toogle off
-			console.log("off", toogleStatus)
 			if (payload?.isTwoFactorAuthEnable) {
 				if (payload?.isTwoFactorAuthEnable) {
 					try {

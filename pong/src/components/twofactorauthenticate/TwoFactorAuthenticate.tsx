@@ -9,7 +9,6 @@ const TwoFactorAuthenticate: React.FC = () => {
 	const requestNewToken = async () => {
 		try {//fetch 2fa Status
 			const enable2FAEndpoint = `${config.backend_url}/api/auth/refresh`;
-			console.log('Before fetch');
 			const response = await fetch(enable2FAEndpoint, {
 				method: 'GET',
 				credentials: 'include',
@@ -17,11 +16,9 @@ const TwoFactorAuthenticate: React.FC = () => {
 					'Content-Type': 'application/json',
 				},
 			});
-			console.log('After fetch', response);
 
 			if (response.ok) {
 				handleUpdate()
-				console.log('new payload: ', payload)
 			} else {
 				console.error('Could not get the status of 2fa:', response.status);
 			}

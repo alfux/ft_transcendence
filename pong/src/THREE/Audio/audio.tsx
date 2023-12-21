@@ -11,7 +11,6 @@ class AudioBank {
 		try {
 			this.context = new AudioContext();
 		} catch (e) {
-			console.log(e);
 			window.location.reload();
 			this.context = new AudioContext();
 		}

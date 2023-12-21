@@ -103,7 +103,6 @@ function manageSpin(ball: Ball, obstacle: Obstacle, tmp: Vec3) {
 		tmp.z + 0.1 * (obstacle.speed - ball.spin - more_spin) * obstacle.direction.z
 	);
 	ball.spin = (2 * ball.spin / 3) + (obstacle.speed - ball.spin - more_spin);
-	console.log("ball.spin: ", ball.spin);
 }
 
 function manageDir(imp: Vec3, obstacle: Obstacle, tmp: Vec3) {

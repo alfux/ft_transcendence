@@ -17,7 +17,7 @@ const Login: React.FC = () => {
 			console.error('Error fetching data:', error);
 		}
 	}
-	console.log(clock.clock.getElapsedTime());
+
 	return (
 		<div className="glass-container-login"
 			style={

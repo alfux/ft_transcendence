@@ -8,16 +8,13 @@ const TwoFactorValidate: React.FC = () => {
 	const requestNewToken = async () => {
 		try {
 			const enable2FAEndpoint = `${config.backend_url}/api/auth/refresh`;
-			console.log('Before fetch');
 			const response = await fetch(enable2FAEndpoint, {
 				method: 'GET',
 				credentials: 'include',
 			});
-			console.log('After fetching', response);
 
 			if (response.ok) {
 				const test = await response.json()
-				console.log("leviosa: ", test)
 			} else {
 				console.error('Could not get new AccessToken:', response.status);
 			}

@@ -25,7 +25,6 @@ const ChannelForm: React.FC<ChatProps> = (props) => {
 			.catch((e) => { if (e instanceof FetchError) { } else throw e })
 	};
 */
-		console.log(channelForm)
 		try {
 			const response = await fetch(`${config.backend_url}/api/conversation`, {
 				method: "POST",
@@ -37,9 +36,7 @@ const ChannelForm: React.FC<ChatProps> = (props) => {
 			});
 			if (response.ok) {
 				props.setNewChannel(channelName);
-				console.log("FETCHED POST");
 			} else {
-				console.log("NOT FETCH");
 			}
 		} catch (error) {
 			console.error("Error Fetching:", error);

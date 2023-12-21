@@ -47,10 +47,7 @@ const MatchMaking: React.FC = () => {
 	}, [])
 
 	const handleSelectModeChange = (values: {}[]) => {
-		console.log('Selected:', values[0]);
-		console.log(values)
 		setMode(values.length > 0 ? (values[0] as any).value : GameMode.CLASSIC);
-
 	};
 
 

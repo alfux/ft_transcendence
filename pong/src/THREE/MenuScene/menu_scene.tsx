@@ -528,7 +528,6 @@ export function create_menu_scene(
 
     if (intersect.length > 0 && (intersect[0].object.name === current.current
       || intersect[0].object.name === "Sphere")) {
-      console.log(current.current)
       switch (current.current) {
         case MenuButtons.Logout:
           window.location.href = `${config.backend_url}/auth/login`;
@@ -536,7 +535,6 @@ export function create_menu_scene(
           window.location.reload();
           break;
       }
-      console.log("clicked on ball");
     }
   }
 

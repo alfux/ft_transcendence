@@ -34,7 +34,6 @@ export class PrivateConversationService {
 
 	async createPrivateConversation(user1_id: number, user2_id: number) {
 		const users = await Promise.all([this.userService.getUser({ id: user1_id }), this.userService.getUser({ id: user2_id })])
-		console.log(users)
 		return this.conversationRepository.save({
 			users: users,
 			messages: []

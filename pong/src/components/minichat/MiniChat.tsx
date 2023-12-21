@@ -340,7 +340,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 			if (!me) {
 				return;
 			}
-			console.log("selected group: ", selectedGroup?.id);
+
 			try {
 				const fetchMessage = `${config.backend_url}/api/conversation/${selectedGroup?.id}`;
 				const response = await fetch(fetchMessage, {
@@ -349,7 +349,6 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 				});
 				if (response.ok) {
 					const result = await response.json();
-					console.log("Messages:", result);
 					setChannelMessages(result.messages);
 				} else {
 					// setChannelMessages(undefined);
@@ -365,9 +364,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 	useEffect(() => {
 		setIsInChannel(false);
 		selectedGroup?.users.map((channelUser: any) => {
-			console.log(me?.id, channelUser.user.id);
 			if (me?.id === channelUser.user.id) {
-				console.log("I am in the channel");
 				setIsInChannel(true);
 			}
 		});

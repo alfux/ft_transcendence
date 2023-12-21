@@ -48,7 +48,6 @@ const Profile: React.FC = () => {
 
 				if (response.ok) {
 					const result = await response.json()
-					console.log(result)
 					setMatches(result)
 				} else {
 					console.error('Could not get matches:', response.status);

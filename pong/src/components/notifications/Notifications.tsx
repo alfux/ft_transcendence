@@ -24,11 +24,6 @@ const Notifications: React.FC = () => {
 	const [accept, setAccept] = useState<boolean>(false);
 
 	useEffect(() => {
-		console.log("Socket connection status:", notificationsSocket.connected);
-		if (!notificationsSocket.connected) {
-			notificationsSocket.connect();
-			console.log("ups .. ok now connected");
-		}
 
 		function s_receive_message(data: any) {
 			setDataContent(data)
@@ -45,14 +40,12 @@ const Notifications: React.FC = () => {
 		function s_friend_request_recv(data: any) {
 			setDataType("friend_request_recv");
 			setDataContent(data);
-			console.log("friend request received");
 		}
 		notificationsSocket.on("friend_request_recv", s_friend_request_recv);
 
 		function s_friend_delete(data: any) {
 			setDataType("friend_delete");
 			setDataContent(data);
-			console.log("friend deleted");
 		}
 		notificationsSocket.on("blocked_new", s_friend_delete);
 
@@ -83,7 +76,7 @@ const Notifications: React.FC = () => {
 	===================Fetch Friends Requests================================
 	======================================================================== */
 	useEffect(() => {
-		console.log("Socket connection status:", notificationsSocket.connected);
+
 		const fetchRequets = async () => {
 			try {
 				const enable2FAEndpoint = `${config.backend_url}/api/user/friend_request`;
@@ -166,7 +159,7 @@ const Notifications: React.FC = () => {
 			return null;
 		}
 	});
-	console.log("dataContent", dataContent, dataType);
+
 	return (
 		<div
 			className={`notifications-container-${toogleButton == "show" && friendsRequest ? "on" : "off"

@@ -78,7 +78,6 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 			} else {
 				setErrorInvite(true)
 				setTimeout(() => { setErrorInvite(false) }, 500)
-				console.log(response.status)
 			}
 		} catch (error) {
 			setErrorInvite(true)
@@ -195,7 +194,6 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 
 	function toogleProfile() {
 		setProfileStatus(profileStatus ? false : true)
-		console.log(profileStatus)
 	}
 
 	return (
