@@ -236,7 +236,7 @@ const Notifications: React.FC = () => {
 						alt={user.sender?.id}
 					/>
 					<p>Name: {user.sender?.username}</p>
-					<p>{user.sender?.username} has made a friend request.</p>
+					<p>{user.sender?.username} has made a play request.</p>
 					<div className="notifications-buttons-box">
 						<button onClick={acceptFriend}>Accept</button>
 						<button onClick={denyFriend}>Reject</button>
