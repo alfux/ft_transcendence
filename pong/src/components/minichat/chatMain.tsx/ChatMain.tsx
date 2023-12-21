@@ -9,11 +9,11 @@ import UsersLayout from "../usersLayout/UsersLayout";
 
 const ChatMain: React.FC<ChatProps> = (props) => {
 
-  return (
-    <div className="chat-main">
-      <UsersLayout {...props} />
-      <ChatBox {...props} />
-    </div>
-  );
+	return (
+		<div className="chat-main">
+			<UsersLayout {...props} />
+			<ChatBox {...props} />
+		</div>
+	);
 };
 export default ChatMain;

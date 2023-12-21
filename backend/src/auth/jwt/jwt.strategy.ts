@@ -7,23 +7,23 @@ import { JwtPayload, Request } from 'src/auth/interfaces'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor() {
-    super({
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        ExtractJwt.fromAuthHeaderAsBearerToken(),
-        JwtStrategy.extractJwtCookie
-      ]),
-      secretOrKey: config_jwt.secret_token,
-    })
-  }
+	constructor() {
+		super({
+			jwtFromRequest: ExtractJwt.fromExtractors([
+				ExtractJwt.fromAuthHeaderAsBearerToken(),
+				JwtStrategy.extractJwtCookie
+			]),
+			secretOrKey: config_jwt.secret_token,
+		})
+	}
 
-  private static extractJwtCookie(request: Request): string | null {
-    if (request.cookies && 'access_token' in request.cookies)
-      return request?.cookies?.access_token
-    return null
-  }
+	private static extractJwtCookie(request: Request): string | null {
+		if (request.cookies && 'access_token' in request.cookies)
+			return request?.cookies?.access_token
+		return null
+	}
 
-  validate(payload: JwtPayload): JwtPayload {
-    return payload
-  }
+	validate(payload: JwtPayload): JwtPayload {
+		return payload
+	}
 }

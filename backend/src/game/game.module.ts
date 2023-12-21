@@ -7,17 +7,17 @@ import { ConversationModule } from 'src/db/conversation'
 import { MatchModule } from 'src/db/user/match/match.module'
 
 @Module({
-  imports: [
-    ConversationModule,
-    forwardRef(() => UserModule),
-    AuthModule,
-    MatchModule
-  ],
+	imports: [
+		ConversationModule,
+		forwardRef(() => UserModule),
+		AuthModule,
+		MatchModule
+	],
 
-  providers: [
-    GameGateway
-  ],
+	providers: [
+		GameGateway
+	],
 
-  controllers: []
+	controllers: []
 })
 export class GameModule { }

@@ -6,35 +6,35 @@ import { User } from 'src/db/user'
 @Injectable()
 export class GameService {
 
-  private connectedClients: Map<Socket, User> = new Map()
+	private connectedClients: Map<Socket, User> = new Map()
 
-  constructor() { }
+	constructor() { }
 
-  addClient(socket: Socket, user: User) {
-    this.connectedClients.set(socket, user)
-  }
+	addClient(socket: Socket, user: User) {
+		this.connectedClients.set(socket, user)
+	}
 
-  removeClient(client: Socket) {
-    this.connectedClients.delete(client)
-  }
+	removeClient(client: Socket) {
+		this.connectedClients.delete(client)
+	}
 
-  get(client: Socket) {
-    return this.connectedClients.get(client)
-  }
+	get(client: Socket) {
+		return this.connectedClients.get(client)
+	}
 
-  emit_everyone(event: string, data: any) {
-    console.log("Emit for everyone: ", event)
+	emit_everyone(event: string, data: any) {
+		console.log("Emit for everyone: ", event)
 
-    this.connectedClients.forEach((user, socket) => {
-      socket.emit(event, data)
-    })
-  }
+		this.connectedClients.forEach((user, socket) => {
+			socket.emit(event, data)
+		})
+	}
 
-  emit(users: User[], event: string, data: any) {
-    for (const [key, value] of this.connectedClients.entries()) {
-      if (users.map((v) => v.id).includes(value.id)) {
-        key.emit(event, data)
-      }
-    }
-  }
+	emit(users: User[], event: string, data: any) {
+		for (const [key, value] of this.connectedClients.entries()) {
+			if (users.map((v) => v.id).includes(value.id)) {
+				key.emit(event, data)
+			}
+		}
+	}
 }

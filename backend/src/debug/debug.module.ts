@@ -6,9 +6,9 @@ import { DebugController } from './debug.controller'
 import { ConversationModule } from 'src/db/conversation'
 
 @Module({
-  imports: [
-    UserModule, ConversationModule, AuthModule
-  ],
-  controllers: [DebugController],
+	imports: [
+		UserModule, ConversationModule, AuthModule
+	],
+	controllers: [DebugController],
 })
 export class DebugModule { }

@@ -7,21 +7,21 @@ import { NotificationsModule } from 'src/notifications'
 
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([FriendRequest]),
-    NotificationsModule
-  ],
+	imports: [
+		TypeOrmModule.forFeature([FriendRequest]),
+		NotificationsModule
+	],
 
-  providers: [
-    FriendRequestService
-  ],
+	providers: [
+		FriendRequestService
+	],
 
-  controllers: [
-  ],
+	controllers: [
+	],
 
-  exports: [
-    TypeOrmModule,
-    FriendRequestService,
-  ],
+	exports: [
+		TypeOrmModule,
+		FriendRequestService,
+	],
 })
 export class FriendRequestModule { }

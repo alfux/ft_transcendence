@@ -8,6 +8,6 @@ let accessToken = Cookies.get('access_token');
 export const notifications = coolSocket(`${config.backend_url}/notifications`, accessToken)
 
 notifications.on("connect", () => {
-  console.log("Notification Socket Connected to Backend")
-  notifications.emit("auth", accessToken)
+	console.log("Notification Socket Connected to Backend")
+	notifications.emit("auth", accessToken)
 })

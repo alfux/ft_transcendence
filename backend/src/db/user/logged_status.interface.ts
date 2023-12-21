@@ -1,6 +1,6 @@
 export enum LoggedStatus {
-  Logged,
-  InGame,
-  Incomplete,
-  Unlogged,
+	Logged,
+	InGame,
+	Incomplete,
+	Unlogged,
 }

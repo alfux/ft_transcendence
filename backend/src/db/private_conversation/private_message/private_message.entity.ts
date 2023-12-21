@@ -5,17 +5,17 @@ import { PrivateConversation } from 'src/db/private_conversation'
 
 @Entity()
 export class PrivateMessage {
-  @PrimaryGeneratedColumn()
-  id: number
+	@PrimaryGeneratedColumn()
+	id: number
 
-  @ManyToOne(() => User)
-  @JoinColumn()
-  sender: User
+	@ManyToOne(() => User)
+	@JoinColumn()
+	sender: User
 
-  @ManyToOne(() => PrivateConversation, (conversation) => conversation.messages)
-  @JoinColumn()
-  conversation: PrivateConversation
+	@ManyToOne(() => PrivateConversation, (conversation) => conversation.messages)
+	@JoinColumn()
+	conversation: PrivateConversation
 
-  @Column()
-  content: string
+	@Column()
+	content: string
 }

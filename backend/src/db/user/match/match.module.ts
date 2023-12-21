@@ -7,21 +7,21 @@ import { UserModule } from '../user.module'
 
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Match]),
-  ],
+	imports: [
+		TypeOrmModule.forFeature([Match]),
+	],
 
-  providers: [
-    MatchService
-  ],
+	providers: [
+		MatchService
+	],
 
-  controllers: [
-  ],
+	controllers: [
+	],
 
-  exports: [
-    TypeOrmModule,
+	exports: [
+		TypeOrmModule,
 
-    MatchService,
-  ],
+		MatchService,
+	],
 })
 export class MatchModule { }

@@ -11,154 +11,154 @@ import { Inject, forwardRef } from '@nestjs/common'
 import { GameMode } from './Game/GameMode'
 
 class Keyboard {
-  key: { [key: string]: boolean };
+	key: { [key: string]: boolean };
 };
 
 function remove_client(client: Client | Socket, queue: Client[]) {
-  const s = client instanceof Socket ? client : client.socket
-  return queue.filter((v) => v.socket !== s)
+	const s = client instanceof Socket ? client : client.socket
+	return queue.filter((v) => v.socket !== s)
 }
 
 function remove_client_all(client: Client | Socket, queues: Record<GameMode, Client[]>) {
-  for (const key in queues) {
-    queues[key] = remove_client(client, queues[key])
-  }
+	for (const key in queues) {
+		queues[key] = remove_client(client, queues[key])
+	}
 }
 
 function is_in_queue(client: Client | Socket, queue: Client[]): Client | undefined {
-  const s = client instanceof Socket ? client : client.socket
-  return queue.find((c) => c.socket === s)
+	const s = client instanceof Socket ? client : client.socket
+	return queue.find((c) => c.socket === s)
 }
 
 function is_in_queue_all(client: Client | Socket, queues: Record<GameMode, Client[]>) {
-  for (const key in queues) {
-    if (is_in_queue(client, queues[key]))
-      return true
-  }
-  return false
+	for (const key in queues) {
+		if (is_in_queue(client, queues[key]))
+			return true
+	}
+	return false
 }
 
 
 @WebSocketGateway({ namespace: 'game' })
 export class GameGateway implements OnGatewayConnection {
 
-  @WebSocketServer() server: Server
-  private connectedClients: Client[] = []
-  private gameInstances: GameInstance[] = []
+	@WebSocketServer() server: Server
+	private connectedClients: Client[] = []
+	private gameInstances: GameInstance[] = []
 
-  private queues: Record<GameMode, Client[]> = {} as Record<GameMode, any[]>
+	private queues: Record<GameMode, Client[]> = {} as Record<GameMode, any[]>
 
-  constructor(
-    @Inject(forwardRef(() => AuthService))
-    private authService: AuthService, //NE PAS ENELEVER
-    @Inject(forwardRef(() => UserService))
-    private userService: UserService, //NE PAS ENELEVER
+	constructor(
+		@Inject(forwardRef(() => AuthService))
+		private authService: AuthService, //NE PAS ENELEVER
+		@Inject(forwardRef(() => UserService))
+		private userService: UserService, //NE PAS ENELEVER
 
-    private matchService: MatchService
+		private matchService: MatchService
 
-  ) {
-    Object.keys(GameMode).forEach((key) => {
-      this.queues[key] = [];
-    });
-  }
-
-
-  async handleConnection(client: Socket) {
-  }
-
-  async handleDisconnect(client: Socket): Promise<any> {
-    this.connectedClients = this.connectedClients.filter((v) => v.socket !== client)
-    remove_client_all(client, this.queues)
-
-    const game_instance = this.gameInstances.find((gi) => gi.player1.client.socket.id === client.id || gi.player2.client.socket.id === client.id)
-    if (!game_instance)
-      return
-    const player = game_instance.get_by_socket_id(client.id)
-    if (!player)
-      return
-
-    game_instance.disconnect(player.client)
-  }
-
-  @SubscribeMessage('cancel_search')
-  @CoolSocket
-  async handleCancelSearch(client: Client) {
-    remove_client_all(client, this.queues)
-  }
-
-  @SubscribeMessage('search')
-  @CoolSocket
-  async handleSearch(client: Client, data: { mode: GameMode }) {
-    if (is_in_queue_all(client, this.queues)) {
-      return
-    }
-
-    this.queues[data.mode].push(client)
-    if (this.queues[data.mode].length >= 2) {
-
-      const p1 = this.queues[data.mode][0]
-      const p2 = this.queues[data.mode][1]
-
-      this.queues[data.mode] = remove_client(p1, this.queues[data.mode])
-      this.queues[data.mode] = remove_client(p2, this.queues[data.mode])
+	) {
+		Object.keys(GameMode).forEach((key) => {
+			this.queues[key] = [];
+		});
+	}
 
 
-      console.log(`STARTING GAME '${data.mode}': p1:${p1.user.username} p2:${p2.user.username}`)
+	async handleConnection(client: Socket) {
+	}
 
-      const gameInstance = new GameInstance(p1, p2, data.mode,
-        (winner, looser) => {
-          this.gameInstances = this.gameInstances.filter((v) => v !== gameInstance)
-          this.matchService.createMatch({
-            players: [winner.user, looser.user],
-            winner: winner.user
-          })
-        }
-      );
+	async handleDisconnect(client: Socket): Promise<any> {
+		this.connectedClients = this.connectedClients.filter((v) => v.socket !== client)
+		remove_client_all(client, this.queues)
+
+		const game_instance = this.gameInstances.find((gi) => gi.player1.client.socket.id === client.id || gi.player2.client.socket.id === client.id)
+		if (!game_instance)
+			return
+		const player = game_instance.get_by_socket_id(client.id)
+		if (!player)
+			return
+
+		game_instance.disconnect(player.client)
+	}
+
+	@SubscribeMessage('cancel_search')
+	@CoolSocket
+	async handleCancelSearch(client: Client) {
+		remove_client_all(client, this.queues)
+	}
+
+	@SubscribeMessage('search')
+	@CoolSocket
+	async handleSearch(client: Client, data: { mode: GameMode }) {
+		if (is_in_queue_all(client, this.queues)) {
+			return
+		}
+
+		this.queues[data.mode].push(client)
+		if (this.queues[data.mode].length >= 2) {
+
+			const p1 = this.queues[data.mode][0]
+			const p2 = this.queues[data.mode][1]
+
+			this.queues[data.mode] = remove_client(p1, this.queues[data.mode])
+			this.queues[data.mode] = remove_client(p2, this.queues[data.mode])
 
 
-      this.gameInstances.push(gameInstance)
-      gameInstance.start()
-    }
-  }
+			console.log(`STARTING GAME '${data.mode}': p1:${p1.user.username} p2:${p2.user.username}`)
 
-  @SubscribeMessage('player_input')
-  @CoolSocket
-  async handlePlayerInput(client: Client, keyboard: Keyboard) {
+			const gameInstance = new GameInstance(p1, p2, data.mode,
+				(winner, looser) => {
+					this.gameInstances = this.gameInstances.filter((v) => v !== gameInstance)
+					this.matchService.createMatch({
+						players: [winner.user, looser.user],
+						winner: winner.user
+					})
+				}
+			);
 
-    const game_instance = this.gameInstances.find((gi) =>
-      gi.player1.client.socket.id === client.socket.id ||
-      gi.player2.client.socket.id === client.socket.id)
-    if (!game_instance)
-      return
 
-    if (game_instance.player1.client.socket.id === client.socket.id)
-      game_instance.player1.keyboard = keyboard;
-    else
-      game_instance.player2.keyboard = keyboard;
-  }
+			this.gameInstances.push(gameInstance)
+			gameInstance.start()
+		}
+	}
 
-  @SubscribeMessage("pointer")
-  @CoolSocket
-  async handlePlayerPointer(client: Client, mouse: { x: number, y: number, sx: number, sy: number }) {
-    const game_instance = this.gameInstances.find((gi) =>
-      gi.player1.client.socket.id === client.socket.id ||
-      gi.player2.client.socket.id === client.socket.id)
-    if (!game_instance)
-      return;
+	@SubscribeMessage('player_input')
+	@CoolSocket
+	async handlePlayerInput(client: Client, keyboard: Keyboard) {
 
-    if (mouse.x && mouse.y) {
-      if (game_instance.player1.client.socket.id === client.socket.id)
-        game_instance.player1.mouse = mouse;
-      else
-        game_instance.player2.mouse = mouse;
-    }
-  }
+		const game_instance = this.gameInstances.find((gi) =>
+			gi.player1.client.socket.id === client.socket.id ||
+			gi.player2.client.socket.id === client.socket.id)
+		if (!game_instance)
+			return
 
-  @Interval(1 / 60)
-  loop() {
-    this.gameInstances.forEach((gi) => {
-      gi.update()
-    })
-  }
+		if (game_instance.player1.client.socket.id === client.socket.id)
+			game_instance.player1.keyboard = keyboard;
+		else
+			game_instance.player2.keyboard = keyboard;
+	}
+
+	@SubscribeMessage("pointer")
+	@CoolSocket
+	async handlePlayerPointer(client: Client, mouse: { x: number, y: number, sx: number, sy: number }) {
+		const game_instance = this.gameInstances.find((gi) =>
+			gi.player1.client.socket.id === client.socket.id ||
+			gi.player2.client.socket.id === client.socket.id)
+		if (!game_instance)
+			return;
+
+		if (mouse.x && mouse.y) {
+			if (game_instance.player1.client.socket.id === client.socket.id)
+				game_instance.player1.mouse = mouse;
+			else
+				game_instance.player2.mouse = mouse;
+		}
+	}
+
+	@Interval(1 / 60)
+	loop() {
+		this.gameInstances.forEach((gi) => {
+			gi.update()
+		})
+	}
 
 }

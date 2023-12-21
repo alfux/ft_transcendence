@@ -7,21 +7,21 @@ import { NotificationsModule } from 'src/notifications'
 
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([PlayRequest]),
-    NotificationsModule
-  ],
+	imports: [
+		TypeOrmModule.forFeature([PlayRequest]),
+		NotificationsModule
+	],
 
-  providers: [
-    PlayRequestService
-  ],
+	providers: [
+		PlayRequestService
+	],
 
-  controllers: [
-  ],
+	controllers: [
+	],
 
-  exports: [
-    TypeOrmModule,
-    PlayRequestService,
-  ],
+	exports: [
+		TypeOrmModule,
+		PlayRequestService,
+	],
 })
 export class PlayRequestModule { }

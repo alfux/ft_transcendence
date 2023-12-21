@@ -6,18 +6,18 @@ import { NotificationsGateway } from './notifications.gateway'
 import { NotificationsService } from './notifications.service'
 
 @Module({
-  imports: [
-    forwardRef(() => UserModule),
-    forwardRef(() => AuthModule)
-  ],
+	imports: [
+		forwardRef(() => UserModule),
+		forwardRef(() => AuthModule)
+	],
 
-  providers: [
-    NotificationsGateway,
-    NotificationsService
-  ],
+	providers: [
+		NotificationsGateway,
+		NotificationsService
+	],
 
-  controllers: [],
+	controllers: [],
 
-  exports: [NotificationsService]
+	exports: [NotificationsService]
 })
 export class NotificationsModule { }

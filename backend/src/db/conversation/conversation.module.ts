@@ -14,31 +14,31 @@ import { AuthModule } from 'src/auth'
 
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      Conversation,
-      ConversationUser,
-      ConversationUserInfos,
+	imports: [
+		TypeOrmModule.forFeature([
+			Conversation,
+			ConversationUser,
+			ConversationUserInfos,
 
-      Message
-    ]),
-    forwardRef(() => UserModule),
-    AuthModule,
-    NotificationsModule,
-  ],
+			Message
+		]),
+		forwardRef(() => UserModule),
+		AuthModule,
+		NotificationsModule,
+	],
 
-  providers: [
-    ConversationService,
-    ConversationGateway,
-    MessageService
-  ],
+	providers: [
+		ConversationService,
+		ConversationGateway,
+		MessageService
+	],
 
-  controllers: [ConversationController],
+	controllers: [ConversationController],
 
-  exports: [
-    TypeOrmModule,
-    ConversationService,
-    MessageService
-  ],
+	exports: [
+		TypeOrmModule,
+		ConversationService,
+		MessageService
+	],
 })
 export class ConversationModule { }

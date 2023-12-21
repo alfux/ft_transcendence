@@ -10,63 +10,63 @@ import { LoggedStatus } from '.'
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  db_id: number
+	@PrimaryGeneratedColumn()
+	db_id: number
 
-  @Column()
-  id: number
-  @Column()
-  username: string
-  @Column()
-  image: string
-  @Column()
-  email: string
-
-
-
-  @Column({
-    type: 'enum',
-    enum: LoggedStatus,
-    default: LoggedStatus.Unlogged,
-  })
-  isAuthenticated: LoggedStatus
+	@Column()
+	id: number
+	@Column()
+	username: string
+	@Column()
+	image: string
+	@Column()
+	email: string
 
 
 
-  @Column({ default: false, select: false })
-  twoFactorAuth: boolean
-  @Column({ default: '', select: false })
-  twoFactorAuthSecret: string
+	@Column({
+		type: 'enum',
+		enum: LoggedStatus,
+		default: LoggedStatus.Unlogged,
+	})
+	isAuthenticated: LoggedStatus
 
 
 
-  @OneToMany(() => ConversationUser, (conv_user) => conv_user.user)
-  conversations: ConversationUser[]
-
-  @ManyToMany(() => PrivateConversation, conversation => conversation.users)
-  @JoinTable()
-  privateConversations: PrivateConversation[]
-
-  @ManyToMany(() => User)
-  @JoinTable()
-  blocked: User[]
-
-  @ManyToMany(() => User)
-  @JoinTable()
-  friends: User[]
-
-  @OneToMany(() => FriendRequest, (fr) => fr.receiver)
-  friends_requests_recv: FriendRequest[]
-  @OneToMany(() => FriendRequest, (fr) => fr.sender)
-  friends_requests_sent: FriendRequest[]
-
-  @OneToMany(() => PlayRequest, (pr) => pr.receiver)
-  play_requests_recv: PlayRequest[]
-  @OneToMany(() => PlayRequest, (pr) => pr.sender)
-  play_requests_sent: PlayRequest[]
+	@Column({ default: false, select: false })
+	twoFactorAuth: boolean
+	@Column({ default: '', select: false })
+	twoFactorAuthSecret: string
 
 
-  @ManyToMany(() => Match, match => match.players)
-  @JoinTable()
-  matches: Match[]
+
+	@OneToMany(() => ConversationUser, (conv_user) => conv_user.user)
+	conversations: ConversationUser[]
+
+	@ManyToMany(() => PrivateConversation, conversation => conversation.users)
+	@JoinTable()
+	privateConversations: PrivateConversation[]
+
+	@ManyToMany(() => User)
+	@JoinTable()
+	blocked: User[]
+
+	@ManyToMany(() => User)
+	@JoinTable()
+	friends: User[]
+
+	@OneToMany(() => FriendRequest, (fr) => fr.receiver)
+	friends_requests_recv: FriendRequest[]
+	@OneToMany(() => FriendRequest, (fr) => fr.sender)
+	friends_requests_sent: FriendRequest[]
+
+	@OneToMany(() => PlayRequest, (pr) => pr.receiver)
+	play_requests_recv: PlayRequest[]
+	@OneToMany(() => PlayRequest, (pr) => pr.sender)
+	play_requests_sent: PlayRequest[]
+
+
+	@ManyToMany(() => Match, match => match.players)
+	@JoinTable()
+	matches: Match[]
 }

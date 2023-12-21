@@ -16,32 +16,32 @@ import { UserFriendRequestController } from './user.friend_request.controller'
 import { UserPlayRequestController } from './user.play_request.controller'
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
+	imports: [
+		TypeOrmModule.forFeature([User]),
 
-    forwardRef(() => AuthModule),
-    forwardRef(() => ConversationModule),
-    forwardRef(() => NotificationsModule),
+		forwardRef(() => AuthModule),
+		forwardRef(() => ConversationModule),
+		forwardRef(() => NotificationsModule),
 
-    MatchModule,
-    FriendRequestModule,
-    PlayRequestModule,
-  ],
+		MatchModule,
+		FriendRequestModule,
+		PlayRequestModule,
+	],
 
-  providers: [
-    UserService,
-  ],
+	providers: [
+		UserService,
+	],
 
-  controllers: [
-    UserController,
-    UserFriendRequestController,
-    UserPlayRequestController
-  ],
+	controllers: [
+		UserController,
+		UserFriendRequestController,
+		UserPlayRequestController
+	],
 
-  exports: [
-    TypeOrmModule,
+	exports: [
+		TypeOrmModule,
 
-    UserService,
-  ],
+		UserService,
+	],
 })
 export class UserModule { }

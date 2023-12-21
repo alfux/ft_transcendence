@@ -304,19 +304,19 @@ lighting_frag_inf lighting_frag() {
 
 
 export class CustomLightingShader extends PackedPhongMaterial {
-  uniforms: any
+	uniforms: any
 
-  constructor(parameters: THREE.ShaderMaterialParameters) {
-    super(parameters)
+	constructor(parameters: THREE.ShaderMaterialParameters) {
+		super(parameters)
 
-    this.uniforms = THREE.UniformsUtils.merge([
-      THREE.ShaderLib.phong.uniforms,
-      {
-        quantizeMatPos: { value: null },
-        quantizeMatUV: { value: null },
-      },
-      parameters.uniforms,
-    ]);
+		this.uniforms = THREE.UniformsUtils.merge([
+			THREE.ShaderLib.phong.uniforms,
+			{
+				quantizeMatPos: { value: null },
+				quantizeMatUV: { value: null },
+			},
+			parameters.uniforms,
+		]);
 
-  }
+	}
 }

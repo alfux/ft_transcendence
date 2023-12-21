@@ -6,21 +6,21 @@ import { JwtStrategy } from './jwt.strategy'
 import { JwtRefreshTokenStrategy } from './jwt_refresh.strategy'
 
 @Module({
-  imports: [],
+	imports: [],
 
-  controllers: [
-  ],
+	controllers: [
+	],
 
-  providers: [
-    JwtStrategy,
-    JwtRefreshTokenStrategy,
+	providers: [
+		JwtStrategy,
+		JwtRefreshTokenStrategy,
 
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-  ],
+		{
+			provide: APP_GUARD,
+			useClass: JwtAuthGuard,
+		},
+	],
 
-  exports: [],
+	exports: [],
 })
 export class JwtModule { }
