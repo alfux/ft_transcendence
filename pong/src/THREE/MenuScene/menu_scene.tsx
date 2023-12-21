@@ -361,8 +361,10 @@ export function create_menu_scene(
 			return (max);
 		return (t);
 	}
+
 	function	handleStart(data: {opponent: User, you: User}) {
 		option.game = true;
+		menu_parent.rotation.x = 2 * theta;
 		cleanup.push(createComponent(Score, {user: data.you, you: true}));
 		cleanup.push(createComponent(Score, {user: data.opponent, you: false}));
 	}

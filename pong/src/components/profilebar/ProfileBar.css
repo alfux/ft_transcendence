@@ -9,7 +9,7 @@
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 	border: 1px solid rgba(255, 255, 255, 0.3);
 	border-radius: 20px;
-	background-color: rgba(13, 78, 82, 0.439);
+  	background: #61777aee;
 	justify-content: space-around;
 	animation: colorChangeProfileBar 3s infinite;
 	font-size: min(1vw, 1.7vh);

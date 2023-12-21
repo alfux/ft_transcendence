@@ -83,7 +83,7 @@
 	justify-content: space-around;
 	border: 3px solid #aa00aa;
 	box-shadow: 0 0 60px rgb(235, 3, 235);
-	background-color: #330033;
+  	background: #7a6177ee;
 	opacity: 0.95;
 	animation: colorChangeRight 2s infinite;
 }
@@ -97,7 +97,7 @@
 	justify-content: space-around;
 	border: 3px solid #00aaaa;
 	box-shadow: 0 0 50px rgb(0, 255, 255);
-	background-color: #003333;
+  	background: #61777aee;
 	opacity: 0.95;
 	animation: colorChangeLeft 2s infinite;
 }

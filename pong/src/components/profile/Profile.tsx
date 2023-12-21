@@ -186,7 +186,7 @@ const Profile: React.FC = () => {
 					</div>
 				</div>
 				<div className='buttons-container'>
-					<div className='achevments'>
+					<div className='achievments'>
 						<AchievementsButton />
 						{matches && data ? <p>Won : {matches.filter((m) => m.winner?.id === data.id).length}</p> : <h2>no infos</h2>}
 						{matches && data ? <p>Lost : {matches.filter((m) => m.winner?.id !== data.id).length}</p> : <h2>no infos</h2>}

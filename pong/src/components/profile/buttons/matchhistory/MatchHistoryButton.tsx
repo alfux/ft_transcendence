@@ -20,14 +20,14 @@ function MatchHistory(props: {
 	})
 
 	return (
-		<>
+		<div className="mhcontainer" >
 			<button className='glowing-btn2'>
 				<span className='glowing-txt2'>Match
 					<span className='faulty-letter2'> History</span>
 				</span>
 			</button>
 			{matchhistory}
-		</>
+		</div>
 	);
 
 }

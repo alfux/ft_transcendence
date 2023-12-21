@@ -9,6 +9,8 @@
 	border: 0.15em solid var(--glow-color);
 	width: 60%;
 	height: 20%;
+	position: relative;
+	left: 25%;
 	border-radius: 15px;
 	background: rgba(238, 4, 152, 0.3);
 	perspective: 2em;
@@ -17,8 +19,10 @@
 	color: white;
 	font-weight: 70%;
 	display: flex;
-	justify-content: center;
+	justify-items: center;
 	align-items: center;
+	align-content: center;
+	text-align: center;
 	letter-spacing: 0.2em;
 	-webkit-box-shadow: inset 0px 0px 0.5em 0px var(--glow-color),
 		0px 0px 0.5em 0px var(--glow-color);
@@ -38,7 +42,8 @@
 		0 0 0.45em var(--glow-color);
 	text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em var(--glow-color);
 	animation: text-flicker 3s linear infinite;
-	font-size: em;
+	font-size: min(1vw, 1vh);
+	overflow: hidden;
 
 }
 

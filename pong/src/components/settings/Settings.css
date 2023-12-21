@@ -11,7 +11,7 @@
 	top: 25%;
 	height: 45vh;
 	width: 25vw;
-	background: #330033;
+  	background: #7a6177ee;
 	opacity: 0.9;
 	border-radius: 16px;
 	border: 2px solid #551155;
@@ -20,8 +20,7 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	animation: slideInSettings 1s ease forwards;
-	animation: colorChangeSettings 2s ease infinite;
+	animation: slideInSettings 1s ease forwards, colorChangeSettings 2s ease infinite;
 	resize: both;
 	overflow: auto;
 	cursor: move;

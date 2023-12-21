@@ -2,18 +2,23 @@
 	--glow-color: hsla(0, 0%, 100%, 0.236);
 }
 
+.mhcontainer {
+	height: 10%;
+	width: 100%;
+}
+
 .glowing-btn2 {
 	position: relative;
 	color: var(--glow-color);
 	cursor: pointer;
 	border: 0.15em solid var(--glow-color);
-	width: 60%;
-	height: 20%;
+	width: 100%;
+	height: 100%;
 	border-radius: 15px;
 	background: rgba(4, 230, 238, 0.3);
 	perspective: 2em;
 	font-family: 'game', sans-serif;
-	font-size: 60%;
+	font-size: min(1vw, 1vh);
 	color: white;
 	font-weight: 70%;
 	display: flex;
@@ -37,7 +42,7 @@
 		0 0 0.45em var(--glow-color);
 	text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em var(--glow-color);
 	animation: text-flicker 3s linear infinite;
-	font-size: 2em;
+	font-size: min(1vw, 1vh);
 }
 
 .faulty-letter2 {
@@ -214,7 +219,7 @@
 
 @media only screen and (max-width: 600px) {
 	.glowing-btn {
-		font-size: 1em;
+		font-size: min(1vh, 1vw);
 	}
 }
 
@@ -228,5 +233,6 @@
 	border-radius: 15px;
 	background-color: rgba(255, 255, 255, 0.087);
 	align-items: center;
+  	font-size: min(1.1vw, 1.1vh);
 }
 

@@ -2,15 +2,33 @@
     --about-width: 40vh;
     --about-height: 70vh;
   }
-  
+ 
+@keyframes	colorBlue {
+	0%, 100% {
+		box-shadow: 0 0 20px #41ffff;
+	}
+	50% {
+		box-shadow: 0 0 40px #41ffff;
+	}
+}
+ 
+@keyframes	colorRed {
+	0%, 100% {
+		box-shadow: 0 0 20px #ff41ff;
+	}
+	50% {
+		box-shadow: 0 0 40px #ff41ff;
+	}
+}
+
   .about-box {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    position: fixed;
+    position: absolute;
     top: calc(50vh - calc(var(--about-height) / 2));
-    left: 20vh;
+    left: 20vw;
     height: 66%;
     width: 20%;
     border-radius: 16px;
@@ -20,7 +38,7 @@
     /* border: 1px solid #ff41a7; */
     border-radius: 20px;
     gap: 5vh;
-    animation: slideTopAbout 1.5s ease forwards;
+    animation: slideTopAbout 1s ease forwards;
     
   }
   
@@ -32,7 +50,7 @@
     height: 99%;
     border-radius: 15px;
     background: rgba(8, 8, 8, 0.5);
-    animation: colorChange 2s infinite;
+    animation: colorRed 3s infinite;
     overflow-y: scroll;
   }
   
@@ -41,18 +59,18 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    position: fixed;
+    position: absolute;
     top: calc(50vh - calc(var(--about-height) / 2));
     right: 20vw;
     height: 66%;
     width: 20%;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    background: #7a6177ee;
+    background: #61777aee;
   
     /* border: 1px solid #ff41a7; */
     border-radius: 20px;
     gap: 5vh;
-    animation: slideTopAboutDevs 1.5s ease forwards;
+    animation: slideTopAboutDevs 1s ease forwards;
   }
   
   .about-box-two-devs {
@@ -63,48 +81,45 @@
     height: 99%;
     border-radius: 15px;
     background: rgba(8, 8, 8, 0.5);
-    animation: colorChange 2s infinite;
+    animation: colorBlue 3s infinite;
+    overflow-y: scroll;
   }
   
   @keyframes slideTopAbout {
 	0% {
-		left: -600px;
-		top: 100%;
-		box-shadow: 0 0 1000px #00fffb;
+		left: -20%;
 	}
 
 	100% {
-		left: 15vw;
+		left: 10%;
 	}
 }
 
 @keyframes slideTopAboutDevs {
 	0% {
-		left: -600px;
-		top: 100%;
-		box-shadow: 0 0 1000px #00fffb;
+		left: 100%;
 	}
 
 	100% {
-		left: 65vw;
+		left: 70%;
 	}
 }
   
   .about-box h1 {
     align-items: center;
-    font-size: 4em;
+    font-size: min(1.8em, 1.8vw);
     color: #fff;
     font-family: "game", sans-serif;
     margin-bottom: 10px;;
-    text-shadow: 0 0 10px #fff, 0 0 4px #ff41a7, 0 0 8px #ff41a7, 0 0 60px #ff41a7;
+    text-shadow: 0 0 10px #aa41aa;
   }
   .about-box-devs h1 {
     align-items: center;
-    font-size: 4em;
+    font-size: min(1.8em, 1.8vw);
     color: #fff;
     font-family: "game", sans-serif;
     margin-bottom: 10px;
-    text-shadow: 0 0 10px #fff, 0 0 4px #41ffff, 0 0 8px #41ffff, 0 0 30px #41ffff;
+    text-shadow: 0 0 10px #41aaaa;
   }
   
   .about-box-devs h2 {
@@ -113,6 +128,7 @@
     color: #fff;
     font-family: "game", sans-serif;
     margin-bottom: 10px;
+    font-size: min(1.8em, 1.8vw);
     /* text-shadow: 0 0 10px #fff, 0 0 4px #41ffff, 0 0 8px #41ffff, 0 0 60px #41ffff; */
   }
 
@@ -122,7 +138,9 @@
     color: #fff;
     display: block;
     margin-bottom: 0.5vh;
-    font-size: 1.5em;
+	margin-left: 0.5vw;
+	margin-right: 0.5vw;
+    font-size: min(1em, 1vw);
   }
   
   .profile-box .profile-photo {
