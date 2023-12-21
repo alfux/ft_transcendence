@@ -17,7 +17,6 @@ import usePayload from "../../react_hooks/use_auth";
 import { JwtPayload } from "../../THREE/Utils";
 import { chatSocket } from "../../sockets/chat";
 import { gameSocket, notificationsSocket } from "../../sockets";
-import { notifications } from "../../sockets/notifications";
 
 export enum ChannelOptions {
 	CREATE_CHANNEL = "create channel",
@@ -204,19 +203,19 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 				});
 			}
 		);
-		notifications.on("friend_request_accepted", (data) => {
+		notificationsSocket.on("friend_request_accepted", (data) => {
 			setNotificationType(data);
 		});
-		notifications.on("friend_new", (data) => {
+		notificationsSocket.on("friend_new", (data) => {
 			setNotificationType(data);
 		});
-		notifications.on("friend_delete", (data) => {
+		notificationsSocket.on("friend_delete", (data) => {
 			setNotificationType(data);
 		});
-		notifications.on("blocked_new", (data) => {
+		notificationsSocket.on("blocked_new", (data) => {
 			setNotificationType(data);
 		});
-		notifications.on("blocked_delete", (data) => {
+		notificationsSocket.on("blocked_delete", (data) => {
 			setNotificationType(data);
 		});
 	}, [notificationType]);
