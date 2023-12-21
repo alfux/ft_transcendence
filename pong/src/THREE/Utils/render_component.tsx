@@ -39,6 +39,7 @@ export function RenderComponents(loginForm: { option: string, game: boolean }) {
 
 	useEffect(() => {
 		const cleanup: (() => void)[] = [];
+		console.log(payload?.authentication)
 		handleUpdate();
 		if (loginForm.game)
 			return (() => { });
@@ -46,6 +47,7 @@ export function RenderComponents(loginForm: { option: string, game: boolean }) {
 			cleanup.push(createComponent(ProfileBar));
 		}
 		if (accessToken && payload?.authentication === LoggedStatus.Incomplete) {
+			console.log("TEST TEST TEST TEST TETSTT TSTGYDIUWAHODWUA")
 			cleanup.push(createComponent(TwoFactorAuthenticate));
 		}
 		if (loginForm.option === "Profile" && accessToken && payload?.authentication === LoggedStatus.Logged) {
