@@ -145,7 +145,6 @@ const Profile: React.FC = () => {
 
 		setEditUsernameValue(e.target.value)
 	}
-
 	return (
 		<div className="profile-box">
 			<div className='profile-box-two'>
@@ -187,14 +186,13 @@ const Profile: React.FC = () => {
 					</div>
 				</div>
 				<div className='buttons-container'>
-					<div>
+					<div className='achevments'>
 						<AchievementsButton />
 						{matches && data ? <p>Won : {matches.filter((m) => m.winner?.id === data.id).length}</p> : <h2>no infos</h2>}
 						{matches && data ? <p>Lost : {matches.filter((m) => m.winner?.id !== data.id).length}</p> : <h2>no infos</h2>}
 					</div>
-					<div>
-						{matches ? <MatchHistory matches={matches} /> : <h2>Couldn't get match hist</h2>}
-						{display ? <History /> : <div />}
+					<div className='matchHistory'>
+						{matches && <MatchHistory matches={matches} />}
 					</div>
 
 				</div>

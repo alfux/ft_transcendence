@@ -365,7 +365,6 @@ export function create_menu_scene(
 		cleanup.push(createComponent(Score, {user: data.opponent, you: false}));
 	}
 
-	//	{winner:  'you' | 'opponent' , reason:  'won' | 'disconnect'}
 	function	handleFinish(data: {winner: string, reason: string}) {
 		option.game = false;
 		unsetAll();
@@ -374,14 +373,14 @@ export function create_menu_scene(
 			menu_parent.getObjectByName("YouWin")?.layers.set(0);
 			menu_parent.getObjectByName("lYouWin")?.layers.set(0);
 			menu_state = MenuState.Winner;
-			endgame.animate();
+			endgame.animate(1.5);
 		}
 		else
 		{
 			menu_parent.getObjectByName("YouLoose")?.layers.set(0);
 			menu_parent.getObjectByName("lYouLoose")?.layers.set(0);
 			menu_state = MenuState.Looser;
-			endgame.animate();
+			endgame.animate(1.5);
 		}
 		cleanup.forEach( (elem) => {
 			elem();
@@ -452,31 +451,32 @@ export function create_menu_scene(
 	}
 
 	class	EndgameAnimation {
-		t:		number;
+		t:	number;
 
 		constructor() {
 			this.t = 0;
 		}
 
-		animate() {
-			if (this.t < 1) {
+		animate(duration: number) {
+			if (this.t < duration) {
 				requestAnimationFrame(() => {
-					this.animate();
+					this.animate(duration);
 				});
 				if (this.t === 0)
-					menu_parent.position.set(0, 0, 0);
+					menu_parent.rotation.set(0, 0, 0);
 				this.t = updateT(this.t, 3.5);
-				if (this.t < 1)
-					menu_parent.rotation.set(0, fct(this.t) * Math.PI, 0);
+				if (this.t < duration)
+					menu_parent.rotation.set(corr, fct(this.t / duration) * Math.PI, 0);
 				else
-					menu_parent.rotation.set(0, Math.PI, 0);
+					menu_parent.rotation.set(corr, Math.PI, 0);
 			}
-			else if (this.t < 3.5)
+			else if (this.t < duration + 2.5)
 			{
 				requestAnimationFrame(() => {
-					this.animate();
+					this.animate(duration);
 				});
-				this.t = updateT(this.t, 3.5);
+				menu_parent.rotation.set(corr, Math.PI, 0);
+				this.t = updateT(this.t, duration + 2.5);
 			}
 			else
 			{
@@ -514,6 +514,8 @@ export function create_menu_scene(
   }
 
   function handleWheel(event: WheelEvent) {
+	if (option.game)
+		return ;
     const rot_speed = isLogged ? 0.01 : 0.02;
 
     deltaY = clamp(event.deltaY, -30, 30);
@@ -639,7 +641,7 @@ export function create_menu_scene(
 	} else if (!option.game && new_current.current !== "Play" && new_current.current != "Chat" && t > 0) {
 		if (t < 0.1)
 			corr = 0.2 - 2 * Math.PI;
-		moveMenu(t, 7, 3.2, (tilt_play) ? Math.PI / 6 : -Math.PI / 6, fct);
+		moveMenu(t, 7, 3.2, (new_current.current === "YouWin" || new_current.current === "YouLoose") ? 0 : ((tilt_play) ? Math.PI / 6 : -Math.PI / 6), fct);
 		t = -updateT(-t, 0);
 	}
     if (menu_parent.children.length > 1 && (new_current.current !== current.current || current.current === null)) {
