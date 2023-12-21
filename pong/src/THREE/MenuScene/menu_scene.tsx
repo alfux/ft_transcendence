@@ -365,6 +365,7 @@ export function create_menu_scene(
 	function	handleStart(data: {opponent: User, you: User}) {
 		option.game = true;
 		menu_parent.rotation.x = 2 * theta;
+		menu_parent.position.set(0, 0, 0);
 		cleanup.push(createComponent(Score, {user: data.you, you: true}));
 		cleanup.push(createComponent(Score, {user: data.opponent, you: false}));
 	}
