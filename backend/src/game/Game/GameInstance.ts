@@ -183,6 +183,7 @@ export class GameInstance {
 	pace: number = 1;
 
 	running: boolean = false
+	abort: boolean = false
 
 	notif_end: (winner: Client, looser: Client) => void
 
@@ -246,6 +247,9 @@ export class GameInstance {
 		this.player2.client.socket.emit("match_found", { opponent: this.player1.client.user, delay: delay })
 
 		await new Promise(resolve => setTimeout(resolve, delay * 1000));
+		if (this.abort) {
+			return
+		}
 
 		this.clock.start()
 		this.clock.getDelta()
@@ -446,6 +450,7 @@ export class GameInstance {
 	}
 
 	finish(winner: Client, reason: string) {
+		this.abort = true
 		this.running = false
 
 		this.notif_end(winner, this.other_one(winner))
