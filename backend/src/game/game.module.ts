@@ -6,10 +6,11 @@ import { AuthModule } from 'src/auth/auth.module'
 import { ConversationModule } from 'src/db/conversation'
 import { MatchModule } from 'src/db/user/match/match.module'
 import { NotificationsModule } from 'src/notifications'
+import { GameService } from './game.service'
 
 @Module({
 	imports: [
-		ConversationModule,
+		forwardRef(() => ConversationModule),
 		forwardRef(() => UserModule),
 		AuthModule,
 		MatchModule,
@@ -17,9 +18,14 @@ import { NotificationsModule } from 'src/notifications'
 	],
 
 	providers: [
-		GameGateway
+		GameGateway,
+		GameService
 	],
 
-	controllers: []
+	controllers: [],
+
+	exports: [
+		GameService
+	]
 })
 export class GameModule { }

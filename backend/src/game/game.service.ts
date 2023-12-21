@@ -45,7 +45,9 @@ export class GameService {
 	constructor(
 		@Inject(forwardRef(() => UserService))
 		private userService: UserService, //NE PAS ENELEVER
-
+		
+		
+		@Inject(forwardRef(() => MatchService))
 		private matchService: MatchService,
 	) {
 		Object.keys(GameMode).forEach((key) => {
@@ -53,6 +55,9 @@ export class GameService {
 		});
 	}
 
+	handleAuth(client: Client) {
+		this.connectedClients.push(client)
+	}
 
 	handleDisconnect(client: Socket) {
 		this.connectedClients = this.connectedClients.filter((v) => v.socket !== client)
@@ -85,9 +90,6 @@ export class GameService {
 
 			this.queues[data.mode] = remove_client(p1, this.queues[data.mode])
 			this.queues[data.mode] = remove_client(p2, this.queues[data.mode])
-
-
-			console.log(`STARTING GAME '${data.mode}': p1:${p1.user.username} p2:${p2.user.username}`)
 
 			const gameInstance = new GameInstance(p1, p2, data.mode,
 				async (winner, looser) => {
@@ -142,10 +144,13 @@ export class GameService {
 
 
 	startGameWith(user1: User, user2: User) {
+		console.log(this.connectedClients)
 		const p1 = this.connectedClients.find((v) => v.user.id === user1.id)
 		const p2 = this.connectedClients.find((v) => v.user.id === user2.id)
+		
+		
 		if (p1 === undefined || p2 === undefined)
-			return
+		return
 
 		const gameInstance = new GameInstance(p1, p2, GameMode.MAGNUS,
 			async (winner, looser) => {

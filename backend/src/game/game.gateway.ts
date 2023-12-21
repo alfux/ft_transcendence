@@ -37,7 +37,9 @@ export class GameGateway implements OnGatewayConnection {
 
 	@SubscribeMessage('auth')
 	@CoolSocket()
-	async handleAuth() { }
+	async handleAuth(client: Client) {
+		this.gameService.handleAuth(client)
+	}
 
 	@SubscribeMessage('cancel_search')
 	@CoolSocket()

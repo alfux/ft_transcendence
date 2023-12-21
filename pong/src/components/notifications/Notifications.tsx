@@ -117,6 +117,33 @@ const Notifications: React.FC = () => {
 		setAccept(false)
 	}, [dataType, dataContent, accept]);
 	/*======================================================================
+	===================Fetch Play Requests================================
+	======================================================================== */
+	useEffect(() => {
+
+		const fetchRequets = async () => {
+			try {
+				const enable2FAEndpoint = `${config.backend_url}/api/user/play_request`;
+				const response = await fetch(enable2FAEndpoint, {
+					method: "GET",
+					credentials: "include",
+				});
+
+				if (response.ok) {
+					const result = await response.json();
+					setPlayRequests(result);
+				} else {
+					console.error("Could not get friendRequests:", response.status);
+				}
+			} catch (error) {
+				console.error("Error fetching friendRequests:", error);
+			}
+		};
+		fetchRequets();
+		setToogleButton("show")
+		setAccept(false)
+	}, [dataType, dataContent, accept]);
+	/*======================================================================
 	===================Toogle Notification Bar On or Off=====================
 	======================================================================== */
 	function toogleNotification() {
