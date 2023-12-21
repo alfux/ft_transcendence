@@ -52,7 +52,7 @@ export class PlayRequestService {
 			receiver: to
 		})
 			.then((x) => {
-				this.notificationService.emit([to], "friend_request_recv", { req: x });
+				this.notificationService.emit([to], "play_request_recv", { req: x });
 				return x
 			})
 	}

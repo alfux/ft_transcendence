@@ -192,6 +192,15 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 		return friend
 	}
 
+	function invitePlay() {
+		backend_fetch(`${config.backend_url}/api/user/play_request`, {
+			method: 'POST'
+		}, {
+			user_id: props.selectedUser?.id
+		})
+		.catch((e) => { if (e instanceof FetchError) {} else throw e })
+	}
+
 	function toogleProfile() {
 		setProfileStatus(profileStatus ? false : true)
 	}
@@ -230,7 +239,7 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 				{props.selectedUser && !props.selectedGroup && <button className={"button-ok"} onClick={toogleProfile}>Profile</button>}
 				{props.selectedGroupOption == ChannelOptions.FRIENDS &&
 					props.selectedUser && isFriend() && ( // && !props.selectedGroup
-						<button className="button-ok">Invite Game</button>
+						<button className="button-ok" onClick={invitePlay}>Invite Game</button>
 					)}
 				{props.selectedGroupOption == ChannelOptions.FRIENDS &&
 					props.selectedUser && isFriend() && ( // && !props.selectedGroup
