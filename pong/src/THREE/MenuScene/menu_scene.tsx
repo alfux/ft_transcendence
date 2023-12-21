@@ -277,6 +277,8 @@ export function create_menu_scene(
 	gameSocket.on("bounce", handleBounce);
 
 	function	handleBackward(event: PopStateEvent) {
+		if (option.game)
+        	window.location.reload();
 		menu_parent.rotation.x = event.state ? event.state.section : 0;
 		pop_trigger = true;
 	}
@@ -675,7 +677,7 @@ export function create_menu_scene(
 
     if (Math.abs(menu_parent.rotation.x - corr) % (Math.PI / 3) > 0.02)
       centerMenu(menu_parent, deltaY, isLogged ? Math.PI / 3 : Math.PI);
-	if (time > 0.007) {
+	if (time > 0.001) {
 		composer.render();
 		time = 0;
 	} else

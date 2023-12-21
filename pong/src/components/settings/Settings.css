@@ -7,25 +7,45 @@
 /* __________________GlassContainerSettings__________________ */
 .glass-container-settings {
 	position: fixed;
-	left: 0;
+	left: 10%;
 	top: 25%;
 	height: 45vh;
 	width: 25vw;
-	background: rgba(255, 255, 255, 0.01);
+	background: #330033;
+	opacity: 0.9;
 	border-radius: 16px;
-	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-	border: 1px solid rgba(255, 255, 255, 0.3);
+	border: 2px solid #551155;
 	border-radius: 20px;
 	z-index: 1;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	animation: slideIn 2s ease forwards, colorChange 2s infinite;
+	animation: slideInSettings 1s ease forwards;
+	animation: colorChangeSettings 2s ease infinite;
 	resize: both;
 	overflow: auto;
 	cursor: move;
 }
 
+@keyframes	colorChangeSettings {
+	0% {
+		box-shadow: 0 0px 10px #ff41ff;
+	} 50% {
+		box-shadow: 0 0px 20px #ff41ff;
+	} 100% {
+		box-shadow: 0 0px 10px #ff41ff;
+	}
+}
+
+@keyframes	slideInSettings {
+	0% {
+		left:	-100%;
+	} 33% {
+		left:	25%;
+	} 66% {
+		left:	7.5%;
+	}
+}
 
 /* __________________Settings__________________ */
 .glass-container-settings .settings {
