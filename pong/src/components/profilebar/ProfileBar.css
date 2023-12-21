@@ -4,14 +4,16 @@
 	top: 1%;
 	left: 1%;
 	height: 10vh;
-	width: 30vh;
+	width: 20vw;
 	border-radius: 16px;
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 	border: 1px solid rgba(255, 255, 255, 0.3);
 	border-radius: 20px;
 	background-color: rgba(13, 78, 82, 0.439);
 	justify-content: space-around;
-	animation: colorChangeProfileBar 1s infinite;
+	animation: colorChangeProfileBar 3s infinite;
+	font-size: min(1vw, 1.7vh);
+	align-items: center;
 }
 
 .profile-bar:hover {
@@ -19,18 +21,14 @@
 	width: 60vh;
 }
 
-.profile-bar p {
-	align-items: center;
+.profile-stats p{
 	font-size: 1em;
-	color: #fff;
-	font-family: 'game', sans-serif;
-	text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue
 }
 
 @keyframes colorChangeProfileBar {
 	0% {
-		box-shadow: 0 0 100px #ffffff;
-		box-shadow: 0 0 200px #41ffff;
+		box-shadow: 0 0 25px #ffffff;
+		box-shadow: 0 0 50px #41ffff;
 	}
 
 	50% {
@@ -39,8 +37,8 @@
 	}
 
 	100% {
-		box-shadow: 0 0 10px #ffffff;
-		box-shadow: 0 0 20px #41ffff;
+		box-shadow: 0 0 25px #ffffff;
+		box-shadow: 0 0 50px #41ffff;
 	}
 }
 
@@ -49,18 +47,4 @@
 	max-height: 80%;
 	border-radius: 50%;
 	align-self: center;
-}
-
-.profile-bar .stats {
-	height: 100%;
-	width: 30%;
-	align-items: center;
-}
-
-.profile-bar .stats-values p {
-	align-items: center;
-	font-size: 1em;
-	color: #fff;
-	font-family: 'game', sans-serif;
-	text-shadow: 0 0 10px #fff, 0 0 4px blue, 0 0 8px blue, 0 0 60px blue
 }

@@ -58,12 +58,12 @@ const ProfileBar: React.FC = () => {
 			{data != null ? (
 				<img className="profile-photo" src={data.image}></img>
 			) : <h2>nop</h2>}
-			<div className='stats'>
+			<div className="profile-stats">
 				<p>Nickname</p>
 				<p>Won</p>
 				<p>Lost</p>
 			</div>
-			<div className='stats-values'>
+			<div className="profile-stats-values">
 				{data ? <p>{data.username}</p> : <h2>no infos</h2>}
 				{matches && data ? <p>{matches.filter((m) => m.winner?.username === data.username).length}</p> : <h2>no infos</h2>}
 				{matches && data ? <p>{matches.filter((m) => m.winner?.username !== data.username).length}</p> : <h2>no infos</h2>}
