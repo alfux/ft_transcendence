@@ -58,14 +58,12 @@ const TwoFactorAuthenticate: React.FC = () => {
 				body: JSON.stringify({ code: verificationCode }),
 			});
 			if (response.ok) {
-				alert("Logged")
 				console.log("old access_token",accessToken)
 				await requestNewToken();
 				console.log(accessToken)
 				handleUpdate()
 				window.location.reload();
 			} else {
-				alert("Wrong code")
 				window.location.reload();
 				console.error('Error verifying 2FA code. Server responded with status:', response.status);
 			}
