@@ -647,11 +647,12 @@ export function create_menu_scene(
     if (menu_parent.children.length > 1 && (new_current.current !== current.current || current.current === null)) {
 		if (!pop_trigger) {
 	  		window.history.replaceState(current, "");
+      		current = new_current;
 	  		window.history.pushState(current, "");
-		}
-		else
+		} else {
 			pop_trigger = false;
-      current = new_current;
+			current = new_current;
+		}
       menu_parent.traverse((obj) => {
         if (obj.name === current.current) {
           if (obj.name === "Logout" || obj.name === "YouLoose")
