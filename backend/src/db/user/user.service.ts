@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable, forwardRef } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 
@@ -9,6 +9,7 @@ import { FriendRequestService } from './friend_request'
 import { NotificationsService } from 'src/notifications/'
 import { HttpBadRequest, HttpNotFound } from 'src/exceptions'
 import { FindOptions, FindMultipleOptions } from '../types'
+import { GameService } from 'src/game/game.service'
 
 @Injectable()
 export class UserService {
@@ -19,6 +20,9 @@ export class UserService {
 		private friendRequestService: FriendRequestService,
 
 		private playRequestService: PlayRequestService,
+
+		@Inject(forwardRef(() => GameService))
+		private gameService: GameService,
 
 		private notificationService: NotificationsService
 	) { }
@@ -172,6 +176,9 @@ export class UserService {
 		const request = await this.playRequestService.getPlayRequest({ id: id }, ['sender', 'receiver'])
 
 		this.playRequestService.removePlayRequest(request)
+
+		this.gameService.startGameWith(request.receiver, request.sender)
+
 		this.notificationService.emit([request.receiver, request.sender], "play_request_accepted", { req: request })
 	}
 

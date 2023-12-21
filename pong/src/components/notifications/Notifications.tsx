@@ -13,11 +13,12 @@ import { Interface } from "readline";
 import usePayload from "../../react_hooks/use_auth";
 import { notificationsSocket, chatSocket, gameSocket } from "../../sockets";
 import { FetchError, backend_fetch } from "../backend_fetch";
-import { ChatEvents, FriendRequest, Message, NotificationEvent } from "../../THREE/Utils/backend_types";
+import { ChatEvents, FriendRequest, Message, NotificationEvent, PlayRequest } from "../../THREE/Utils/backend_types";
 import { LoggedStatus } from "../../THREE/Utils";
 
 const Notifications: React.FC = () => {
 	const [friendsRequest, setFriendsRequests] = useState<any | null>(null);
+	const [playRequest, setPlayRequests] = useState<any | null>(null);
 	const [toogleButton, setToogleButton] = useState<string>("hide");
 	const [dataContent, setDataContent] = useState<any>({ username: "Our website", message: "WElcome for being online" });
 	const [dataType, setDataType] = useState<any>();
@@ -63,6 +64,12 @@ const Notifications: React.FC = () => {
 		}
 		notificationsSocket.on("status_change", s_status_change)
 
+		function s_play_request_recv(data: { req: PlayRequest }) {
+			setDataType("play_request_recv")
+			setDataContent(data)
+		}
+		notificationsSocket.on("play_request_recv", s_play_request_recv)
+
 		return (() => {
 			chatSocket.off("receive_message", s_receive_message)
 			notificationsSocket.off("friend_new", s_friend_new);
@@ -70,6 +77,7 @@ const Notifications: React.FC = () => {
 			notificationsSocket.off("blocked_new", s_friend_delete);
 			notificationsSocket.off("friend_request_denied", s_friend_request_denied);
 			notificationsSocket.off("status_change", s_status_change)
+			notificationsSocket.off("play_request_recv", s_play_request_recv)
 		})
 	});
 
@@ -109,6 +117,33 @@ const Notifications: React.FC = () => {
 		setAccept(false)
 	}, [dataType, dataContent, accept]);
 	/*======================================================================
+	===================Fetch Play Requests================================
+	======================================================================== */
+	useEffect(() => {
+
+		const fetchRequets = async () => {
+			try {
+				const enable2FAEndpoint = `${config.backend_url}/api/user/play_request`;
+				const response = await fetch(enable2FAEndpoint, {
+					method: "GET",
+					credentials: "include",
+				});
+
+				if (response.ok) {
+					const result = await response.json();
+					setPlayRequests(result);
+				} else {
+					console.error("Could not get friendRequests:", response.status);
+				}
+			} catch (error) {
+				console.error("Error fetching friendRequests:", error);
+			}
+		};
+		fetchRequets();
+		setToogleButton("show")
+		setAccept(false)
+	}, [dataType, dataContent, accept]);
+	/*======================================================================
 	===================Toogle Notification Bar On or Off=====================
 	======================================================================== */
 	function toogleNotification() {
@@ -122,32 +157,30 @@ const Notifications: React.FC = () => {
 	===================Send Post Request to Accept Friend=====================
 	======================================================================== */
 	const getNotificationRequests = friendsRequest?.received?.map((user: any) => {
+
 		async function acceptFriend() {
-			const url = `${config.backend_url}/api/user/friend_request/accept`;
-			try {
-				const response = await fetch(url, {
-					method: "POST",
-					credentials: "include",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ id: user.id }),
-				});
-				if (response.ok) {
-					const result = await response.text();
+			backend_fetch(`${config.backend_url}/api/user/friend_request/accept`, {
+				method: 'POST'
+			}, {
+				id: user.id
+			})
+				.then(() => {
 					setAccept(true)
 					setFriendsRequests(null)
-				} else {
-					alert("didnt sended accept request");
-					console.error(
-						"Error sending invite Server responded with status:",
-						response.status
-					);
-				}
-			} catch (error) {
-				console.error("Error fetching:", error);
-			}
+				})
 		}
+		async function denyFriend() {
+			backend_fetch(`${config.backend_url}/api/user/friend_request/deny`, {
+				method: 'POST'
+			}, {
+				id: user.id
+			})
+				.then(() => {
+					setAccept(true)
+					setFriendsRequests(null)
+				})
+		}
+
 		if (user?.sender) {
 			return (
 				<div key={user.sender?.id}>
@@ -160,7 +193,53 @@ const Notifications: React.FC = () => {
 					<p>{user.sender?.username} has made a friend request.</p>
 					<div className="notifications-buttons-box">
 						<button onClick={acceptFriend}>Accept</button>
-						<button>Reject</button>
+						<button onClick={denyFriend}>Reject</button>
+					</div>
+				</div>
+			);
+		} else {
+			return null;
+		}
+	});
+
+	const getPlayNotificationRequests = playRequest?.received?.map((user: any) => {
+
+		async function acceptFriend() {
+			backend_fetch(`${config.backend_url}/api/user/play_request/accept`, {
+				method: 'POST'
+			}, {
+				id: user.id
+			})
+				.then(() => {
+					setAccept(true)
+					setFriendsRequests(null)
+				})
+		}
+		async function denyFriend() {
+			backend_fetch(`${config.backend_url}/api/user/play_request/deny`, {
+				method: 'POST'
+			}, {
+				id: user.id
+			})
+				.then(() => {
+					setAccept(true)
+					setFriendsRequests(null)
+				})
+		}
+
+		if (user?.sender) {
+			return (
+				<div key={user.sender?.id}>
+					<img
+						key={user.sender?.id}
+						src={user.sender?.image}
+						alt={user.sender?.id}
+					/>
+					<p>Name: {user.sender?.username}</p>
+					<p>{user.sender?.username} has made a play request.</p>
+					<div className="notifications-buttons-box">
+						<button onClick={acceptFriend}>Accept</button>
+						<button onClick={denyFriend}>Reject</button>
 					</div>
 				</div>
 			);
@@ -170,7 +249,7 @@ const Notifications: React.FC = () => {
 	});
 
 	function getLoggedStatusAsString(st: LoggedStatus) {
-		return Object.keys(LoggedStatus).at(st+4)
+		return Object.keys(LoggedStatus).at(st + 4)
 	}
 
 	return (
@@ -203,6 +282,7 @@ const Notifications: React.FC = () => {
 						<p>{dataContent?.user?.username} is now {getLoggedStatusAsString(dataContent?.user?.isAuthenticated)}.</p>
 					)}
 					{getNotificationRequests}
+					{getPlayNotificationRequests}
 				</div>
 			</div>
 			<div key={4} className="notification-popup">
