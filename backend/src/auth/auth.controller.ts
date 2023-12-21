@@ -42,7 +42,7 @@ export class AuthController {
 
 		response.cookie("access_token", tokens.access_token, cookie_options)
 		response.cookie("refresh_token", tokens.refresh_token, cookie_options)
-
+		
 		response.status(302).redirect(url.href)
 	}
 

@@ -24,8 +24,8 @@ Settings:
 ________________________________________________________________________
 
 Subject:
-❌ : 8
-✅ : 24
+❌ : 7
+✅ : 25
 
 ________________________________________________________________________
 =>Overview
@@ -75,13 +75,13 @@ a default one must be set. ✅
 Google Authenticator or sending a text message to their phone. ✅
 
 📋The user should be able to add other users as friends and see their current status
-(online, offline, in a game, and so forth). ❌
+(online, offline, in a game, and so forth). ✅
 
 📋Stats (such as: wins and losses, ladder level, achievements, and so forth) have to
 be displayed on the user profile. ✅
 
 📋Each user should have a Match History including 1v1 games, ladder, and anything
-else useful. Anyone who is logged in should be able to consult it. ❌
+else useful. Anyone who is logged in should be able to consult it. ✅
 
 ______________________________________________________________________________________
 

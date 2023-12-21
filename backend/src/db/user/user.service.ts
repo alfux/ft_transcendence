@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 
-import { User } from 'src/db/user'
+import { LoggedStatus, User } from 'src/db/user'
 
 import { PlayRequestService } from './play_request/'
 import { FriendRequestService } from './friend_request'
@@ -43,6 +43,22 @@ export class UserService {
 			throw new HttpNotFound("User")
 		await this.getUser({ id: user.id })
 		return this.usersRepository.save({ id: user.id, ...user })
+	}
+
+	async updateUserStatus(user: Partial<User> & { id: number }, status: LoggedStatus) {
+		if (user === undefined)
+			return
+
+		const u = await this.getUser({id: user.id}, ['friends'])
+		
+		u.isAuthenticated = status
+		
+		return this.updateUser(u)
+		.then(() => {
+			this.notificationService.emit([u, ...u.friends], "status_change", {
+				user: u
+			})
+		})
 	}
 
 	async createUser(user: Partial<User> & { id: number }): Promise<User> {

@@ -5,7 +5,7 @@ import { WebSocketGateway, WebSocketServer, OnGatewayConnection, SubscribeMessag
 import { Server, Socket } from 'socket.io'
 
 import { AuthService } from 'src/auth/auth.service'
-import { UserService } from 'src/db/user'
+import { LoggedStatus, UserService } from 'src/db/user'
 import { NotificationsService } from './notifications.service'
 import { config_jwt } from 'src/config'
 import { CoolSocket } from 'src/socket'
@@ -28,6 +28,11 @@ export class NotificationsGateway implements OnGatewayConnection {
 	}
 
 	async handleDisconnect(client: Socket): Promise<any> {
+
+		const user = this.notificationService.get(client)
+		
+		this.userService.updateUserStatus(user, LoggedStatus.Unlogged)
+
 		this.notificationService.removeClient(client)
 	}
 
@@ -41,6 +46,8 @@ export class NotificationsGateway implements OnGatewayConnection {
 		if (!user) {
 			return
 		}
+
+		await this.userService.updateUserStatus(user, LoggedStatus.Logged)
 		this.notificationService.addClient(client, user)
 	}
 

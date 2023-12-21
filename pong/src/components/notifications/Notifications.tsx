@@ -14,6 +14,7 @@ import usePayload from "../../react_hooks/use_auth";
 import { notificationsSocket, chatSocket, gameSocket } from "../../sockets";
 import { FetchError, backend_fetch } from "../backend_fetch";
 import { ChatEvents, FriendRequest, Message, NotificationEvent } from "../../THREE/Utils/backend_types";
+import { LoggedStatus } from "../../THREE/Utils";
 
 const Notifications: React.FC = () => {
 	const [friendsRequest, setFriendsRequests] = useState<any | null>(null);
@@ -55,12 +56,20 @@ const Notifications: React.FC = () => {
 		}
 		notificationsSocket.on("friend_request_denied", s_friend_request_denied);
 
+
+		function s_status_change(data: { user: User }) {
+			setDataType("status_change")
+			setDataContent(data)
+		}
+		notificationsSocket.on("status_change", s_status_change)
+
 		return (() => {
 			chatSocket.off("receive_message", s_receive_message)
 			notificationsSocket.off("friend_new", s_friend_new);
 			notificationsSocket.off("friend_request_recv", s_friend_request_recv);
 			notificationsSocket.off("blocked_new", s_friend_delete);
 			notificationsSocket.off("friend_request_denied", s_friend_request_denied);
+			notificationsSocket.off("status_change", s_status_change)
 		})
 	});
 
@@ -160,6 +169,10 @@ const Notifications: React.FC = () => {
 		}
 	});
 
+	function getLoggedStatusAsString(st: LoggedStatus) {
+		return Object.keys(LoggedStatus).at(st+4)
+	}
+
 	return (
 		<div
 			className={`notifications-container-${toogleButton == "show" && friendsRequest ? "on" : "off"
@@ -185,6 +198,9 @@ const Notifications: React.FC = () => {
 					)}
 					{dataType === "blocked_new" && (
 						<p>{dataContent?.user?.username} has Blocked you.</p>
+					)}
+					{dataType === "status_change" && (
+						<p>{dataContent?.user?.username} is now {getLoggedStatusAsString(dataContent?.user?.isAuthenticated)}.</p>
 					)}
 					{getNotificationRequests}
 				</div>

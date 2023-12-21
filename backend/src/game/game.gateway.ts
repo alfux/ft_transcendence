@@ -6,9 +6,10 @@ import { AuthService } from 'src/auth/'
 
 import { GameInstance, Ball } from './Game'
 import { Client, CoolSocket } from 'src/socket/'
-import { MatchService, UserService } from 'src/db/user'
+import { LoggedStatus, MatchService, UserService } from 'src/db/user'
 import { Inject, forwardRef } from '@nestjs/common'
 import { GameMode } from './Game/GameMode'
+import { NotificationsService } from 'src/notifications'
 
 class Keyboard {
 	key: { [key: string]: boolean };
@@ -54,7 +55,9 @@ export class GameGateway implements OnGatewayConnection {
 		@Inject(forwardRef(() => UserService))
 		private userService: UserService, //NE PAS ENELEVER
 
-		private matchService: MatchService
+		private matchService: MatchService,
+
+		private notificationsService: NotificationsService
 
 	) {
 		Object.keys(GameMode).forEach((key) => {
@@ -110,15 +113,20 @@ export class GameGateway implements OnGatewayConnection {
 			console.log(`STARTING GAME '${data.mode}': p1:${p1.user.username} p2:${p2.user.username}`)
 
 			const gameInstance = new GameInstance(p1, p2, data.mode,
-				(winner, looser) => {
+				async (winner, looser) => {
 					this.gameInstances = this.gameInstances.filter((v) => v !== gameInstance)
 					this.matchService.createMatch({
 						players: [winner.user, looser.user],
 						winner: winner.user
 					})
+
+					this.userService.updateUserStatus(p1.user, LoggedStatus.Logged)
+					this.userService.updateUserStatus(p2.user, LoggedStatus.Logged)
 				}
 			);
 
+			this.userService.updateUserStatus(p1.user, LoggedStatus.InGame)
+			this.userService.updateUserStatus(p2.user, LoggedStatus.InGame)
 
 			this.gameInstances.push(gameInstance)
 			gameInstance.start()
