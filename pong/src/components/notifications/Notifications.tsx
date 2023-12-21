@@ -204,7 +204,7 @@ const Notifications: React.FC = () => {
 
 	const getPlayNotificationRequests = playRequest?.received?.map((user: any) => {
 
-		async function acceptFriend() {
+		async function acceptPlay() {
 			backend_fetch(`${config.backend_url}/api/user/play_request/accept`, {
 				method: 'POST'
 			}, {
@@ -212,10 +212,10 @@ const Notifications: React.FC = () => {
 			})
 				.then(() => {
 					setAccept(true)
-					setFriendsRequests(null)
+					setPlayRequests(null)
 				})
 		}
-		async function denyFriend() {
+		async function denyPlay() {
 			backend_fetch(`${config.backend_url}/api/user/play_request/deny`, {
 				method: 'POST'
 			}, {
@@ -223,7 +223,7 @@ const Notifications: React.FC = () => {
 			})
 				.then(() => {
 					setAccept(true)
-					setFriendsRequests(null)
+					setPlayRequests(null)
 				})
 		}
 
@@ -238,8 +238,8 @@ const Notifications: React.FC = () => {
 					<p>Name: {user.sender?.username}</p>
 					<p>{user.sender?.username} has made a play request.</p>
 					<div className="notifications-buttons-box">
-						<button onClick={acceptFriend}>Accept</button>
-						<button onClick={denyFriend}>Reject</button>
+						<button onClick={acceptPlay}>Accept</button>
+						<button onClick={denyPlay}>Reject</button>
 					</div>
 				</div>
 			);
