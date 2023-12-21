@@ -31,25 +31,10 @@
 		/* Start with a green glow */
 	}
 
-	50% {
-		box-shadow: 0 0 10px #ffffff;
-		/* Transition to a red glow */
-		box-shadow: 0 0 20px #ff41a7;
-		/* Start with a green glow */
+	83% {
+		top: 200%;
+		box-shadow: 0 0 1000px #00fffb;
 	}
-
-	100% {
-		box-shadow: 0 0 10px #ffffff;
-		/* Transition to a red glow */
-		box-shadow: 0 0 20px #ff41a7;
-		/* Start with a green glow */
-	}
-}
-
-83% {
-	top: 200%;
-	box-shadow: 0 0 1000px #00fffb;
-}
 }
 
 @keyframes slideInOnAfter {

@@ -28,7 +28,7 @@ export enum ChannelOptions {
 export interface ChatProps {
 	isInChannel: boolean;
 	me: User | undefined;
-	payload: JwtPayload | null;
+	payload: JwtPayload | undefined;
 	channels: Conversation[] | null;
 	friends: User[] | null;
 	allUsers: User[] | null;
@@ -50,9 +50,7 @@ export interface ChatProps {
 	setFriends: React.Dispatch<React.SetStateAction<User[] | null>>;
 	setAllUsers: React.Dispatch<React.SetStateAction<User[] | null>>;
 	setSelectedGroup: React.Dispatch<React.SetStateAction<any | undefined>>;
-	setSelectedGroupOption: React.Dispatch<
-		React.SetStateAction<ChannelOptions | null>
-	>;
+	setSelectedGroupOption: React.Dispatch< React.SetStateAction<ChannelOptions | null> >;
 	setMe: React.Dispatch<React.SetStateAction<User | undefined>>;
 	setFriendsRequests: React.Dispatch<React.SetStateAction<User | undefined>>;
 	setChannelMessages: React.Dispatch<React.SetStateAction<any | null>>;
