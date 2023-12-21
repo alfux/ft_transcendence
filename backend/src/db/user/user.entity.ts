@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm'
 
-import { PrivateConversation } from 'src/db/private_conversation'
 import { ConversationUser } from 'src/db/conversation'
 import { FriendRequest } from './friend_request/'
 import { PlayRequest } from './play_request/'
@@ -23,7 +22,6 @@ export class User {
 	email: string
 
 
-
 	@Column({
 		type: 'enum',
 		enum: LoggedStatus,
@@ -32,20 +30,14 @@ export class User {
 	isAuthenticated: LoggedStatus
 
 
-
 	@Column({ default: false, select: false })
 	twoFactorAuth: boolean
 	@Column({ default: '', select: false })
 	twoFactorAuthSecret: string
 
 
-
 	@OneToMany(() => ConversationUser, (conv_user) => conv_user.user)
 	conversations: ConversationUser[]
-
-	@ManyToMany(() => PrivateConversation, conversation => conversation.users)
-	@JoinTable()
-	privateConversations: PrivateConversation[]
 
 	@ManyToMany(() => User)
 	@JoinTable()

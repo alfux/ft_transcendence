@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
+import { Not, Repository } from 'typeorm'
 import * as bcrypt from 'bcrypt';
 
 import { UserService, User } from 'src/db/user'
@@ -145,6 +145,7 @@ export class ConversationService {
 	}
 
 	async getConversation(where: FindOptions<Conversation>, relations = [] as string[]) {
+		where = Object.assign({ isPrivateConversation: false }, where)
 		const connection = await this.conversationRepository.findOne({ where, relations, })
 		if (!connection)
 			throw new HttpNotFound("Conversation")
@@ -152,10 +153,30 @@ export class ConversationService {
 	}
 
 	async getConversations(where: FindMultipleOptions<Conversation>, relations = [] as string[]) {
+		where = Object.assign({ isPrivateConversation: false }, where)
 		const connection = await this.conversationRepository.find({ where, relations, })
 		if (!connection)
 			throw new HttpNotFound("Conversation")
 		return connection
+	}
+
+	async createPrivateConversation(user_id1: number, user_id2: number) {
+		
+		const user1 = await this.userService.getUser({id: user_id1})
+		const user2 = await this.userService.getUser({id: user_id2})
+		
+		const new_conv = await this.conversationRepository.save({
+			access_level: AccessLevel.PUBLIC,
+			isPrivateConversation: true,
+			messages: [],
+			owner: user1,
+			title: "Private conv",
+		})
+
+		return Promise.all([
+			this.addUserToConversation({ id:new_conv.id }, user1),
+			this.addUserToConversation({ id:new_conv.id }, user2)
+		]).then((v) => v[1])
 	}
 
 	async createConversation(user_id: number, title: string, access_level: AccessLevel, password?: string) {

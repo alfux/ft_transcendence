@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { Module } from '@nestjs/common'
 
 import { Conversation, ConversationUser, ConversationUserInfos, ConversationModule } from 'src/db/conversation'
-import { PrivateMessage, PrivateConversation, PrivateConversationModule } from 'src/db/private_conversation'
 import { Message } from 'src/db/conversation/message'
 
 import { User, FriendRequest, PlayRequest, Match, UserModule } from 'src/db/user'
@@ -36,9 +35,6 @@ import { config_db } from 'src/config'
 				ConversationUser,
 				ConversationUserInfos,
 
-				PrivateConversation,
-				PrivateMessage,
-
 				FriendRequest,
 				PlayRequest,
 
@@ -52,7 +48,6 @@ import { config_db } from 'src/config'
 		DebugModule,
 		GameModule,
 		NotificationsModule,
-		PrivateConversationModule
 	],
 })
 export class AppModule { }

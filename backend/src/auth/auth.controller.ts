@@ -6,7 +6,7 @@ import { AuthGuard } from '@nestjs/passport'
 import { Public } from 'src/auth/jwt/'
 import { Request } from 'src/auth/interfaces'
 import { AuthService } from '.'
-import { UserService } from 'src/db/user'
+import { LoggedStatus, UserService } from 'src/db/user'
 import { config_hosts } from 'src/config'
 import { Route } from 'src/route'
 
@@ -65,7 +65,13 @@ export class AuthController {
 	@UseGuards(AuthGuard('jwt-refresh'))
 	async refreshToken(@Req() req: Request, @Res() response: Response) {
 		const user = await this.userService.getUser({ id: (req.user as any).sub })
+		
+		const user_2fa_data = await this.userService.getUserAuthSecret(user.id)
+
+		user.isAuthenticated = user_2fa_data.twoFactorAuth ? LoggedStatus.Incomplete : LoggedStatus.Logged
+		user.twoFactorAuth = user_2fa_data.twoFactorAuth
 		const newToken = await this.authService.generateAccessToken(user);
+
 		response.cookie('access_token', newToken, cookie_options);
 		response.status(200).json(newToken)
 	}

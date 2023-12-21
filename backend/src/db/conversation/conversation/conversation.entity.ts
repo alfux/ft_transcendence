@@ -24,6 +24,9 @@ export class Conversation {
 	@Column({ nullable: true, select: false })
 	password?: string
 
+	@Column({ default: false })
+	isPrivateConversation: boolean
+
 	@ManyToOne(() => User)
 	@JoinColumn()
 	owner: User
