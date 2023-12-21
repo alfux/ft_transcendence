@@ -677,7 +677,7 @@ export function create_menu_scene(
 
     if (Math.abs(menu_parent.rotation.x - corr) % (Math.PI / 3) > 0.02)
       centerMenu(menu_parent, deltaY, isLogged ? Math.PI / 3 : Math.PI);
-	if (time > 0.007) {
+	if (time > 0.001) {
 		composer.render();
 		time = 0;
 	} else
