@@ -1,7 +1,7 @@
 .notifications-container-on {
 	position: fixed;
 	top: 0;
-	left: 20%;
+	left: 42.5%;
 	display: flex;
 	align-items: center;
 	flex-direction: column;
@@ -15,7 +15,7 @@
 .notifications-container-off {
 	position: fixed;
 	top: -13%;
-	left: 20%;
+	left: 42.5%;
 	display: flex;
 	align-items: center;
 	flex-direction: column;
@@ -29,24 +29,20 @@
 @keyframes on {
 	0% {
 		top: -12%;
-		left: 20%;
 	}
 
 	100% {
 		top: 0%;
-		left: 20%;
 	}
 }
 
 @keyframes off {
 	0% {
 		top: 0;
-		left: 20%;
 	}
 
 	100% {
 		top: -13%;
-		left: 20%;
 	}
 }
 
