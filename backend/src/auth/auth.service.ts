@@ -45,6 +45,7 @@ export class AuthService {
 		const user_2fa_data = await this.userService.getUserAuthSecret(user.id)
 
 		user_data.isAuthenticated = user_2fa_data.twoFactorAuth ? LoggedStatus.Incomplete : LoggedStatus.Logged
+		user_data.twoFactorAuth = user_2fa_data.twoFactorAuth
 		await this.userService.updateUser(user_data)
 
 		return Promise.all([this.generateAccessToken(user_data), this.generateRefreshToken(user_data)])
