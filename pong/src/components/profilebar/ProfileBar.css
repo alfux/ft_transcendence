@@ -16,11 +16,6 @@
 	align-items: center;
 }
 
-.profile-bar:hover {
-	height: 20vh;
-	width: 60vh;
-}
-
 .profile-stats p{
 	font-size: 1em;
 }

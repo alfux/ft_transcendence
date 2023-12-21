@@ -277,6 +277,8 @@ export function create_menu_scene(
 	gameSocket.on("bounce", handleBounce);
 
 	function	handleBackward(event: PopStateEvent) {
+		if (option.game)
+        	window.location.reload();
 		menu_parent.rotation.x = event.state ? event.state.section : 0;
 		pop_trigger = true;
 	}
