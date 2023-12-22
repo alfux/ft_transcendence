@@ -5,6 +5,10 @@ body {
 	background-color: black;
 }
 
+body::-webkit-scrollbar {
+	display: none;
+}
+
 .video-background {
 	position: fixed;
 	z-index: -1;

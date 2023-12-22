@@ -116,19 +116,6 @@ export function create_menu_scene(
     settings.name = "Settings";
     settings.layers.set(1);
 
-    //const neon_create = new THREE.MeshBasicMaterial(material_params);
-    //const tcreate = new TextGeometry("Sign up", { ...font_params, font: font });
-    //const lcreate = new THREE.DirectionalLight(0xffbbbb, 0);
-    //lcreate.position.set(0, Math.cos(-theta), Math.sin(-theta));
-    //lcreate.target = sphere_mesh;
-    //lcreate.name = "lCreate";
-    //lcreate.layers.set(0);
-    //const create = new THREE.Mesh(tcreate, neon_create);
-    //create.position.set(-1, Math.cos(-theta), Math.sin(-theta));
-    //create.rotation.set(-theta - Math.PI / 2, 0, 0);
-    //create.name = "Create";
-    //create.layers.set(0);
-
     const neon_about = new THREE.MeshBasicMaterial(material_params);
     const tabout = new TextGeometry("About", { ...font_params, font: font });
     const labout = new THREE.DirectionalLight(0xffbbbb, 0);
@@ -271,10 +258,15 @@ export function create_menu_scene(
   window.addEventListener("resize", handleResize);
   window.addEventListener("pointermove", handleMove);
   window.addEventListener("popstate", handleBackward, {capture: true, passive: true});
+  window.addEventListener("contextmenu", preventDefault);
 
 	gameSocket.on("start", handleStart);
 	gameSocket.on("finish", handleFinish);
 	gameSocket.on("bounce", handleBounce);
+
+	function	preventDefault(event: MouseEvent) {
+		event.preventDefault();
+	}
 
 	function	handleBackward(event: PopStateEvent) {
 		if (option.game)
@@ -420,7 +412,6 @@ export function create_menu_scene(
 		menu_parent.getObjectByName("YouLoose")?.layers.set(1);
 		menu_parent.getObjectByName("lYouLoose")?.layers.set(1);
 		menu_state = MenuState.Logged;
-		console.log("Set logged menu");
 	}
 
 	function	setUnloggedMenu() {
@@ -447,7 +438,6 @@ export function create_menu_scene(
 		menu_parent.getObjectByName("YouLoose")?.layers.set(1);
 		menu_parent.getObjectByName("lYouLoose")?.layers.set(1);
 		menu_state = MenuState.Unlogged;
-		console.log("Set Unlogged menu");
 	}
 
 	function	unsetAll() {
@@ -565,6 +555,14 @@ export function create_menu_scene(
 		mousecast.y = 2 * inter_plane[0]?.point.y / (general_scaling * 25 * 9 / 16);
 		mousespeed.x = event.movementX;
 		mousespeed.y = event.movementY;
+	} else if (event.buttons === 1) {
+		const rot_speed = isLogged ? 0.01 : 0.02;
+
+		deltaY = clamp(-event.movementY, -30, 30);
+
+		let rot = (menu_parent.rotation.x - rot_speed * deltaY) % (2 * Math.PI);
+		rot += (rot < 0) ? 2 * Math.PI : 0;
+		menu_parent.rotation.x = rot;
 	}
   }
 
@@ -632,7 +630,6 @@ export function create_menu_scene(
     const new_current = getCurrent(menu_parent.rotation.x);
     
     option.option = new_current.current;
-	console.log(new_current.current);
 	swapMenu();
     if (new_current.current === "Play" && t < 1) {
 		tilt_play = true;
@@ -703,6 +700,7 @@ export function create_menu_scene(
       divRef?.removeEventListener("click", handleClick);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("pointermove", handleMove);
+	  window.removeEventListener("contextmenu", preventDefault);
 
       scene.traverse((obj: any) => {
         if (obj instanceof THREE.Mesh) {

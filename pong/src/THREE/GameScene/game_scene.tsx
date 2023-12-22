@@ -14,7 +14,6 @@ import { CustomLightingShader, spin_fragment, spin_vertex } from './shaders';
 
 export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.WebGLRenderTarget, mousecast: THREE.Vector2, mousespeed: THREE.Vector2) {
   const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 1000);
-  //camera.position.set(0, -2, 2);
   camera.position.set(0, -30, 30);
   camera.up.set(0, 0, 1);
   camera.lookAt(0, 0, 0);
@@ -79,7 +78,7 @@ export function create_game_scene(renderer: THREE.WebGLRenderer, target: THREE.W
 			sx: mousespeed.x,
 			sy: mousespeed.y
 		});
-		if (event.buttons === 1) {
+		if (event.buttons === 2) {
 			const cpos = new Vec3(camera.position.x, camera.position.y, camera.position.z);
 			const tmp = rotx(cpos, -event.movementY / 1000);
 			const npos = rotz(tmp, -event.movementX / 1000);
