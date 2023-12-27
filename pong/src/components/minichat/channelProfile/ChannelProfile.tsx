@@ -93,48 +93,51 @@ const ChannelProfile: React.FC<ChatProps> = (props) => {
 
 	return (
 		<div className="channel-profile">
-			{!props.selectedUser} &&{" "}
-			<div>
-				<p>Channel Name: {props.selectedGroup?.title}</p>
-				<p>Owner : {props.selectedGroup?.owner!.username}</p>
-				<img src={props.selectedGroup?.owner!.image} />
-				<p>Date Creation :</p>
-				<p> {props.selectedGroup?.users![0]?.becameAdminAt}</p>
+			<p>Channel Name: {props.selectedGroup?.title}</p>
+			<p>Owner : {props.selectedGroup?.owner!.username}</p>
+			<img src={props.selectedGroup?.owner!.image} />
+			<p>Date Creation :</p>
+			<p> {props.selectedGroup?.users![0]?.becameAdminAt}</p>
 
-				{!props.isInChannel ? (
+			{props.selectedGroup?.users.find((u) => u.user.id === props.me?.id) === undefined ? (
+				<>
 					<form>
-						<input
-							placeholder="Password"
-							type="password"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-						></input>
-						<button type="button" onClick={joinChannel}>Join Channel</button>
+						{
+							props.selectedGroup?.access_level === AccessLevel.PROTECTED ? (
+								<input
+									placeholder="Password"
+									type="password"
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+								/>
+							) : undefined
+						}
 					</form>
-				) : (
-					props.selectedGroup?.owner.id === props.me?.id ? (
-						<>
-							<button onClick={leaveChannel}>Leave Channel</button>
-							{props.selectedGroup?.access_level === AccessLevel.PROTECTED ? (
-								<>
-									{updatePasswordForm(changePassword, 'Change password')}
-									<button onClick={() => removePassword(props.selectedGroup?.id)}>Remove password</button>
-								</>
-							) : (
-								<>
-									{updatePasswordForm(addPassword, 'Add password')}
-								</>
-							)
-							}
-							<button onClick={() => deleteChannel(props.selectedGroup?.id)}>Delete channel</button>
-						</>
-					) : (
+					<button type="button" onClick={joinChannel}>Join Channel</button>
+				</>
+			) : (
+				props.selectedGroup?.owner.id === props.me?.id ? (
+					<>
 						<button onClick={leaveChannel}>Leave Channel</button>
-					)
+						{props.selectedGroup?.access_level === AccessLevel.PROTECTED ? (
+							<>
+								{updatePasswordForm(changePassword, 'Change password')}
+								<button onClick={() => removePassword(props.selectedGroup?.id)}>Remove password</button>
+							</>
+						) : (
+							<>
+								{updatePasswordForm(addPassword, 'Add password')}
+							</>
+						)
+						}
+						<button onClick={() => deleteChannel(props.selectedGroup?.id)}>Delete channel</button>
+					</>
+				) : (
+					<button onClick={leaveChannel}>Leave Channel</button>
+				)
 
 
-				)}
-			</div>
+			)}
 		</div>
 	);
 };

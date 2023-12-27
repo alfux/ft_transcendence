@@ -3,10 +3,9 @@ import { CookieOptions, Response } from 'express'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { AuthGuard } from '@nestjs/passport'
 
-import { Public } from 'src/auth/jwt/'
 import { Request } from 'src/auth/interfaces'
 import { AuthService } from '.'
-import { LoggedStatus, UserService } from 'src/db/user'
+import { UserService } from 'src/db/user'
 import { config_hosts } from 'src/config'
 import { Route } from 'src/route'
 

@@ -130,8 +130,8 @@ export interface PrivateMessage {
 	conversation: PrivateConversation
 
 	content: string
+	createdAt: Date
 }
-
 
 export interface PrivateConversation {
 	id: number

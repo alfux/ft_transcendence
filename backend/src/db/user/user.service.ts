@@ -10,6 +10,8 @@ import { NotificationsService } from 'src/notifications/'
 import { HttpBadRequest, HttpNotFound } from 'src/exceptions'
 import { FindOptions, FindMultipleOptions } from '../types'
 import { GameService } from 'src/game/game.service'
+import { ConversationService } from '../conversation'
+import { PrivateConversationService } from '../private_conversation'
 
 @Injectable()
 export class UserService {
@@ -23,8 +25,14 @@ export class UserService {
 
 		@Inject(forwardRef(() => GameService))
 		private gameService: GameService,
+		
+		private notificationService: NotificationsService,
+		
+		@Inject(forwardRef(() => ConversationService))
+		private conversationService: ConversationService,
 
-		private notificationService: NotificationsService
+		@Inject(forwardRef(() => PrivateConversationService))
+		private privateConversationService: PrivateConversationService
 	) { }
 
 	async getUser(where: FindOptions<User> = {}, relations = [] as string[]): Promise<User> {
@@ -58,7 +66,6 @@ export class UserService {
 		if (user.id === undefined)
 			throw new HttpNotFound("User")
 		const curr_user = await this.getUser({ id: user.id })
-		console.log("userUodated:",user)
 		return this.usersRepository.save({ id: user.id, ...Object.assign(curr_user, user) })
 	}
 
@@ -157,9 +164,14 @@ export class UserService {
 
 		sender.friends.push(receiver)
 		receiver.friends.push(sender)
-		this.usersRepository.save(sender)
-		this.usersRepository.save(receiver)
-		this.friendRequestService.removeFriendRequest(request)
+		await this.usersRepository.save(sender)
+		await this.usersRepository.save(receiver)
+		await this.friendRequestService.removeFriendRequest(request)
+
+		await this.privateConversationService.createPrivateConversation(sender.id, receiver.id)
+		.catch((e) => {
+			if (e instanceof HttpBadRequest) { console.log(e) } else throw e
+		})
 
 		this.notificationService.emit([sender, receiver], "friend_request_accepted", { req: request })
 		this.notificationService.emit([sender], "friend_new", { user: { id: receiver.id, username: receiver.username, image: receiver.image } })

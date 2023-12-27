@@ -40,7 +40,7 @@ export class ConversationController {
 		responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
 	})
 	getOwnConversations(@Req() req: Request) {
-		return this.conversationService.getConversation({ owner: { id: req.user.id } }, [...CONVERSATION_DEFAULT])
+		return this.conversationService.getConversations({ owner: { id: req.user.id } }, [...CONVERSATION_DEFAULT])
 	}
 
 	@Route({
@@ -276,6 +276,6 @@ export class ConversationController {
 		else {
 			throw new HttpUnauthorized("You are not owner nor an admin")
 		}
-
 	}
+
 }

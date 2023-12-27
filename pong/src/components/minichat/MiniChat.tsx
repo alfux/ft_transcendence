@@ -8,6 +8,7 @@ import {
 	ConversationUser,
 	FriendRequest,
 	Message,
+	PrivateConversation,
 	User,
 } from "../../THREE/Utils/backend_types";
 import UserProfile from "./userProfile/UserProfile";
@@ -16,7 +17,8 @@ import ChannelForm from "./channelForm/ChannelForm";
 import usePayload from "../../react_hooks/use_auth";
 import { JwtPayload } from "../../THREE/Utils";
 import { chatSocket } from "../../sockets/chat";
-import { gameSocket, notificationsSocket } from "../../sockets";
+import { gameSocket, notificationsSocket, private_chatSocket } from "../../sockets";
+import { FetchError, backend_fetch } from "../backend_fetch";
 
 export enum ChannelOptions {
 	CREATE_CHANNEL = "create channel",
@@ -26,7 +28,6 @@ export enum ChannelOptions {
 }
 
 export interface ChatProps {
-	isInChannel: boolean;
 	me: User | undefined;
 	payload: JwtPayload | undefined;
 	channels: Conversation[] | null;
@@ -40,8 +41,8 @@ export interface ChatProps {
 	toogledButton: string | null;
 	notificationType: any;
 	usersBlocked: any;
-	friendMessages:Conversation | undefined;
-	setFriendMessages:(friendMessages:Conversation | undefined) => void;
+	friendConversation: PrivateConversation | undefined;
+	setFriendConversation:(friendConversation:PrivateConversation | undefined) => void;
 	setUsersBlocked: (usersBlocked: any) => void;
 	setNotificationType: (notificationType: any) => void;
 	setToogledButton: (toogledButton: string | null) => void;
@@ -75,9 +76,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 	const [selectedGroupOption, setSelectedGroupOption] =
 		useState<ChannelOptions | null>(null);
 	const [selectedUser, setSelectedUser] = useState<User | undefined>(undefined);
-	const [selectedGroup, setSelectedGroup] = useState<Conversation | undefined>(
-		undefined
-	);
+	const [selectedGroup, setSelectedGroup] = useState<Conversation | undefined>(undefined);
 	const [me, setMe] = useState<User | undefined>(undefined);
 	const [allUsers, setAllUsers] = useState<User[] | null>(null);
 	const [friends, setFriends] = useState<User[] | null>(null);
@@ -87,11 +86,10 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 	const [conversation, setConversation] = useState<any>(null);
 	const [newChannel, setNewChannel] = useState<any | null>(null);
 	const displayContainer = useRef<HTMLDivElement>(null);
-	const [isInChannel, setIsInChannel] = useState<boolean>(false);
 	const [toogledButton, setToogledButton] = useState<string | null>(null);
 	const [notificationType, setNotificationType] = useState<any>(null);
 	const [usersBlocked, setUsersBlocked] = useState<any>(null);
-	const [friendMessages,setFriendMessages] = useState<Conversation | undefined>(undefined)
+	const [friendConversation,setFriendConversation] = useState<PrivateConversation | undefined>(undefined)
 	/*======================================================================
 	===================Functions to Pass To Children To Set State===============
 	======================================================================== */
@@ -109,7 +107,6 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 	===================Const that hold all the props to pass to children===============
 	======================================================================== */
 	const groupsProps = {
-		isInChannel,
 		me,
 		payload,
 		channels,
@@ -123,8 +120,8 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 		toogledButton,
 		notificationType,
 		usersBlocked,
-		friendMessages,
-		setFriendMessages,
+		friendConversation,
+		setFriendConversation,
 		setUsersBlocked,
 		setNotificationType,
 		setToogledButton,
@@ -147,14 +144,24 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 	/*======================================================================
 	===================Find the Own User Object <ME>=====================
 	======================================================================== */
+
 	useEffect(() => {
 		chatSocket.on("receive_message", (data) => {
 			setNotificationType(data);
 		});
-		gameSocket.on("receive_message", (data) => {
+
+		private_chatSocket.on("receive_message", (data) => {
+			console.log("dzqjud,ziqd,ziq,", data)
 			setNotificationType(data);
 		});
+
+		return (() => {
+			chatSocket.off("receive_message")
+			private_chatSocket.off("receive_message")
+		})
+
 	}, []);
+
 	useEffect(() => {
 		const currentUser = allUsers?.find((user) => user.id === payload?.id);
 		if (currentUser) {
@@ -167,26 +174,11 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 	======================================================================== */
 
 	useEffect(() => {
-		const requestConversation = async () => {
-			try {
-				const conversation_url = `${config.backend_url}/api/conversation/`;
-				const response = await fetch(conversation_url, {
-					method: "GET",
-					credentials: "include",
-				});
-				if (response.ok) {
-					const result = await response.json();
-					setChannels(result);
-				} else {
-					console.error("Could not get Conversation:", response.status);
-				}
-			} catch (error) {
-				console.error("Error fetching Conversation:", error);
-			}
-		};
-		requestConversation();
-
-
+		backend_fetch(`${config.backend_url}/api/conversation`, {
+			method: 'GET'
+		})
+		.then((data) => setChannels(data))
+		.catch(() => setChannels(null))
 
 
 
@@ -384,39 +376,38 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 	===================Fetch<Get> Messages From His Own Id====================
 	======================================================================== */
 	useEffect(() => {
-		const requestMessages = async () => {
-			if (!me) {
-				return;
-			}
+		if (!me) {
+			return;
+		}
 
-			try {
-				const fetchMessage = `${config.backend_url}/api/conversation/${selectedGroup?.id}`;
-				const response = await fetch(fetchMessage, {
-					method: "GET",
-					credentials: "include",
-				});
-				if (response.ok) {
-					const result = await response.json();
-					setChannelMessages(result.messages);
-				} else {
-					// setChannelMessages(undefined);
-					console.error("Could not get channel messages:", response.status);
-				}
-			} catch (error) {
-				console.error("Error fetching profile me messages:", error);
-			}
-		};
-		requestMessages();
+		if (selectedGroup !== undefined) {
+			backend_fetch(`${config.backend_url}/api/conversation/${selectedGroup?.id}`, {
+				method: 'GET'
+			})
+			.then((data: Conversation) => {
+				data.messages?.sort((a: Message, b: Message) => (new Date(a.createdAt).getTime()) - (new Date(b.createdAt).getTime()))
+				setChannelMessages(data.messages);
+			})
+			.catch(() => setChannelMessages(undefined))
+		}
+
 	}, [selectedGroup, notificationType]);
 
-	useEffect(() => {
-		setIsInChannel(false);
-		selectedGroup?.users.map((channelUser: any) => {
-			if (me?.id === channelUser.user.id) {
-				setIsInChannel(true);
-			}
-		});
-	}, [selectedGroup, notificationType]);
+		/*======================================================================
+	===============Fetch<Get> Messages in Private Conversation================
+	======================================================================== */
+	useEffect(()=>{
+		if (selectedUser !== undefined && selectedGroupOption === ChannelOptions.FRIENDS)
+		{
+			backend_fetch(`${config.backend_url}/api/private_conversation/${selectedUser.id}`, {
+				method:'GET'
+			})
+			.then((data) => setFriendConversation(data))
+			.catch(() => setFriendConversation(undefined))
+		}
+
+	}, [selectedUser, notificationType])
+
 
 	const componentSize: React.CSSProperties = {
 		width: width,

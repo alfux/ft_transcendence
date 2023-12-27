@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Req, UnauthorizedException, Inject, forwardRef } from '@nestjs/common'
-import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 
 import { Route } from 'src/route'
 import { Request } from 'src/auth/interfaces'

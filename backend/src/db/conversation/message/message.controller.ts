@@ -20,7 +20,18 @@ export class MessageController {
 		method: Get(':id'),
 		description: { summary: 'Get message by id', description: 'Get message by id' }
 	})
-	GetById(@Param('id', ParseIntPipe) id: number) {
+	async GetById(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+		const message = await this.messageService.getMessage({
+			id: id,
+			conversation: {
+				users : { user: { id: req.user.id } }
+			}
+		},
+		[
+			'conversation',
+			'conversation.users',
+			'conversation.users.user',
+		])
 		return this.messageService.getMessage({ id: id }, ['conversation', 'sender', 'sender.user'])
 	}
 
@@ -28,7 +39,7 @@ export class MessageController {
 		method: Delete(':id'),
 		description: { summary: 'Delete message by id', description: 'Delete message by id. Only allowed for message owner or conversation admin' }
 	})
-	async DeleteById(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+	async DeleteById(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
 
 		const message = await this.messageService.getMessage({ id: id }, [
 			'sender', 'sender.user',

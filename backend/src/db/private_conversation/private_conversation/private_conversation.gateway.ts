@@ -1,18 +1,16 @@
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, SubscribeMessage } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 
-import { User, UserService } from 'src/db/user'
+import { UserService } from 'src/db/user'
 import { Client, CoolSocket, getCoolClients } from 'src/socket/'
-import { ConversationService } from 'src/db/conversation'
 
-import { Message, MessageService } from 'src/db/conversation/message'
-import { HttpUnauthorized } from 'src/exceptions'
+import { PrivateMessage, PrivateMessageService } from 'src/db/private_conversation/private_message'
 import { AuthService } from 'src/auth'
 import { Inject, forwardRef } from '@nestjs/common'
-import { CONVERSATION_DEFAULT } from './conversation.service'
+import { PRIVATE_CONVERSATION_DEFAULT, PrivateConversationService } from './private_conversation.service'
 
-@WebSocketGateway({ namespace: 'chat' })
-export class ConversationGateway implements OnGatewayConnection {
+@WebSocketGateway({ namespace: 'private_chat' })
+export class PrivateConversationGateway implements OnGatewayConnection {
 
 	constructor(
 		@Inject(forwardRef(() => AuthService))
@@ -20,8 +18,8 @@ export class ConversationGateway implements OnGatewayConnection {
 		@Inject(forwardRef(() => UserService))
 		private userService: UserService, //NE PAS ENELEVER
 
-		private messageService: MessageService,
-		private conversationService: ConversationService
+		private privateMessageService: PrivateMessageService,
+		private privateConversationService: PrivateConversationService
 	) { }
 
 	@WebSocketServer() server: Server
@@ -29,6 +27,7 @@ export class ConversationGateway implements OnGatewayConnection {
 	connectedClients: Socket[] = []
 
 	async handleConnection(client: Socket) {
+		console.log(client.id)
 		this.connectedClients.push(client)
 	}
 
@@ -43,21 +42,22 @@ export class ConversationGateway implements OnGatewayConnection {
 	@SubscribeMessage('send_message')
 	@CoolSocket()
 	async handleMessage(client: Client, data: { message: string, conversation_id: number }): Promise<void> {
-		const conv = await this.conversationService.getConversation({ id: data.conversation_id }, [...CONVERSATION_DEFAULT])
-		const user = conv.users.find((v) => v.user.id === client.user.id)
+		console.log(data)
+		const conv = await this.privateConversationService.getPrivateConversation({ id: data.conversation_id }, ['users', 'messages'])
+		
+
+		const user = conv.users.find((v) => v.id === client.user.id)
+		console.log(user)
 		if (user === undefined)
 			return
 
-		const mutedUntil = new Date(user.mutedUntil)
-		if (mutedUntil.getTime() > Date.now()) {
-			return
-		}
-
-		const new_message = new Message()
+		const new_message = new PrivateMessage()
 		new_message.content = data.message
 		new_message.conversation = conv
 		new_message.sender = user
-		await this.messageService.createMessage(new_message)
+		await this.privateMessageService.createMessage(new_message)
+
+		console.log(new_message)
 
 
 		this.connectedClients.forEach((unauth) => {
@@ -67,7 +67,7 @@ export class ConversationGateway implements OnGatewayConnection {
 				return
 			}
 
-			if (conv.users.find((v) => v.user.id === client.user.id) === undefined) {
+			if (conv.users.find((v) => v.id === client.user.id) === undefined) {
 				return
 			}
 

@@ -33,7 +33,9 @@ import { AuthModule } from 'src/auth'
 		MessageService
 	],
 
-	controllers: [ConversationController],
+	controllers: [
+		ConversationController,
+	],
 
 	exports: [
 		TypeOrmModule,

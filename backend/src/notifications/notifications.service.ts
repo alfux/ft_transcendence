@@ -26,8 +26,6 @@ export class NotificationsService {
 	}
 
 	emit_everyone(event: string, data: any) {
-		console.log("Emit for everyone: ", event)
-
 		this.connectedClients.forEach((user, socket) => {
 			socket.emit(event, data)
 		})
@@ -36,7 +34,6 @@ export class NotificationsService {
 	emit(users: User[], event: string, data: any) {
 		for (const [key, value] of this.connectedClients.entries()) {
 			if (users.map((v) => v.id).includes(value.id)) {
-				console.log("EMIT FOR: ", value.username, event, data)
 				key.emit(event, data)
 			}
 		}

@@ -6,6 +6,7 @@ import { PlayRequest } from './play_request/'
 import { Match } from './match'
 
 import { LoggedStatus } from '.'
+import { PrivateConversation } from '../private_conversation'
 
 @Entity()
 export class User {
@@ -38,6 +39,9 @@ export class User {
 
 	@OneToMany(() => ConversationUser, (conv_user) => conv_user.user)
 	conversations: ConversationUser[]
+
+	@ManyToMany(() => PrivateConversation, (conv) => conv.users)
+	private_conversations: PrivateConversation[]
 
 	@ManyToMany(() => User)
 	@JoinTable()

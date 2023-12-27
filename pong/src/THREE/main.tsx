@@ -32,9 +32,7 @@ export default function THREE_App() {
 	const [isBroken, setIsBroken] = useState(false)
 
 	let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
-	console.log(accessToken)
 	const [payload, updatePayload, handleUpdate] = usePayload();
-	console.log("user",user)
 	const requestNewToken = async () => {
 		return backend_fetch(`${config.backend_url}/api/auth/refresh`, {
 			method: 'GET'

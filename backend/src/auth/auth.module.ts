@@ -2,11 +2,11 @@ import { Module, forwardRef } from '@nestjs/common'
 import { PassportModule } from '@nestjs/passport'
 import { JwtModule as NestJwtModule } from '@nestjs/jwt'
 
-import { UserModule } from 'src/db/user'
 import { AuthService } from './auth.service'
 import { AuthController } from './auth.controller'
 
 import { JwtModule } from './jwt'
+import { UserModule } from 'src/db/user'
 import { FortyTwoModule } from './42api'
 import { TwoFactorAuthenticationModule } from './2fa'
 

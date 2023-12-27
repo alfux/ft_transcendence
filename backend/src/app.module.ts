@@ -16,6 +16,7 @@ import { DebugModule } from 'src/debug/debug.module'
 import { GameModule } from 'src/game/game.module'
 
 import { config_db } from 'src/config'
+import { PrivateConversation, PrivateConversationModule, PrivateMessage } from './db/private_conversation'
 
 @Module({
 	imports: [
@@ -29,11 +30,14 @@ import { config_db } from 'src/config'
 			database: config_db.database,
 			entities: [
 				User,
-				Message,
-
+				
 				Conversation,
 				ConversationUser,
 				ConversationUserInfos,
+				Message,
+				
+				PrivateConversation,
+				PrivateMessage,
 
 				FriendRequest,
 				PlayRequest,
@@ -44,6 +48,7 @@ import { config_db } from 'src/config'
 		}),
 		UserModule,
 		ConversationModule,
+		PrivateConversationModule,
 		AuthModule,
 		DebugModule,
 		GameModule,
