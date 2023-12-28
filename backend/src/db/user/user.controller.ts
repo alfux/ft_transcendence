@@ -44,6 +44,15 @@ export class UserController {
 	async update_user_infos(@Req() req: Request, @Body() body: DTO.UpdateUserInfosBody) {
 		const user = await this.userService.getUser({ id: req.user.id })
 
+		if (body.username && body.username !== user.username) {
+
+			const users_with_name = await this.userService.getUsers({username:body.username})
+			
+			if (users_with_name.length !== 0) {
+				throw new HttpBadRequest("A user already has this name")
+			}
+		}
+
 		user.username = body.username
 		user.image = body.image
 		user.email = body.email

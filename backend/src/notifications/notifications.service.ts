@@ -12,9 +12,6 @@ export class NotificationsService {
 
 	addClient(socket: Socket, user: User) {
 		this.connectedClients.set(socket, user)
-		this.connectedClients.forEach((u, k) => {
-			console.log(`${u.username} => ${k.id}`)
-		})
 	}
 
 	removeClient(client: Socket) {
@@ -34,6 +31,7 @@ export class NotificationsService {
 	emit(users: User[], event: string, data: any) {
 		for (const [key, value] of this.connectedClients.entries()) {
 			if (users.map((v) => v.id).includes(value.id)) {
+				console.log("EMIT FOR: ", this.connectedClients.get(key).username, event, data)
 				key.emit(event, data)
 			}
 		}

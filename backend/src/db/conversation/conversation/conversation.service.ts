@@ -168,8 +168,6 @@ export class ConversationService {
 			password = await this.hashPassword(password)
 		}
 
-		console.log(access_level)
-
 		const user = await this.userService.getUser({ id: user_id })
 		const new_conv_template = this.conversationRepository.create(Object.assign({}, {
 			title: title,
@@ -179,9 +177,7 @@ export class ConversationService {
 			messages: []
 		}, access_level === AccessLevel.PROTECTED ? { password: password } : {}))
 		const new_conv = await this.conversationRepository.save(new_conv_template)
-
-		console.log(new_conv)
-
+	
 		return this.addUserToConversation({ id: new_conv.id }, user, src_password)
 	}
 
@@ -235,8 +231,6 @@ export class ConversationService {
 
 		if (conv.owner.id === user.id) {
 
-			console.log("TRYING TO FIND NEW OWNER")
-
 			let current_date = new Date(8640000000000000)
 			let next_owner: ConversationUser = undefined
 
@@ -249,7 +243,6 @@ export class ConversationService {
 
 			current_date = new Date(8640000000000000)
 			if (next_owner === undefined) {
-				console.log("NEW OWNER NOT FOUND, KEEP SEARCHING")
 				conv.users.forEach((u) => {
 					if (u.joinedAt < current_date) {
 						current_date = u.joinedAt
@@ -258,10 +251,8 @@ export class ConversationService {
 				})
 			}
 
-			console.log("NEW OWNER: ", next_owner)
 
 			if (next_owner === undefined) {
-				console.log("NO NEW OWNER ")
 				return this.deleteConversation({ id: conv.id })
 					.then(() => this.notificationService.emit_everyone("conv_delete", { conversation: conv }))
 			} else {
@@ -276,6 +267,11 @@ export class ConversationService {
 	async makeUserAdmin(user: ConversationUser) {
 		user.isAdmin = true
 		user.becameAdminAt = new Date()
+		return this.convUserRepository.save(user)
+	}
+
+	async demoteAdmin(user: ConversationUser) {
+		user.isAdmin = false
 		return this.convUserRepository.save(user)
 	}
 

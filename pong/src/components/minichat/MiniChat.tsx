@@ -1,12 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./MiniChat.css";
 import ChatMain from "./chatMain/ChatMain";
 import Groups from "./groups/Groups";
 import { config } from "../../config";
 import {
 	Conversation,
-	ConversationUser,
-	FriendRequest,
 	Message,
 	PrivateConversation,
 	User,
@@ -15,53 +13,10 @@ import UserProfile from "./userProfile/UserProfile";
 import ChannelProfile from "./channelProfile/ChannelProfile";
 import ChannelForm from "./channelForm/ChannelForm";
 import usePayload from "../../react_hooks/use_auth";
-import { JwtPayload } from "../../THREE/Utils";
 import { chatSocket } from "../../sockets/chat";
-import { gameSocket, notificationsSocket, private_chatSocket } from "../../sockets";
-import { FetchError, backend_fetch } from "../backend_fetch";
-
-export enum ChannelOptions {
-	CREATE_CHANNEL = "create channel",
-	ONLINE_USERS = "online users",
-	FRIENDS = "friends",
-	CHANNEL = "channel",
-}
-
-export interface ChatProps {
-	me: User | undefined;
-	payload: JwtPayload | undefined;
-	channels: Conversation[] | null;
-	friends: User[] | null;
-	allUsers: User[] | null;
-	selectedUser: User | undefined;
-	selectedGroup: Conversation | undefined;
-	selectedGroupOption: ChannelOptions | null;
-	channelMessages: any | null;
-	messageText: any;
-	toogledButton: string | null;
-	notificationType: any;
-	usersBlocked: any;
-	friendConversation: PrivateConversation | undefined;
-	setFriendConversation:(friendConversation:PrivateConversation | undefined) => void;
-	setUsersBlocked: (usersBlocked: any) => void;
-	setNotificationType: (notificationType: any) => void;
-	setToogledButton: (toogledButton: string | null) => void;
-	setSelectedChannel: (channel: Conversation | undefined) => void;
-	setSelectedChannelOption: (option: ChannelOptions) => void;
-	setSelectedUser: (user: User | undefined) => void;
-	setChannels: React.Dispatch<React.SetStateAction<Conversation[] | null>>;
-	setFriends: React.Dispatch<React.SetStateAction<User[] | null>>;
-	setAllUsers: React.Dispatch<React.SetStateAction<User[] | null>>;
-	setSelectedGroup: React.Dispatch<React.SetStateAction<any | undefined>>;
-	setSelectedGroupOption: React.Dispatch<React.SetStateAction<ChannelOptions | null>>;
-	setMe: React.Dispatch<React.SetStateAction<User | undefined>>;
-	setFriendsRequests: React.Dispatch<React.SetStateAction<User | undefined>>;
-	setChannelMessages: React.Dispatch<React.SetStateAction<any | null>>;
-	setMessageText: React.Dispatch<React.SetStateAction<any>>;
-	setConversation: React.Dispatch<React.SetStateAction<any>>;
-	setNewChannel: React.Dispatch<React.SetStateAction<any | null>>;
-	displayContainer: React.MutableRefObject<HTMLDivElement | null>;
-}
+import { notificationsSocket, private_chatSocket } from "../../sockets";
+import { backend_fetch } from "../backend_fetch";
+import { ChannelOptions, ChatProps } from "./ChatProps.interface";
 
 interface ChatSize {
 	width: string;
@@ -72,342 +27,220 @@ interface ChatSize {
 
 const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 	const [payload, updatePayload, handleUpdate] = usePayload();
-	const [channels, setChannels] = useState<Conversation[] | null>(null);
-	const [selectedGroupOption, setSelectedGroupOption] =
-		useState<ChannelOptions | null>(null);
+
+	const [me, setMe] = useState<User | undefined>(undefined);
+	const [friends, setFriends] = useState<User[] | undefined>(undefined);
+
+	const [friendConversation, setFriendConversation] = useState<PrivateConversation | undefined>(undefined)
+
+	const [channels, setChannels] = useState<Conversation[] | undefined>(undefined);
+	const [allUsers, setAllUsers] = useState<User[] | undefined>(undefined);
+	const [usersBlocked, setUsersBlocked] = useState<User[] | undefined>(undefined);
+
 	const [selectedUser, setSelectedUser] = useState<User | undefined>(undefined);
 	const [selectedGroup, setSelectedGroup] = useState<Conversation | undefined>(undefined);
-	const [me, setMe] = useState<User | undefined>(undefined);
-	const [allUsers, setAllUsers] = useState<User[] | null>(null);
-	const [friends, setFriends] = useState<User[] | null>(null);
-	const [friendsRequests, setFriendsRequests] = useState<User | undefined>();
-	const [channelMessages, setChannelMessages] = useState<any | null>(null);
-	const [messageText, setMessageText] = useState<any>("");
-	const [conversation, setConversation] = useState<any>(null);
-	const [newChannel, setNewChannel] = useState<any | null>(null);
-	const displayContainer = useRef<HTMLDivElement>(null);
-	const [toogledButton, setToogledButton] = useState<string | null>(null);
-	const [notificationType, setNotificationType] = useState<any>(null);
-	const [usersBlocked, setUsersBlocked] = useState<any>(null);
-	const [friendConversation,setFriendConversation] = useState<PrivateConversation | undefined>(undefined)
-	/*======================================================================
-	===================Functions to Pass To Children To Set State===============
-	======================================================================== */
-	const handleSelectGroup = (channel: any | undefined) => {
-		setSelectedGroup(channel);
-	};
-	const handleSelectGroupOption = (option: ChannelOptions) => {
-		setSelectedGroupOption(option);
-	};
+	const [selectedGroupOption, setSelectedGroupOption] = useState<ChannelOptions | undefined>(undefined);
 
-	const handleSelectUser = (user: User | undefined) => {
-		setSelectedUser(user);
-	};
+	const [onUpdate, setUpdateTrigger] = useState<boolean>(false);
+
 	/*======================================================================
 	===================Const that hold all the props to pass to children===============
 	======================================================================== */
-	const groupsProps = {
-		me,
-		payload,
-		channels,
-		friends,
-		allUsers,
-		selectedUser,
-		selectedGroup,
-		selectedGroupOption,
-		channelMessages,
-		messageText,
-		toogledButton,
-		notificationType,
-		usersBlocked,
-		friendConversation,
-		setFriendConversation,
-		setUsersBlocked,
-		setNotificationType,
-		setToogledButton,
-		setSelectedChannel: handleSelectGroup,
-		setSelectedChannelOption: handleSelectGroupOption,
-		setSelectedUser: handleSelectUser,
-		setChannels,
-		setFriends,
-		setAllUsers,
-		setSelectedGroup,
-		setSelectedGroupOption,
-		setMe,
-		setFriendsRequests,
-		setChannelMessages,
-		setMessageText,
-		setConversation,
-		setNewChannel,
-		displayContainer,
+	const groupsProps: ChatProps = {
+		payload: payload,
+
+		me: me,
+		friends: friends,
+		friendConversation: friendConversation,
+
+		channels: channels,
+		allUsers: allUsers,
+		usersBlocked: usersBlocked,
+
+		selectedUser: selectedUser,
+		selectedGroup: selectedGroup,
+		selectedGroupOption: selectedGroupOption,
+
+		onUpdate: onUpdate,
+		triggerUpdate: () => setUpdateTrigger((prev) => !prev),
+
+		setMe: setMe,
+		setFriends: setFriends,
+		setFriendConversation: setFriendConversation,
+
+		setChannels: setChannels,
+		setAllUsers: setAllUsers,
+		setUsersBlocked: setUsersBlocked,
+
+		setSelectedUser: setSelectedUser,
+		setSelectedGroup: setSelectedGroup,
+		setSelectedGroupOption: setSelectedGroupOption,
 	};
 	/*======================================================================
 	===================Find the Own User Object <ME>=====================
 	======================================================================== */
-
-	useEffect(() => {
-		chatSocket.on("receive_message", (data) => {
-			setNotificationType(data);
-		});
-
-		private_chatSocket.on("receive_message", (data) => {
-			console.log("dzqjud,ziqd,ziq,", data)
-			setNotificationType(data);
-		});
-
-		return (() => {
-			chatSocket.off("receive_message")
-			private_chatSocket.off("receive_message")
-		})
-
-	}, []);
-
 	useEffect(() => {
 		const currentUser = allUsers?.find((user) => user.id === payload?.id);
 		if (currentUser) {
 			setMe(currentUser);
 		}
-	}, [allUsers, notificationType]);
+	}, [allUsers, onUpdate]);
 
 	/*======================================================================
 	===================Fetch<GET> All Channels========================
 	======================================================================== */
-
 	useEffect(() => {
 		backend_fetch(`${config.backend_url}/api/conversation`, {
 			method: 'GET'
 		})
-		.then((data) => setChannels(data))
-		.catch(() => setChannels(null))
-
-
-
-		/*
-		Je sais que c'est degueulasse mais pour éviter de recevoir les memes events plein de fois
-		faut faire les socket.off, et pour ca faut creer une fonction pour chaque socket.on.
-		(Pour que le socket.off retire le bon handler)
-		*/
-		function s_conv_create(data: { conversation: Conversation }) {
-			setChannels((prev) => {
-				return prev === null
-					? [data.conversation]
-					: [data.conversation, ...prev];
-			});
-		}
-		notificationsSocket.on("conv_create", s_conv_create);
-
-		function s_conv_delete(data: { conversation: Conversation }) {
-			setChannels((prev) => {
-				return prev === null
-					? prev
-					: prev.filter((c) => c.id !== data.conversation.id);
-			});
-		}
-		notificationsSocket.on("conv_delete", s_conv_delete);
-
-		function s_conv_update(data: { conversation: Conversation }) {
-			if (channels === null) 
-				return
-			
-			const old_conv = channels.find((c) => c.id === data.conversation.id)
-			if (old_conv === undefined) {
-				setChannels((prev) =>  [...prev!, data.conversation])
-			} else {
-				const new_channels = channels.filter((c) => c.id !== old_conv.id)
-				new_channels.push(data.conversation)
-				setChannels(new_channels)
-			}
-		}
-		notificationsSocket.on("conv_update", s_conv_update);
-
-		function s_conv_join(data: { conversation: Conversation, user: User }) {
-			if (!selectedGroup) {
-				return
-			}
-			console.log(selectedGroup)
-			if (selectedGroup.id === data.conversation.id) {
-				setSelectedGroup(conversation)
-			}
-		}
-		notificationsSocket.on("conv_join", s_conv_join);
-
-		function s_conv_leave(data: { conversation: Conversation, user: User }) {
-			if (!selectedGroup) {
-				return
-			}
-			console.log(selectedGroup)
-			if (selectedGroup.id === data.conversation.id) {
-				setSelectedGroup(conversation)
-			}
-		}
-		notificationsSocket.on("conv_leave", s_conv_leave);
-
-
-
-		function s_friend_request_accepted(data:any) { setNotificationType(data); }
-		notificationsSocket.on("friend_request_accepted", s_friend_request_accepted);
-		
-		function s_friend_new(data:any) { setNotificationType(data); }
-		notificationsSocket.on("friend_new", s_friend_new);
-
-		function s_friend_delete(data:any) { setNotificationType(data); }
-		notificationsSocket.on("friend_delete", s_friend_delete);
-
-		function s_blocked_new(data:any) { setNotificationType(data); }
-		notificationsSocket.on("blocked_new", s_blocked_new);
-
-		function s_blocked_delete(data:any) { setNotificationType(data); }
-		notificationsSocket.on("blocked_delete", s_blocked_delete);
-
-		return (() => {
-			notificationsSocket.off("conv_create", s_conv_create);
-			notificationsSocket.off("conv_update", s_conv_update);
-			notificationsSocket.off("conv_delete", s_conv_delete);
-			notificationsSocket.off("conv_join", s_conv_join);
-			notificationsSocket.off("conv_leave", s_conv_leave);
-
-			notificationsSocket.off("friend_request_accepted", s_friend_request_accepted);
-			notificationsSocket.off("friend_new", s_friend_new);
-			notificationsSocket.off("friend_delete", s_friend_delete);
-			notificationsSocket.off("blocked_new", s_blocked_new);
-			notificationsSocket.off("blocked_delete", s_blocked_delete);
-		})
-
-	}, [notificationType]);
+			.then((data) => setChannels(data))
+			.catch(() => setChannels(undefined))
+	}, [onUpdate]);
 
 	/*======================================================================
 	===================Fetch<GET>Users Blocked==================================
 	======================================================================== */
 
 	useEffect(() => {
-		const requestAllBlockedUsers = async () => {
-			try {
-				const enable2FAEndpoint = `${config.backend_url}/api/user/blocked`;
-				const response = await fetch(enable2FAEndpoint, {
-					method: "GET",
-					credentials: "include",
-				});
-				if (response.ok) {
-					const result = await response.json();
-					setUsersBlocked(result);
-				} else {
-					console.error("Could not get profile:", response.status);
-				}
-			} catch (error) {
-				console.error("Error fetching profile Token:", error);
-			}
-		};
-		requestAllBlockedUsers();
-
-		function s_user_create(data: { user: User }) {
-			setAllUsers((prev) => {
-				return prev === null ? [data.user] : [data.user, ...prev];
-			});
-		}
-		notificationsSocket.on("user_create", s_user_create);
-
-		return () => {
-			notificationsSocket.off("user_create", s_user_create);
-		};
-	}, [notificationType]);
+		backend_fetch(`${config.backend_url}/api/user/blocked`, {
+			method: 'GET'
+		})
+			.then((data) => setUsersBlocked(data))
+			.catch(() => setUsersBlocked(undefined))
+	}, [onUpdate]);
 
 	/*======================================================================
 	===================Fetch<GET>All Users==================================
 	======================================================================== */
 
 	useEffect(() => {
-		const requestAllUsers = async () => {
-			try {
-				const enable2FAEndpoint = `${config.backend_url}/api/user`;
-				const response = await fetch(enable2FAEndpoint, {
-					method: "GET",
-					credentials: "include",
-				});
-				if (response.ok) {
-					const result = await response.json();
-					setAllUsers(result);
-				} else {
-					console.error("Could not get profile:", response.status);
-				}
-			} catch (error) {
-				console.error("Error fetching profile Token:", error);
-			}
-		};
-		requestAllUsers();
-
-	}, [notificationType]);
+		backend_fetch(`${config.backend_url}/api/user`, {
+			method: 'GET'
+		})
+			.then((data) => setAllUsers(data))
+			.catch(() => setAllUsers(undefined))
+	}, [onUpdate]);
 
 	/*======================================================================
 	===================Fetch<GET> All Friends From User=====================
 	======================================================================== */
 	useEffect(() => {
-		const requestProfile = async () => {
-			try {
-				const enable2FAEndpoint = `${config.backend_url}/api/user/friends`;
-				const response = await fetch(enable2FAEndpoint, {
-					method: "GET",
-					credentials: "include",
-				});
-				if (response.ok) {
-					const result = await response.json();
-					setFriends(result);
-				} else {
-					console.error("Could not get Friends fetch:", response.status);
-				}
-			} catch (error) {
-				console.error("Error fetching Friends:", error);
-			}
-		};
-		requestProfile();
-
-		function s_friend_new(user: User) {
-			setFriends((prev) => {
-				return prev === null ? [user] : [user, ...prev];
-			});
-		}
-		notificationsSocket.on("friend_new", s_friend_new);
-	
-		return () => {
-			notificationsSocket.off("friend_new", s_friend_new);
-		};
-	}, [notificationType, selectedGroupOption]);
+		backend_fetch(`${config.backend_url}/api/user/friends`, {
+			method: 'GET'
+		})
+			.then((data) => setFriends(data))
+			.catch(() => setFriends(undefined))
+	}, [onUpdate, selectedGroupOption]);
 
 	/*======================================================================
-	===================Fetch<Get> Messages From His Own Id====================
-	======================================================================== */
+===============Fetch<Get> Messages in Private Conversation================
+======================================================================== */
 	useEffect(() => {
-		if (!me) {
-			return;
-		}
-
-		if (selectedGroup !== undefined) {
-			backend_fetch(`${config.backend_url}/api/conversation/${selectedGroup?.id}`, {
+		if (selectedUser !== undefined && selectedGroupOption === ChannelOptions.FRIENDS) {
+			backend_fetch(`${config.backend_url}/api/private_conversation/${selectedUser.id}`, {
 				method: 'GET'
 			})
-			.then((data: Conversation) => {
-				data.messages?.sort((a: Message, b: Message) => (new Date(a.createdAt).getTime()) - (new Date(b.createdAt).getTime()))
-				setChannelMessages(data.messages);
-			})
-			.catch(() => setChannelMessages(undefined))
+				.then((data) => setFriendConversation(data))
+				.catch(() => setFriendConversation(undefined))
 		}
 
-	}, [selectedGroup, notificationType]);
+	}, [selectedUser, onUpdate])
+	/*======================================================================
+===============Notification socket handlers================
+======================================================================== */
 
-		/*======================================================================
-	===============Fetch<Get> Messages in Private Conversation================
-	======================================================================== */
-	useEffect(()=>{
-		if (selectedUser !== undefined && selectedGroupOption === ChannelOptions.FRIENDS)
-		{
-			backend_fetch(`${config.backend_url}/api/private_conversation/${selectedUser.id}`, {
-				method:'GET'
-			})
-			.then((data) => setFriendConversation(data))
-			.catch(() => setFriendConversation(undefined))
+	/*
+	Cette merde marche pas des fois parce que:
+	
+	
+	On rentre dans le useEffect, qui setup tout les handler pr les websockets
+	Les handlers ont la ref d'un state, mais quand on change le state later,
+	la ref qu'ils ont est plus la bonne, donc faut trouver un moyen de mettre
+	ca a jour
+	
+	https://react.dev/reference/react/useCallback
+	https://github.com/facebook/react/issues/14543
+	*/
+
+	useEffect(() => {
+		function s_friend_new(user: User) { setFriends((prev) => prev === undefined ? [user] : [user, ...prev]) }
+		notificationsSocket.on("friend_new", s_friend_new);
+
+
+		function s_user_create(data: { user: User }) { setAllUsers((prev) => prev === undefined ? [data.user] : [data.user, ...prev]) }
+		notificationsSocket.on("user_create", s_user_create);
+
+
+		function s_conv_create(data: { conversation: Conversation }) { setChannels((prev) => prev === undefined ? [data.conversation] : [data.conversation, ...prev]) }
+		notificationsSocket.on("conv_create", s_conv_create);
+
+		function s_friend_request_accepted(data: any) { groupsProps.triggerUpdate(); }
+		notificationsSocket.on("friend_request_accepted", s_friend_request_accepted);
+
+		function s_friend_delete(data: any) { groupsProps.triggerUpdate(); }
+		notificationsSocket.on("friend_delete", s_friend_delete);
+
+		function s_blocked_new(data: any) { groupsProps.triggerUpdate(); }
+		notificationsSocket.on("blocked_new", s_blocked_new);
+
+		function s_blocked_delete(data: any) { groupsProps.triggerUpdate(); }
+		notificationsSocket.on("blocked_delete", s_blocked_delete);
+
+		private_chatSocket.on("receive_message", (data) => {
+			groupsProps.triggerUpdate();
+		});
+
+		return () => {
+			notificationsSocket.off("conv_create", s_conv_create);
+
+			notificationsSocket.off("friend_request_accepted", s_friend_request_accepted);
+			notificationsSocket.off("friend_delete", s_friend_delete);
+			notificationsSocket.off("blocked_new", s_blocked_new);
+			notificationsSocket.off("blocked_delete", s_blocked_delete);
+
+			notificationsSocket.off("friend_new", s_friend_new);
+			notificationsSocket.off("user_create", s_user_create);
+
+			chatSocket.off("receive_message")
+			private_chatSocket.off("receive_message")
+		};
+	}, [])
+
+	useEffect(() => {
+		function s_conv_delete(data: { conversation: Conversation }) {
+			setChannels((prev) => prev === undefined ? prev : prev.filter((c) => c.id !== data.conversation.id));
+			if (selectedGroup?.id === data.conversation.id) {
+				setSelectedGroup(undefined)
+			}
 		}
+		notificationsSocket.on("conv_delete", s_conv_delete);
 
-	}, [selectedUser, notificationType])
 
+		function conv_update(data: { conversation: Conversation }) {
+			setChannels((prev) => prev === undefined ? prev : prev.map((p) => p.id === data.conversation.id ? data.conversation : p))
+			if (selectedGroup?.id === data.conversation.id) {
+				setSelectedGroup(data.conversation)
+			}
+
+			groupsProps.triggerUpdate()
+		}
+		notificationsSocket.on("conv_update", conv_update)
+		notificationsSocket.on("conv_join", conv_update)
+		notificationsSocket.on("conv_leave", conv_update)
+		notificationsSocket.on("conv_promote", conv_update)
+		notificationsSocket.on("conv_demote", conv_update)
+
+		return (() => {
+			notificationsSocket.off("conv_delete", s_conv_delete)
+
+			notificationsSocket.off("conv_update", conv_update)
+			notificationsSocket.off("conv_join", conv_update)
+			notificationsSocket.off("conv_leave", conv_update)
+			notificationsSocket.off("conv_promote", conv_update)
+			notificationsSocket.off("conv_demote", conv_update)
+		})
+
+	}, [selectedGroup, selectedUser]) //dependance necessaire sinon le 'selectedGroup' dans les event handler des websocket est pas a jour :(
 
 	const componentSize: React.CSSProperties = {
 		width: width,
@@ -424,11 +257,15 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 		<div style={componentSize}>
 			{selectedUser && <UserProfile {...groupsProps} />}
 			<div className="glass-container-minichat">
-				{selectedGroupOption === ChannelOptions.CREATE_CHANNEL && (
+				{
+					selectedGroupOption === ChannelOptions.CREATE_CHANNEL &&
 					<ChannelForm {...groupsProps} />
-				)}
-				{selectedGroupOption === ChannelOptions.CHANNEL &&
-					toogledButton === "Channel" && <ChannelProfile {...groupsProps} />}
+				}
+				{
+					selectedGroupOption === ChannelOptions.CHANNEL && selectedGroup !== undefined ?
+						<ChannelProfile {...groupsProps} /> : undefined
+				}
+
 				<Groups {...groupsProps} />
 				<ChatMain {...groupsProps} />
 			</div>

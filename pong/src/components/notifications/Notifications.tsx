@@ -27,11 +27,11 @@ const Notifications: React.FC = () => {
 
 	useEffect(() => {
 
-		function s_receive_message(data: any) {
-			setDataContent(data)
-			setDataType("receive_message")
-		}
-		chatSocket.on("receive_message", s_receive_message)
+		//function s_receive_message(data: any) {
+		//	setDataContent(data)
+		//	setDataType("receive_message")
+		//}
+		//chatSocket.on("receive_message", s_receive_message)
 
 		function s_friend_new(data: any) {
 			setDataType("friend_new");
@@ -71,7 +71,7 @@ const Notifications: React.FC = () => {
 		notificationsSocket.on("play_request_recv", s_play_request_recv)
 
 		return (() => {
-			chatSocket.off("receive_message", s_receive_message)
+			//chatSocket.off("receive_message", s_receive_message)
 			notificationsSocket.off("friend_new", s_friend_new);
 			notificationsSocket.off("friend_request_recv", s_friend_request_recv);
 			notificationsSocket.off("blocked_new", s_friend_delete);
@@ -85,7 +85,7 @@ const Notifications: React.FC = () => {
 	if (toogleButton === "show") {
 		setTimeout(() => {
 			setToogleButton('hide');
-		}, 4000)
+		}, 10000)
 	}
 
 

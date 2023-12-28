@@ -48,8 +48,21 @@ export class ConversationController {
 		description: { summary: 'Get all public conversations', description: 'Return a list of all the conversations that are marked as public' },
 		responses: [{ status: 200, description: 'List of conversations retrieved successfully' }]
 	})
-	getAllConversations() {
+	async getAllConversations(@Req() req: Request) {
+
+		const user = await this.userService.getUser({ id: req.user.id }, ['friends'])
+
 		return this.conversationService.getConversations({}, [...CONVERSATION_DEFAULT])
+			.then((convs) => {
+				return convs.filter((c) => {
+					if (c.access_level === AccessLevel.PRIVATE &&
+						c.owner.id !== user.id &&
+						user.friends.find((f) => f.id === c.owner.id) === undefined
+					)
+						return false
+					return true
+				})
+			})
 	}
 
 	@Route({
@@ -83,7 +96,7 @@ export class ConversationController {
 		}
 
 
-		if (body.access_level) {
+		if (conversation.access_level !== AccessLevel.PRIVATE && body.access_level) {
 			if (body.access_level === AccessLevel.PROTECTED) {
 				if (body.password === undefined || body.password === '')
 					throw new HttpBadRequest("Missing password")
@@ -99,12 +112,12 @@ export class ConversationController {
 			conversation.title = body.title
 		}
 
-		if (body.access_level)
-			return this.conversationService.updateConversation(conversation)
-				.then((new_conv) => {
-					this.notificationService.emit_everyone("conv_update", { conversation: new_conv })
-					return new_conv
-				})
+		//if (body.access_level)
+		return this.conversationService.updateConversation(conversation)
+			.then((new_conv) => {
+				this.notificationService.emit_everyone("conv_update", { conversation: new_conv })
+				return new_conv
+			})
 	}
 
 	@Route({
@@ -121,7 +134,7 @@ export class ConversationController {
 					throw new HttpUnauthorized('You are not in the conversation')
 
 				v.messages = v.messages.filter((m) => {
-					if (user.blocked.find((bl) => bl.id === m.sender.id)) {
+					if (user.blocked.find((bl) => bl.id === m.sender.user.id)) {
 						return false
 					} else
 						return true
@@ -153,7 +166,16 @@ export class ConversationController {
 		responses: [{ status: 200, description: 'Conversation joined successfully' }]
 	})
 	async joinConversation(@Req() req: Request, @Body() body: DTO.ConversationJoinParams) {
-		const user = await this.userService.getUser({ id: req.user.id })
+		const user = await this.userService.getUser({ id: req.user.id }, ['friends'])
+
+		const conv = await this.conversationService.getConversation({ id: body.id }, [...CONVERSATION_DEFAULT])
+		if (conv.access_level === AccessLevel.PRIVATE && conv.owner.id !== user.id) {
+
+			if (user.friends.find((u) => u.id === conv.owner.id) === undefined) {
+				throw new HttpUnauthorized("no")
+			}
+
+		}
 
 		return this.conversationService.addUserToConversation({ id: body.id }, user, body.password)
 			.then((conv) => {
@@ -198,16 +220,42 @@ export class ConversationController {
 	async promote(@Req() req: Request, @Body() body: DTO.PromoteParams) {
 
 		const conv_user = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, [...CONVERSATION_USER_DEFAULT])
-		const conversation = await this.conversationService.getConversation({ id: conv_user.id }, [...CONVERSATION_DEFAULT])
+		const conversation = await this.conversationService.getConversation({ id: conv_user.conversation.id }, [...CONVERSATION_DEFAULT])
 
 		if (conversation.owner.id !== req.user.id)
 			throw new HttpUnauthorized("Only the owner can make other admins")
 
 		return this.conversationService.makeUserAdmin(conv_user)
-			.then(() => {
+			.then(async (new_conv_user) => {
+
+				const new_conv = await this.conversationService.getConversation({ id: new_conv_user.conversation.id }, [...CONVERSATION_DEFAULT])
 				this.notificationService.emit(
-					conv_user.conversation.users.map((u) => u.user),
-					"conv_promote", { conversation: conversation, user: conv_user.user }
+					new_conv.users.map((u) => u.user),
+					"conv_promote", { conversation: new_conv, user: conv_user.user }
+				)
+			})
+	}
+
+	@Route({
+		method: Post('demote'),
+		description: { summary: 'Demotes an admin', description: 'Demotes an admin. Only the owner is allowed to perform this action' },
+		responses: [{ status: 200, description: 'Conversation joined successfully' }]
+	})
+	async demote(@Req() req: Request, @Body() body: DTO.PromoteParams) {
+
+		const conv_user = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, [...CONVERSATION_USER_DEFAULT])
+		const conversation = await this.conversationService.getConversation({ id: conv_user.conversation.id }, [...CONVERSATION_DEFAULT])
+
+		if (conversation.owner.id !== req.user.id)
+			throw new HttpUnauthorized("Only the owner can make other admins")
+
+		return this.conversationService.demoteAdmin(conv_user)
+			.then(async (new_conv_user) => {
+
+				const new_conv = await this.conversationService.getConversation({ id: new_conv_user.conversation.id }, [...CONVERSATION_DEFAULT])
+				this.notificationService.emit(
+					new_conv.users.map((u) => u.user),
+					"conv_demote", { conversation: new_conv, user: conv_user.user }
 				)
 			})
 	}
@@ -219,7 +267,7 @@ export class ConversationController {
 	async kick(@Req() req: Request, @Body() body: DTO.KickParams) {
 
 		const target = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, [...CONVERSATION_USER_DEFAULT])
-		const conversation = await this.conversationService.getConversation({ id: target.id }, [...CONVERSATION_DEFAULT])
+		const conversation = await this.conversationService.getConversation({ id: target.conversation.id }, [...CONVERSATION_DEFAULT])
 
 		const sender = await this.userService.getUser({ id: req.user.id })
 
@@ -229,6 +277,11 @@ export class ConversationController {
 		) {
 
 			return this.conversationService.removeUserFromConversation({ id: conversation.id }, target)
+				.then(() => {
+					this.notificationService.emit(
+						conversation.users.map((u) => u.user),
+						"conv_leave", { conversation: conversation, user: target.user })
+				})
 				.then(() => {
 					this.notificationService.emit(
 						conversation.users.map((u) => u.user),

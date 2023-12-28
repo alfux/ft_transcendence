@@ -71,11 +71,18 @@ export class ConversationGateway implements OnGatewayConnection {
 				return
 			}
 
-			client.socket.emit('receive_message',
-				{
-					conversation_id: data.conversation_id,
-					message: new_message
-				})
+			this.userService.getUser({ id: client.user.id }, ['blocked'])
+			.then((u) => {
+				if (u.blocked.find((bl) => bl.id === user.id) === undefined) {
+					client.socket.emit('receive_message',
+						{
+							conversation_id: data.conversation_id,
+							message: new_message
+						})
+				}
+			})
+
+
 		})
 	}
 }

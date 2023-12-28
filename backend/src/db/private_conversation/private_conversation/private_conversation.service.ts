@@ -33,7 +33,6 @@ export class PrivateConversationService {
 	}
 
 	async getPrivateConversations(where: FindMultipleOptions<PrivateConversation>, relations = [] as string[]) {
-		console.log(where)
 		const connection = await this.privateConversationRepository.find({ where, relations, })
 		if (!connection)
 			throw new HttpNotFound("Private conversation")
@@ -43,12 +42,8 @@ export class PrivateConversationService {
 	async getPrivateConversationByUserId(user_id1: number) {
 		return this.privateConversationRepository.createQueryBuilder('conversation')
 			.innerJoinAndSelect('conversation.users', 'user')
-			//.where('user.id = :id', { id: user_id1 })
+			.where('user.id = :id', { id: user_id1 })
 			.getMany()
-			.then((v) => {
-				console.log(v);
-				return v
-			})
 	}
 
 	async createPrivateConversation(user_id1: number, user_id2: number) {
@@ -62,7 +57,7 @@ export class PrivateConversationService {
 		)
 		.then((convs) => convs.find((c) => c.users.find((u) => u.id === user_id2)))
 
-		if (!existing_conv)
+		if (existing_conv)
 			throw new HttpBadRequest()
 
 		return this.privateConversationRepository.save({

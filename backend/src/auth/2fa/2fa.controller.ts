@@ -48,7 +48,6 @@ export class TwoFactorAuthenticationController {
 			throw new UnauthorizedException('Wrong authentication codee')
 		}
 		const result = await this.userService.updateUser({ id: request.user.id, isAuthenticated: LoggedStatus.Logged })
-		console.log(result)
 		return "authenticated"
 	}
 
@@ -62,7 +61,9 @@ export class TwoFactorAuthenticationController {
 		const user_2fa_infos = await this.userService.getUserAuthSecret(request.user.id)
 		const secret = user_2fa_infos.twoFactorAuthSecret
 		const token = this.twoFactorAuthenticationService.generateToken(secret)
-		console.log('token', token, '\n', 'body token ', body.code)
+		
+		console.log(token, body.code, secret)
+		
 		try {
 			const isCodeValid = this.twoFactorAuthenticationService.verifyTwoFactorAuthCode(
 				secret,
@@ -73,7 +74,7 @@ export class TwoFactorAuthenticationController {
 			}
 		} catch (error) {
 			console.error('Error in enableTwoFactorAuth:', error)
-			throw new UnauthorizedException('Wrong authentication codee')
+			throw new UnauthorizedException('Wrong authentication code')
 		}
 
 		user.twoFactorAuth = true

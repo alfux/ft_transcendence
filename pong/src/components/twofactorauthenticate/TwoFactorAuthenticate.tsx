@@ -5,10 +5,12 @@ import React, { useEffect, useState } from 'react';
 import usePayload from '../../react_hooks/use_auth'
 import { accessToken } from '../../THREE/main';
 const TwoFactorAuthenticate: React.FC = () => {
+	
 	const [digits, setDigits] = useState<string>('');
 	const [payload, updatePayload, handleUpdate] = usePayload();
+	
 	const requestNewToken = async () => {
-		try {//fetch 2fa Status
+		try {
 			const enable2FAEndpoint = `${config.backend_url}/api/auth/refresh`;
 			const response = await fetch(enable2FAEndpoint, {
 				method: 'GET',
@@ -21,7 +23,6 @@ const TwoFactorAuthenticate: React.FC = () => {
 			if (response.ok) {
 				handleUpdate()
 				const result = response.json()
-				console.log("new token",result)
 			} else {
 				console.error('Could not get the status of 2fa:', response.status);
 			}
@@ -58,9 +59,7 @@ const TwoFactorAuthenticate: React.FC = () => {
 				body: JSON.stringify({ code: verificationCode }),
 			});
 			if (response.ok) {
-				console.log("old access_token",accessToken)
 				await requestNewToken();
-				console.log(accessToken)
 				handleUpdate()
 				window.location.reload();
 			} else {

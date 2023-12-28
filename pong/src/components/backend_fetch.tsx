@@ -35,8 +35,11 @@ export async function backend_fetch(
 	try {
 		rep = await fetch(url, Object.assign({}, default_init, init))
 	} catch {
-		if (log)
-			console.trace(`Couldn't fetch ${url}: couldn't connect to host :( ${body ? `body: ${JSON.stringify(body, undefined, 4)}` : ''}`)
+		if (log) {
+			console.groupCollapsed("Fetch error")
+			console.trace(`Couldn't fetch ${url}: couldn't connect to host :( ${body ? `body: ${JSON.stringify(body, undefined, 4)}` : ''}`, { })
+			console.groupEnd()
+		}
 		throw new FetchError(url, 0, "Couldn't connect to host :(")
 	}
 
@@ -46,8 +49,11 @@ export async function backend_fetch(
 
 		try {
 			const json = await rep.json()
-			if (log)
+			if (log) {
+				console.groupCollapsed("Fetch error")
 				console.trace(`Couldn't fetch ${url}: ${rep.status} : ${JSON.stringify(json, null, 2)} ${body ? `body: ${JSON.stringify(body, undefined, 4)}` : ''}`)
+				console.groupEnd()
+			}
 			throw new FetchError(url, rep.status, json.error)
 		} catch {
 			throw new FetchError(url, rep.status, 'No info')

@@ -27,7 +27,6 @@ export class PrivateConversationGateway implements OnGatewayConnection {
 	connectedClients: Socket[] = []
 
 	async handleConnection(client: Socket) {
-		console.log(client.id)
 		this.connectedClients.push(client)
 	}
 
@@ -42,12 +41,10 @@ export class PrivateConversationGateway implements OnGatewayConnection {
 	@SubscribeMessage('send_message')
 	@CoolSocket()
 	async handleMessage(client: Client, data: { message: string, conversation_id: number }): Promise<void> {
-		console.log(data)
 		const conv = await this.privateConversationService.getPrivateConversation({ id: data.conversation_id }, ['users', 'messages'])
 		
 
 		const user = conv.users.find((v) => v.id === client.user.id)
-		console.log(user)
 		if (user === undefined)
 			return
 
@@ -57,7 +54,6 @@ export class PrivateConversationGateway implements OnGatewayConnection {
 		new_message.sender = user
 		await this.privateMessageService.createMessage(new_message)
 
-		console.log(new_message)
 
 
 		this.connectedClients.forEach((unauth) => {

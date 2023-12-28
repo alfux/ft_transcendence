@@ -1,6 +1,9 @@
-import { useEffect } from "react";
-import { ChannelOptions, ChatProps } from "../MiniChat";
-import { Message, PrivateMessage } from "../../../THREE/Utils/backend_types";
+import { useEffect, useRef, useState } from "react";
+import { ChannelOptions, ChatProps } from "../ChatProps.interface";
+import { Conversation, Message, PrivateMessage } from "../../../THREE/Utils/backend_types";
+import { backend_fetch } from "../../backend_fetch";
+import { config } from "../../../config";
+import { chatSocket } from "../../../sockets";
 
 const ChatDisplay: React.FC<ChatProps> = (props) => {
 
@@ -9,21 +12,62 @@ const ChatDisplay: React.FC<ChatProps> = (props) => {
 	===================If Channel Have messages Display the messages==========
 	======================================================================== */
 
-	useEffect(() => {
-		if (props.displayContainer.current) {
-			props.displayContainer.current.scrollTo(
-				0,
-				props.displayContainer.current.scrollHeight
-			);
+	const [messages, setMessages] = useState<Message[]>()
+	const displayContainer = useRef<HTMLDivElement>(null);
+
+
+	function on_message_received(data: { conversation_id: number, message: Message }) {
+		if (props.selectedGroup?.id === data.conversation_id) {
+			setMessages((prev) => {
+				if (prev === undefined) {
+					return [data.message]
+				}
+				const new_messages = [...prev, data.message]
+				new_messages.sort((a: Message, b: Message) => (new Date(a.createdAt).getTime()) - (new Date(b.createdAt).getTime()))
+				return new_messages
+			})
 		}
-	}, [props.channelMessages]);
+	}
+
+	useEffect(() => {
+
+		if (props.selectedGroup === undefined) {
+			setMessages(undefined)
+			return
+		}
+
+		backend_fetch(`${config.backend_url}/api/conversation/${props.selectedGroup?.id}`, {
+			method: 'GET'
+		})
+			.then((conv?: Conversation) => {
+				if (conv === undefined) {
+					setMessages(undefined)
+				} else {
+					conv.messages?.sort((a: Message, b: Message) => (new Date(a.createdAt).getTime()) - (new Date(b.createdAt).getTime()))
+					setMessages(conv.messages)
+				}
+			})
+			.catch((e) => { })
+
+		chatSocket.on("receive_message", on_message_received);
+
+		return (() => {
+			chatSocket.off("receive_message", on_message_received)
+		})
+
+	}, [props.selectedGroup])
+
+	useEffect(() => {
+		if (displayContainer.current)
+			displayContainer.current.scrollTo(0, displayContainer.current.scrollHeight);
+	}, [messages]);
 
 	return (
-		<div ref={props.displayContainer} className="message-output">
+		<div ref={displayContainer} className="message-output">
 			<div className="message-output-box">
-				
-				{props.selectedGroupOption === ChannelOptions.CHANNEL && props.channelMessages !== undefined ? (
-					props.channelMessages?.map((message: Message) => (
+
+				{props.selectedGroupOption === ChannelOptions.CHANNEL && messages !== undefined ? (
+					messages?.map((message: Message) => (
 						<div key={message?.id}>
 							<p key={message?.content}>
 								{message?.sender?.user?.username} : {message?.content}
@@ -43,7 +87,7 @@ const ChatDisplay: React.FC<ChatProps> = (props) => {
 					))
 				) : undefined
 				}
-			
+
 			</div>
 		</div>
 	);

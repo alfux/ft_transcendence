@@ -29,12 +29,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule)
 
-	const tree = SpelunkerModule.explore(app)
-	const root = SpelunkerModule.graph(tree)
-	const edges = SpelunkerModule.findGraphEdges(root)
-	const mermaidEdges = edges.map(({ from, to }) => `${from.module.name}-->${to.module.name}`)
-	console.log(`graph TD\n\t${mermaidEdges.join('\n\t')}`)
-
 	const config = new DocumentBuilder()
 		.setTitle('Ft_transcendence_backend')
 		.setDescription('Backend for ft_transcendence')

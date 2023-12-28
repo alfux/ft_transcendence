@@ -144,7 +144,6 @@ export class GameService {
 
 
 	startGameWith(user1: User, user2: User) {
-		console.log(this.connectedClients)
 		const p1 = this.connectedClients.find((v) => v.user.id === user1.id)
 		const p2 = this.connectedClients.find((v) => v.user.id === user2.id)
 		

@@ -1,24 +1,24 @@
+import { useState } from "react";
 import { private_chatSocket } from "../../../sockets";
-import { ChatProps } from "../MiniChat";
+import { ChatProps } from "../ChatProps.interface";
 
 const PrivateChatInput: React.FC<ChatProps> = (props) => {
-	/*======================================================================
-	===================Send a Message On Click TO the Selected Conversatio(Group)==========
-	======================================================================== */
+
+	const [textToSend, setTextToSend] = useState('')
+
 	const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key == "Enter") {
 			e.preventDefault();
 
-			console.log(props.friendConversation)
 			if (props.friendConversation === undefined)
 				return
 
 			private_chatSocket.emit("send_message", {
-				message: props.messageText,
+				message: textToSend,
 				conversation_id: props.friendConversation!.id,
 			});
 
-			props.setMessageText("");
+			setTextToSend("");
 		}
 	};
 
@@ -28,9 +28,9 @@ const PrivateChatInput: React.FC<ChatProps> = (props) => {
 				className="message-input-text"
 				type="text"
 				placeholder="Private message ..."
-				value={props.messageText}
+				value={textToSend}
 				onKeyDown={handleKey}
-				onChange={(e) => props.setMessageText(e.target.value)}
+				onChange={(e) => setTextToSend(e.target.value)}
 			/>
 		</div>
 	);

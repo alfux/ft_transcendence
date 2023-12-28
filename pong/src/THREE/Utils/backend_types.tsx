@@ -26,7 +26,6 @@ export enum NotificationEvent {
 	CONV_JOIN = "conv_join",
 	CONV_LEAVE = "conv_leave",
 	CONV_PROMOTE = "conv_promote",
-	CONV_KICK = "conv_kick",
 	CONV_MUTE = "conv_mute",
 
 	FRIEND_REQUEST_RECV = "friend_request_recv",

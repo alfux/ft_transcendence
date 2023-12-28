@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { config } from "../../../config";
-import { ChatProps } from "../MiniChat";
+import { ChatProps } from "../ChatProps.interface";
 import { Channel } from "../interfaces/interfaces";
 import { AccessLevel } from "../../../THREE/Utils/backend_types";
 import { FetchError, backend_fetch } from "../../backend_fetch";
@@ -39,7 +39,7 @@ const ChannelForm: React.FC<ChatProps> = (props) => {
 				body: JSON.stringify(channelForm.password === "" ? { title: channelForm.title, access_level: channelForm.access_level } : channelForm),
 			});
 			if (response.ok) {
-				props.setNewChannel(channelName);
+				//props.setNewChannel(channelName);
 			} else {
 			}
 		} catch (error) {

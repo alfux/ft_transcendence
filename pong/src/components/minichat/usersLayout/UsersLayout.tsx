@@ -1,12 +1,8 @@
-import { useEffect } from "react";
-import { Conversation, ConversationUser, User } from "../../../THREE/Utils/backend_types";
-import { ChannelOptions, ChatProps } from "../MiniChat";
-import { notificationsSocket } from "../../../sockets";
-import { config } from "../../../config";
+import { ConversationUser, User } from "../../../THREE/Utils/backend_types";
+import { ChannelOptions, ChatProps } from "../ChatProps.interface";
 
 const UsersLayout: React.FC<ChatProps> = (props: ChatProps) => {		
 
-	// _______________________________________________________________
 	const onlineUsers = props.allUsers?.map((user: User) => {
 		return user.id !== props.me?.id ? (
 			<img
@@ -36,7 +32,7 @@ const UsersLayout: React.FC<ChatProps> = (props: ChatProps) => {
 				className={user?.isAuthenticated === 0 ? "chat-user-online" : "chat-user-offline"}
 				src={user?.image}
 				key={user?.id}
-				onClick={() => { props.setSelectedUser(user); props.setToogledButton("User") }}
+				onClick={() => props.setSelectedUser(user)}
 			/>
 		);
 	});

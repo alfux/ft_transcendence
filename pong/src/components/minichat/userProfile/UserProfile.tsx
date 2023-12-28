@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { config } from "../../../config";
-import { ChannelOptions, ChatProps } from "../MiniChat";
+import { ChannelOptions, ChatProps } from "../ChatProps.interface";
 import { FetchError, backend_fetch } from "../../backend_fetch";
 import Profile from "../profileDisplay/Profile";
+import { LoggedStatus } from "../../../THREE/Utils";
+import { FailableButton } from "../../failable_button/failable_button";
+import { notificationsSocket } from "../../../sockets";
+import { Conversation, User } from "../../../THREE/Utils/backend_types";
 
 const UserProfile: React.FC<ChatProps> = (props) => {
 	const [channelRights, setChannelRights] = useState<string | null>(null);
 	const [profileStatus, setProfileStatus] = useState<boolean>(false);
 
-	const [errorInvite, setErrorInvite] = useState<boolean>(false);
-	const [errorBlock, setErrorBlock] = useState<boolean>(false);
-	const [errorUnblock, setErrorUnblock] = useState<boolean>(false);
 	/*======================================================================
 	===================Check if User friend is blocked and return boolean==========
 	======================================================================== */
@@ -23,89 +24,72 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 		})
 		return result
 	}
-
 	/*======================================================================
-	===================Unblock User==========
+	===================Block/Unblock User==========
 	======================================================================== */
-	async function unblockUser() {
-		const url = `${config.backend_url}/api/user/blocked/` + props.selectedUser?.id;
-		try {
-			const response = await fetch(url, {
-				method: "DELETE",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ id: props.selectedUser?.id }),
-			});
+	async function blockUser() {
+		return backend_fetch(`${config.backend_url}/api/user/blocked`, {
+			method: 'POST'
+		}, {
+			user_id: props.selectedUser?.id
+		})
+	};
 
-			if (response.ok) {
-				props.setUsersBlocked(null)
-				setErrorUnblock(false)
-				console.log("Unblocked", props.selectedUser?.username);
-			} else {
-				console.error(
-					"Error Blocking User. Server responded with status:",
-					response.status
-				);
-				setErrorUnblock(true)
-			}
-		} catch (error) {
-			console.error("Error Blocking:", error);
-		}
+	async function unblockUser() {
+		return backend_fetch(`${config.backend_url}/api/user/blocked/${props.selectedUser?.id}`, {
+			method: 'DELETE'
+		})
+			.then(() => props.setUsersBlocked(undefined))
+	}
+	/*======================================================================
+	===================Promotes/Demotes User==========
+	======================================================================== */
+	async function promoteUser() {
+
+		const conv_user = props.selectedGroup?.users.find((u) => u.user.id === props.selectedUser?.id)
+		if (conv_user === undefined)
+			return
+
+		return backend_fetch(`${config.backend_url}/api/conversation/promote`, {
+			method: 'POST'
+		}, {
+			conversation_user_id: conv_user.id
+		})
+			.catch((e) => { if (e instanceof FetchError) { } else throw e })
 	}
 
+	async function demoteUser() {
 
+		const conv_user = props.selectedGroup?.users.find((u) => u.user.id === props.selectedUser?.id)
+		if (conv_user === undefined)
+			return
+
+		return backend_fetch(`${config.backend_url}/api/conversation/demote`, {
+			method: 'POST'
+		}, {
+			conversation_user_id: conv_user.id
+		})
+			.catch((e) => { if (e instanceof FetchError) { } else throw e })
+	}
 	/*======================================================================
 	===================Fetch<Post> Request To Send Friend Invite To Another User==========
 	======================================================================== */
-	async function sendFriendInvite() {
-		const url = `${config.backend_url}/api/user/friend_request`;
-		try {
-			const response = await fetch(url, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ user_id: props.selectedUser?.id }),
-			});
-
-			if (response.ok) {
-				props.setNotificationType("gsagsagsa")
-				setErrorInvite(false)
-				console.log("Blocked", props.selectedUser?.username);
-			} else {
-				setErrorInvite(true)
-				setTimeout(() => { setErrorInvite(false) }, 500)
-			}
-		} catch (error) {
-			setErrorInvite(true)
-			console.error("Error Blocking:", error);
-		}
-	}
-	/*======================================================================
-	===================Fetch<Post> Request To Send Play Invite To Another User==========
-	======================================================================== */
-	async function sendPlayInvite() {
-		backend_fetch(
-			`${config.backend_url}/api/user/play_request`,
-			{ method: "POST" },
-			{
-				user_id: props.selectedUser?.id,
-			}
-		);
+	async function inviteFriend() {
+		return backend_fetch(`${config.backend_url}/api/user/friend_request`, {
+			method: 'POST'
+		}, {
+			user_id: props.selectedUser?.id
+		})
+			.then(() => props.triggerUpdate())
 	}
 
 	/*======================================================================
 	===================Fetch<Delete> Request To Remove Friend==========
 	======================================================================== */
-	async function sendFriendRemove() {
-		backend_fetch(
-			`${config.backend_url}/api/user/friends/${props.selectedUser!.id}`,
-			{ method: "DELETE" }
-		);
-		props.setNotificationType("friend_removed")
+	async function removeFriend() {
+		return backend_fetch(`${config.backend_url}/api/user/friends/${props.selectedUser!.id}`, {
+			method: "DELETE"
+		})
 	}
 
 	/*======================================================================
@@ -115,71 +99,42 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 		if (props.me?.db_id === props.selectedGroup?.owner?.db_id) {
 			setChannelRights("Owner");
 		} else {
-			props.selectedGroup?.users!.map((users: any) => {
-				if (users.user.db_id == props.me?.db_id) {
-					const myRights = users;
-					if (myRights.isAdmin) {
-						setChannelRights("Admin");
-					}
-				}
-			});
+			const me_conv = props.selectedGroup?.users.find((u) => u.id === props.me?.id)
+			if (me_conv !== undefined && me_conv.isAdmin) {
+				setChannelRights("Admin")
+			} else {
+				setChannelRights(null)
+			}
 		}
 	}, [props.selectedGroup]);
 
-	async function blockFriend() {
-		const url = `${config.backend_url}/api/user/blocked`;
-		try {
-			const response = await fetch(url, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ user_id: props.selectedUser?.id }),
-			});
+	async function muteUser() {
 
-			if (response.ok) {
-				setErrorBlock(false)
-				console.log("Blocked", props.selectedUser?.username);
-			} else {
-				setErrorBlock(true)
-				console.log(response.status)
-			}
-		} catch (error) {
-			setErrorBlock(true)
-			console.error("Error Blocking:", error);
-		}
-	};
+		const conv_user = props.selectedGroup?.users.find((u) => u.user.id === props.selectedUser?.id)
+		if (conv_user === undefined)
+			return
 
+		return backend_fetch(`${config.backend_url}/api/conversation/mute`, {
+			method: 'POST'
+		}, {
+			conversation_user_id: conv_user.id,
+			duration: '60s'
+		})
+			.catch((e) => { if (e instanceof FetchError) { } else throw e })
+	}
 
-	async function promoteUser() {
-		props.selectedGroup?.users!.map(async (user: any) => {
-			if (user.user.db_id === props.selectedUser?.db_id) {
-				const url = `${config.backend_url}/api/conversation/promote`;
-				try {
-					const response = await fetch(url, {
-						method: "POST",
-						credentials: "include",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({ conversation_user_id: user.id }),
-					});
+	async function kickUser() {
 
-					if (response.ok) {
-						console.log("Promoted", user.user.username);
-					} else {
-						alert("Could not Promote");
-						console.error(
-							"Error Promoting User. Server responded with status:",
-							response.status
-						);
-					}
-				} catch (error) {
-					console.error("Error Promoting:", error);
-				}
-			}
-		});
+		const conv_user = props.selectedGroup?.users.find((u) => u.user.id === props.selectedUser?.id)
+		if (conv_user === undefined)
+			return
+
+		return backend_fetch(`${config.backend_url}/api/conversation/kick`, {
+			method: 'POST'
+		}, {
+			conversation_user_id: conv_user.id,
+		})
+			.catch((e) => { if (e instanceof FetchError) { } else throw e })
 	}
 
 	function isFriend() {
@@ -193,84 +148,135 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 	}
 
 	function invitePlay() {
-		backend_fetch(`${config.backend_url}/api/user/play_request`, {
+		return backend_fetch(`${config.backend_url}/api/user/play_request`, {
 			method: 'POST'
 		}, {
 			user_id: props.selectedUser?.id
 		})
-		.catch((e) => { if (e instanceof FetchError) {} else throw e })
 	}
 
-	function toogleProfile() {
+	function toggleProfile() {
 		setProfileStatus(profileStatus ? false : true)
 	}
 
-	return (
-		<>{profileStatus && setTimeout(() => { setProfileStatus(false) }, 10000)}
-			{profileStatus && <Profile {...props.selectedUser} />}
-			<div className="user-profile">
-				{props.selectedUser && !props.selectedGroup && (
+
+	function profileDisplay() {
+		if (props.selectedUser !== undefined) {
+			return (
+				<>
 					<img className="user-image" src={props.selectedUser.image} />
-				)}
-				{props.selectedUser && <p>{props.selectedUser.username}</p>}
-				{props.selectedUser && (
-					<div>
-						<div className="status-div">
-							<p>Status</p>
-							<div className={props.selectedUser.isAuthenticated === 0 ? "status-online" : "status-offline"}></div>
-						</div>
+					<p>{props.selectedUser.username}</p>
+				</>
+			)
+		} else {
+			return undefined
+		}
+	}
 
-						{
-							props.selectedGroupOption === ChannelOptions.CHANNEL && props.selectedGroup ?
-								<div>
-									<div className="channel-rights-dev">
-										<p>Admin</p>
-										<div className={props.selectedGroup.users!.find((u) => u.user!.id === props.selectedUser!.id)?.isAdmin || props.selectedGroup.owner!.id === props.selectedUser!.id ? "status-online" : "status-offline"}></div>
-									</div>
-									<div className="channel-rights-dev">
-										<p>Owner</p>
-										<div className={props.selectedGroup.owner!.id === props.selectedUser!.id ? "status-online" : "status-offline"}></div>
-									</div>
-								</div>
-								: undefined
-						}
+	function profileDisplayChannelStatus() {
+		if (props.selectedGroupOption === ChannelOptions.CHANNEL && props.selectedGroup) {
+			return (
+				<div>
+					<div className="channel-rights-dev">
+						<p>Admin</p>
+						<div className={props.selectedGroup.users!.find((u) => u.user!.id === props.selectedUser!.id)?.isAdmin || props.selectedGroup.owner!.id === props.selectedUser!.id ? "status-online" : "status-offline"}></div>
 					</div>
-				)}
-				{props.selectedUser && !props.selectedGroup && <button className={"button-ok"} onClick={toogleProfile}>Profile</button>}
-				{props.selectedGroupOption == ChannelOptions.FRIENDS &&
-					props.selectedUser && isFriend() && ( // && !props.selectedGroup
-						<button className="button-ok" onClick={invitePlay}>Invite Game</button>
-					)}
-				{props.selectedGroupOption == ChannelOptions.FRIENDS &&
-					props.selectedUser && isFriend() && ( // && !props.selectedGroup
-						<button className="button-ok" onClick={sendFriendRemove}>Remove Friend</button>
-					)}
-				{props.selectedGroupOption == ChannelOptions.FRIENDS &&
-					props.selectedUser && isFriend() && ( // && !props.selectedGroup
-						<button className={errorBlock ? "errorBlock" : "button-ok"} onClick={blockFriend}>Block Friend</button>
-					)}
+					<div className="channel-rights-dev">
+						<p>Owner</p>
+						<div className={props.selectedGroup.owner!.id === props.selectedUser!.id ? "status-online" : "status-offline"}></div>
+					</div>
+				</div>
+			)
+		} else {
+			return undefined
+		}
+	}
 
-				{props.selectedGroupOption !== ChannelOptions.CHANNEL &&
-					props.selectedUser &&
-					!isFriend() && (
-						(!isUserBlocked(props.selectedUser)) ? <button className={errorInvite ? "errorInvite" : "button-ok"} onClick={sendFriendInvite}>Invite Friend</button> : <button className={errorUnblock ? 'errorUnblock' : "button-ok"} onClick={unblockUser}>Unblock</button>
-					)}
+	function profileDisplayStatus() {
 
-				{channelRights == "Owner" &&
-					props.selectedUser?.db_id !== props.me?.db_id &&
-					props.selectedGroupOption == ChannelOptions.CHANNEL && (
-						<button className={"button-ok"} onClick={promoteUser}>Promote</button>
-					)}
+		let status = "status-offline"
+		if (props.selectedUser?.isAuthenticated === LoggedStatus.Logged)
+			status = "status-online"
+		else if (props.selectedUser?.isAuthenticated === LoggedStatus.InGame)
+			status = "status-ingame"
+
+		if (props.selectedUser !== undefined) {
+			return (
+				<div>
+					<div className="status-div">
+						<p>Status</p>
+						<div className={status}></div>
+					</div>
+
+					{profileDisplayChannelStatus()}
+				</div>
+			)
+		} else {
+			return undefined
+		}
+	}
+
+	return (
+		<>
+			{profileStatus && setTimeout(() => { setProfileStatus(false) }, 10000)}
+
+			{
+				profileStatus ?
+					<Profile {...props.selectedUser} />
+					: undefined
+			}
+
+			<div className="user-profile">
+
+				{profileDisplay()}
+				{profileDisplayStatus()}
+
+				{
+					props.selectedUser && !props.selectedGroup ?
+						<button className={"button-ok"} onClick={toggleProfile}>Profile</button>
+						: undefined
+				}
+
+				{
+					props.selectedGroupOption === ChannelOptions.FRIENDS && props.selectedUser && isFriend() ? (
+						<>
+							<FailableButton onClick={invitePlay}>Invite Game</FailableButton>
+							<FailableButton onClick={removeFriend}>Remove Friend</FailableButton>
+							<FailableButton onClick={blockUser}>Block Friend</FailableButton>
+						</>
+					)
+						: undefined
+				}
+
+				{
+					props.selectedGroupOption !== ChannelOptions.CHANNEL && props.selectedUser && !isFriend() ? (
+						(!isUserBlocked(props.selectedUser)) ?
+							<FailableButton onClick={inviteFriend}>Invite Friend</FailableButton>
+							: <FailableButton onClick={unblockUser}>Unblock</FailableButton>
+					) : undefined
+				}
+
+				{
+					channelRights === "Owner" &&
+						props.selectedUser?.id !== props.me?.id &&
+						props.selectedGroupOption === ChannelOptions.CHANNEL ? (
+						props.selectedGroup?.users!.find((u) => u.user!.id === props.selectedUser!.id)?.isAdmin ?
+							<FailableButton onClick={demoteUser}>Demote</FailableButton>
+							:
+							<FailableButton onClick={promoteUser}>Promote</FailableButton>
+					)
+						: undefined
+				}
 				{channelRights &&
-					props.selectedUser?.db_id !== props.me?.db_id &&
-					props.selectedGroupOption == ChannelOptions.CHANNEL && (
-						<button className={"button-ok"} >Mute</button>
-					)}
+					props.selectedUser?.id !== props.me?.id &&
+					props.selectedGroupOption === ChannelOptions.CHANNEL &&
+					<FailableButton onClick={muteUser}>Mute</FailableButton>
+				}
 				{channelRights &&
-					props.selectedUser?.db_id !== props.me?.db_id &&
-					props.selectedGroupOption == ChannelOptions.CHANNEL && (
-						<button className={"button-ok"} >Kick</button>
-					)}
+					props.selectedUser?.id !== props.me?.id &&
+					props.selectedGroupOption === ChannelOptions.CHANNEL &&
+					<FailableButton onClick={kickUser}>Kick</FailableButton>
+				}
 			</div>
 
 		</>

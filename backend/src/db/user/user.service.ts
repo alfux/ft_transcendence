@@ -51,7 +51,6 @@ export class UserService {
 
 
 	async getUserAuthSecret(id: number) {
-		console.log(id)
 		const user = await this.usersRepository.findOne({where: {id:id}, select: [
 			'twoFactorAuthSecret',
 			'twoFactorAuth',
@@ -170,7 +169,7 @@ export class UserService {
 
 		await this.privateConversationService.createPrivateConversation(sender.id, receiver.id)
 		.catch((e) => {
-			if (e instanceof HttpBadRequest) { console.log(e) } else throw e
+			if (e instanceof HttpBadRequest) { console.log("Didn't create private conversation: ", e) } else throw e
 		})
 
 		this.notificationService.emit([sender, receiver], "friend_request_accepted", { req: request })

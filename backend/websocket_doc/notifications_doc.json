@@ -81,24 +81,6 @@
 			}
 		},
 		{
-			"name": "conv_kick",
-			"desc": "A user has been kicked",
-			"data": {
-				"conversation": {
-					"type": "Conversation",
-					"desc": "The conversation"
-				},
-				"user": {
-					"type": "User",
-					"desc": "The user"
-				},
-				"issuer": {
-					"type": "User",
-					"desc": "The admin who kicked the user"
-				}
-			}
-		},
-		{
 			"name": "conv_mute",
 			"desc": "A user has been muted",
 			"data": {

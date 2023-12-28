@@ -1,0 +1,27 @@
+.button-ok {
+	margin-top: 4px;
+	margin-bottom: 4px;
+	width: 80%;
+	border-radius: 10px;
+	font-family: "game", sans-serif;
+	color: white;
+	background-color: black;
+	box-shadow: 0 0 30px rgba(236, 3, 197, 0.942);
+	cursor: pointer;
+}
+
+.button-error {
+	margin-top: 4px;
+	margin-bottom: 4px;
+	width: 80%;
+	border-radius: 10px;
+	font-family: "game", sans-serif;
+	color: white;
+	background-color: rgb(239, 9, 9);
+	box-shadow: 0 0 30px rgba(236, 3, 197, 0.942);
+	cursor: pointer;
+}
+
+.button-ok:hover {
+	box-shadow: 0 0 30px rgb(3, 227, 235);
+}
