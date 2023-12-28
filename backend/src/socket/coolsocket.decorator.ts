@@ -16,7 +16,6 @@ export function CoolSocket(debug: boolean = false) {
 
 	function debug_msg(...args) {
 		if (debug)
-			console.log(...args)
 	}
 
 	return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {

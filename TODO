@@ -132,3 +132,14 @@ without any extra features if they want to ✅
 📋The game must be responsive! ✅
 
 (Alfux: Smoothen win/loss animation)
+
+
+Bugs
+
+[Create Channel with password does not work]
+[When create a channel private the users are still able to join]
+[When join or leave a channel it does not update the component]
+[When owner leaves the channel status owner and admin of the remaining user does not change <exemple i am the owner i leave the channel but the remaining user is just a regular user with no rights if he leaves the channel there is a empty channel>]
+[Promote kick and mute still does not work]
+
+

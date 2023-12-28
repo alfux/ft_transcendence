@@ -35,7 +35,6 @@ export class TwoFactorAuthenticationService {
 	}
 
 	generateToken(secret: string) {
-		console.log("TJE SECRE IS", secret)
 		return speakeasy.totp({
 			secret,
 			encoding: 'base32',

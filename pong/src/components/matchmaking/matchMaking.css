@@ -51,6 +51,7 @@
 	justify-content: space-between;
 	align-items: center;
 	animation: dropDown 1s ease forwards;
+	z-index: 0;
 }
 
 .sub-container {

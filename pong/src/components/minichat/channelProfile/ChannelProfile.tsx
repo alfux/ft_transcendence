@@ -12,7 +12,7 @@ const ChannelProfile: React.FC<ChatProps> = (props) => {
 		backend_fetch(`${config.backend_url}/api/conversation/join`, {
 			method: 'POST'
 		}, {
-			id: props.selectedGroup!.id,
+			id: props.selectedGroup?.id,
 			password: password
 		})
 			.catch((e) => { if (e instanceof FetchError) { } else throw e })

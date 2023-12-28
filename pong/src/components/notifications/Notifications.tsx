@@ -76,7 +76,7 @@ const Notifications: React.FC = () => {
 			notificationsSocket.off("friend_request_recv", s_friend_request_recv);
 			notificationsSocket.off("blocked_new", s_friend_delete);
 			notificationsSocket.off("friend_request_denied", s_friend_request_denied);
-			notificationsSocket.off("status_change", s_status_change)
+			notificationsSocket.off("status_change	", s_status_change)
 			notificationsSocket.off("play_request_recv", s_play_request_recv)
 		})
 	});
@@ -251,7 +251,7 @@ const Notifications: React.FC = () => {
 	function getLoggedStatusAsString(st: LoggedStatus) {
 		return Object.keys(LoggedStatus).at(st + 4)
 	}
-
+	console.log("Data Contemt",dataContent)
 	return (
 		<div
 			className={`notifications-container-${toogleButton == "show" && friendsRequest ? "on" : "off"
@@ -270,16 +270,16 @@ const Notifications: React.FC = () => {
 						<p>No longer friend with: {dataContent?.user?.username} </p>
 					)}
 					{dataType === "friend_request_recv" && (
-						<p>Friend Request Received: {dataContent?.user?.username} </p>
+						<p>Request Received: {dataContent?.req?.receiver?.username} </p>
 					)}
 					{dataType === "friend_request_denied" && (
-						<p>Friend Request Denied: {dataContent?.user?.username} </p>
+						<p>Request Denied: {dataContent?.req?.receiver?.username} </p>
 					)}
 					{dataType === "blocked_new" && (
 						<p>{dataContent?.user?.username} has Blocked you.</p>
 					)}
 					{dataType === "status_change" && (
-						<p>{dataContent?.user?.username} is now {getLoggedStatusAsString(dataContent?.user?.isAuthenticated)}.</p>
+						<p>{dataContent?.user?.username} is now {getLoggedStatusAsString(dataContent?.user?.isAuthenticated) === "Logged"?"Online":"Offline"}.</p>
 					)}
 					{getNotificationRequests}
 					{getPlayNotificationRequests}

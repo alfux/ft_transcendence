@@ -199,9 +199,7 @@ export function create_menu_scene(
 		llogin, lplay, lsettings, labout, lprofile, lchat, llogout, lyouwin, lyouloose
 	);
   }, (prog) => {
-    console.log((prog.loaded) + " bytes loaded");
   }, (err) => {
-    console.log(err);
   });
 
   if (payload?.authentication === LoggedStatus.Logged)
@@ -420,7 +418,6 @@ export function create_menu_scene(
 		menu_parent.getObjectByName("YouLoose")?.layers.set(1);
 		menu_parent.getObjectByName("lYouLoose")?.layers.set(1);
 		menu_state = MenuState.Logged;
-		console.log("Set logged menu");
 	}
 
 	function	setUnloggedMenu() {
@@ -447,7 +444,6 @@ export function create_menu_scene(
 		menu_parent.getObjectByName("YouLoose")?.layers.set(1);
 		menu_parent.getObjectByName("lYouLoose")?.layers.set(1);
 		menu_state = MenuState.Unlogged;
-		console.log("Set Unlogged menu");
 	}
 
 	function	unsetAll() {
@@ -632,7 +628,6 @@ export function create_menu_scene(
     const new_current = getCurrent(menu_parent.rotation.x);
     
     option.option = new_current.current;
-	console.log(new_current.current);
 	swapMenu();
     if (new_current.current === "Play" && t < 1) {
 		tilt_play = true;

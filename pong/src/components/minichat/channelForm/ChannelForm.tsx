@@ -53,6 +53,7 @@ const ChannelForm: React.FC<ChatProps> = (props) => {
 				<div>
 					<p>Channel Name</p>
 					<input
+						placeholder="Name"
 						type="text"
 						value={channelName}
 						onChange={(e) => setChannelName(e.target.value)}
@@ -61,6 +62,7 @@ const ChannelForm: React.FC<ChatProps> = (props) => {
 				<div>
 					<p>Password</p>
 					<input
+						placeholder="Password"
 						type="text"
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}

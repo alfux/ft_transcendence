@@ -47,7 +47,6 @@ const Settings: React.FC = () => {
 				if (response.ok) {
 					const qrCodeUrl = await response.text();
 					setQRCodeUrl(qrCodeUrl);
-					console.log("qrcode generated")
 				} else {
 					console.error('Error enabling 2FA. Server responded with status:', response.status);
 				}

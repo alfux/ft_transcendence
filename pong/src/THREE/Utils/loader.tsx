@@ -11,7 +11,6 @@ export function load(loader: Loader, options: {
 
 	const old_load = options.onLoad
 	options.onLoad = (e) => {
-		console.log(`${options.url} loaded !`);
 		old_load?.(e)
 	}
 

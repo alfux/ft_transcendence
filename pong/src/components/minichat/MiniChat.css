@@ -17,6 +17,7 @@
 
 .glass-container-minichat {
 	display: flex;
+	z-index: 2;
 	flex-direction: column;
 	width: 69%;
 	height: 100%;
@@ -392,14 +393,22 @@
 	right: 21%;
 	width: 10%;
 	height: 25%;
-	border: 1px solid rgb(255, 255, 255);
+	border: 3px solid #00aaaa;
 	border-radius: 15px;
-	background-color: rgba(5, 0, 0, 0.5);
+	background: #61777aee;
+	box-shadow: 0 0 50px rgb(0, 255, 255);
 	font-family: "game", sans-serif;
 	color: white;
 	gap: 2%;
 }
-
+.channel-creator input, button{
+	border-radius: 15px;
+}
+.channel-creator button{
+	font-family: "game", sans-serif;
+	color: white;
+	background: black;
+}
 .chat-user-online {
 	display: flex;
 	height: 40px;
@@ -513,3 +522,4 @@
 	width: 40%;
 	border-radius: 25%;
 }
+

@@ -21,7 +21,6 @@ const TwoFactorAuthenticate: React.FC = () => {
 			if (response.ok) {
 				handleUpdate()
 				const result = response.json()
-				console.log("new token",result)
 			} else {
 				console.error('Could not get the status of 2fa:', response.status);
 			}
@@ -60,7 +59,6 @@ const TwoFactorAuthenticate: React.FC = () => {
 			if (response.ok) {
 				console.log("old access_token",accessToken)
 				await requestNewToken();
-				console.log(accessToken)
 				handleUpdate()
 				window.location.reload();
 			} else {
