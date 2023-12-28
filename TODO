@@ -2,23 +2,9 @@ Pour voir tout les //TODO dans les fichiers:
 find ./backend/src ./pong/src -name '*.ts' -or -name '*.tsx' | tr '\n' ' ' | xargs grep "TODO"
 
 
-Problèmes trié par importance:
+Mute
+Kick pas en real time
 
-Invitation a jouer
-	On doit pouvoir selectionner le mode de jeu (ou on s'en branle et on force en classique/magnus)
-
-Rejoindre un chat avec mdp ne s'affiche pas automatiquement
-(on doit close le chat puis l'ouvrir a nouveau)
-
-Matchmaking:
-	Le profil ne s'affiche pas
-
-Minichat:
-	Le component du minichat doit s'afficher on top of everything
-	(Par exemple: dans le matchmaking avec le minichat ouvert, on peut plus cliquer sur une partie du minichat)
-
-Settings:
-	Les parametres apparemment rajouté par Duart/Carlos ne sont pas la :(
 
 
 ________________________________________________________________________

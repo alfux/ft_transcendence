@@ -10,6 +10,11 @@ class Keyboard {
 	key: { [key: string]: boolean };
 };
 
+function hasDuplicate(numbers: number[]): boolean {
+	const numberSet = new Set(numbers);
+	return numbers.length !== numberSet.size;
+}
+
 function remove_client(client: Client | Socket, queue: Client[]) {
 	const s = client instanceof Socket ? client : client.socket
 	return queue.filter((v) => v.socket !== s)
@@ -142,14 +147,24 @@ export class GameService {
 		}
 	}
 
-
 	startGameWith(user1: User, user2: User) {
 		const p1 = this.connectedClients.find((v) => v.user.id === user1.id)
 		const p2 = this.connectedClients.find((v) => v.user.id === user2.id)
 		
-		
 		if (p1 === undefined || p2 === undefined)
-		return
+			return
+
+		let alreadyInGame = false
+		this.gameInstances.forEach((gi) => {
+			if (alreadyInGame) {
+				return
+			}
+			
+			const players = [gi.player1.client.user.id, gi.player2.client.user.id, p1.user.id, p2.user.id]
+			if (hasDuplicate(players)) {
+				alreadyInGame = true
+			}
+		})
 
 		const gameInstance = new GameInstance(p1, p2, GameMode.MAGNUS,
 			async (winner, looser) => {

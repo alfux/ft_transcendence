@@ -267,12 +267,12 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 					)
 						: undefined
 				}
-				{channelRights &&
+				{(channelRights === "Owner" || channelRights === "Admin") &&
 					props.selectedUser?.id !== props.me?.id &&
 					props.selectedGroupOption === ChannelOptions.CHANNEL &&
 					<FailableButton onClick={muteUser}>Mute</FailableButton>
 				}
-				{channelRights &&
+				{(channelRights === "Owner" || channelRights === "Admin") &&
 					props.selectedUser?.id !== props.me?.id &&
 					props.selectedGroupOption === ChannelOptions.CHANNEL &&
 					<FailableButton onClick={kickUser}>Kick</FailableButton>
