@@ -28,31 +28,35 @@ export default function THREE_App() {
 
 	const [loginForm, setLoginForm] = useState('')
 	const [gameState, setGameState] = useState(false);
-
 	const [isBroken, setIsBroken] = useState(false)
-
+	let refreshStatus : boolean = false;
 	let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
 	const [payload, updatePayload, handleUpdate] = usePayload();
-	const requestNewToken = async () => {
-		return backend_fetch(`${config.backend_url}/api/auth/refresh`, {
-			method: 'GET'
-		})
-			.catch((e) => {
-				if (e instanceof FetchError) {
-					document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
-					window.location.reload();
-					console.error('Could not get new AccessToken:', e.what());
-
-					return undefined
-				} else {
-					throw e
-				}
-			})
-			.then(() => {
-				accessToken = Cookies.get('access_token');
-				user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
-			})
-	};
+	const requestNewToken = async () =>{
+		
+		try {
+		  const url = `${config.backend_url}/api/auth/refresh`;
+		  console.log('Before fetch');
+		  const response = await fetch(url, {
+			  method: 'GET',
+			  credentials: 'include',
+		  });
+		  if (response.ok) {
+			const test = await response.json()
+			accessToken = Cookies.get('access_token');
+			user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
+			
+		  } else {
+			document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
+			window.location.reload();
+			console.error('Could not get new AccessToken:', response.status);
+		  }
+	  } catch (error) {
+		document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
+			window.location.reload();
+		  console.error('Error fetching new refresh Token:', error);
+	  }
+};
 	useEffect(() => {
 		init_modules() //Pour les shaders, svp ne pas enlever
 
@@ -84,12 +88,14 @@ export default function THREE_App() {
 			option = menu_scene.update();
 			setLoginForm(option.option);
 			setGameState(option.game);
-			//______________
-			if (user?.exp && user.exp < Date.now() / 1000) {
-				requestNewToken();
-			}
 		}
 
+		function refreshUserToken() {
+				// console.log("Refreshing...");
+				requestNewToken();
+		}
+		
+		setInterval(refreshUserToken, 5000);
 		if (divRef.current)
 			divRef.current!.appendChild(renderer.domElement);
 

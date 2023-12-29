@@ -60,7 +60,7 @@ const ChatDisplay: React.FC<ChatProps> = (props) => {
 	useEffect(() => {
 		if (displayContainer.current)
 			displayContainer.current.scrollTo(0, displayContainer.current.scrollHeight);
-	}, [messages]);
+	}, [messages, props.selectedGroupOption, props.friendConversation]);
 
 	return (
 		<div ref={displayContainer} className="message-output">
