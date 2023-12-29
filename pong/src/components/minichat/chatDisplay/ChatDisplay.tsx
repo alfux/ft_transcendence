@@ -29,6 +29,24 @@ const ChatDisplay: React.FC<ChatProps> = (props) => {
 		}
 	}
 
+	function render_private_messages() {
+
+		const messages = props.friendConversation?.messages
+		if (messages === undefined) {
+			return undefined
+		}
+
+		messages.sort((a: PrivateMessage, b: PrivateMessage) => (new Date(a.createdAt).getTime()) - (new Date(b.createdAt).getTime()))
+
+		return messages.map((message: PrivateMessage) => (
+			<div key={message?.id}>
+				<p key={message?.content}>
+					{message?.sender?.username} : {message?.content}
+				</p>
+			</div>
+		))
+	}
+
 	useEffect(() => {
 
 		if (props.selectedGroup === undefined) {
@@ -66,26 +84,21 @@ const ChatDisplay: React.FC<ChatProps> = (props) => {
 		<div ref={displayContainer} className="message-output">
 			<div className="message-output-box">
 
-				{props.selectedGroupOption === ChannelOptions.CHANNEL && messages !== undefined ? (
-					messages?.map((message: Message) => (
-						<div key={message?.id}>
-							<p key={message?.content}>
-								{message?.sender?.user?.username} : {message?.content}
-							</p>
-						</div>
-					))
-				) : undefined
+				{
+					props.selectedGroupOption === ChannelOptions.CHANNEL && messages !== undefined ? (
+						messages?.map((message: Message) => (
+							<div key={message?.id}>
+								<p key={message?.content}>
+									{message?.sender?.user?.username} : {message?.content}
+								</p>
+							</div>
+						))
+					) : undefined
 				}
 
-				{props.selectedGroupOption === ChannelOptions.FRIENDS && props.friendConversation !== undefined ? (
-					props.friendConversation?.messages?.map((message: PrivateMessage) => (
-						<div key={message?.id}>
-							<p key={message?.content}>
-								{message?.sender?.username} : {message?.content}
-							</p>
-						</div>
-					))
-				) : undefined
+				{
+					props.selectedGroupOption === ChannelOptions.FRIENDS && props.friendConversation !== undefined ?
+						render_private_messages() : undefined
 				}
 
 			</div>
