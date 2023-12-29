@@ -228,39 +228,51 @@ export class ConversationService {
 		const conv = await this.getConversation(where, [...CONVERSATION_DEFAULT])
 		conv.users = conv.users.filter(u => u.id != user.id)
 
-//		if (conv.owner.id === user.id) {
-//
-//			let current_date = new Date(8640000000000000)
-//			let next_owner: ConversationUser = undefined
-//
-//			conv.users.forEach((u) => {
-//				if (u.isAdmin && u.becameAdminAt < current_date) {
-//					current_date = u.becameAdminAt
-//					next_owner = u
-//				}
-//			})
-//
-//			current_date = new Date(8640000000000000)
-//			if (next_owner === undefined) {
-//				conv.users.forEach((u) => {
-//					if (u.joinedAt < current_date) {
-//						current_date = u.joinedAt
-//						next_owner = u
-//					}
-//				})
-//			}
-//
-//
-//			if (next_owner === undefined) {
-//				return this.deleteConversation({ id: conv.id })
-//					.then(() => this.notificationService.emit_everyone("conv_delete", { conversation: conv }))
-//			} else {
-//				conv.owner = next_owner.user
-//			}
-//
-//		}
+		if (conv.owner.id === user.user.id) {
 
-		return this.conversationRepository.save(conv).then((new_conv) => this.getConversation({ id: new_conv.id }, [...CONVERSATION_DEFAULT]))
+			console.log("OWNER IS LEAVING")
+
+			let current_date = new Date(8640000000000000)
+			let next_owner: ConversationUser = undefined
+
+			conv.users.forEach((u) => {
+				if (u.isAdmin && u.becameAdminAt < current_date) {
+					current_date = u.becameAdminAt
+					next_owner = u
+				}
+			})
+			console.log("NEW OWNER: ", next_owner)
+			
+			current_date = new Date(8640000000000000)
+			if (next_owner === undefined) {
+				conv.users.forEach((u) => {
+					if (u.joinedAt < current_date) {
+						current_date = u.joinedAt
+						next_owner = u
+					}
+				})
+				console.log("NEW NEW OWNER: ", next_owner)
+			}
+
+
+			if (next_owner === undefined) {
+				console.log("NO NE OWNER, DELETING :(")
+				return this.deleteConversation({ id: conv.id })
+					.then(() => this.notificationService.emit_everyone("conv_delete", { conversation: conv }))
+			} else {
+				console.log("NEW OWNER UPDATED")
+				conv.owner = next_owner.user
+			}
+
+		}
+
+		return this.conversationRepository.save(conv)
+			.then((new_conv) => this.getConversation({ id: new_conv.id }, [...CONVERSATION_DEFAULT]))
+			.then((conv) => {
+				this.notificationService.emit(
+					conv.users.map((u) => u.user),
+					"conv_leave", { conversation: conv, user: user })
+			})
 	}
 
 	async makeUserAdmin(user: ConversationUser) {

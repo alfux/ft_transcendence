@@ -217,7 +217,7 @@ const MiniChat: React.FC<ChatSize> = ({ width, height, bottom, right }) => {
 
 
 		function conv_update(data: { conversation: Conversation }) {
-			setChannels((prev) => prev === undefined ? prev : prev.map((p) => p.id === data.conversation.id ? data.conversation : p))
+			setChannels((prev) => prev === undefined ? prev : prev.map((p) => p?.id === data.conversation.id ? data.conversation : p))
 			if (selectedGroup?.id === data.conversation.id) {
 				setSelectedGroup(data.conversation)
 			}

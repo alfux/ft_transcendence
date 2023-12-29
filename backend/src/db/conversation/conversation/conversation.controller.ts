@@ -202,17 +202,7 @@ export class ConversationController {
 			throw new HttpBadRequest('Cannot leave: not in conversation')
 		}
 
-		if (conversation.owner.id === req.user.id && conversation.users.length === 1) {
-			return this.conversationService.deleteConversation({ id: conversation.id })
-				.then(() => this.notificationService.emit_everyone("conv_delete", { conversation: conversation }))
-		}
-
 		return this.conversationService.removeUserFromConversation({ id: body.id }, conv_user)
-			.then((conv) => {
-				this.notificationService.emit(
-					conversation.users.map((u) => u.user),
-					"conv_leave", { conversation: conv, user: conv_user.user })
-			})
 	}
 
 
@@ -284,11 +274,6 @@ export class ConversationController {
 				.then(() => {
 					this.notificationService.emit(
 						conversation.users.map((u) => u.user),
-						"conv_leave", { conversation: conversation, user: target.user })
-				})
-				.then(() => {
-					this.notificationService.emit(
-						conversation.users.map((u) => u.user),
 						"conv_kick",
 						{
 							conversation: conversation,
@@ -355,11 +340,6 @@ export class ConversationController {
 			await this.conversationService.banUser(target)
 
 			return this.conversationService.removeUserFromConversation({ id: conversation.id }, target)
-				.then(() => {
-					this.notificationService.emit(
-						conversation.users.map((u) => u.user),
-						"conv_leave", { conversation: conversation, user: target.user })
-				})
 				.then(() => {
 					this.notificationService.emit(
 						conversation.users.map((u) => u.user),
