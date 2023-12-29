@@ -1,12 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react'
 import * as THREE from "three";
-import { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
 
 import {
 	LoggedStatus,
-	JwtPayload,
-
 	RenderComponents,
 	createComponent,
 
@@ -19,7 +16,6 @@ import usePayload from '../react_hooks/use_auth'
 import MiniChatButton from '../components/minichat/ChatButton';
 import { init_modules } from './GameScene/shaders';
 import { config } from '../config';
-import { FetchError, backend_fetch } from '../components/backend_fetch';
 import { createRoot } from 'react-dom/client';
 import MiniChat from '../components/minichat/MiniChat';
 
@@ -31,23 +27,17 @@ export default function THREE_App() {
 	const [loginForm, setLoginForm] = useState('')
 	const [gameState, setGameState] = useState(false);
 	const [isBroken, setIsBroken] = useState(false)
-	let refreshStatus : boolean = false;
-	let user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
 	const [payload, updatePayload, handleUpdate] = usePayload();
 	const requestNewToken = async () =>{
 		
 		try {
 		  const url = `${config.backend_url}/api/auth/refresh`;
-		  console.log('Before fetch');
 		  const response = await fetch(url, {
 			  method: 'GET',
 			  credentials: 'include',
 		  });
 		  if (response.ok) {
-			const test = await response.json()
 			accessToken = Cookies.get('access_token');
-			user = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
-			
 		  } else {
 			document.cookie = `access_token=; expires=${Date.now.toString()}; path=/;`;
 			window.location.reload();
@@ -93,7 +83,6 @@ export default function THREE_App() {
 		}
 
 		function refreshUserToken() {
-				// console.log("Refreshing...");
 				if (accessToken){
 					requestNewToken();
 				}
@@ -121,7 +110,7 @@ export default function THREE_App() {
 	RenderComponents({ option: loginForm, game: gameState })
 
 	useEffect(() => {
-		if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm != "Chat") {
+		if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm !== "Chat") {
 			return createComponent(MiniChatButton);
 		}
 		else{
@@ -139,7 +128,7 @@ export default function THREE_App() {
 				  };
 			}
 		}
-	}, [loginForm == "Chat"])
+	}, [loginForm === "Chat"])
 
 
 	if (isBroken) {

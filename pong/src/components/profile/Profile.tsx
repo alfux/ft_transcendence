@@ -82,11 +82,9 @@ const Profile: React.FC = () => {
 				});
 
 				if (response.ok) {
-					console.log('File uploaded successfully.');
 					const result = await response.json()
 					setData(result)
 				} else {
-					console.error('Failed to upload file.');
 				}
 			} catch (error) {
 				console.error('Error uploading file:', error);
@@ -120,7 +118,6 @@ const Profile: React.FC = () => {
 					});
 
 					if (response.ok) {
-						console.log('Updated username successfully.');
 						const result = await response.json()
 						setData(result)
 					} else {

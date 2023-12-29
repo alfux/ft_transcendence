@@ -36,7 +36,6 @@ export class TwoFactorAuthenticationController {
 				secret,
 				body.code
 			)
-			console.log("Secret: ", token, "Verification code: ", body.code)
 			if (!isCodeValid) {
 				throw new UnauthorizedException('Wrong authentication code')
 			}
@@ -61,8 +60,6 @@ export class TwoFactorAuthenticationController {
 		const user_2fa_infos = await this.userService.getUserAuthSecret(request.user.id)
 		const secret = user_2fa_infos.twoFactorAuthSecret
 		const token = this.twoFactorAuthenticationService.generateToken(secret)
-		
-		console.log(token, body.code, secret)
 		
 		try {
 			const isCodeValid = this.twoFactorAuthenticationService.verifyTwoFactorAuthCode(

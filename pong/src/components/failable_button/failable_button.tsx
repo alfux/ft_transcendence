@@ -11,7 +11,7 @@ export function FailableButton(props: {
 	function button_click() {
 		props.onClick()
 		.then(() => setError(false))
-		.catch(() => { console.log("FAILABLE BUTTON FAILED"); setError(true); setTimeout(() => { setError(false) }, 1000) })
+		.catch(() => { console.log("Failable button failed"); setError(true); setTimeout(() => { setError(false) }, 1000) })
 	}
 
 	return (

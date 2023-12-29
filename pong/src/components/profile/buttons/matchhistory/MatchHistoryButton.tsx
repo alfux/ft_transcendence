@@ -6,7 +6,6 @@ import { Match } from '../../../../THREE/Utils/backend_types';
 function MatchHistory(props: {
 	matches: Match[]
 }) {
-	console.log("match",props.matches)
 	const matchhistory = props.matches.map((match)=>{
 		const playerOne = match?.players[0];
 		const playerTwo = match?.players[1];

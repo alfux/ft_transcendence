@@ -79,7 +79,6 @@ const About: React.FC = () => {
         });
 
         if (response.ok) {
-          console.log('File uploaded successfully.');
           const result = await response.json()
           setData(result)
         } else {
@@ -117,7 +116,6 @@ const About: React.FC = () => {
           });
   
           if (response.ok) {
-            console.log('Updated username successfully.');
             const result = await response.json()
             setData(result)
           } else {
