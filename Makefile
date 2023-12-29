@@ -28,20 +28,8 @@ build:
 	@echo "Building..."
 	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) up -d --build
 	
-
-env:
-	bash ./config/prod-config.sh
-env-dev:
-	bash ./config/dev-config.sh
 clean-env:
 	rm .env
-re: dockerfile
-	@echo "Stopping Docker containers..."
-	$(COMPOSE) down
-	@echo "Rebuilding Docker images..."
-	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) build
-	@echo "Relaunching Docker containers..."
-	$(COMPOSE) -f $(DOCKER_COMPOSE_YML) up -d
 
 stop:
 	@echo "Stopping Docker containers..."
@@ -56,40 +44,3 @@ fclean:clean
 	docker network prune -f
 	docker system prune -af
 	rm .env
-
-purge:
-	@docker stop $$(docker ps -qa);\
-	docker rm $$(docker ps -qa);\
-	docker rmi -f $$(docker images -qa);\
-	docker volume rm $$(docker volume ls -q);\
-	docker network rm $$(docker network ls -q);\
-	sudo rm -rf wordpress_data
-	sudo rm -rf mariadb_data
-	docker system prune --all --force
-
-backend-logs:
-	@echo "Showing logs for the backend service..."
-	$(COMPOSE) logs -f $(BACKEND_SERVICE)
-
-frontend-logs:
-	@echo "Showing logs for the frontend service..."
-	$(COMPOSE) logs -f $(FRONTEND_SERVICE)
-
-run-dev:
-	cp .env ./backend/
-	cp .env ./pong/
-	@echo "Building Dev images..."
-	$(COMPOSE) -f docker-compose-dev.yml up -d
-	@echo "$(COLOR_BOLD_YELLOW)"
-	@echo "Database IP: $$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(DATABASE_NAME))"
-	@echo "Don't forget to change the host of <./backend/src/app.module.ts> in case the backend can't connect to the database."
-	@echo "$(COLOR_BOLD_RED)If does not work locally with server running on local, change .env DB_HOST to localhost from both .env in backend and from root of transcedence$(COLOR_BOLD_WHITE)"
-
-run-ip:
-	@echo "$(COLOR_BOLD_YELLOW)"
-	@echo "Database IP: $$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(DATABASE_NAME))"
-stop-dev:
-	@echo "Stopping Dev containers..."
-	$(COMPOSE) -f docker-compose-dev.yml down
-
-# .PHONY: build run stop clean
