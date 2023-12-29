@@ -1,16 +1,13 @@
 .glass-container-twofactor {
 	position: fixed;
 	right: 0px;
-	top: 35%;
-	height: 30%;
-	max-height: 800px;
-	min-height: 500px;
-	width: 80%;
-	max-width: 500px;
-	background: rgba(255, 255, 255, 0.2);
+	top: 25%;
+	height: 45%;
+	width: 25%;
+	background: #617a79ee;
 	border-radius: 16px;
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-	border: 1px solid rgba(255, 255, 255, 0.3);
+	border: 2px solid #115355;
 	border-radius: 20px;
 	z-index: 1;
 	display: flex;
@@ -27,24 +24,17 @@
 	}
 
 	100% {
-		left: calc(62%);
+		left: calc(69%);
 	}
 }
 
 @keyframes colorChangeTwoFactor {
 	0% {
-		box-shadow: 0 0 100px #ffffff;
-		box-shadow: 0 0 200px #72056b;
-	}
-
-	50% {
-		box-shadow: 0 0 10px #ffffff;
-		box-shadow: 0 0 20px #72056b;
-	}
-
-	100% {
-		box-shadow: 0 0 10px #ffffff;
-		box-shadow: 0 0 20px #72056b;
+		box-shadow: 0 0px 10px #41fff6;
+	} 50% {
+		box-shadow: 0 0px 20px #41fff6;
+	} 100% {
+		box-shadow: 0 0px 10px #41fff6;
 	}
 }
 
@@ -54,7 +44,7 @@
 	font-size: 3em;
 	color: #fff;
 	font-family: 'game', sans-serif;
-	text-shadow: 0 0 10px #fff, 0 0 30px #72056b, 0 0 40px rgb(0, 0, 0), 0 0 60px #72056b
+	text-shadow: 0 0 10px #fff, 0 0 30px #057072, 0 0 40px rgb(0, 0, 0), 0 0 60px #72056b
 }
 
 .glass-container-twofactor p {

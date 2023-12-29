@@ -20,6 +20,8 @@ import MiniChatButton from '../components/minichat/ChatButton';
 import { init_modules } from './GameScene/shaders';
 import { config } from '../config';
 import { FetchError, backend_fetch } from '../components/backend_fetch';
+import { createRoot } from 'react-dom/client';
+import MiniChat from '../components/minichat/MiniChat';
 
 export let accessToken = Cookies.get('access_token');
 
@@ -92,7 +94,9 @@ export default function THREE_App() {
 
 		function refreshUserToken() {
 				// console.log("Refreshing...");
-				requestNewToken();
+				if (accessToken){
+					requestNewToken();
+				}
 		}
 		
 		setInterval(refreshUserToken, 5000);
@@ -119,6 +123,18 @@ export default function THREE_App() {
 	useEffect(() => {
 		if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm != "Chat") {
 			return createComponent(MiniChatButton);
+		}
+		else{
+			if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm === "Chat"){
+				const newFormContainer = document.createElement('div');
+				const root = createRoot(newFormContainer);
+				root.render(<MiniChat width='90%' height='60%' bottom="15%" right="20%" />);
+				document.body.appendChild(newFormContainer);
+				return (()=>{
+					root.unmount();
+					document.body.removeChild(newFormContainer);
+				})
+			}
 		}
 	}, [loginForm === "Chat"])
 
