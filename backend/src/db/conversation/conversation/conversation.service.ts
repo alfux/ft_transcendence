@@ -12,7 +12,6 @@ import { HttpBadRequest, HttpMissingArg, HttpNotFound, HttpUnauthorized } from '
 
 import { FindOptions, FindMultipleOptions, SelectOptions } from 'src/db/types'
 
-import ms from 'ms'
 import { NotificationsService } from 'src/notifications';
 
 export const CONVERSATION_USER_DEFAULT = ['conversation', 'user']
@@ -22,13 +21,13 @@ export const CONVERSATION_MESSAGES_DEFAULT = [
 	...CONVERSATION_USER_DEFAULT.map((v) => `messages.sender.${v}`)
 ]
 
-export const CONVERSATION_DEFAULT = ['owner', 'users',
+export const CONVERSATION_DEFAULT = ['owner', 'users', 'banned',
 	...CONVERSATION_USER_DEFAULT.map((v) => `users.${v}`)
 ]
 
 
 function addCurrentTime(duration: string): number {
-	const durationInMilliseconds = ms(duration);
+	const durationInMilliseconds = +duration
 	if (isNaN(durationInMilliseconds)) {
 		throw new HttpBadRequest('Invalid duration string');
 	}
@@ -92,14 +91,14 @@ export class ConversationService {
 		})
 	}
 
-	async deleteConversationUser(where: FindOptions<Conversation>, clear_messages = false) {
+	async deleteConversationUser(where: FindOptions<ConversationUser>, clear_messages = false) {
 		const conversationUser = await this.getConversationUser(where, (clear_messages ? ['messages'] : []))
 		if (clear_messages)
 			this.messageService.remove(conversationUser.messages)
 		this.convUserRepository.remove(conversationUser)
 	}
 
-	async deleteConversationUsers(where: FindOptions<Conversation>, clear_messages = false) {
+	async deleteConversationUsers(where: FindOptions<ConversationUser>, clear_messages = false) {
 		const conversationUsers = await this.getConversationUsers(where, (clear_messages ? ['messages'] : []))
 		conversationUsers.forEach((u) => {
 			if (clear_messages)
@@ -124,12 +123,12 @@ export class ConversationService {
 		return connection
 	}
 
-	async deleteConversationUserInfo(where: FindOptions<Conversation>) {
+	async deleteConversationUserInfo(where: FindOptions<ConversationUserInfos>) {
 		const userInfo = await this.getConversationUserInfos(where)
 		this.userInfosRepository.remove(userInfo)
 	}
 
-	async deleteConversationUserInfos(where: FindOptions<Conversation>) {
+	async deleteConversationUserInfos(where: FindOptions<ConversationUserInfos>) {
 		const userInfos = await this.getConversationUsersInfos(where)
 		userInfos.forEach((u) => {
 			this.userInfosRepository.remove(u)
@@ -229,37 +228,37 @@ export class ConversationService {
 		const conv = await this.getConversation(where, [...CONVERSATION_DEFAULT])
 		conv.users = conv.users.filter(u => u.id != user.id)
 
-		if (conv.owner.id === user.id) {
-
-			let current_date = new Date(8640000000000000)
-			let next_owner: ConversationUser = undefined
-
-			conv.users.forEach((u) => {
-				if (u.isAdmin && u.becameAdminAt < current_date) {
-					current_date = u.becameAdminAt
-					next_owner = u
-				}
-			})
-
-			current_date = new Date(8640000000000000)
-			if (next_owner === undefined) {
-				conv.users.forEach((u) => {
-					if (u.joinedAt < current_date) {
-						current_date = u.joinedAt
-						next_owner = u
-					}
-				})
-			}
-
-
-			if (next_owner === undefined) {
-				return this.deleteConversation({ id: conv.id })
-					.then(() => this.notificationService.emit_everyone("conv_delete", { conversation: conv }))
-			} else {
-				conv.owner = next_owner.user
-			}
-
-		}
+//		if (conv.owner.id === user.id) {
+//
+//			let current_date = new Date(8640000000000000)
+//			let next_owner: ConversationUser = undefined
+//
+//			conv.users.forEach((u) => {
+//				if (u.isAdmin && u.becameAdminAt < current_date) {
+//					current_date = u.becameAdminAt
+//					next_owner = u
+//				}
+//			})
+//
+//			current_date = new Date(8640000000000000)
+//			if (next_owner === undefined) {
+//				conv.users.forEach((u) => {
+//					if (u.joinedAt < current_date) {
+//						current_date = u.joinedAt
+//						next_owner = u
+//					}
+//				})
+//			}
+//
+//
+//			if (next_owner === undefined) {
+//				return this.deleteConversation({ id: conv.id })
+//					.then(() => this.notificationService.emit_everyone("conv_delete", { conversation: conv }))
+//			} else {
+//				conv.owner = next_owner.user
+//			}
+//
+//		}
 
 		return this.conversationRepository.save(conv).then((new_conv) => this.getConversation({ id: new_conv.id }, [...CONVERSATION_DEFAULT]))
 	}
@@ -281,5 +280,10 @@ export class ConversationService {
 		return this.convUserRepository.save(user)
 	}
 
+	async banUser(user: ConversationUser) {
+		const conv = await this.getConversation({id:user.conversation.id}, ['banned'])
+		conv.banned.push(user.user)
+		return this.conversationRepository.save(conv)
+	}
 
 }

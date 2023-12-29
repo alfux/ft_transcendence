@@ -63,6 +63,12 @@ export class KickParams {
 	conversation_user_id: number
 }
 
+export class BanParams {
+	@ApiProperty({ description: 'Id of the conversation user to kick' })
+	@IsNumber()
+	conversation_user_id: number
+}
+
 export class MuteParams {
 	@ApiProperty({ description: 'Id of the conversation user to mute' })
 	@IsNumber()
@@ -71,20 +77,6 @@ export class MuteParams {
 	@ApiProperty({
 		description: 'Duration of the mute',
 		examples: ['1d', '2y1d3m']
-	})
-	@IsString()
-	duration: string
-}
-
-export class BanParams {
-
-	@ApiProperty({ description: 'Id of the conversation user to ban' })
-	@IsNumber()
-	conversation_user_id: number
-
-	@ApiProperty({
-		description: 'Duration of the ban',
-		examples: ['2042-12-31T23:42:42', '1d', '2y1d3m', 'forever']
 	})
 	@IsString()
 	duration: string

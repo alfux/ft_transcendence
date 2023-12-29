@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, ManyToMany, JoinTable } from 'typeorm'
 
 import { User } from 'src/db/user'
 import { Message } from 'src/db/conversation/message'
@@ -30,6 +30,10 @@ export class Conversation {
 
 	@OneToMany(() => ConversationUser, (conversationUser) => conversationUser.conversation)
 	users: ConversationUser[]
+
+	@ManyToMany(() => User, (user) => user.banned_from)
+	@JoinTable()
+	banned: User[]
 
 	@OneToMany(() => ConversationUserInfos, (conversationUserInfos) => conversationUserInfos.conversation)
 	users_admin_infos: ConversationUserInfos[]

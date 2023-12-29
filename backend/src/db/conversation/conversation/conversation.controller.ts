@@ -177,6 +177,10 @@ export class ConversationController {
 
 		}
 
+		if (conv.banned.find((u) => u.id === user.id)) {
+			throw new HttpUnauthorized("no")
+		}
+
 		return this.conversationService.addUserToConversation({ id: body.id }, user, body.password)
 			.then((conv) => {
 				this.notificationService.emit(
@@ -327,6 +331,46 @@ export class ConversationController {
 
 		}
 		else {
+			throw new HttpUnauthorized("You are not owner nor an admin")
+		}
+	}
+
+
+	@Route({
+		method: Post('ban'),
+		description: { summary: 'Mutes an user in a conversation', description: 'Mutes an user in a conversation. Only the owner or an admin is allowed to perform this action' }
+	})
+	async ban(@Req() req: Request, @Body() body: DTO.BanParams) {
+
+		const target = await this.conversationService.getConversationUser({ id: body.conversation_user_id }, [...CONVERSATION_USER_DEFAULT])
+		const conversation = await this.conversationService.getConversation({ id: target.conversation.id }, [...CONVERSATION_DEFAULT])
+
+		const sender = await this.userService.getUser({ id: req.user.id })
+
+		if (
+			(sender.id === conversation.owner.id) ||
+			(conversation.users.find((u) => { u.user.id === sender.id })?.isAdmin === true)
+		) {
+
+			await this.conversationService.banUser(target)
+
+			return this.conversationService.removeUserFromConversation({ id: conversation.id }, target)
+				.then(() => {
+					this.notificationService.emit(
+						conversation.users.map((u) => u.user),
+						"conv_leave", { conversation: conversation, user: target.user })
+				})
+				.then(() => {
+					this.notificationService.emit(
+						conversation.users.map((u) => u.user),
+						"conv_kick",
+						{
+							conversation: conversation,
+							user: target.user,
+							issuer: sender
+						})
+				})
+		} else {
 			throw new HttpUnauthorized("You are not owner nor an admin")
 		}
 	}

@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from 'typeorm'
 
-import { ConversationUser } from 'src/db/conversation'
+import { Conversation, ConversationUser } from 'src/db/conversation'
 import { FriendRequest } from './friend_request/'
 import { PlayRequest } from './play_request/'
 import { Match } from './match'
@@ -42,6 +42,9 @@ export class User {
 
 	@ManyToMany(() => PrivateConversation, (conv) => conv.users)
 	private_conversations: PrivateConversation[]
+
+	@ManyToMany(() => Conversation, (conv) => conv.banned)
+	banned_from: Conversation[]
 
 	@ManyToMany(() => User)
 	@JoinTable()

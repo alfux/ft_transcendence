@@ -118,7 +118,7 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 			method: 'POST'
 		}, {
 			conversation_user_id: conv_user.id,
-			duration: '60s'
+			duration: '60000'
 		})
 			.catch((e) => { if (e instanceof FetchError) { } else throw e })
 	}
@@ -130,6 +130,20 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 			return
 
 		return backend_fetch(`${config.backend_url}/api/conversation/kick`, {
+			method: 'POST'
+		}, {
+			conversation_user_id: conv_user.id,
+		})
+			.catch((e) => { if (e instanceof FetchError) { } else throw e })
+	}
+
+	async function banUser() {
+
+		const conv_user = props.selectedGroup?.users.find((u) => u.user.id === props.selectedUser?.id)
+		if (conv_user === undefined)
+			return
+
+		return backend_fetch(`${config.backend_url}/api/conversation/ban`, {
 			method: 'POST'
 		}, {
 			conversation_user_id: conv_user.id,
@@ -267,18 +281,20 @@ const UserProfile: React.FC<ChatProps> = (props) => {
 					)
 						: undefined
 				}
-				{(channelRights === "Owner" || channelRights === "Admin") &&
-					props.selectedUser?.id !== props.me?.id &&
-					props.selectedGroupOption === ChannelOptions.CHANNEL &&
-					<FailableButton onClick={muteUser}>Mute</FailableButton>
-				}
-				{(channelRights === "Owner" || channelRights === "Admin") &&
-					props.selectedUser?.id !== props.me?.id &&
-					props.selectedGroupOption === ChannelOptions.CHANNEL &&
-					<FailableButton onClick={kickUser}>Kick</FailableButton>
-				}
-			</div>
 
+				{
+					(channelRights === "Owner" || channelRights === "Admin") &&
+						props.selectedUser?.id !== props.me?.id &&
+						props.selectedGroupOption === ChannelOptions.CHANNEL ? (
+						<>
+							<FailableButton onClick={muteUser}>Mute</FailableButton>
+							<FailableButton onClick={kickUser}>Kick</FailableButton>
+							<FailableButton onClick={banUser}>Ban</FailableButton>
+						</>
+					) : undefined
+				}
+
+			</div>
 		</>
 	)
 };
