@@ -128,15 +128,18 @@ export default function THREE_App() {
 			if (accessToken && payload?.authentication === LoggedStatus.Logged && loginForm === "Chat"){
 				const newFormContainer = document.createElement('div');
 				const root = createRoot(newFormContainer);
-				root.render(<MiniChat width='90%' height='60%' bottom="15%" right="20%" />);
+				root.render(<MiniChat width='75%' height='76%' bottom="8%" right="25%" />);
 				document.body.appendChild(newFormContainer);
-				return (()=>{
-					root.unmount();
-					document.body.removeChild(newFormContainer);
-				})
+				return () => {
+					const cleanupTimeout = setTimeout(() => {
+					  root.unmount();
+					  document.body.removeChild(newFormContainer);
+					}, 100);
+					return () => clearTimeout(cleanupTimeout);
+				  };
 			}
 		}
-	}, [loginForm === "Chat"])
+	}, [loginForm == "Chat"])
 
 
 	if (isBroken) {
