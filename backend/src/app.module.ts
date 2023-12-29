@@ -50,7 +50,6 @@ import { PrivateConversation, PrivateConversationModule, PrivateMessage } from '
 		ConversationModule,
 		PrivateConversationModule,
 		AuthModule,
-		DebugModule,
 		GameModule,
 		NotificationsModule,
 	],

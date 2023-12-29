@@ -29,19 +29,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule)
 
-	const config = new DocumentBuilder()
-		.setTitle('Ft_transcendence_backend')
-		.setDescription('Backend for ft_transcendence')
-		.setVersion('1.0')
-		.addBearerAuth()
-		.addServer(`http://localhost:${config_hosts.back_port}/api`)
-		.addServer(`http://${config_hosts.back_url}:${config_hosts.back_port}/api`)
-		.build()
-
-
-	const document = SwaggerModule.createDocument(app, config, {})
-	SwaggerModule.setup('api/docs', app, document)
-
 	app.setGlobalPrefix('api')
 	app.use(cookieParser())
 	app.enableCors({
